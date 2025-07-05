@@ -41,6 +41,19 @@ AS_VAR_IF([PHP_ORT], [no],, [
   ])
 
   PHP_ORT_SRC_DIR="src"
+
+  PHP_ORT_CORE_IMPL=m4_normalize("
+    $PHP_ORT_SRC_DIR/ort.c
+    $PHP_ORT_SRC_DIR/env.c
+    $PHP_ORT_SRC_DIR/runtime.c
+    $PHP_ORT_SRC_DIR/model.c
+    $PHP_ORT_SRC_DIR/tensor.c
+    $PHP_ORT_SRC_DIR/status.c
+    $PHP_ORT_SRC_DIR/options.c
+    $PHP_ORT_SRC_DIR/iterator.c
+    $PHP_ORT_SRC_DIR/maths.c
+  ")
+
   PHP_ORT_MATHS_DIR="$PHP_ORT_SRC_DIR/maths"
   PHP_ORT_MATHS_IMPL=m4_normalize("
     $PHP_ORT_MATHS_DIR/core.c
@@ -177,15 +190,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
   dnl Add source files
   PHP_NEW_EXTENSION(ort, [
     php_ort.c
-    src/ort.c
-    src/env.c
-    src/runtime.c
-    src/model.c
-    src/tensor.c
-    src/status.c
-    src/options.c
-    src/iterator.c
-    src/maths.c
+    $PHP_ORT_CORE_IMPL
     $PHP_ORT_MATHS_IMPL
     $PHP_ORT_SIMD_IMPL
   ], $ext_shared,, [${PHP_ORT_SIMD_CFLAGS}])
