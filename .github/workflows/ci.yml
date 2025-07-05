@@ -38,6 +38,7 @@ jobs:
       - name: Prepare extension (configure for SIMD backend)
         run: |
           phpize
+          cat configure
           case "${{ matrix.simd-backend }}" in
             avx2)
               ./configure --enable-ort-coverage --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
