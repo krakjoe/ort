@@ -32,8 +32,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential re2c autoconf pkg-config lcov
-          cd / && sudo wget -q https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz
-          cd / && sudo tar --strip-components=1 -xzf onnxruntime-linux-x64-1.22.0.tgz
+          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
+          sudo tar -C / --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
+          sudo ls -lash /
       - name: Prepare extension (configure for SIMD backend)
         run: |
           phpize
