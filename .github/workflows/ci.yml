@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: [ '8.1', '8.2', '8.3', '8.4' ]
+        simd-backend:
+          - avx2
+          - sse41
+          - sse2
+          - none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential re2c autoconf pkg-config libonnxruntime-dev lcov
+
+      - name: Prepare extension (configure for SIMD backend)
+        run: |
+          phpize
+          case "${{ matrix.simd-backend }}" in
+            avx2)
+              ./configure --enable-ort-coverage --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+              ;;
+            sse41)
+              ./configure --enable-ort-coverage --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2
+              ;;
+            sse2)
+              ./configure --enable-ort-coverage --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
+              ;;
+            none)
+              ./configure --enable-ort-coverage --disable-ort-simd
+              ;;
+          esac
+          make clean install
+
+      - name: Run tests and generate coverage
+        run: |
+          make ort-test-coverage-html
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-php${{ matrix.php-version }}-${{ matrix.simd-backend }}
+          path: html/
+
+      - name: Upload lcov coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.info
+          flags: php-${{ matrix.php-version }},${{ matrix.simd-backend }}
+          name: php-ort-${{ matrix.php-version }}-${{ matrix.simd-backend }}
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

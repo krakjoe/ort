@@ -1,0 +1,16 @@
+--TEST--
+Check Tensor with UINT8 type
+--EXTENSIONS--
+ort
+--FILE--
+<?php
+$tensor = new ONNX\Tensor\Persistent(
+    "uint8_tensor",
+    [2, 2],
+    [[255, 0], [128, 64]],
+    ONNX\Tensor::UINT8
+);
+echo "Type: " . $tensor->getType();
+?>
+--EXPECT--
+Type: 2

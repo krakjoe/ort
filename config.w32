@@ -1,0 +1,72 @@
+// config.w32 for php-ort
+
+ARG_WITH('ort', 'Enable ort extension', 'yes');
+ARG_ENABLE('ort-simd', 'Enable SIMD optimizations', 'yes');
+ARG_ENABLE('ort-sse2', 'Enable SSE2 support', 'yes');
+ARG_ENABLE('ort-sse41', 'Enable SSE4.1 support', 'yes');
+ARG_ENABLE('ort-avx2', 'Enable AVX2 support', 'yes');
+
+if (PHP_ORT != 'no') {
+
+    if (!CHECK_HEADER_ADD_INCLUDE("onnxruntime_c_api.h", "CFLAGS_ORT", PHP_ORT + "\\include")) {
+        ERROR("onnxruntime_c_api.h cannot be found in " + PHP_ORT + "\\include");
+    }
+
+    if (!CHECK_LIB("onnxruntime.lib", "OrtGetApiBase", PHP_ORT + "\\lib")) {
+        ERROR("onnxruntime.lib cannot be found in " + PHP_ORT + "\\lib");
+    }
+
+    PHP_ORT_LIBPATH=PHP_ORT + "\\lib";
+    PHP_ORT_INCPATH=PHP_ORT + "\\include";
+
+    EXTENSION('ort', 
+        'php_ort.c',
+        PHP_ORT_SHARED,
+        "/I" + configure_module_dirname                 + " " +
+        "/I" + configure_module_dirname + "\\src"       + " " +
+        "/I" + configure_module_dirname + "\\src\\simd" + " " +
+	    "/I" + PHP_ORT_INCPATH                          + " " +
+        "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+
+    ADD_FLAG("LDFLAGS_ORT",
+        "/libpath:\"" + PHP_ORT_LIBPATH + "\"");
+    ADD_FLAG("LIBS_ORT", "onnxruntime.lib");
+
+    ADD_SOURCES(
+        configure_module_dirname + "\\src",
+        "ort.c env.c runtime.c model.c tensor.c status.c options.c iterator.c maths.c",
+        "ort"
+    );
+
+    ADD_SOURCES(
+        configure_module_dirname + "\\src\\maths",
+        "core.c ops.c",
+        "ort"
+    );
+
+    if (PHP_ORT_SIMD != 'no') {
+        if (PHP_ORT_AVX2 == 'yes') {
+            AC_DEFINE('HAVE_AVX2', 1);
+            AC_DEFINE('ORT_SIMD_ENABLED', 1);
+            ADD_SOURCES('src/maths/simd/avx2',
+                'add.c sub.c mul.c div.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c reciprocal.c',
+                'ort');
+            ADD_FLAG("CFLAGS_ORT", "/arch:AVX2");
+        } else if (PHP_ORT_SSE41 == 'yes') {
+            AC_DEFINE('HAVE_SSE41', 1);
+            AC_DEFINE('ORT_SIMD_ENABLED', 1);
+            ADD_SOURCES('src/maths/simd/sse41',
+                'add.c sub.c mul.c div.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c reciprocal.c',
+                'ort');
+            /** No special flag is required for SSE4.1 **/
+            ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");
+        } else if (PHP_ORT_SSE2 == 'yes') {
+            AC_DEFINE('HAVE_SSE2', 1);
+            AC_DEFINE('ORT_SIMD_ENABLED', 1);
+            ADD_SOURCES('src/maths/simd/sse2',
+                'add.c sub.c mul.c div.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c reciprocal.c',
+                'ort');
+            ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");
+        }
+    }
+}
