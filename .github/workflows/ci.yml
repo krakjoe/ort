@@ -31,8 +31,9 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential re2c autoconf pkg-config libonnxruntime-dev lcov
-
+          sudo apt-get install -y build-essential re2c autoconf pkg-config lcov
+          wget -q https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz
+          cd / && sudo tar --strip-components=1 -xzf onnxruntime-linux-x64-1.22.0.tgz
       - name: Prepare extension (configure for SIMD backend)
         run: |
           phpize
