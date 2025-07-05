@@ -65,11 +65,21 @@ jobs:
           name: coverage-html-php${{ matrix.php-version }}-${{ matrix.simd-backend }}
           path: html/
 
-      - name: Upload lcov coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Send Coverage
+        if: ${{ matrix.build == 'gcov' }}
+        uses: coverallsapp/github-action@master
         with:
-          files: ./coverage.info
-          flags: php-${{ matrix.php-version }},${{ matrix.simd-backend }}
-          name: php-ort-${{ matrix.php-version }}-${{ matrix.simd-backend }}
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ github.workspace }}/coverage.info
+          flag-name: ${{ matrix.simd-backend }}-${{matrix.version}}
+          parallel: true
+  finish:
+    if: always()
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    steps:
+    - name: Finish Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
