@@ -37,6 +37,7 @@ ort_math_result_t* ort_math_result_subtract_scalar(ort_tensor_t* tensor, zval* s
 ort_math_result_t* ort_math_result_multiply_scalar(ort_tensor_t* tensor, zval* scalar);
 ort_math_result_t* ort_math_result_divide_scalar(ort_tensor_t* tensor, zval* scalar);
 ort_math_result_t* ort_math_result_power_scalar(ort_tensor_t* tensor, zval* scalar);
+ort_math_result_t* ort_math_result_modulo_scalar(ort_tensor_t* tensor, zval* scalar);
 
 /* Comparison operations */
 ort_math_result_t* ort_math_result_equal(ort_tensor_t* tensor_a, ort_tensor_t* tensor_b);

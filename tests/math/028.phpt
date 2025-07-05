@@ -102,7 +102,17 @@ try {
     echo "FAIL: power function failed: " . $e->getMessage() . "\n";
 }
 
-// Test 7: Power function (scalar)
+// Test 7: Modulo function (element-wise)
+try {
+    $base = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
+    $mod = new ONNX\Tensor\Transient([3], [2.0, 3.0, 0.5], ONNX\Tensor::FLOAT);
+    $result = ONNX\Math\modulo($base, $mod);
+    echo "PASS: modulo function (element-wise) works\n";
+} catch (Error $e) {
+    echo "FAIL: modulo function failed: " . $e->getMessage() . "\n";
+}
+
+// Test 8: Power function (scalar)
 try {
     $tensor = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
     $result = ONNX\Math\power($tensor, 2.0);
@@ -111,7 +121,16 @@ try {
     echo "FAIL: power scalar function failed: " . $e->getMessage() . "\n";
 }
 
-// Test 8: Error handling - sqrt of negative numbers
+// Test 9: Modulo function (scalar)
+try {
+    $tensor = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
+    $result = ONNX\Math\modulo($tensor, 2.0);
+    echo "PASS: modulo function (scalar) works\n";
+} catch (Error $e) {
+    echo "FAIL: modulo scalar function failed: " . $e->getMessage() . "\n";
+}
+
+// Test 10: Error handling - sqrt of negative numbers
 try {
     $tensor = new ONNX\Tensor\Transient([3], [-1.0, 4.0, -9.0], ONNX\Tensor::FLOAT);
     $result = ONNX\Math\sqrt($tensor);
@@ -122,7 +141,7 @@ try {
     echo "INFO: sqrt of negative numbers throws: " . get_class($e) . "\n";
 }
 
-// Test 9: Error handling - log of zero and negative numbers
+// Test 11: Error handling - log of zero and negative numbers
 try {
     $tensor = new ONNX\Tensor\Transient([3], [0.0, 1.0, -1.0], ONNX\Tensor::FLOAT);
     $result = ONNX\Math\log($tensor);
@@ -137,7 +156,7 @@ try {
     echo "INFO: log of zero/negative throws: " . get_class($e) . "\n";
 }
 
-// Test 10: Edge cases - very large and very small numbers
+// Test 12: Edge cases - very large and very small numbers
 try {
     $tensor = new ONNX\Tensor\Transient([4], [1e10, 1e-10, 0.0, 1.0], ONNX\Tensor::FLOAT);
     $result = ONNX\Math\exp($tensor);
@@ -149,7 +168,7 @@ try {
     echo "FAIL: Extreme value handling failed: " . $e->getMessage() . "\n";
 }
 
-// Test 11: Trigonometric functions with extreme values
+// Test 13: Trigonometric functions with extreme values
 try {
     $tensor = new ONNX\Tensor\Transient([4], [0.0, 1.5707963267948966, 3.141592653589793, 6.283185307179586], ONNX\Tensor::FLOAT);
     
@@ -166,7 +185,7 @@ try {
     echo "FAIL: Trigonometric extreme values failed: " . $e->getMessage() . "\n";
 }
 
-// Test 12: Chained operations
+// Test 14: Chained operations
 try {
     $tensor = new ONNX\Tensor\Transient([3], [4.0, 9.0, 16.0], ONNX\Tensor::FLOAT);
     $sqrt_result = ONNX\Math\sqrt($tensor);
@@ -204,7 +223,9 @@ PASS: abs function works
 PASS: sign function works
 PASS: cbrt function works
 PASS: power function (element-wise) works
+PASS: modulo function (element-wise) works
 PASS: power function (scalar) works
+PASS: modulo function (scalar) works
 INFO: sqrt of negative numbers produces: [NaN, 2, NaN]
 INFO: log of [0, 1, -1] produces: [-INF, 0, NaN]
 PASS: exp with extreme values works

@@ -16,7 +16,7 @@ jobs:
           - avx2
           - sse41
           - sse2
-          - none
+          - nosimd
 
     steps:
       - name: Checkout repository
@@ -47,11 +47,11 @@ jobs:
             sse2)
               ./configure --enable-ort-coverage --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
               ;;
-            none)
+            nosimd)
               ./configure --enable-ort-coverage --disable-ort-simd
               ;;
           esac
-          make -j
+          make -j$(nproc)
           sudo make install
 
       - name: Run tests and generate coverage
@@ -81,4 +81,4 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
-        carryforward: "none, sse2, sse41, avx2"
+        carryforward: "nosimd, sse2, sse41, avx2"

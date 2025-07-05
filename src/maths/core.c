@@ -736,8 +736,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .div_func  = ort_math_ops_div_float,
         .ceil_func = ort_math_ops_ceil_float,
         .abs_func  = ort_math_ops_abs_float,
-        .mod_func  = NULL,
-        .pow_func  = NULL,
+        .mod_func  = ort_math_ops_mod_float,
+        .pow_func  = ort_math_ops_pow_float,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
         .add_simd_func = ort_math_simd_add_float,
@@ -780,8 +780,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .div_func  = ort_math_ops_div_double,
         .ceil_func = ort_math_ops_ceil_double,
         .abs_func  = ort_math_ops_abs_double,
-        .mod_func  = NULL,
-        .pow_func  = NULL,
+        .mod_func  = ort_math_ops_mod_double,
+        .pow_func  = ort_math_ops_pow_double,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
         .add_simd_func = ort_math_simd_add_double,
@@ -822,7 +822,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sub_func = ort_math_ops_sub_int8_t,
         .mul_func = ort_math_ops_mul_int8_t,
         .div_func = ort_math_ops_div_int8_t,
-        .mod_func = NULL,
+        .mod_func = ort_math_ops_mod_int8_t,
         .pow_func = NULL,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
@@ -864,7 +864,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sub_func = ort_math_ops_sub_int16_t,
         .mul_func = ort_math_ops_mul_int16_t,
         .div_func = ort_math_ops_div_int16_t,
-        .mod_func = NULL,
+        .mod_func = ort_math_ops_mod_int16_t,
         .pow_func = NULL,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
@@ -906,7 +906,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sub_func = ort_math_ops_sub_int32_t,
         .mul_func = ort_math_ops_mul_int32_t,
         .div_func = ort_math_ops_div_int32_t,
-        .mod_func = NULL,
+        .mod_func = ort_math_ops_mod_int32_t,
         .pow_func = NULL,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
@@ -948,7 +948,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sub_func = ort_math_ops_sub_int64_t,
         .mul_func = ort_math_ops_mul_int64_t,
         .div_func = ort_math_ops_div_int64_t,
-        .mod_func = NULL,
+        .mod_func = ort_math_ops_mod_int64_t,
         .pow_func = NULL,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
@@ -990,7 +990,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sub_func = ort_math_ops_sub_uint8_t,
         .mul_func = ort_math_ops_mul_uint8_t,
         .div_func = ort_math_ops_div_uint8_t,
-        .mod_func = NULL,
+        .mod_func = ort_math_ops_mod_uint8_t,
         .pow_func = NULL,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
@@ -1032,7 +1032,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sub_func = ort_math_ops_sub_uint16_t,
         .mul_func = ort_math_ops_mul_uint16_t,
         .div_func = ort_math_ops_div_uint16_t,
-        .mod_func = NULL,
+        .mod_func = ort_math_ops_mod_uint16_t,
         .pow_func = NULL,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED
@@ -1074,7 +1074,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sub_func = ort_math_ops_sub_uint32_t,
         .mul_func = ort_math_ops_mul_uint32_t,
         .div_func = ort_math_ops_div_uint32_t,
-        .mod_func = NULL,
+        .mod_func = ort_math_ops_mod_uint32_t,
         .pow_func = NULL,
         /* SIMD functions and SIMD unary functions */
 #ifdef ORT_SIMD_ENABLED

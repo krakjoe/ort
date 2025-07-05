@@ -818,6 +818,43 @@ PHP_FUNCTION(power)
     ort_math_result_free(result);
 }
 
+/* Modulo function */
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_modulo_arginfo, 0, 2, ONNX\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor_a, ONNX\\Tensor, 0)
+    ZEND_ARG_INFO(0, tensor_b_or_scalar)
+ZEND_END_ARG_INFO()
+
+PHP_FUNCTION(modulo)
+{
+    zval *tensor_a_zv, *tensor_b_or_scalar;
+
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_OBJECT_OF_CLASS(tensor_a_zv, php_ort_tensor_interface_ce)
+        Z_PARAM_ZVAL(tensor_b_or_scalar)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_ort_tensor_t* tensor_a_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_a_zv));
+    ort_math_result_t* result;
+
+    if (Z_TYPE_P(tensor_b_or_scalar) == IS_OBJECT &&
+        instanceof_function(Z_OBJCE_P(tensor_b_or_scalar), php_ort_tensor_interface_ce)) {
+        php_ort_tensor_t* tensor_b_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_b_or_scalar));
+        result = ort_math_result_modulo(tensor_a_ort->object, tensor_b_ort->object);
+    } else {
+        result = ort_math_result_modulo_scalar(tensor_a_ort->object, tensor_b_or_scalar);
+    }
+
+    if (!result || !result->success) {
+        return;
+    }
+
+    object_init_ex(return_value, php_ort_tensor_transient_ce);
+    php_ort_tensor_t* result_ort = php_ort_tensor_fetch(Z_OBJ_P(return_value));
+    result_ort->object = result->tensor;
+
+    ort_math_result_free(result);
+}
+
 /* Sum reduction function */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_sum_arginfo, 0, 1, ONNX\\Tensor, 0)
     ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)
@@ -934,6 +971,7 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", tan, php_ort_math_tan_arginfo)
     ZEND_NS_FE("ONNX\\Math", abs, php_ort_math_abs_arginfo)
     ZEND_NS_FE("ONNX\\Math", power, php_ort_math_power_arginfo)
+    ZEND_NS_FE("ONNX\\Math", modulo, php_ort_math_modulo_arginfo)
     ZEND_NS_FE("ONNX\\Math", sum, php_ort_math_sum_arginfo)
     ZEND_NS_FE("ONNX\\Math", negative, php_ort_math_negative_arginfo)
     ZEND_NS_FE("ONNX\\Math", reciprocal, php_ort_math_reciprocal_arginfo)
