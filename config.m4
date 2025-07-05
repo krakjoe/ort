@@ -188,12 +188,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
   ])
 
   dnl Add source files
-  PHP_NEW_EXTENSION(ort, [
-    php_ort.c
-    $PHP_ORT_CORE_IMPL
-    $PHP_ORT_MATHS_IMPL
-    $PHP_ORT_SIMD_IMPL
-  ], $ext_shared,, [${PHP_ORT_SIMD_CFLAGS}])
+  PHP_NEW_EXTENSION(ort, [php_ort.c $PHP_ORT_CORE_IMPL $PHP_ORT_MATHS_IMPL $PHP_ORT_SIMD_IMPL], $ext_shared,, [${PHP_ORT_SIMD_CFLAGS}])
 
   dnl Add include paths
   PHP_ADD_INCLUDE([$ext_srcdir/src])
