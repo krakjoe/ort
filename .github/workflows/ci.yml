@@ -34,12 +34,9 @@ jobs:
           sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
           sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
-          sudo ls -lash /usr/local
-          autoconf --version
       - name: Prepare extension (configure for SIMD backend)
         run: |
           phpize
-          cat configure
           case "${{ matrix.simd-backend }}" in
             avx2)
               ./configure --enable-ort-coverage --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
@@ -54,7 +51,8 @@ jobs:
               ./configure --enable-ort-coverage --disable-ort-simd
               ;;
           esac
-          make clean install
+          make -j
+          sudo make install
 
       - name: Run tests and generate coverage
         run: |
