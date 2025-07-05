@@ -53,7 +53,7 @@ extern zend_class_entry* php_ort_status_model_invalidfile_ce;
 
 extern zend_class_entry* php_ort_status_model_runtimeexception_ce;
 
-static zend_always_inline zend_object* php_ort_status_throw(zend_class_entry* ce, const char *format, ...) {
+static zend_object* php_ort_status_throw(zend_class_entry* ce, const char *format, ...) {
     va_list args;
 
     va_start(args, format);
