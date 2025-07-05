@@ -35,6 +35,7 @@ jobs:
           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
           sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
           sudo ls -lash /usr/local
+          autoconf --version
       - name: Prepare extension (configure for SIMD backend)
         run: |
           phpize
