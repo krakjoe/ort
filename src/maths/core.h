@@ -134,7 +134,7 @@ void ort_math_util_get_multi_index(zend_long flat_index, const int64_t* shape, s
 /* Function dispatch table structure for mathematical operations */
 typedef struct _ort_math_type_dispatch_t {
     ONNXTensorElementDataType type;
-    
+
     /* Binary element-wise operations */
     ort_math_element_op_func_t add_func;
     ort_math_element_op_func_t sub_func;
@@ -150,14 +150,6 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_scalar_op_func_t div_scalar_func;
     ort_math_scalar_op_func_t pow_scalar_func;
     ort_math_scalar_op_func_t mod_scalar_func;
-
-    /* SIMD-optimized binary operations (NULL if not available) */
-    ort_math_element_op_func_t add_simd_func;
-    ort_math_element_op_func_t sub_simd_func;
-    ort_math_element_op_func_t mul_simd_func;
-    ort_math_element_op_func_t div_simd_func;
-    ort_math_element_op_func_t mod_simd_func;
-    ort_math_element_op_func_t pow_simd_func;
 
     /* Unary operations */
     ort_math_unary_op_func_t neg_func;
@@ -185,35 +177,25 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_unary_op_func_t abs_func;
     ort_math_unary_op_func_t sign_func;
     ort_math_unary_op_func_t recip_func;
-    
-    /* SIMD-optimized unary operations (NULL if not available) */
-    ort_math_unary_op_func_t sqrt_simd_func;
-    ort_math_unary_op_func_t neg_simd_func;
-    ort_math_unary_op_func_t ceil_simd_func;
-    ort_math_unary_op_func_t floor_simd_func;
-    ort_math_unary_op_func_t round_simd_func;
-    ort_math_unary_op_func_t abs_simd_func;
-    ort_math_unary_op_func_t sign_simd_func;
-    ort_math_unary_op_func_t recip_simd_func;
-    ort_math_unary_op_func_t trunc_simd_func;
-    ort_math_unary_op_func_t exp_simd_func;
-    ort_math_unary_op_func_t log_simd_func;
-    ort_math_unary_op_func_t log10_simd_func;
-    ort_math_unary_op_func_t log2_simd_func;
-    ort_math_unary_op_func_t log1p_simd_func;
-    ort_math_unary_op_func_t cbrt_simd_func;
-    ort_math_unary_op_func_t sin_simd_func;
-    ort_math_unary_op_func_t cos_simd_func;
-    ort_math_unary_op_func_t tan_simd_func;
-    ort_math_unary_op_func_t asin_simd_func;
-    ort_math_unary_op_func_t acos_simd_func;
-    ort_math_unary_op_func_t atan_simd_func;
-    ort_math_unary_op_func_t sinh_simd_func;
-    ort_math_unary_op_func_t cosh_simd_func;
-    ort_math_unary_op_func_t tanh_simd_func;
-    ort_math_unary_op_func_t exp2_simd_func;
-
 } ort_math_type_dispatch_t;
+
+static zend_always_inline int16_t ort_math_type_dispatch_indexof(ONNXTensorElementDataType type) {
+    switch (type) {
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:   return 0;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:  return 1;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:    return 2;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:   return 3;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:   return 4;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:   return 5;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:   return 6;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:  return 7;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:  return 8;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:    return 9;
+
+        default:
+            return FAILURE;
+    }
+}
 
 /* Function dispatch table access */
 const ort_math_type_dispatch_t* ort_math_get_dispatch(ONNXTensorElementDataType type);

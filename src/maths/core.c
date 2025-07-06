@@ -476,47 +476,7 @@ ort_math_result_t* ort_math_result_element_wise_binary_fast(
         return NULL;
     }
 
-#ifdef ORT_SIMD_ENABLED
-    /* Try to dispatch via the SIMD backend */
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(tensor_a->type);
-    if (dispatch) {
-        ort_math_element_op_func_t simd = NULL;
-
-        /** Fetch equivalent SIMD function from dispatch
-         * 
-         * Note:
-         * The following code in the fast path doesn't present a performance issue:
-         * 1. The dispatch table is small and constant, so the lookup is fast.
-         * 2. The dispatch table is designed to minimize the number of branches.
-         * 3. It is likely that the compiler will generate a jump table for this dispatch.
-         * 4. The benefit of executing SIMD operations outweighs the cost of this dispatch.
-        */
-        if (operation == dispatch->add_func) {
-            simd = dispatch->add_simd_func;
-        } else if (operation == dispatch->sub_func) {
-            simd = dispatch->sub_simd_func;
-        } else if (operation == dispatch->mul_func) {
-            simd = dispatch->mul_simd_func;
-        } else if (operation == dispatch->div_func) {
-            simd = dispatch->div_simd_func;
-        }
-
-        /* Use SIMD function if available */
-        if (simd) {
-            simd(
-                result_tensor->data, 
-                tensor_a->data, tensor_b->data,
-                tensor_a->elements);
-            return ort_math_result_create(result_tensor);
-        }
-    }
-
-    /* Fallback to scalar operation */
     operation(result_tensor->data, tensor_a->data, tensor_b->data, tensor_a->elements);
-#else
-    /* Fallback to scalar operation */
-    operation(result_tensor->data, tensor_a->data, tensor_b->data, tensor_a->elements);
-#endif /* HAVE_SIMD */
 
     ort_math_result_t* result = ort_math_result_create(result_tensor);
     
@@ -618,49 +578,6 @@ ort_math_result_t* ort_math_result_element_wise_unary(
         return NULL;
     }
 
-#ifdef ORT_SIMD_ENABLED
-    /* Try to dispatch via the SIMD backend */
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(tensor->type);
-    if (dispatch) {
-        ort_math_unary_op_func_t simd = NULL; 
-
-        /** Fetch equivalent SIMD function from dispatch
-         * 
-         * Note:
-         * The following code in the fast path doesn't present a performance issue:
-         * 1. The dispatch table is small and constant, so the lookup is fast.
-         * 2. The dispatch table is designed to minimize the number of branches.
-         * 3. It is likely that the compiler will generate a jump table for this dispatch.
-         * 4. The benefit of executing SIMD operations outweighs the cost of this dispatch.
-        */
-        if (operation == dispatch->sqrt_func) {
-            simd = dispatch->sqrt_simd_func;
-        } else if (operation == dispatch->neg_func) {
-            simd = dispatch->neg_simd_func;
-        } else if (operation == dispatch->ceil_func) {
-            simd = dispatch->ceil_simd_func;
-        } else if (operation == dispatch->floor_func) {
-            simd = dispatch->floor_simd_func;
-        } else if (operation == dispatch->round_func) {
-            simd = dispatch->round_simd_func;
-        } else if (operation == dispatch->abs_func) {
-            simd = dispatch->abs_simd_func;
-        } else if (operation == dispatch->sign_func) {
-            simd = dispatch->sign_simd_func;
-        }
-
-        /* Use SIMD function if available */
-        if (simd) {
-            simd(
-                result_tensor->data, 
-                tensor->data,
-                tensor->elements);
-            return ort_math_result_create(result_tensor);
-        }
-    }
-#endif
-    
-    /* Perform operation */
     operation(result_tensor->data, tensor->data, tensor->elements);
     
     ort_math_result_t* result = ort_math_result_create(result_tensor);
@@ -722,12 +639,12 @@ zend_bool ort_math_shapes_identical(ort_tensor_t* tensor_a, ort_tensor_t* tensor
             return 0;
         }
     }
-    
+
     return 1;
 }
 
 /* Complete dispatch table with SIMD optimization */
-static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
+static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
     /* FLOAT */
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
@@ -746,39 +663,6 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = ort_math_ops_recip_float,
         .sign_func       = ort_math_ops_sign_float,
         .trunc_func      = ort_math_ops_trunc_float,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_float,
-        .sub_simd_func        = ort_math_simd_sub_float,
-        .mul_simd_func        = ort_math_simd_mul_float,
-        .div_simd_func        = ort_math_simd_div_float,
-        .mod_simd_func        = NULL, // Provide if available
-        .pow_simd_func        = NULL, // Provide if available
-        .ceil_simd_func       = ort_math_simd_ceil_float,
-        .floor_simd_func      = ort_math_simd_floor_float,
-        .round_simd_func      = ort_math_simd_round_float,
-        .abs_simd_func        = ort_math_simd_abs_float,
-        .sqrt_simd_func       = ort_math_simd_sqrt_float,
-        .neg_simd_func        = ort_math_simd_neg_float,
-        .recip_simd_func      = ort_math_simd_recip_float,
-        .sign_simd_func       = ort_math_simd_sign_float,
-        .trunc_simd_func      = ort_math_simd_trunc_float,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* DOUBLE */
     {
@@ -798,39 +682,6 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = ort_math_ops_recip_double,
         .sign_func       = ort_math_ops_sign_double,
         .trunc_func      = ort_math_ops_trunc_double,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_double,
-        .sub_simd_func        = ort_math_simd_sub_double,
-        .mul_simd_func        = ort_math_simd_mul_double,
-        .div_simd_func        = ort_math_simd_div_double,
-        .mod_simd_func        = NULL, // Provide if available
-        .pow_simd_func        = NULL, // Provide if available
-        .ceil_simd_func       = ort_math_simd_ceil_double,
-        .floor_simd_func      = ort_math_simd_floor_double,
-        .round_simd_func      = ort_math_simd_round_double,
-        .abs_simd_func        = ort_math_simd_abs_double,
-        .sqrt_simd_func       = ort_math_simd_sqrt_double,
-        .neg_simd_func        = ort_math_simd_neg_double,
-        .recip_simd_func      = ort_math_simd_recip_double,
-        .sign_simd_func       = ort_math_simd_sign_double,
-        .trunc_simd_func      = ort_math_simd_trunc_double,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* INT8 */
     {
@@ -846,43 +697,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .neg_func        = NULL,
+        .neg_func        = ort_math_ops_neg_int8_t,
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_int8_t,
-        .sub_simd_func        = ort_math_simd_sub_int8_t,
-        .mul_simd_func        = ort_math_simd_mul_int8_t,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* INT16 */
     {
@@ -898,43 +716,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .neg_func        = NULL,
+        .neg_func        = ort_math_ops_neg_int16_t,
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_int16_t,
-        .sub_simd_func        = ort_math_simd_sub_int16_t,
-        .mul_simd_func        = ort_math_simd_mul_int16_t,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* INT32 */
     {
@@ -950,43 +735,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .neg_func        = NULL,
+        .neg_func        = ort_math_ops_neg_int32_t,
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_int32_t,
-        .sub_simd_func        = ort_math_simd_sub_int32_t,
-        .mul_simd_func        = ort_math_simd_mul_int32_t,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* INT64 */
     {
@@ -1002,43 +754,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .neg_func        = NULL,
+        .neg_func        = ort_math_ops_neg_int64_t,
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_int64_t,
-        .sub_simd_func        = ort_math_simd_sub_int64_t,
-        .mul_simd_func        = ort_math_simd_mul_int64_t,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* UINT8 */
     {
@@ -1054,43 +773,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .neg_func        = NULL,
+        .neg_func        = ort_math_ops_neg_uint8_t,
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_uint8_t,
-        .sub_simd_func        = ort_math_simd_sub_uint8_t,
-        .mul_simd_func        = ort_math_simd_mul_uint8_t,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* UINT16 */
     {
@@ -1106,43 +792,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .neg_func        = NULL,
+        .neg_func        = ort_math_ops_neg_uint16_t,
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_uint16_t,
-        .sub_simd_func        = ort_math_simd_sub_uint16_t,
-        .mul_simd_func        = ort_math_simd_mul_uint16_t,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* UINT32 */
     {
@@ -1158,43 +811,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .neg_func        = NULL,
+        .neg_func        = ort_math_ops_neg_uint32_t,
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = ort_math_simd_add_uint32_t,
-        .sub_simd_func        = ort_math_simd_sub_uint32_t,
-        .mul_simd_func        = ort_math_simd_mul_uint32_t,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     },
     /* BOOL */
     {
@@ -1210,43 +830,10 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,                         // Not meaningful for bool
         .abs_func        = NULL,                         // Identity for bool
         .sqrt_func       = NULL,                         // Not meaningful for bool
-        .neg_func        = NULL,                         // Logical NOT
+        .neg_func        = ort_math_ops_neg_zend_bool,   // Logical NOT
         .recip_func      = NULL,                         // Not meaningful for bool
         .sign_func       = NULL,                         // Identity for bool
         .trunc_func      = NULL,                         // Not meaningful for bool
-#ifdef ORT_SIMD_ENABLED
-        .add_simd_func        = NULL, // Provide SIMD if available
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#else
-        .add_simd_func        = NULL,
-        .sub_simd_func        = NULL,
-        .mul_simd_func        = NULL,
-        .div_simd_func        = NULL,
-        .mod_simd_func        = NULL,
-        .pow_simd_func        = NULL,
-        .ceil_simd_func       = NULL,
-        .floor_simd_func      = NULL,
-        .round_simd_func      = NULL,
-        .abs_simd_func        = NULL,
-        .sqrt_simd_func       = NULL,
-        .neg_simd_func        = NULL,
-        .recip_simd_func      = NULL,
-        .sign_simd_func       = NULL,
-        .trunc_simd_func      = NULL,
-#endif
     }
 };
 
@@ -1276,4 +863,15 @@ const ort_math_type_dispatch_t* ort_math_get_dispatch(ONNXTensorElementDataType 
         default:
             return NULL;
     }
+}
+
+void ort_math_startup() {
+#ifdef ORT_SIMD_ENABLED
+    ort_math_simd_install(
+        ort_math_dispatch_table);
+#endif
+}
+
+void ort_math_shutdown() {
+    // Currently no specific shutdown logic, but can be extended in the future
 }

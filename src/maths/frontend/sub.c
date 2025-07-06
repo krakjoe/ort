@@ -31,13 +31,9 @@ ORT_MATH_BINARY_OP_IMPL(sub, \
 
 static ort_math_element_op_func_t 
     ort_math_ops_get_sub_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_SUB_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, sub)
-        ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SUB_CASE)
-#undef ORT_MATH_SUB_CASE
-        default: return NULL;
-    }
+    const ort_math_type_dispatch_t* dispatch =
+        ort_math_get_dispatch(type);
+    return dispatch->sub_func;
 }
 
 #define ORT_MATH_SUB_SCALAR_IMPL(c_type, onnx_type) \

@@ -92,19 +92,16 @@ AS_VAR_IF([PHP_ORT], [no],, [
           PHP_ORT_SIMD_CFLAGS="-msse2"
           PHP_ORT_SIMD_LEVEL="SSE2"
           PHP_ORT_SIMD_IMPL=m4_normalize("
-            $PHP_ORT_SIMD_DIR/sse2/add.c
-            $PHP_ORT_SIMD_DIR/sse2/sub.c
-            $PHP_ORT_SIMD_DIR/sse2/mul.c
-            $PHP_ORT_SIMD_DIR/sse2/div.c
-            $PHP_ORT_SIMD_DIR/sse2/sqrt.c
-            $PHP_ORT_SIMD_DIR/sse2/neg.c
-            $PHP_ORT_SIMD_DIR/sse2/ceil.c
-            $PHP_ORT_SIMD_DIR/sse2/floor.c
-            $PHP_ORT_SIMD_DIR/sse2/round.c
             $PHP_ORT_SIMD_DIR/sse2/abs.c
-            $PHP_ORT_SIMD_DIR/sse2/sign.c
+            $PHP_ORT_SIMD_DIR/sse2/add.c
+            $PHP_ORT_SIMD_DIR/sse2/div.c
+            $PHP_ORT_SIMD_DIR/sse2/mul.c
+            $PHP_ORT_SIMD_DIR/sse2/neg.c
             $PHP_ORT_SIMD_DIR/sse2/recip.c
-            $PHP_ORT_SIMD_DIR/sse2/trunc.c
+            $PHP_ORT_SIMD_DIR/sse2/sign.c
+            $PHP_ORT_SIMD_DIR/sse2/sqrt.c
+            $PHP_ORT_SIMD_DIR/sse2/sub.c
+            $PHP_ORT_SIMD_DIR/sse2/impl.c
           ")
         ], [
           if test "$PHP_ORT_SSE2" = "yes"; then
@@ -138,6 +135,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/sse41/sign.c
             $PHP_ORT_SIMD_DIR/sse41/recip.c
             $PHP_ORT_SIMD_DIR/sse41/trunc.c
+            $PHP_ORT_SIMD_DIR/sse41/impl.c
           ")
         ], [
           if test "$PHP_ORT_SSE41" = "yes"; then
@@ -171,6 +169,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/avx2/sign.c
             $PHP_ORT_SIMD_DIR/avx2/recip.c
             $PHP_ORT_SIMD_DIR/avx2/trunc.c
+            $PHP_ORT_SIMD_DIR/avx2/impl.c
           ")
         ], [
           if test "$PHP_ORT_AVX2" = "yes"; then

@@ -49,13 +49,9 @@ void ort_math_ops_mod_double(void* result, const void* a, const void* b, size_t 
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_IMPL)
 
 static ort_math_element_op_func_t ort_math_ops_get_mod_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_MOD_BINARY_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, mod)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MOD_BINARY_CASE)
-#undef ORT_MATH_MOD_BINARY_CASE
-        default: return NULL;
-    }
+    const ort_math_type_dispatch_t* dispatch =
+        ort_math_get_dispatch(type);
+    return dispatch->mod_func;
 }
 
 void ort_math_ops_mod_scalar_float(void* result, const void* a, const void* b, size_t count) {

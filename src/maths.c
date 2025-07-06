@@ -1006,14 +1006,17 @@ static const zend_function_entry php_ort_math_functions[] = {
 
 PHP_MINIT_FUNCTION(ORT_MATH)
 {
+    ort_math_startup();
+
     zend_register_functions(NULL,
         php_ort_math_functions, NULL, MODULE_PERSISTENT);
-    
+
     return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(ORT_MATH)
 {
-    /* Nothing to cleanup for math module */
+    ort_math_shutdown();
+
     return SUCCESS;
 }

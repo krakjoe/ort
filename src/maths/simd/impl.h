@@ -149,4 +149,7 @@ ORT_MATH_SIMD_UNARY_OP_DECL(sign, double); /* }}} */
 /* {{{ SIMD Forward Declarations for Contracted Reciprocal Operations */
 ORT_MATH_SIMD_UNARY_OP_DECL(recip, float);
 ORT_MATH_SIMD_UNARY_OP_DECL(recip, double); /* }}} */
+
+/* {{{ Each backend must implement this function in its own impl.c */
+void ort_math_simd_install(ort_math_type_dispatch_t* table); /* }}} */
 #endif

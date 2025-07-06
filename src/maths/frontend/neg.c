@@ -43,18 +43,9 @@ void ort_math_ops_neg_zend_bool(void* result, const void* a, size_t count) {
 }
 
 static ort_math_unary_op_func_t ort_math_ops_get_neg_func(ONNXTensorElementDataType type) {
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type);
-    if (dispatch && dispatch->neg_simd_func) {
-        return dispatch->neg_simd_func;
-    }
-
-    switch (type) {
-#define ORT_MATH_NEG_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, neg)
-        ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_NEG_CASE)
-#undef ORT_MATH_NEG_CASE
-        default: return NULL;
-    }
+    const ort_math_type_dispatch_t* dispatch =
+        ort_math_get_dispatch(type);
+    return dispatch->neg_func;
 }
 
 ORT_MATH_UNARY_RESULT_IMPL(neg, ort_math_ops_get_neg_func)

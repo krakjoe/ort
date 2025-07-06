@@ -30,8 +30,9 @@ void ort_math_simd_round_float(void* result, const void* a, size_t count) {
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128 va = _mm_loadu_ps(&va[i]);
-        __m128 vr = _mm_round_ps(va, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+        __m128 vreg = _mm_loadu_ps(&va[i]);
+        __m128 vr = _mm_round_ps(vreg,
+            _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
         _mm_storeu_ps(&res[i], vr);
     }
 
@@ -55,8 +56,9 @@ void ort_math_simd_round_double(void* result, const void* a, size_t count) {
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128d va = _mm_loadu_pd(&va[i]);
-        __m128d vr = _mm_round_pd(va, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+        __m128d vreg = _mm_loadu_pd(&va[i]);
+        __m128d vr = _mm_round_pd(vreg,
+            _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
         _mm_storeu_pd(&res[i], vr);
     }
 

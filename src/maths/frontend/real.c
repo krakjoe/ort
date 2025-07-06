@@ -28,58 +28,62 @@
  * =============================================================================
  */
 
-/* Direrction export of all real-valued mathematical functions */
-#define ORT_MATH_REAL_EXPORT(func_name, math_func_f, math_func_d) \
-void ort_math_ops_##func_name##_float(void* result, const void* a, size_t count) { \
-    float* res = (float*)result; \
-    const float* va = (const float*)a; \
-    for (size_t i = 0; i < count; i++) { \
-        res[i] = math_func_f(va[i]); \
-    } \
-} \
-void ort_math_ops_##func_name##_double(void* result, const void* a, size_t count) { \
-    double* res = (double*)result; \
-    const double* va = (const double*)a; \
-    for (size_t i = 0; i < count; i++) { \
-        res[i] = math_func_d(va[i]); \
-    } \
-} \
-static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func(\
-        ONNXTensorElementDataType type) { \
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type); \
-    if (dispatch && dispatch->func_name##_simd_func) { \
-        return dispatch->func_name##_simd_func; \
-    } \
-    switch (type) { \
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT: \
-            return ort_math_ops_##func_name##_float; \
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: \
-            return ort_math_ops_##func_name##_double; \
-        default: return NULL; \
-    } \
+#define ORT_MATH_REAL_EXPORT_FOR_TYPE(c_type, func_name, math_func) \
+void ort_math_ops_##func_name##_##c_type(                           \
+    void* result, const void* a, size_t count) {                    \
+    c_type* res = (c_type*)result;                                  \
+    const c_type* va = (const c_type*)a;                            \
+    for (size_t i = 0; i < count; i++) {                            \
+        res[i] = math_func(va[i]);                                  \
+    }                                                               \
+}
+
+#define ORT_MATH_REAL_EXPORT_WITH_DISPATCH(func_name, math_func_f, math_func_d) \
+    ORT_MATH_REAL_EXPORT_FOR_TYPE(float, func_name, math_func_f)         \
+    ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)        \
+    static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func( \
+        ONNXTensorElementDataType type) {                                \
+    const ort_math_type_dispatch_t* dispatch =                           \
+        ort_math_get_dispatch(type);                                     \
+    return dispatch->func_name##_func;                                   \
+}
+
+#define ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(func_name, math_func_f, math_func_d) \
+    ORT_MATH_REAL_EXPORT_FOR_TYPE(float, func_name, math_func_f)                   \
+    ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)                  \
+    static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func(           \
+        ONNXTensorElementDataType type) {                                          \
+    switch (type) {                                                                \
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:                                  \
+            return ort_math_ops_##func_name##_float;                               \
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:                                 \
+            return ort_math_ops_##func_name##_double;                              \
+        default: return NULL;                                                      \
+    }                                                                              \
 }
 
 /* Generate all mathematical functions */
-ORT_MATH_REAL_EXPORT(sin, sinf, sin)
-ORT_MATH_REAL_EXPORT(cos, cosf, cos)
-ORT_MATH_REAL_EXPORT(tan, tanf, tan)
-ORT_MATH_REAL_EXPORT(asin, asinf, asin)
-ORT_MATH_REAL_EXPORT(acos, acosf, acos)
-ORT_MATH_REAL_EXPORT(atan, atanf, atan)
-ORT_MATH_REAL_EXPORT(sinh, sinhf, sinh)
-ORT_MATH_REAL_EXPORT(cosh, coshf, cosh)
-ORT_MATH_REAL_EXPORT(tanh, tanhf, tanh)
-ORT_MATH_REAL_EXPORT(exp, expf, exp)
-ORT_MATH_REAL_EXPORT(exp2, exp2f, exp2)
-ORT_MATH_REAL_EXPORT(log, logf, log)
-ORT_MATH_REAL_EXPORT(log2, log2f, log2)
-ORT_MATH_REAL_EXPORT(log10, log10f, log10)
-ORT_MATH_REAL_EXPORT(ceil, ceilf, ceil)
-ORT_MATH_REAL_EXPORT(round, roundf, round)
-ORT_MATH_REAL_EXPORT(floor, floorf, floor)
-ORT_MATH_REAL_EXPORT(trunc, truncf, trunc)
-ORT_MATH_REAL_EXPORT(cbrt, cbrtf, cbrt)
-ORT_MATH_REAL_EXPORT(abs, fabsf, fabs)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(sin, sinf, sin)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(cos, cosf, cos)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(tan, tanf, tan)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(asin, asinf, asin)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(acos, acosf, acos)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(atan, atanf, atan)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(sinh, sinhf, sinh)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(cosh, coshf, cosh)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(tanh, tanhf, tanh)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(exp, expf, exp)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(exp2, exp2f, exp2)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(log, logf, log)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(log2, log2f, log2)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(log10, log10f, log10)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(cbrt, cbrtf, cbrt)
+
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(abs, fabsf, fabs)
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(ceil, ceilf, ceil)
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(floor, floorf, floor)
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(round, roundf, round)
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc)
 
 /* =============================================================================
  * PUBLIC INTERFACE FUNCTIONS FOR UNARY MATHEMATICAL OPERATIONS

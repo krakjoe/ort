@@ -77,13 +77,9 @@ void ort_math_ops_pow_double(void* result, const void* a, const void* b, size_t 
 }
 
 static ort_math_element_op_func_t ort_math_ops_get_pow_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_POW_BINARY_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, pow)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_POW_BINARY_CASE)
-#undef ORT_MATH_POW_BINARY_CASE
-        default: return NULL;
-    }
+    const ort_math_type_dispatch_t* dispatch =
+        ort_math_get_dispatch(type);
+    return dispatch->pow_func;
 }
 
 #define ORT_MATH_POW_SCALAR_IMPL(c_type, onnx_type)                   \

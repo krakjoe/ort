@@ -71,20 +71,9 @@ void ort_math_ops_sqrt_##ctype(void* result, const void* a, size_t count) { \
 ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SQRT_REAL_IMPL)
 
 static ort_math_unary_op_func_t ort_math_ops_get_sqrt_func(ONNXTensorElementDataType type) {
-    /* Check for SIMD optimization first */
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type);
-    if (dispatch && dispatch->sqrt_simd_func) {
-        return dispatch->sqrt_simd_func;
-    }
-
-    /* Fall back to scalar implementation */
-    switch (type) {
-#define ORT_MATH_SQRT_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, sqrt)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SQRT_CASE)
-#undef ORT_MATH_SQRT_CASE
-        default: return NULL;
-    }
+    const ort_math_type_dispatch_t* dispatch =
+        ort_math_get_dispatch(type);
+    return dispatch->sqrt_func;
 }
 
 ORT_MATH_UNARY_RESULT_IMPL(sqrt, ort_math_ops_get_sqrt_func)

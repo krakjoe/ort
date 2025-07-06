@@ -115,11 +115,6 @@ __ort_math_simd_add_int32_fallback:
     }
 }
 
-void ort_math_simd_add_int64_t(void* result, const void* a, const void* b, size_t count) {
-    /* No native SSE2 64-bit integer add, fallback only */
-    ort_math_ops_add_int64_t(result, a, b, count);
-}
-
 void ort_math_simd_add_uint8_t(void* result, const void* a, const void* b, size_t count) {
     const uint8_t* pa = (const uint8_t*)a;
     const uint8_t* pb = (const uint8_t*)b;

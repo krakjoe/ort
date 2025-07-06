@@ -110,6 +110,14 @@ extern void ort_math_ops_recip_double(void* result, const void* a, size_t count)
 
 extern void ort_math_ops_neg_float(void* result, const void* a, size_t count);
 extern void ort_math_ops_neg_double(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_int8_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_int16_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_int32_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_int64_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_uint8_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_uint16_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_uint32_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_neg_zend_bool(void* result, const void* a, size_t count);
 
 extern void ort_math_ops_mod_float(void* result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_mod_double(void* result, const void* a, const void* b, size_t count);

@@ -20,11 +20,6 @@
 
 #include <smmintrin.h> /* SSE4.1 */
 
-void ort_math_simd_mul_int8_t(void* result, const void* a, const void* b, size_t count) {
-    /* No native SSE2/SSE4.1 8-bit integer multiply, fallback only */
-    ort_math_ops_mul_int8_t(result, a, b, count);
-}
-
 void ort_math_simd_mul_int16_t(void* result, const void* a, const void* b, size_t count) {
     const int16_t* pa = (const int16_t*)a;
     const int16_t* pb = (const int16_t*)b;
@@ -81,16 +76,6 @@ __ort_math_simd_mul_int32_fallback:
             pb + simd_count,
             count - simd_count);
     }
-}
-
-void ort_math_simd_mul_int64_t(void* result, const void* a, const void* b, size_t count) {
-    /* No native SSE2/SSE4.1 64-bit integer multiply, fallback only */
-    ort_math_ops_mul_int64_t(result, a, b, count);
-}
-
-void ort_math_simd_mul_uint8_t(void* result, const void* a, const void* b, size_t count) {
-    /* No native SSE2/SSE4.1 8-bit integer multiply, fallback only */
-    ort_math_ops_mul_uint8_t(result, a, b, count);
 }
 
 void ort_math_simd_mul_uint16_t(void* result, const void* a, const void* b, size_t count) {

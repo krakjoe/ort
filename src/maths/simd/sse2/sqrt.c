@@ -22,7 +22,6 @@
 /*
  * SIMD Square Root Operations (SSE2)
  *
- * Only float and double are contracted for sqrt in SSE2, matching AVX2/SSE4.1.
  */
 
 void ort_math_simd_sqrt_float(void* result, const void* a, size_t count) {

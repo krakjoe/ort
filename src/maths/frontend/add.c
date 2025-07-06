@@ -31,13 +31,9 @@ ORT_MATH_BINARY_OP_IMPL(add, \
 
 static ort_math_element_op_func_t 
     ort_math_ops_get_add_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_ADD_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, add)
-        ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_ADD_CASE)
-#undef ORT_MATH_ADD_CASE
-        default: return NULL;
-    }
+    const ort_math_type_dispatch_t* dispatch =
+        ort_math_get_dispatch(type);
+    return dispatch->add_func;
 }
 
 #define ORT_MATH_ADD_SCALAR_IMPL(c_type, onnx_type) \
