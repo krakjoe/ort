@@ -188,137 +188,6 @@ ORT_MATH_SCALAR_RESULT_IMPL(multiply, ort_math_ops_get_mul_scalar_func);
 ORT_MATH_SCALAR_RESULT_IMPL(divide,   ort_math_ops_get_div_scalar_func);
 
 /* =============================================================================
- * POWER OPERATIONS
- * =============================================================================
- */
-
-/* Power operations (floating point only) */
-void ort_math_ops_pow_float(void* result, const void* a, const void* b, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = powf(va[i], vb[i]);
-    }
-}
-
-void ort_math_ops_pow_double(void* result, const void* a, const void* b, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = pow(va[i], vb[i]);
-    }
-}
-
-static ort_math_element_op_func_t ort_math_ops_get_pow_func(ONNXTensorElementDataType type) {
-    switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return ort_math_ops_pow_float;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return ort_math_ops_pow_double;
-        default: return NULL;
-    }
-}
-
-/* Scalar power (floating point only) */
-void ort_math_ops_pow_scalar_float(void* result, const void* a, const void* b, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    float vb = *(const float*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = powf(va[i], vb);
-    }
-}
-
-void ort_math_ops_pow_scalar_double(void* result, const void* a, const void* b, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    double sb = *(const double*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = pow(va[i], sb);
-    }
-}
-
-static ort_math_scalar_op_func_t ort_math_ops_get_pow_scalar_func(ONNXTensorElementDataType type) {
-    switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return ort_math_ops_pow_scalar_float;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return ort_math_ops_pow_scalar_double;
-        default: return NULL;
-    }
-}
-
-ORT_MATH_BINARY_RESULT_IMPL(power, ort_math_ops_get_pow_func);
-ORT_MATH_SCALAR_RESULT_IMPL(power, ort_math_ops_get_pow_scalar_func);
-
-/* =============================================================================
- * MODULO OPERATIONS
- * =============================================================================
- */
-void ort_math_ops_mod_scalar_float(void* result, const void* a, const void* b, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    float sb = *(const float*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmodf(va[i], sb);
-    }
-}
-
-void ort_math_ops_mod_scalar_double(void* result, const void* a, const void* b, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    double sb = *(const double*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmod(va[i], sb);
-    }
-}
-
-#define ORT_MATH_MOD_SCALAR_IMPL(c_type, onnx_type) ORT_MATH_SCALAR_OP_IMPL(mod, c_type, onnx_type, %)
-ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_SCALAR_IMPL)
-
-static ort_math_scalar_op_func_t ort_math_ops_get_mod_scalar_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_MOD_SCALAR_CASE(c_type, onnx_type) \
-    ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, mod)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MOD_SCALAR_CASE)
-#undef ORT_MATH_MOD_SCALAR_CASE
-        default: return NULL;
-    }
-}
-
-void ort_math_ops_mod_float(void* result, const void* a, const void* b, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmodf(va[i], vb[i]);
-    }
-}
-
-void ort_math_ops_mod_double(void* result, const void* a, const void* b, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmod(va[i], vb[i]);
-    }
-}
-
-#define ORT_MATH_MOD_IMPL(c_type, onnx_type) ORT_MATH_BINARY_OP_IMPL(mod, c_type, onnx_type, %)
-ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_IMPL)
-
-static ort_math_element_op_func_t ort_math_ops_get_mod_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_MOD_BINARY_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, mod)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MOD_BINARY_CASE)
-#undef ORT_MATH_MOD_BINARY_CASE
-        default: return NULL;
-    }
-}
-
-ORT_MATH_BINARY_RESULT_IMPL(modulo, ort_math_ops_get_mod_func);
-ORT_MATH_SCALAR_RESULT_IMPL(modulo, ort_math_ops_get_mod_scalar_func);
-
-/* =============================================================================
  * UNARY MATHEMATICAL FUNCTIONS
  * =============================================================================
  */
@@ -362,102 +231,8 @@ static ort_math_unary_op_func_t ort_math_ops_get_negative_func(ONNXTensorElement
     }
 }
 
-#define ORT_MATH_SQRT_OP_IMPL(ctype, onnx_type, func)                       \
-void ort_math_ops_sqrt_##ctype(void* result, const void* a, size_t count) { \
-    ctype* res = (ctype*)result;                                            \
-    const ctype* va = (const ctype*)a;                                      \
-    for (size_t i = 0; i < count; i++) {                                    \
-        res[i] = func(va[i]);                                               \
-    }                                                                       \
-}
-
-#define ORT_MATH_SQRT_IMPL(c_type, onnx_type, func) \
-    ORT_MATH_SQRT_OP_IMPL(c_type, onnx_type, func)
-ORT_MATH_FOREACH_NUMERIC_TYPE_EX(ORT_MATH_SQRT_IMPL, sqrt)
-
-/* Square root */
-static ort_math_unary_op_func_t ort_math_ops_get_sqrt_func(ONNXTensorElementDataType type) {
-    /* Check for SIMD optimization first */
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type);
-    if (dispatch && dispatch->sqrt_simd_func) {
-        return dispatch->sqrt_simd_func;
-    }
-
-    /* Fall back to scalar implementation */
-    switch (type) {
-#define ORT_MATH_SQRT_CASE(c_type, onnx_type) \
-    ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, sqrt)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SQRT_CASE)
-#undef ORT_MATH_SQRT_CASE
-        default: return NULL;
-    }
-}
-
-/* Floor and round functions */
-void ort_math_ops_floor_float(void* result, const void* a, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = floorf(va[i]);
-    }
-}
-
-void ort_math_ops_floor_double(void* result, const void* a, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = floor(va[i]);
-    }
-}
-
-static ort_math_unary_op_func_t ort_math_ops_get_floor_func(ONNXTensorElementDataType type) {
-    /* Check for SIMD optimization first */
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type);
-    if (dispatch && dispatch->floor_simd_func) {
-        return dispatch->floor_simd_func;
-    }
-    
-    /* Fall back to scalar implementation */
-    switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return ort_math_ops_floor_float;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return ort_math_ops_floor_double;
-        default: return NULL;
-    }
-}
-
-void ort_math_ops_round_float(void* result, const void* a, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = roundf(va[i]);
-    }
-}
-
-void ort_math_ops_round_double(void* result, const void* a, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = round(va[i]);
-    }
-}
-
-static ort_math_unary_op_func_t ort_math_ops_get_round_func(ONNXTensorElementDataType type) {
-    /* Check for SIMD optimization first */
-    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type);
-    if (dispatch && dispatch->round_simd_func) {
-        return dispatch->round_simd_func;
-    }
-    
-    /* Fall back to scalar implementation */
-    switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return ort_math_ops_round_float;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return ort_math_ops_round_double;
-        default: return NULL;
-    }
-}
-
-/* Trigonometric functions (floating point only) */
-#define ORT_MATH_TRIG_FUNC(func_name, math_func_f, math_func_d) \
+/* Direrction export of all real-valued mathematical functions */
+#define ORT_MATH_REAL_EXPORT(func_name, math_func_f, math_func_d) \
 void ort_math_ops_##func_name##_float(void* result, const void* a, size_t count) { \
     float* res = (float*)result; \
     const float* va = (const float*)a; \
@@ -472,32 +247,42 @@ void ort_math_ops_##func_name##_double(void* result, const void* a, size_t count
         res[i] = math_func_d(va[i]); \
     } \
 } \
-static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func(ONNXTensorElementDataType type) { \
+static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func(\
+        ONNXTensorElementDataType type) { \
+    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type); \
+    if (dispatch && dispatch->func_name##_simd_func) { \
+        return dispatch->func_name##_simd_func; \
+    } \
     switch (type) { \
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return ort_math_ops_##func_name##_float; \
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return ort_math_ops_##func_name##_double; \
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT: \
+            return ort_math_ops_##func_name##_float; \
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: \
+            return ort_math_ops_##func_name##_double; \
         default: return NULL; \
     } \
 }
 
 /* Generate all mathematical functions */
-ORT_MATH_TRIG_FUNC(sin, sinf, sin)
-ORT_MATH_TRIG_FUNC(cos, cosf, cos)
-ORT_MATH_TRIG_FUNC(tan, tanf, tan)
-ORT_MATH_TRIG_FUNC(asin, asinf, asin)
-ORT_MATH_TRIG_FUNC(acos, acosf, acos)
-ORT_MATH_TRIG_FUNC(atan, atanf, atan)
-ORT_MATH_TRIG_FUNC(sinh, sinhf, sinh)
-ORT_MATH_TRIG_FUNC(cosh, coshf, cosh)
-ORT_MATH_TRIG_FUNC(tanh, tanhf, tanh)
-ORT_MATH_TRIG_FUNC(exp, expf, exp)
-ORT_MATH_TRIG_FUNC(exp2, exp2f, exp2)
-ORT_MATH_TRIG_FUNC(log, logf, log)
-ORT_MATH_TRIG_FUNC(log2, log2f, log2)
-ORT_MATH_TRIG_FUNC(log10, log10f, log10)
-ORT_MATH_TRIG_FUNC(ceil, ceilf, ceil)
-ORT_MATH_TRIG_FUNC(cbrt, cbrtf, cbrt)
-ORT_MATH_TRIG_FUNC(abs, fabsf, fabs)
+ORT_MATH_REAL_EXPORT(sin, sinf, sin)
+ORT_MATH_REAL_EXPORT(cos, cosf, cos)
+ORT_MATH_REAL_EXPORT(tan, tanf, tan)
+ORT_MATH_REAL_EXPORT(asin, asinf, asin)
+ORT_MATH_REAL_EXPORT(acos, acosf, acos)
+ORT_MATH_REAL_EXPORT(atan, atanf, atan)
+ORT_MATH_REAL_EXPORT(sinh, sinhf, sinh)
+ORT_MATH_REAL_EXPORT(cosh, coshf, cosh)
+ORT_MATH_REAL_EXPORT(tanh, tanhf, tanh)
+ORT_MATH_REAL_EXPORT(exp, expf, exp)
+ORT_MATH_REAL_EXPORT(exp2, exp2f, exp2)
+ORT_MATH_REAL_EXPORT(log, logf, log)
+ORT_MATH_REAL_EXPORT(log2, log2f, log2)
+ORT_MATH_REAL_EXPORT(log10, log10f, log10)
+ORT_MATH_REAL_EXPORT(ceil, ceilf, ceil)
+ORT_MATH_REAL_EXPORT(round, roundf, round)
+ORT_MATH_REAL_EXPORT(floor, floorf, floor)
+ORT_MATH_REAL_EXPORT(trunc, truncf, trunc)
+ORT_MATH_REAL_EXPORT(cbrt, cbrtf, cbrt)
+ORT_MATH_REAL_EXPORT(abs, fabsf, fabs)
 
 /* Reciprocal function (special implementation) */
 void ort_math_ops_reciprocal_float(void* result, const void* a, size_t count) {
@@ -570,7 +355,6 @@ static ort_math_unary_op_func_t ort_math_ops_get_sign_func(ONNXTensorElementData
  * =============================================================================
  */
 
-ORT_MATH_UNARY_RESULT_IMPL(sqrt, ort_math_ops_get_sqrt_func)
 ORT_MATH_UNARY_RESULT_IMPL(negative, ort_math_ops_get_negative_func)
 ORT_MATH_UNARY_RESULT_IMPL(sin, ort_math_ops_get_sin_func)
 ORT_MATH_UNARY_RESULT_IMPL(cos, ort_math_ops_get_cos_func)
@@ -588,6 +372,7 @@ ORT_MATH_UNARY_RESULT_IMPL(log2, ort_math_ops_get_log2_func)
 ORT_MATH_UNARY_RESULT_IMPL(log10, ort_math_ops_get_log10_func)
 ORT_MATH_UNARY_RESULT_IMPL(ceil, ort_math_ops_get_ceil_func)
 ORT_MATH_UNARY_RESULT_IMPL(floor, ort_math_ops_get_floor_func)
+ORT_MATH_UNARY_RESULT_IMPL(trunc, ort_math_ops_get_trunc_func)
 ORT_MATH_UNARY_RESULT_IMPL(round, ort_math_ops_get_round_func)
 ORT_MATH_UNARY_RESULT_IMPL(cbrt, ort_math_ops_get_cbrt_func)
 ORT_MATH_UNARY_RESULT_IMPL(abs, ort_math_ops_get_abs_func)

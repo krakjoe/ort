@@ -118,22 +118,22 @@ try {
     echo "FAIL: Double hyperbolic functions failed: " . $e->getMessage() . "\n";
 }
 
-// Test 7: Double power and exponential functions
+// Test 7: Double pow and exponential functions
 try {
     $tensor_base = new ONNX\Tensor\Transient([3], [2.0, 3.0, 10.0], ONNX\Tensor::DOUBLE);
     $tensor_exp = new ONNX\Tensor\Transient([3], [3.0, 2.0, 0.5], ONNX\Tensor::DOUBLE);
     
-    $result = ONNX\Math\power($tensor_base, $tensor_exp);
-    echo "PASS: Double power works\n";
+    $result = ONNX\Math\pow($tensor_base, $tensor_exp);
+    echo "PASS: Double pow works\n";
     
-    $result = ONNX\Math\power($tensor_base, 2.0);
-    echo "PASS: Double power scalar works\n";
+    $result = ONNX\Math\pow($tensor_base, 2.0);
+    echo "PASS: Double pow scalar works\n";
     
     $tensor = new ONNX\Tensor\Transient([2], [1.0, 2.0], ONNX\Tensor::DOUBLE);
     $result = ONNX\Math\exp2($tensor);
     echo "PASS: Double exp2 works\n";
 } catch (Error $e) {
-    echo "FAIL: Double power/exponential functions failed: " . $e->getMessage() . "\n";
+    echo "FAIL: Double pow/exponential functions failed: " . $e->getMessage() . "\n";
 }
 
 // Test 8: Double rounding and utility functions
@@ -202,8 +202,8 @@ PASS: Double atan works
 PASS: Double sinh works
 PASS: Double cosh works
 PASS: Double tanh works
-PASS: Double power works
-PASS: Double power scalar works
+PASS: Double pow works
+PASS: Double pow scalar works
 PASS: Double exp2 works
 PASS: Double ceil works
 PASS: Double floor works

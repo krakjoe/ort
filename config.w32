@@ -44,6 +44,12 @@ if (PHP_ORT != 'no') {
         "ort"
     );
 
+    ADD_SOURCES(
+        configure_module_dirname + "\\src\\maths\\ops",
+        "mod.c pow.c sqrt.c",
+        "ort"
+    );
+
     if (PHP_ORT_SIMD != 'no') {
         if (PHP_ORT_AVX2 == 'yes') {
             AC_DEFINE('HAVE_AVX2', 1);

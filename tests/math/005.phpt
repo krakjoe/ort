@@ -1,5 +1,5 @@
 --TEST--
-Check ONNX\Math functions - power and advanced operations
+Check ONNX\Math functions - pow and advanced operations
 --EXTENSIONS--
 ort
 --FILE--
@@ -20,14 +20,14 @@ try {
         ONNX\Tensor::FLOAT
     );
     
-    // Test power with tensor
-    echo "=== POWER (TENSOR) ===\n";
-    $result = ONNX\Math\power($tensor1, $tensor2);
+    // Test pow with tensor
+    echo "=== pow (TENSOR) ===\n";
+    $result = ONNX\Math\pow($tensor1, $tensor2);
     echo "Result type: " . get_class($result) . "\n";
     
-    // Test power with scalar
-    echo "=== POWER (SCALAR) ===\n";
-    $result = ONNX\Math\power($tensor1, 2.0);
+    // Test pow with scalar
+    echo "=== pow (SCALAR) ===\n";
+    $result = ONNX\Math\pow($tensor1, 2.0);
     echo "Result type: " . get_class($result) . "\n";
     
     // Test matrix multiplication
@@ -40,18 +40,18 @@ try {
     $result = ONNX\Math\sum($tensor1);
     echo "Result type: " . get_class($result) . "\n";
     
-    echo "Power and advanced operation tests passed!\n";
+    echo "pow and advanced operation tests passed!\n";
 } catch (Error $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }
 ?>
 --EXPECTF--
-=== POWER (TENSOR) ===
+=== pow (TENSOR) ===
 Result type: ONNX\Tensor\Transient
-=== POWER (SCALAR) ===
+=== pow (SCALAR) ===
 Result type: ONNX\Tensor\Transient
 === MATRIX MULTIPLICATION ===
 Result type: ONNX\Tensor\Transient
 === SUM ===
 Result type: ONNX\Tensor\Transient
-Power and advanced operation tests passed!
+pow and advanced operation tests passed!

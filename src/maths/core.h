@@ -307,6 +307,13 @@ extern void ort_math_ops_div_uint16_t(void* result, const void* a, const void* b
 extern void ort_math_ops_div_uint32_t(void* result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_div_zend_bool(void* result, const void* a, const void* b, size_t count);
 
+extern void ort_math_ops_sqrt_int8_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_sqrt_int16_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_sqrt_int32_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_sqrt_int64_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_sqrt_uint8_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_sqrt_uint16_t(void* result, const void* a, size_t count);
+extern void ort_math_ops_sqrt_uint32_t(void* result, const void* a, size_t count);
 extern void ort_math_ops_sqrt_float(void* result, const void* a, size_t count);
 extern void ort_math_ops_sqrt_double(void* result, const void* a, size_t count);
 
@@ -318,6 +325,9 @@ extern void ort_math_ops_floor_double(void* result, const void* a, size_t count)
 
 extern void ort_math_ops_round_float(void* result, const void* a, size_t count);
 extern void ort_math_ops_round_double(void* result, const void* a, size_t count);
+
+extern void ort_math_ops_trunc_float(void* result, const void* a, size_t count);
+extern void ort_math_ops_trunc_double(void* result, const void* a, size_t count);
 
 extern void ort_math_ops_abs_float(void* result, const void* a, size_t count);
 extern void ort_math_ops_abs_double(void* result, const void* a, size_t count);
@@ -341,6 +351,13 @@ extern void ort_math_ops_mod_uint8_t(void* result, const void* a, const void* b,
 extern void ort_math_ops_mod_uint16_t(void* result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_mod_uint32_t(void* result, const void* a, const void* b, size_t count);
 
+extern void ort_math_ops_pow_int8_t(void* result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_pow_int16_t(void* result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_pow_int32_t(void* result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_pow_int64_t(void* result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_pow_uint8_t(void* result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_pow_uint16_t(void* result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_pow_uint32_t(void* result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_pow_float(void* result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_pow_double(void* result, const void* a, const void* b, size_t count);
 
@@ -356,20 +373,6 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_element_op_func_t pow_func;
     ort_math_element_op_func_t mod_func;
 
-    /* SIMD-optimized binary operations (NULL if not available) */
-    ort_math_element_op_func_t add_simd_func;
-    ort_math_element_op_func_t sub_simd_func;
-    ort_math_element_op_func_t mul_simd_func;
-    ort_math_element_op_func_t div_simd_func;
-    
-    /* Comparison operations */
-    ort_math_element_op_func_t eq_func;
-    ort_math_element_op_func_t ne_func;
-    ort_math_element_op_func_t gt_func;
-    ort_math_element_op_func_t ge_func;
-    ort_math_element_op_func_t lt_func;
-    ort_math_element_op_func_t le_func;
-
     /* Scalar operations */
     ort_math_scalar_op_func_t add_scalar_func;
     ort_math_scalar_op_func_t sub_scalar_func;
@@ -377,6 +380,14 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_scalar_op_func_t div_scalar_func;
     ort_math_scalar_op_func_t pow_scalar_func;
     ort_math_scalar_op_func_t mod_scalar_func;
+
+    /* SIMD-optimized binary operations (NULL if not available) */
+    ort_math_element_op_func_t add_simd_func;
+    ort_math_element_op_func_t sub_simd_func;
+    ort_math_element_op_func_t mul_simd_func;
+    ort_math_element_op_func_t div_simd_func;
+    ort_math_element_op_func_t mod_simd_func;
+    ort_math_element_op_func_t pow_simd_func;
 
     /* Unary operations */
     ort_math_unary_op_func_t negative_func;
@@ -396,6 +407,11 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_unary_op_func_t floor_func;
     ort_math_unary_op_func_t ceil_func;
     ort_math_unary_op_func_t round_func;
+    ort_math_unary_op_func_t trunc_func;
+    ort_math_unary_op_func_t exp2_func;
+    ort_math_unary_op_func_t log2_func;
+    ort_math_unary_op_func_t log1p_func;
+    ort_math_unary_op_func_t cbrt_func;
     ort_math_unary_op_func_t abs_func;
     ort_math_unary_op_func_t sign_func;
     ort_math_unary_op_func_t reciprocal_func;
@@ -409,6 +425,24 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_unary_op_func_t abs_simd_func;
     ort_math_unary_op_func_t sign_simd_func;
     ort_math_unary_op_func_t reciprocal_simd_func;
+    ort_math_unary_op_func_t trunc_simd_func;
+    ort_math_unary_op_func_t exp_simd_func;
+    ort_math_unary_op_func_t log_simd_func;
+    ort_math_unary_op_func_t log10_simd_func;
+    ort_math_unary_op_func_t log2_simd_func;
+    ort_math_unary_op_func_t log1p_simd_func;
+    ort_math_unary_op_func_t cbrt_simd_func;
+    ort_math_unary_op_func_t sin_simd_func;
+    ort_math_unary_op_func_t cos_simd_func;
+    ort_math_unary_op_func_t tan_simd_func;
+    ort_math_unary_op_func_t asin_simd_func;
+    ort_math_unary_op_func_t acos_simd_func;
+    ort_math_unary_op_func_t atan_simd_func;
+    ort_math_unary_op_func_t sinh_simd_func;
+    ort_math_unary_op_func_t cosh_simd_func;
+    ort_math_unary_op_func_t tanh_simd_func;
+    ort_math_unary_op_func_t exp2_simd_func;
+
 } ort_math_type_dispatch_t;
 
 /* Function dispatch table access */

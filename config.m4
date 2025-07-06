@@ -58,6 +58,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ORT_MATHS_IMPL=m4_normalize("
     $PHP_ORT_MATHS_DIR/core.c
     $PHP_ORT_MATHS_DIR/ops.c
+    $PHP_ORT_MATHS_DIR/ops/mod.c
+    $PHP_ORT_MATHS_DIR/ops/pow.c
+    $PHP_ORT_MATHS_DIR/ops/sqrt.c
   ")
   
   dnl SIMD feature detection

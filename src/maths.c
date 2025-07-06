@@ -782,12 +782,12 @@ PHP_FUNCTION(abs)
 }
 
 /* Power function */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_power_arginfo, 0, 2, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_pow_arginfo, 0, 2, ONNX\\Tensor, 0)
     ZEND_ARG_OBJ_INFO(0, tensor_a, ONNX\\Tensor, 0)
     ZEND_ARG_INFO(0, tensor_b_or_scalar)
 ZEND_END_ARG_INFO()
 
-PHP_FUNCTION(power)
+PHP_FUNCTION(pow)
 {
     zval *tensor_a_zv, *tensor_b_or_scalar;
 
@@ -802,9 +802,9 @@ PHP_FUNCTION(power)
     if (Z_TYPE_P(tensor_b_or_scalar) == IS_OBJECT &&
         instanceof_function(Z_OBJCE_P(tensor_b_or_scalar), php_ort_tensor_interface_ce)) {
         php_ort_tensor_t* tensor_b_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_b_or_scalar));
-        result = ort_math_result_power(tensor_a_ort->object, tensor_b_ort->object);
+        result = ort_math_result_pow(tensor_a_ort->object, tensor_b_ort->object);
     } else {
-        result = ort_math_result_power_scalar(tensor_a_ort->object, tensor_b_or_scalar);
+        result = ort_math_result_pow_scalar(tensor_a_ort->object, tensor_b_or_scalar);
     }
 
     if (!result || !result->success) {
@@ -819,12 +819,12 @@ PHP_FUNCTION(power)
 }
 
 /* Modulo function */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_modulo_arginfo, 0, 2, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_mod_arginfo, 0, 2, ONNX\\Tensor, 0)
     ZEND_ARG_OBJ_INFO(0, tensor_a, ONNX\\Tensor, 0)
     ZEND_ARG_INFO(0, tensor_b_or_scalar)
 ZEND_END_ARG_INFO()
 
-PHP_FUNCTION(modulo)
+PHP_FUNCTION(mod)
 {
     zval *tensor_a_zv, *tensor_b_or_scalar;
 
@@ -839,9 +839,9 @@ PHP_FUNCTION(modulo)
     if (Z_TYPE_P(tensor_b_or_scalar) == IS_OBJECT &&
         instanceof_function(Z_OBJCE_P(tensor_b_or_scalar), php_ort_tensor_interface_ce)) {
         php_ort_tensor_t* tensor_b_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_b_or_scalar));
-        result = ort_math_result_modulo(tensor_a_ort->object, tensor_b_ort->object);
+        result = ort_math_result_mod(tensor_a_ort->object, tensor_b_ort->object);
     } else {
-        result = ort_math_result_modulo_scalar(tensor_a_ort->object, tensor_b_or_scalar);
+        result = ort_math_result_mod_scalar(tensor_a_ort->object, tensor_b_or_scalar);
     }
 
     if (!result || !result->success) {
@@ -970,8 +970,8 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", sign, php_ort_math_sign_arginfo)
     ZEND_NS_FE("ONNX\\Math", tan, php_ort_math_tan_arginfo)
     ZEND_NS_FE("ONNX\\Math", abs, php_ort_math_abs_arginfo)
-    ZEND_NS_FE("ONNX\\Math", power, php_ort_math_power_arginfo)
-    ZEND_NS_FE("ONNX\\Math", modulo, php_ort_math_modulo_arginfo)
+    ZEND_NS_FE("ONNX\\Math", pow, php_ort_math_pow_arginfo)
+    ZEND_NS_FE("ONNX\\Math", mod, php_ort_math_mod_arginfo)
     ZEND_NS_FE("ONNX\\Math", sum, php_ort_math_sum_arginfo)
     ZEND_NS_FE("ONNX\\Math", negative, php_ort_math_negative_arginfo)
     ZEND_NS_FE("ONNX\\Math", reciprocal, php_ort_math_reciprocal_arginfo)

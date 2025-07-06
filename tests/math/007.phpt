@@ -108,13 +108,13 @@ try {
     echo "ERROR: sin() failed on 1x1 tensor: " . $e->getMessage() . "\n";
 }
 
-// Test 10: Power with edge cases
+// Test 10: pow with edge cases
 try {
     $tensor = new ONNX\Tensor\Transient([3], [0.0, 1.0, -1.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\power($tensor, 2.0);
-    echo "PASS: power() handles edge values (0, 1, -1)\n";
+    $result = ONNX\Math\pow($tensor, 2.0);
+    echo "PASS: pow() handles edge values (0, 1, -1)\n";
 } catch (Error $e) {
-    echo "ERROR: power() failed on edge values: " . $e->getMessage() . "\n";
+    echo "ERROR: pow() failed on edge values: " . $e->getMessage() . "\n";
 }
 
 echo "\n=== Testing Data Type Conversions ===\n";
@@ -175,7 +175,7 @@ PASS: multiply() handles large numbers
 PASS: add() handles small numbers
 PASS: matmul() correctly rejects dimension mismatch
 PASS: sin() handles 1x1 tensor, result: -0.9589
-PASS: power() handles edge values (0, 1, -1)
+PASS: pow() handles edge values (0, 1, -1)
 
 === Testing Data Type Conversions ===
 PASS: add() handles INT32 tensor with float scalar

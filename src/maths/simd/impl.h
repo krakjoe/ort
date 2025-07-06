@@ -63,9 +63,6 @@ static zend_always_inline size_t ort_math_simd_optimal_count(size_t count, size_
 #define ORT_MATH_SIMD_UNARY_OP_DECL(op, type)                      \
     extern void ort_math_simd_##op##_##type(                       \
         void* result, const void* a, size_t count)
-#define ORT_MATH_SIMD_SCALAR_OP_DECL(op, type)                     \
-    extern void ort_math_simd_##op##_##type(                       \
-        void* result, const void* a, size_t count, type scalar)
 
 /**
  * SIMD Forward Declarations of Contracted Binary Operations

@@ -92,42 +92,42 @@ try {
     echo "FAIL: cbrt function failed: " . $e->getMessage() . "\n";
 }
 
-// Test 6: Power function (element-wise)
+// Test 6: pow function (element-wise)
 try {
     $base = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
     $exponent = new ONNX\Tensor\Transient([3], [2.0, 3.0, 0.5], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\power($base, $exponent);
-    echo "PASS: power function (element-wise) works\n";
+    $result = ONNX\Math\pow($base, $exponent);
+    echo "PASS: pow function (element-wise) works\n";
 } catch (Error $e) {
-    echo "FAIL: power function failed: " . $e->getMessage() . "\n";
+    echo "FAIL: pow function failed: " . $e->getMessage() . "\n";
 }
 
-// Test 7: Modulo function (element-wise)
+// Test 7: mod function (element-wise)
 try {
     $base = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
     $mod = new ONNX\Tensor\Transient([3], [2.0, 3.0, 0.5], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\modulo($base, $mod);
-    echo "PASS: modulo function (element-wise) works\n";
+    $result = ONNX\Math\mod($base, $mod);
+    echo "PASS: mod function (element-wise) works\n";
 } catch (Error $e) {
-    echo "FAIL: modulo function failed: " . $e->getMessage() . "\n";
+    echo "FAIL: mod function failed: " . $e->getMessage() . "\n";
 }
 
-// Test 8: Power function (scalar)
+// Test 8: pow function (scalar)
 try {
     $tensor = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\power($tensor, 2.0);
-    echo "PASS: power function (scalar) works\n";
+    $result = ONNX\Math\pow($tensor, 2.0);
+    echo "PASS: pow function (scalar) works\n";
 } catch (Error $e) {
-    echo "FAIL: power scalar function failed: " . $e->getMessage() . "\n";
+    echo "FAIL: pow scalar function failed: " . $e->getMessage() . "\n";
 }
 
-// Test 9: Modulo function (scalar)
+// Test 9: mod function (scalar)
 try {
     $tensor = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\modulo($tensor, 2.0);
-    echo "PASS: modulo function (scalar) works\n";
+    $result = ONNX\Math\mod($tensor, 2.0);
+    echo "PASS: mod function (scalar) works\n";
 } catch (Error $e) {
-    echo "FAIL: modulo scalar function failed: " . $e->getMessage() . "\n";
+    echo "FAIL: mod scalar function failed: " . $e->getMessage() . "\n";
 }
 
 // Test 10: Error handling - sqrt of negative numbers
@@ -189,7 +189,7 @@ try {
 try {
     $tensor = new ONNX\Tensor\Transient([3], [4.0, 9.0, 16.0], ONNX\Tensor::FLOAT);
     $sqrt_result = ONNX\Math\sqrt($tensor);
-    $squared_result = ONNX\Math\power($sqrt_result, 2.0);
+    $squared_result = ONNX\Math\pow($sqrt_result, 2.0);
     $data = $squared_result->getData();
     // Should get back close to original values
     if (abs($data[0] - 4.0) < 0.001 && abs($data[1] - 9.0) < 0.001 && abs($data[2] - 16.0) < 0.001) {
@@ -222,10 +222,10 @@ PASS: round function works
 PASS: abs function works
 PASS: sign function works
 PASS: cbrt function works
-PASS: power function (element-wise) works
-PASS: modulo function (element-wise) works
-PASS: power function (scalar) works
-PASS: modulo function (scalar) works
+PASS: pow function (element-wise) works
+PASS: mod function (element-wise) works
+PASS: pow function (scalar) works
+PASS: mod function (scalar) works
 INFO: sqrt of negative numbers produces: [NaN, 2, NaN]
 INFO: log of [0, 1, -1] produces: [-INF, 0, NaN]
 PASS: exp with extreme values works
