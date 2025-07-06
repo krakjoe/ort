@@ -19,7 +19,7 @@ try {
     $result = ONNX\Math\multiply($tensor_a, $tensor_b);
     echo "PASS: INT64 multiplication works\n";
     
-    $result = ONNX\Math\negative($tensor_a);
+    $result = ONNX\Math\neg($tensor_a);
     echo "PASS: INT64 negation works\n";
 } catch (Error $e) {
     echo "FAIL: INT64 operations failed: " . $e->getMessage() . "\n";
@@ -54,7 +54,7 @@ try {
     $result = ONNX\Math\multiply($tensor_a, $tensor_b);
     echo "PASS: INT16 multiplication works\n";
     
-    $result = ONNX\Math\negative($tensor_a);
+    $result = ONNX\Math\neg($tensor_a);
     echo "PASS: INT16 negation works\n";
 } catch (Error $e) {
     echo "FAIL: INT16 operations failed: " . $e->getMessage() . "\n";
@@ -73,7 +73,7 @@ try {
     $result = ONNX\Math\multiply($tensor_a, $tensor_b);
     echo "PASS: INT8 multiplication works\n";
     
-    $result = ONNX\Math\negative($tensor_a);
+    $result = ONNX\Math\neg($tensor_a);
     echo "PASS: INT8 negation works\n";
 } catch (Error $e) {
     echo "FAIL: INT8 operations failed: " . $e->getMessage() . "\n";

@@ -37,7 +37,12 @@ try {
     echo "=== ROUND ===\n";
     $result = ONNX\Math\round($tensor);
     echo "Result type: " . get_class($result) . "\n";
-    
+
+    // Test trunc
+    echo "=== TRUNC ===\n";
+    $result = ONNX\Math\trunc($tensor);
+    echo "Result type: " . get_class($result) . "\n";
+
     echo "Rounding and utility tests passed!\n";
 } catch (Error $e) {
     echo "Error: " . $e->getMessage() . "\n";
@@ -53,5 +58,7 @@ Result type: ONNX\Tensor\Transient
 === FLOOR ===
 Result type: ONNX\Tensor\Transient
 === ROUND ===
+Result type: ONNX\Tensor\Transient
+=== TRUNC ===
 Result type: ONNX\Tensor\Transient
 Rounding and utility tests passed!

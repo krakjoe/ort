@@ -20,7 +20,7 @@
 
 #include <smmintrin.h> /* SSE4.1 */
 
-void ort_math_simd_negative_float(void* result, const void* a, size_t count) {
+void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
     const float* fa = (const float*)a;
     float* fr = (float*)result;
     const size_t simd_width = 4;
@@ -28,7 +28,7 @@ void ort_math_simd_negative_float(void* result, const void* a, size_t count) {
     __m128 neg_mask = _mm_set1_ps(-0.0f);
 
     if (simd_count == 0) {
-        goto __ort_math_simd_negative_float_fallback;
+        goto __ort_math_simd_neg_float_fallback;
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
@@ -37,16 +37,16 @@ void ort_math_simd_negative_float(void* result, const void* a, size_t count) {
         _mm_storeu_ps(&fr[i], vr);
     }
 
-__ort_math_simd_negative_float_fallback:
+__ort_math_simd_neg_float_fallback:
     if (simd_count < count) {
-        ort_math_ops_negative_float(
+        ort_math_ops_neg_float(
             fr + simd_count,
             fa + simd_count,
             count - simd_count);
     }
 }
 
-void ort_math_simd_negative_double(void* result, const void* a, size_t count) {
+void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
     const double* pa = (const double*)a;
     double* pr = (double*)result;
     const size_t simd_width = 2;
@@ -54,7 +54,7 @@ void ort_math_simd_negative_double(void* result, const void* a, size_t count) {
     __m128d neg_mask = _mm_set1_pd(-0.0);
 
     if (simd_count == 0) {
-        goto __ort_math_simd_negative_double_fallback;
+        goto __ort_math_simd_neg_double_fallback;
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
@@ -63,9 +63,9 @@ void ort_math_simd_negative_double(void* result, const void* a, size_t count) {
         _mm_storeu_pd(&pr[i], vr);
     }
 
-__ort_math_simd_negative_double_fallback:
+__ort_math_simd_neg_double_fallback:
     if (simd_count < count) {
-        ort_math_ops_negative_double(
+        ort_math_ops_neg_double(
             pr + simd_count,
             pa + simd_count,
             count - simd_count);

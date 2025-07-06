@@ -143,7 +143,7 @@ try {
 // Test 7: Negation operations for various types
 try {
     $tensor_int32 = new ONNX\Tensor\Transient([3], [10, -20, 30], ONNX\Tensor::INT32);
-    $result = ONNX\Math\negative($tensor_int32);
+    $result = ONNX\Math\neg($tensor_int32);
     $data = $result->getData();
     if ($data[0] == -10 && $data[1] == 20 && $data[2] == -30) {
         echo "PASS: INT32 negation works\n";
@@ -152,15 +152,15 @@ try {
     }
     
     $tensor_uint8 = new ONNX\Tensor\Transient([3], [10, 20, 30], ONNX\Tensor::UINT8);
-    $result = ONNX\Math\negative($tensor_uint8);
+    $result = ONNX\Math\neg($tensor_uint8);
     echo "PASS: UINT8 negation works\n";
     
     $tensor_uint16 = new ONNX\Tensor\Transient([3], [1000, 2000, 3000], ONNX\Tensor::UINT16);
-    $result = ONNX\Math\negative($tensor_uint16);
+    $result = ONNX\Math\neg($tensor_uint16);
     echo "PASS: UINT16 negation works\n";
     
     $tensor_uint32 = new ONNX\Tensor\Transient([3], [100000, 200000, 300000], ONNX\Tensor::UINT32);
-    $result = ONNX\Math\negative($tensor_uint32);
+    $result = ONNX\Math\neg($tensor_uint32);
     echo "PASS: UINT32 negation works\n";
     
 } catch (Error $e) {

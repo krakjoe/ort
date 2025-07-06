@@ -19,7 +19,7 @@
 
 #include "status.h"
 
-#include "maths/ops.h"
+#include "maths/codegen.h"
 #include "maths/core.h"
 
 /* =============================================================================

@@ -16,9 +16,22 @@
   +----------------------------------------------------------------------+
  */
 
-#ifndef HAVE_ORT_MATHS_OPS
-#define HAVE_ORT_MATHS_OPS
+#ifndef HAVE_ORT_MATHS_API
+#define HAVE_ORT_MATHS_API
 
+/** {{{
+  * @file api.h
+  * @brief Math operations API for the ORT extension.
+  *
+  * This file declares the functions for performing various mathematical
+  * operations on tensors, including element-wise operations, scalar
+  * operations, trigonometric functions, hyperbolic functions, exponential
+  * and logarithmic functions, unary operations, linear algebra operations,
+  * and reduction operations.
+  * 
+  * Note: This is intended for inclusion at the PHP layer, and is not
+  *       intended for use at the C layer.
+}}} */
 #include <php.h>
 #include "tensor.h"
 #include "maths/core.h"
@@ -64,12 +77,12 @@ ort_math_result_t* ort_math_result_cbrt(ort_tensor_t* tensor);
 /* Element-wise unary operations */
 ort_math_result_t* ort_math_result_abs(ort_tensor_t* tensor);
 ort_math_result_t* ort_math_result_sign(ort_tensor_t* tensor);
-ort_math_result_t* ort_math_result_reciprocal(ort_tensor_t* tensor);
+ort_math_result_t* ort_math_result_recip(ort_tensor_t* tensor);
 ort_math_result_t* ort_math_result_ceil(ort_tensor_t* tensor);
 ort_math_result_t* ort_math_result_floor(ort_tensor_t* tensor);
 ort_math_result_t* ort_math_result_round(ort_tensor_t* tensor);
 ort_math_result_t* ort_math_result_trunc(ort_tensor_t* tensor);
-ort_math_result_t* ort_math_result_negative(ort_tensor_t* tensor);
+ort_math_result_t* ort_math_result_neg(ort_tensor_t* tensor);
 
 /* Linear algebra operations */
 ort_math_result_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matrix_b);

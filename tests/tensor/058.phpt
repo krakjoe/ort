@@ -23,7 +23,7 @@ try {
     
     // Test unary operations
     $sqrt = ONNX\Math\sqrt($scalar1);
-    $neg = ONNX\Math\negative($scalar1);
+    $neg = ONNX\Math\neg($scalar1);
     
     echo "Square root: " . $sqrt->getData()[0] . "\n";
     echo "Negation: " . $neg->getData()[0] . "\n";

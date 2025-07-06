@@ -17,65 +17,68 @@
  */
 
 #include "maths/simd/impl.h"
+#include <emmintrin.h> /* SSE2 */
 
-#include <immintrin.h>  /* AVX/AVX2 */
+/*
+ * SIMD Reciprocal Operations (SSE2)
+ *
+ * Only float and double are contracted for recip in SSE2, matching AVX2/SSE4.1.
+ */
 
-void ort_math_simd_reciprocal_float(void* result, const void* a, size_t count) {
+void ort_math_simd_recip_float(void* result, const void* a, size_t count) {
     const float* src = (const float*)a;
     float* dst = (float*)result;
-    const size_t simd_width = 8; /* AVX2 can process 8 floats at once */
-    
+    const size_t simd_width = 4; /* SSE2 can process 4 floats at once */
+
+    const __m128 one = _mm_set1_ps(1.0f);
     size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
 
     if (simd_count == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_simd_reciprocal_float_fallback;
+        goto __ort_math_simd_recip_float_fallback;
     }
 
-    const __m256 one = _mm256_set1_ps(1.0f);
-    
-    /* Vectorized loop - process 8 floats at once */
+    /* Vectorized loop - process 4 floats at once */
     for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256 va = _mm256_loadu_ps(&src[i]);
-        __m256 result_vec = _mm256_div_ps(one, va);
-        _mm256_storeu_ps(&dst[i], result_vec);
+        __m128 va = _mm_loadu_ps(&src[i]);
+        __m128 result_vec = _mm_div_ps(one, va);
+        _mm_storeu_ps(&dst[i], result_vec);
     }
-    
-__ort_math_simd_reciprocal_float_fallback:
+
+__ort_math_simd_recip_float_fallback:
     /* Handle remaining elements with scalar operations */
     if (simd_count < count) {
-        ort_math_ops_reciprocal_float(
+        ort_math_ops_recip_float(
             dst + simd_count,
             src + simd_count,
             count - simd_count);
     }
 }
 
-void ort_math_simd_reciprocal_double(void* result, const void* a, size_t count) {
+void ort_math_simd_recip_double(void* result, const void* a, size_t count) {
     const double* src = (const double*)a;
     double* dst = (double*)result;
-    const size_t simd_width = 4; /* AVX2 can process 4 doubles at once */
+    const size_t simd_width = 2; /* SSE2 can process 2 doubles at once */
 
+    const __m128d one = _mm_set1_pd(1.0);
     size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
 
     if (simd_count == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_simd_reciprocal_double_fallback;
+        goto __ort_math_simd_recip_double_fallback;
     }
 
-    const __m256d one = _mm256_set1_pd(1.0);
-
-    /* Vectorized loop - process 4 doubles at once */
+    /* Vectorized loop - process 2 doubles at once */
     for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256d va = _mm256_loadu_pd(&src[i]);
-        __m256d result_vec = _mm256_div_pd(one, va);
-        _mm256_storeu_pd(&dst[i], result_vec);
+        __m128d va = _mm_loadu_pd(&src[i]);
+        __m128d result_vec = _mm_div_pd(one, va);
+        _mm_storeu_pd(&dst[i], result_vec);
     }
 
-__ort_math_simd_reciprocal_double_fallback:
+__ort_math_simd_recip_double_fallback:
     /* Handle remaining elements with scalar operations */
     if (simd_count < count) {
-        ort_math_ops_reciprocal_double(
+        ort_math_ops_recip_double(
             dst + simd_count,
             src + simd_count,
             count - simd_count);

@@ -134,7 +134,7 @@ try {
 // Test 9: Boolean negation (logical NOT)
 try {
     $tensor = new ONNX\Tensor\Transient([4], [true, false, true, false], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\negative($tensor);
+    $result = ONNX\Math\neg($tensor);
     $data = $result->getData();
     // NOT: [!true, !false, !true, !false] = [false, true, false, true]
     if ($data[0] === false && $data[1] === true && $data[2] === false && $data[3] === true) {

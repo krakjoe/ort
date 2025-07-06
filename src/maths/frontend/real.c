@@ -1,0 +1,108 @@
+/*
+  +----------------------------------------------------------------------+
+  | ort                                                                  |
+  +----------------------------------------------------------------------+
+  | Copyright (c) Joe Watkins 2025                                       |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 3.01 of the PHP license,      |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.php.net/license/3_01.txt                                  |
+  | If you did not receive a copy of the PHP license and are unable to   |
+  | obtain it through the world-wide-web, please send a note to          |
+  | license@php.net so we can mail you a copy immediately.               |
+  +----------------------------------------------------------------------+
+  | Author: krakjoe                                                      |
+  +----------------------------------------------------------------------+
+ */
+
+#include "ort.h"
+
+#include "status.h"
+
+#include "maths/codegen.h"
+#include "maths/core.h"
+
+/* =============================================================================
+ * UNARY MATHEMATICAL FUNCTIONS
+ * =============================================================================
+ */
+
+/* Direrction export of all real-valued mathematical functions */
+#define ORT_MATH_REAL_EXPORT(func_name, math_func_f, math_func_d) \
+void ort_math_ops_##func_name##_float(void* result, const void* a, size_t count) { \
+    float* res = (float*)result; \
+    const float* va = (const float*)a; \
+    for (size_t i = 0; i < count; i++) { \
+        res[i] = math_func_f(va[i]); \
+    } \
+} \
+void ort_math_ops_##func_name##_double(void* result, const void* a, size_t count) { \
+    double* res = (double*)result; \
+    const double* va = (const double*)a; \
+    for (size_t i = 0; i < count; i++) { \
+        res[i] = math_func_d(va[i]); \
+    } \
+} \
+static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func(\
+        ONNXTensorElementDataType type) { \
+    const ort_math_type_dispatch_t* dispatch = ort_math_get_dispatch(type); \
+    if (dispatch && dispatch->func_name##_simd_func) { \
+        return dispatch->func_name##_simd_func; \
+    } \
+    switch (type) { \
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT: \
+            return ort_math_ops_##func_name##_float; \
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: \
+            return ort_math_ops_##func_name##_double; \
+        default: return NULL; \
+    } \
+}
+
+/* Generate all mathematical functions */
+ORT_MATH_REAL_EXPORT(sin, sinf, sin)
+ORT_MATH_REAL_EXPORT(cos, cosf, cos)
+ORT_MATH_REAL_EXPORT(tan, tanf, tan)
+ORT_MATH_REAL_EXPORT(asin, asinf, asin)
+ORT_MATH_REAL_EXPORT(acos, acosf, acos)
+ORT_MATH_REAL_EXPORT(atan, atanf, atan)
+ORT_MATH_REAL_EXPORT(sinh, sinhf, sinh)
+ORT_MATH_REAL_EXPORT(cosh, coshf, cosh)
+ORT_MATH_REAL_EXPORT(tanh, tanhf, tanh)
+ORT_MATH_REAL_EXPORT(exp, expf, exp)
+ORT_MATH_REAL_EXPORT(exp2, exp2f, exp2)
+ORT_MATH_REAL_EXPORT(log, logf, log)
+ORT_MATH_REAL_EXPORT(log2, log2f, log2)
+ORT_MATH_REAL_EXPORT(log10, log10f, log10)
+ORT_MATH_REAL_EXPORT(ceil, ceilf, ceil)
+ORT_MATH_REAL_EXPORT(round, roundf, round)
+ORT_MATH_REAL_EXPORT(floor, floorf, floor)
+ORT_MATH_REAL_EXPORT(trunc, truncf, trunc)
+ORT_MATH_REAL_EXPORT(cbrt, cbrtf, cbrt)
+ORT_MATH_REAL_EXPORT(abs, fabsf, fabs)
+
+/* =============================================================================
+ * PUBLIC INTERFACE FUNCTIONS FOR UNARY MATHEMATICAL OPERATIONS
+ * =============================================================================
+ */
+
+ORT_MATH_UNARY_RESULT_IMPL(sin, ort_math_ops_get_sin_func)
+ORT_MATH_UNARY_RESULT_IMPL(cos, ort_math_ops_get_cos_func)
+ORT_MATH_UNARY_RESULT_IMPL(tan, ort_math_ops_get_tan_func)
+ORT_MATH_UNARY_RESULT_IMPL(asin, ort_math_ops_get_asin_func)
+ORT_MATH_UNARY_RESULT_IMPL(acos, ort_math_ops_get_acos_func)
+ORT_MATH_UNARY_RESULT_IMPL(atan, ort_math_ops_get_atan_func)
+ORT_MATH_UNARY_RESULT_IMPL(sinh, ort_math_ops_get_sinh_func)
+ORT_MATH_UNARY_RESULT_IMPL(cosh, ort_math_ops_get_cosh_func)
+ORT_MATH_UNARY_RESULT_IMPL(tanh, ort_math_ops_get_tanh_func)
+ORT_MATH_UNARY_RESULT_IMPL(exp, ort_math_ops_get_exp_func)
+ORT_MATH_UNARY_RESULT_IMPL(exp2, ort_math_ops_get_exp2_func)
+ORT_MATH_UNARY_RESULT_IMPL(log, ort_math_ops_get_log_func)
+ORT_MATH_UNARY_RESULT_IMPL(log2, ort_math_ops_get_log2_func)
+ORT_MATH_UNARY_RESULT_IMPL(log10, ort_math_ops_get_log10_func)
+ORT_MATH_UNARY_RESULT_IMPL(ceil, ort_math_ops_get_ceil_func)
+ORT_MATH_UNARY_RESULT_IMPL(floor, ort_math_ops_get_floor_func)
+ORT_MATH_UNARY_RESULT_IMPL(trunc, ort_math_ops_get_trunc_func)
+ORT_MATH_UNARY_RESULT_IMPL(round, ort_math_ops_get_round_func)
+ORT_MATH_UNARY_RESULT_IMPL(cbrt, ort_math_ops_get_cbrt_func)
+ORT_MATH_UNARY_RESULT_IMPL(abs, ort_math_ops_get_abs_func)

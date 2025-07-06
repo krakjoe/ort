@@ -20,8 +20,7 @@
 #include "status.h"
 
 #include "maths.h"
-#include "maths/core.h"
-#include "maths/ops.h"
+#include "maths/api.h"
 
 /* Mathematical functions in ONNX\Math namespace */
 
@@ -888,11 +887,11 @@ PHP_FUNCTION(sum)
     ort_math_result_free(result);
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_negative_arginfo, 0, 1, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_neg_arginfo, 0, 1, ONNX\\Tensor, 0)
     ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)
 ZEND_END_ARG_INFO()
 
-PHP_FUNCTION(negative)
+PHP_FUNCTION(neg)
 {
     zval *tensor_zv;
 
@@ -901,7 +900,7 @@ PHP_FUNCTION(negative)
     ZEND_PARSE_PARAMETERS_END();
 
     php_ort_tensor_t* tensor_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_zv));
-    ort_math_result_t* result = ort_math_result_negative(tensor_ort->object);
+    ort_math_result_t* result = ort_math_result_neg(tensor_ort->object);
 
     if (!result || !result->success) {
         return;
@@ -916,11 +915,11 @@ PHP_FUNCTION(negative)
 }
 
 /* Reciprocal function */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_reciprocal_arginfo, 0, 1, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_recip_arginfo, 0, 1, ONNX\\Tensor, 0)
     ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)
 ZEND_END_ARG_INFO()
 
-PHP_FUNCTION(reciprocal)
+PHP_FUNCTION(recip)
 {
     zval *tensor_zv;
 
@@ -929,7 +928,33 @@ PHP_FUNCTION(reciprocal)
     ZEND_PARSE_PARAMETERS_END();
 
     php_ort_tensor_t* tensor_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_zv));
-    ort_math_result_t* result = ort_math_result_reciprocal(tensor_ort->object);
+    ort_math_result_t* result = ort_math_result_recip(tensor_ort->object);
+
+    if (!result || !result->success) {
+        return;
+    }
+
+    object_init_ex(return_value, php_ort_tensor_transient_ce);
+    php_ort_tensor_t* result_ort = php_ort_tensor_fetch(Z_OBJ_P(return_value));
+    result_ort->object = result->tensor;
+
+    ort_math_result_free(result);
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_trunc_arginfo, 0, 1, ONNX\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)
+ZEND_END_ARG_INFO()
+
+PHP_FUNCTION(trunc)
+{
+    zval *tensor_zv;
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_OBJECT_OF_CLASS(tensor_zv, php_ort_tensor_interface_ce)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_ort_tensor_t* tensor_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_zv));
+    ort_math_result_t* result = ort_math_result_trunc(tensor_ort->object);
 
     if (!result || !result->success) {
         return;
@@ -973,8 +998,9 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", pow, php_ort_math_pow_arginfo)
     ZEND_NS_FE("ONNX\\Math", mod, php_ort_math_mod_arginfo)
     ZEND_NS_FE("ONNX\\Math", sum, php_ort_math_sum_arginfo)
-    ZEND_NS_FE("ONNX\\Math", negative, php_ort_math_negative_arginfo)
-    ZEND_NS_FE("ONNX\\Math", reciprocal, php_ort_math_reciprocal_arginfo)
+    ZEND_NS_FE("ONNX\\Math", neg, php_ort_math_neg_arginfo)
+    ZEND_NS_FE("ONNX\\Math", recip, php_ort_math_recip_arginfo)
+    ZEND_NS_FE("ONNX\\Math", trunc, php_ort_math_trunc_arginfo)
     ZEND_FE_END
 };
 

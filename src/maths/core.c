@@ -16,16 +16,17 @@
   +----------------------------------------------------------------------+
  */
 
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdint.h>
+#include "ort.h"
 
 #include "status.h"
 #include "tensor.h"
 
 #include "maths/core.h"
+#include "maths/frontend.h"
+
+#ifdef ORT_SIMD_ENABLED
 #include "maths/simd/impl.h"
+#endif
 
 /* Type casting macros for element-wise ops */
 /* Define source type macro block with all destination cases */
@@ -634,8 +635,8 @@ ort_math_result_t* ort_math_result_element_wise_unary(
         */
         if (operation == dispatch->sqrt_func) {
             simd = dispatch->sqrt_simd_func;
-        } else if (operation == dispatch->negative_func) {
-            simd = dispatch->negative_simd_func;
+        } else if (operation == dispatch->neg_func) {
+            simd = dispatch->neg_simd_func;
         } else if (operation == dispatch->ceil_func) {
             simd = dispatch->ceil_simd_func;
         } else if (operation == dispatch->floor_func) {
@@ -741,8 +742,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = ort_math_ops_round_float,
         .abs_func        = ort_math_ops_abs_float,
         .sqrt_func       = ort_math_ops_sqrt_float,
-        .negative_func   = ort_math_ops_negative_float,
-        .reciprocal_func = ort_math_ops_reciprocal_float,
+        .neg_func        = ort_math_ops_neg_float,
+        .recip_func      = ort_math_ops_recip_float,
         .sign_func       = ort_math_ops_sign_float,
         .trunc_func      = ort_math_ops_trunc_float,
 #ifdef ORT_SIMD_ENABLED
@@ -757,8 +758,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = ort_math_simd_round_float,
         .abs_simd_func        = ort_math_simd_abs_float,
         .sqrt_simd_func       = ort_math_simd_sqrt_float,
-        .negative_simd_func   = ort_math_simd_negative_float,
-        .reciprocal_simd_func = ort_math_simd_reciprocal_float,
+        .neg_simd_func        = ort_math_simd_neg_float,
+        .recip_simd_func      = ort_math_simd_recip_float,
         .sign_simd_func       = ort_math_simd_sign_float,
         .trunc_simd_func      = NULL, // Provide if available
 #else
@@ -773,8 +774,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -793,8 +794,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = ort_math_ops_round_double,
         .abs_func        = ort_math_ops_abs_double,
         .sqrt_func       = ort_math_ops_sqrt_double,
-        .negative_func   = ort_math_ops_negative_double,
-        .reciprocal_func = ort_math_ops_reciprocal_double,
+        .neg_func        = ort_math_ops_neg_double,
+        .recip_func      = ort_math_ops_recip_double,
         .sign_func       = ort_math_ops_sign_double,
         .trunc_func      = ort_math_ops_trunc_double,
 #ifdef ORT_SIMD_ENABLED
@@ -809,8 +810,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = ort_math_simd_round_double,
         .abs_simd_func        = ort_math_simd_abs_double,
         .sqrt_simd_func       = ort_math_simd_sqrt_double,
-        .negative_simd_func   = ort_math_simd_negative_double,
-        .reciprocal_simd_func = ort_math_simd_reciprocal_double,
+        .neg_simd_func        = ort_math_simd_neg_double,
+        .recip_simd_func      = ort_math_simd_recip_double,
         .sign_simd_func       = ort_math_simd_sign_double,
         .trunc_simd_func      = NULL, // Provide if available
 #else
@@ -825,8 +826,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -845,8 +846,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
+        .neg_func        = NULL,
+        .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
 #ifdef ORT_SIMD_ENABLED
@@ -861,8 +862,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #else
@@ -877,8 +878,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -897,8 +898,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
+        .neg_func        = NULL,
+        .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
 #ifdef ORT_SIMD_ENABLED
@@ -913,8 +914,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #else
@@ -929,8 +930,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -949,8 +950,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
+        .neg_func        = NULL,
+        .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
 #ifdef ORT_SIMD_ENABLED
@@ -965,8 +966,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #else
@@ -981,8 +982,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -1001,8 +1002,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
+        .neg_func        = NULL,
+        .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
 #ifdef ORT_SIMD_ENABLED
@@ -1017,8 +1018,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #else
@@ -1033,8 +1034,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -1053,8 +1054,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
+        .neg_func        = NULL,
+        .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
 #ifdef ORT_SIMD_ENABLED
@@ -1069,8 +1070,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #else
@@ -1085,8 +1086,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -1105,8 +1106,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
+        .neg_func        = NULL,
+        .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
 #ifdef ORT_SIMD_ENABLED
@@ -1121,8 +1122,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #else
@@ -1137,8 +1138,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -1157,8 +1158,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_func      = NULL,
         .abs_func        = NULL,
         .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
+        .neg_func        = NULL,
+        .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
 #ifdef ORT_SIMD_ENABLED
@@ -1173,8 +1174,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #else
@@ -1189,8 +1190,8 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
 #endif
@@ -1198,21 +1199,38 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
     /* BOOL */
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
-        .add_func        = ort_math_ops_add_zend_bool,
-        .sub_func        = NULL,
-        .mul_func        = NULL,
-        .div_func        = NULL,
-        .mod_func        = NULL,
-        .pow_func        = NULL,
-        .ceil_func       = NULL,
-        .floor_func      = NULL,
-        .round_func      = NULL,
-        .abs_func        = NULL,
-        .sqrt_func       = NULL,
-        .negative_func   = NULL,
-        .reciprocal_func = NULL,
-        .sign_func       = NULL,
-        .trunc_func      = NULL,
+        .add_func        = ort_math_ops_add_zend_bool,   // Logical OR (or addition)
+        .sub_func        = ort_math_ops_sub_zend_bool,   // Logical XOR (or subtraction)
+        .mul_func        = ort_math_ops_mul_zend_bool,   // Logical AND (or multiplication)
+        .div_func        = ort_math_ops_div_zend_bool,   // Logical division (A && B)
+        .mod_func        = NULL,                         // Logical modulo (A && !B)
+        .pow_func        = NULL,                         // Logical power (A ** B)
+        .ceil_func       = NULL,                         // Not meaningful for bool
+        .floor_func      = NULL,                         // Not meaningful for bool
+        .round_func      = NULL,                         // Not meaningful for bool
+        .abs_func        = NULL,                         // Identity for bool
+        .sqrt_func       = NULL,                         // Not meaningful for bool
+        .neg_func        = NULL,                         // Logical NOT
+        .recip_func      = NULL,                         // Not meaningful for bool
+        .sign_func       = NULL,                         // Identity for bool
+        .trunc_func      = NULL,                         // Not meaningful for bool
+#ifdef ORT_SIMD_ENABLED
+        .add_simd_func        = NULL, // Provide SIMD if available
+        .sub_simd_func        = NULL,
+        .mul_simd_func        = NULL,
+        .div_simd_func        = NULL,
+        .mod_simd_func        = NULL,
+        .pow_simd_func        = NULL,
+        .ceil_simd_func       = NULL,
+        .floor_simd_func      = NULL,
+        .round_simd_func      = NULL,
+        .abs_simd_func        = NULL,
+        .sqrt_simd_func       = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
+        .sign_simd_func       = NULL,
+        .trunc_simd_func      = NULL,
+#else
         .add_simd_func        = NULL,
         .sub_simd_func        = NULL,
         .mul_simd_func        = NULL,
@@ -1224,10 +1242,11 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .round_simd_func      = NULL,
         .abs_simd_func        = NULL,
         .sqrt_simd_func       = NULL,
-        .negative_simd_func   = NULL,
-        .reciprocal_simd_func = NULL,
+        .neg_simd_func        = NULL,
+        .recip_simd_func      = NULL,
         .sign_simd_func       = NULL,
         .trunc_simd_func      = NULL,
+#endif
     }
 };
 

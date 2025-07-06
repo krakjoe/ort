@@ -20,7 +20,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-void ort_math_simd_negative_float(void* result, const void* a, size_t count) {
+void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
     const float* fa = (const float*)a;
     float* fr = (float*)result;
     
@@ -28,7 +28,7 @@ void ort_math_simd_negative_float(void* result, const void* a, size_t count) {
 
     if (simd_count == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_simd_negative_float_fallback;
+        goto __ort_math_simd_neg_float_fallback;
     }
 
     __m256 sign_mask = _mm256_set1_ps(-0.0f);  /* Sign bit mask */
@@ -40,17 +40,17 @@ void ort_math_simd_negative_float(void* result, const void* a, size_t count) {
         _mm256_storeu_ps(&fr[i], vr);
     }
 
-__ort_math_simd_negative_float_fallback:
+__ort_math_simd_neg_float_fallback:
     /* Handle remaining elements with scalar operations */
     if (simd_count < count) {
-        ort_math_ops_negative_float(
+        ort_math_ops_neg_float(
             fr + simd_count,
             fa + simd_count,
             count - simd_count);
     }
 }
 
-void ort_math_simd_negative_double(void* result, const void* a, size_t count) {
+void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
     const double* da = (const double*)a;
     double* dr = (double*)result;
 
@@ -58,7 +58,7 @@ void ort_math_simd_negative_double(void* result, const void* a, size_t count) {
     
     if (simd_count == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_simd_negative_double_fallback;
+        goto __ort_math_simd_neg_double_fallback;
     }
 
     __m256d sign_mask = _mm256_set1_pd(-0.0);  /* Sign bit mask */
@@ -70,10 +70,10 @@ void ort_math_simd_negative_double(void* result, const void* a, size_t count) {
         _mm256_storeu_pd(&dr[i], vr);
     }
 
-__ort_math_simd_negative_double_fallback:
+__ort_math_simd_neg_double_fallback:
     /* Handle remaining elements with scalar operations */
     if (simd_count < count) {
-        ort_math_ops_negative_double(
+        ort_math_ops_neg_double(
             dr + simd_count,
             da + simd_count,
             count - simd_count);

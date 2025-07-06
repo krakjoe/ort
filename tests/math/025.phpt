@@ -23,7 +23,7 @@ try {
     $result = ONNX\Math\divide($tensor_a, $tensor_b);
     echo "PASS: Double division works\n";
     
-    $result = ONNX\Math\negative($tensor_a);
+    $result = ONNX\Math\neg($tensor_a);
     echo "PASS: Double negation works\n";
 } catch (Error $e) {
     echo "FAIL: Double basic operations failed: " . $e->getMessage() . "\n";

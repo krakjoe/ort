@@ -40,38 +40,44 @@ if (PHP_ORT != 'no') {
 
     ADD_SOURCES(
         configure_module_dirname + "\\src\\maths",
-        "core.c ops.c",
-        "ort"
+        "core.c",
+        "ort",
+        "maths"
     );
 
     ADD_SOURCES(
-        configure_module_dirname + "\\src\\maths\\ops",
-        "mod.c pow.c sqrt.c",
-        "ort"
+        configure_module_dirname + "\\src\\maths\\frontend",
+        "add.c div.c neg.c mul.c recip.c sign.c sub.c mod.c pow.c real.c sqrt.c sum.c matmul.c",
+        "ort",
+        "frontend"
     );
 
     if (PHP_ORT_SIMD != 'no') {
         if (PHP_ORT_AVX2 == 'yes') {
             AC_DEFINE('HAVE_AVX2', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
-            ADD_SOURCES('src/maths/simd/avx2',
-                'add.c sub.c mul.c div.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c reciprocal.c',
-                'ort');
+            ADD_SOURCES(
+                configure_module_dirname + "\\src\\maths\\simd\\avx2",
+                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c",
+                "ort",
+                "backend");
             ADD_FLAG("CFLAGS_ORT", "/arch:AVX2");
         } else if (PHP_ORT_SSE41 == 'yes') {
             AC_DEFINE('HAVE_SSE41', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
-            ADD_SOURCES('src/maths/simd/sse41',
-                'add.c sub.c mul.c div.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c reciprocal.c',
-                'ort');
+            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\simd\\sse41",
+                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c",
+                "ort",
+                "backend");
             /** No special flag is required for SSE4.1 **/
             ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");
         } else if (PHP_ORT_SSE2 == 'yes') {
             AC_DEFINE('HAVE_SSE2', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
-            ADD_SOURCES('src/maths/simd/sse2',
-                'add.c sub.c mul.c div.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c reciprocal.c',
-                'ort');
+            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\simd\\sse2",
+                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c",
+                "ort",
+                "backend");
             ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");
         }
     }

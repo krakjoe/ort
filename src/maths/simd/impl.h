@@ -23,12 +23,12 @@
  SIMD Support:
     Backends must fulfill the following requirements:
     - Implement the SIMD operations declared in this header.
-    - Ensure that the operations handle the count correctly, returning zero when
-      the count is less than the SIMD width or when it would cause a buffer overrun.
+    - Ensure that the operations handle the count correctly, falling back to frontend
+      operations when the count is not sufficient for SIMD processing.
     - Use the `ort_math_simd_optimal_count` function to determine the maximum count
       that can be processed without exceeding the bounds of the input buffers.
     - Ensure that the SIMD operations are efficient and optimized for the target architecture.
-    - Tail call fallback operations when the count is not sufficient for SIMD processing.
+    - Tail call frontend operations when the count is not sufficient for SIMD processing.
 }}} **/
 
 #include <php.h>
@@ -38,6 +38,7 @@
 #endif
 
 #include "maths/core.h"
+#include "maths/frontend.h"
 
 /** 
  * Returns largest multiple of width that is less than or equal to count.
@@ -118,8 +119,8 @@ ORT_MATH_SIMD_UNARY_OP_DECL(sqrt, float);
 ORT_MATH_SIMD_UNARY_OP_DECL(sqrt, double); /* }}} */
 
 /* {{{ SIMD Forward Declarations for Contracted Negation Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(negative, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(negative, double); /* }}} */
+ORT_MATH_SIMD_UNARY_OP_DECL(neg, float);
+ORT_MATH_SIMD_UNARY_OP_DECL(neg, double); /* }}} */
 
 /* {{{ SIMD Forward Declarations for Contracted Ceil Operations */
 ORT_MATH_SIMD_UNARY_OP_DECL(ceil, float);
@@ -142,6 +143,6 @@ ORT_MATH_SIMD_UNARY_OP_DECL(sign, float);
 ORT_MATH_SIMD_UNARY_OP_DECL(sign, double); /* }}} */
 
 /* {{{ SIMD Forward Declarations for Contracted Reciprocal Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(reciprocal, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(reciprocal, double); /* }}} */
+ORT_MATH_SIMD_UNARY_OP_DECL(recip, float);
+ORT_MATH_SIMD_UNARY_OP_DECL(recip, double); /* }}} */
 #endif

@@ -17,63 +17,54 @@
  */
 
 #include "maths/simd/impl.h"
+#include <smmintrin.h> /* SSE4.1 */
 
-#include <emmintrin.h> /* SSE2 */
-
-/*
- * SIMD Negation Operations (SSE2)
- *
- * Only float and double are contracted for neg in SSE2, matching AVX2/SSE4.1.
- */
-
-void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
+void ort_math_simd_recip_float(void* result, const void* a, size_t count) {
     const float* fa = (const float*)a;
     float* fr = (float*)result;
-    const size_t simd_width = 4; // 4 floats per SSE2 register
+    const size_t simd_width = 4;
     size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
-    __m128 neg_mask = _mm_set1_ps(-0.0f);
+    __m128 one = _mm_set1_ps(1.0f);
 
     if (simd_count == 0) {
-        /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_simd_neg_float_fallback;
+        goto __ort_math_simd_recip_float_fallback;
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
         __m128 va = _mm_loadu_ps(&fa[i]);
-        __m128 vr = _mm_xor_ps(va, neg_mask);
+        __m128 vr = _mm_div_ps(one, va);
         _mm_storeu_ps(&fr[i], vr);
     }
 
-__ort_math_simd_neg_float_fallback:
+__ort_math_simd_recip_float_fallback:
     if (simd_count < count) {
-        ort_math_ops_neg_float(
+        ort_math_ops_recip_float(
             fr + simd_count,
             fa + simd_count,
             count - simd_count);
     }
 }
 
-void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
+void ort_math_simd_recip_double(void* result, const void* a, size_t count) {
     const double* pa = (const double*)a;
     double* pr = (double*)result;
-    const size_t simd_width = 2; // 2 doubles per SSE2 register
+    const size_t simd_width = 2;
     size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
-    __m128d neg_mask = _mm_set1_pd(-0.0);
+    __m128d one = _mm_set1_pd(1.0);
 
     if (simd_count == 0) {
-        /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_simd_neg_double_fallback;
+        goto __ort_math_simd_recip_double_fallback;
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
         __m128d va = _mm_loadu_pd(&pa[i]);
-        __m128d vr = _mm_xor_pd(va, neg_mask);
+        __m128d vr = _mm_div_pd(one, va);
         _mm_storeu_pd(&pr[i], vr);
     }
 
-__ort_math_simd_neg_double_fallback:
+__ort_math_simd_recip_double_fallback:
     if (simd_count < count) {
-        ort_math_ops_neg_double(
+        ort_math_ops_recip_double(
             pr + simd_count,
             pa + simd_count,
             count - simd_count);

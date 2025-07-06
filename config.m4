@@ -54,15 +54,28 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_SRC_DIR/maths.c
   ")
 
-  PHP_ORT_MATHS_DIR="$PHP_ORT_SRC_DIR/maths"
+  PHP_ORT_MATHS_DIR=$PHP_ORT_SRC_DIR/maths
+  PHP_ORT_MATHS_FRONTEND_DIR=$PHP_ORT_MATHS_DIR/frontend
+  PHP_ORT_MATHS_FRONTEND_IMPL=m4_normalize("
+    $PHP_ORT_MATHS_FRONTEND_DIR/add.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/div.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/neg.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/mul.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/recip.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/sign.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/sub.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/mod.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/pow.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/sqrt.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/matmul.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/sum.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/real.c
+  ")
   PHP_ORT_MATHS_IMPL=m4_normalize("
     $PHP_ORT_MATHS_DIR/core.c
-    $PHP_ORT_MATHS_DIR/ops.c
-    $PHP_ORT_MATHS_DIR/ops/mod.c
-    $PHP_ORT_MATHS_DIR/ops/pow.c
-    $PHP_ORT_MATHS_DIR/ops/sqrt.c
+    $PHP_ORT_MATHS_FRONTEND_IMPL
   ")
-  
+
   dnl SIMD feature detection
   AC_MSG_CHECKING([for SIMD configuration])
   AS_VAR_IF([PHP_ORT_SIMD], [no], [
@@ -90,7 +103,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/sse2/round.c
             $PHP_ORT_SIMD_DIR/sse2/abs.c
             $PHP_ORT_SIMD_DIR/sse2/sign.c
-            $PHP_ORT_SIMD_DIR/sse2/reciprocal.c
+            $PHP_ORT_SIMD_DIR/sse2/recip.c
           ")
         ], [
           if test "$PHP_ORT_SSE2" = "yes"; then
@@ -122,7 +135,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/sse41/round.c
             $PHP_ORT_SIMD_DIR/sse41/abs.c
             $PHP_ORT_SIMD_DIR/sse41/sign.c
-            $PHP_ORT_SIMD_DIR/sse41/reciprocal.c
+            $PHP_ORT_SIMD_DIR/sse41/recip.c
           ")
         ], [
           if test "$PHP_ORT_SSE41" = "yes"; then
@@ -154,7 +167,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/avx2/round.c
             $PHP_ORT_SIMD_DIR/avx2/abs.c
             $PHP_ORT_SIMD_DIR/avx2/sign.c
-            $PHP_ORT_SIMD_DIR/avx2/reciprocal.c
+            $PHP_ORT_SIMD_DIR/avx2/recip.c
           ")
         ], [
           if test "$PHP_ORT_AVX2" = "yes"; then
