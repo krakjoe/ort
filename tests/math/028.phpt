@@ -201,6 +201,31 @@ try {
     echo "FAIL: Chained operations failed: " . $e->getMessage() . "\n";
 }
 
+// Test 15: Integer sqrt
+try {
+    foreach ([
+        "\ONNX\Tensor::INT8", 
+        "\ONNX\Tensor::INT16", 
+        "\ONNX\Tensor::INT32",
+        "\ONNX\Tensor::INT64",
+        "\ONNX\Tensor::UINT8",
+        "\ONNX\Tensor::UINT16",
+        "\ONNX\Tensor::UINT32"] as $type) {
+        $tensor = \ONNX\Tensor\Transient::from(
+            [12], \constant($type));
+        $result = \ONNX\Math\sqrt($tensor);
+        $data   = $result->getData();
+        if ($data[0] === 3) {
+            echo "PASS: sqrt $type integer passed\n";
+        } else {
+            echo "FAIL: sqrt $type failed\n";
+        }
+    }
+} catch (Error $e) {
+    echo "FAIL: sqrt with integers failed\n";
+    echo (string) $e;
+}
+
 echo "Unary math functions comprehensive testing completed!\n";
 ?>
 --EXPECT--
@@ -233,4 +258,11 @@ PASS: sqrt with extreme values works
 INFO: sin([0, π/2, π, 2π]) ≈ [0, 1, -0, 0]
 INFO: cos([0, π/2, π, 2π]) ≈ [1, -0, -1, 1]
 PASS: Chained operations (sqrt then square) work correctly
+PASS: sqrt \ONNX\Tensor::INT8 integer passed
+PASS: sqrt \ONNX\Tensor::INT16 integer passed
+PASS: sqrt \ONNX\Tensor::INT32 integer passed
+PASS: sqrt \ONNX\Tensor::INT64 integer passed
+PASS: sqrt \ONNX\Tensor::UINT8 integer passed
+PASS: sqrt \ONNX\Tensor::UINT16 integer passed
+PASS: sqrt \ONNX\Tensor::UINT32 integer passed
 Unary math functions comprehensive testing completed!
