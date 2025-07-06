@@ -35,8 +35,8 @@
         if (a == 0 || a == 1) {                                              \
             return a;                                                        \
         }                                                                    \
-        int32_t x = a;                                                       \
-        int32_t y = (x + 1) / 2;                                             \
+        c_type x = a;                                                        \
+        c_type y = (x + 1) / 2;                                              \
         while (y < x) {                                                      \
             x = y;                                                           \
             y = (x + a / x) / 2;                                             \
