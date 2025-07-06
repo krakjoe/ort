@@ -134,6 +134,10 @@ ORT_MATH_SIMD_UNARY_OP_DECL(floor, double); /* }}} */
 ORT_MATH_SIMD_UNARY_OP_DECL(round, float);
 ORT_MATH_SIMD_UNARY_OP_DECL(round, double); /* }}} */
 
+/* {{{ SIMD Forward Declarations for Contracted Truncation Operations */
+ORT_MATH_SIMD_UNARY_OP_DECL(trunc, float);
+ORT_MATH_SIMD_UNARY_OP_DECL(trunc, double); /* }}} */
+
 /** SIMD Forward Declarations for Contracted Absolute Operations */
 ORT_MATH_SIMD_UNARY_OP_DECL(abs, float);
 ORT_MATH_SIMD_UNARY_OP_DECL(abs, double); /* }}} */

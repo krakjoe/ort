@@ -761,7 +761,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .neg_simd_func        = ort_math_simd_neg_float,
         .recip_simd_func      = ort_math_simd_recip_float,
         .sign_simd_func       = ort_math_simd_sign_float,
-        .trunc_simd_func      = NULL, // Provide if available
+        .trunc_simd_func      = ort_math_simd_trunc_float,
 #else
         .add_simd_func        = NULL,
         .sub_simd_func        = NULL,
@@ -813,7 +813,7 @@ static const ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .neg_simd_func        = ort_math_simd_neg_double,
         .recip_simd_func      = ort_math_simd_recip_double,
         .sign_simd_func       = ort_math_simd_sign_double,
-        .trunc_simd_func      = NULL, // Provide if available
+        .trunc_simd_func      = ort_math_simd_trunc_double,
 #else
         .add_simd_func        = NULL,
         .sub_simd_func        = NULL,

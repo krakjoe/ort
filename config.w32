@@ -58,7 +58,7 @@ if (PHP_ORT != 'no') {
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
             ADD_SOURCES(
                 configure_module_dirname + "\\src\\maths\\simd\\avx2",
-                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c",
+                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c trunc.c",
                 "ort",
                 "backend");
             ADD_FLAG("CFLAGS_ORT", "/arch:AVX2");
@@ -66,7 +66,7 @@ if (PHP_ORT != 'no') {
             AC_DEFINE('HAVE_SSE41', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
             ADD_SOURCES(configure_module_dirname + "\\src\\maths\\simd\\sse41",
-                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c",
+                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c trunc.c",
                 "ort",
                 "backend");
             /** No special flag is required for SSE4.1 **/
@@ -75,7 +75,7 @@ if (PHP_ORT != 'no') {
             AC_DEFINE('HAVE_SSE2', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
             ADD_SOURCES(configure_module_dirname + "\\src\\maths\\simd\\sse2",
-                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c",
+                "add.c div.c sub.c mul.c sqrt.c neg.c ceil.c floor.c round.c abs.c sign.c recip.c trunc.c",
                 "ort",
                 "backend");
             ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");

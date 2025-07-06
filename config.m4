@@ -104,6 +104,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/sse2/abs.c
             $PHP_ORT_SIMD_DIR/sse2/sign.c
             $PHP_ORT_SIMD_DIR/sse2/recip.c
+            $PHP_ORT_SIMD_DIR/sse2/trunc.c
           ")
         ], [
           if test "$PHP_ORT_SSE2" = "yes"; then
@@ -136,6 +137,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/sse41/abs.c
             $PHP_ORT_SIMD_DIR/sse41/sign.c
             $PHP_ORT_SIMD_DIR/sse41/recip.c
+            $PHP_ORT_SIMD_DIR/sse41/trunc.c
           ")
         ], [
           if test "$PHP_ORT_SSE41" = "yes"; then
@@ -168,6 +170,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/avx2/abs.c
             $PHP_ORT_SIMD_DIR/avx2/sign.c
             $PHP_ORT_SIMD_DIR/avx2/recip.c
+            $PHP_ORT_SIMD_DIR/avx2/trunc.c
           ")
         ], [
           if test "$PHP_ORT_AVX2" = "yes"; then

@@ -21,8 +21,8 @@
 #include <smmintrin.h> /* SSE4.1 */
 
 void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
-    const float* fa = (const float*)a;
-    float* fr = (float*)result;
+    const float* va = (const float*)a;
+    float* res = (float*)result;
     const size_t simd_width = 4;
     size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
     __m128 neg_mask = _mm_set1_ps(-0.0f);
@@ -32,23 +32,23 @@ void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128 va = _mm_loadu_ps(&fa[i]);
-        __m128 vr = _mm_xor_ps(va, neg_mask);
-        _mm_storeu_ps(&fr[i], vr);
+        __m128 vec = _mm_loadu_ps(&va[i]);
+        __m128 vr = _mm_xor_ps(vec, neg_mask);
+        _mm_storeu_ps(&res[i], vr);
     }
 
 __ort_math_simd_neg_float_fallback:
     if (simd_count < count) {
         ort_math_ops_neg_float(
-            fr + simd_count,
-            fa + simd_count,
+            res + simd_count,
+            va + simd_count,
             count - simd_count);
     }
 }
 
 void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
-    const double* pa = (const double*)a;
-    double* pr = (double*)result;
+    const double* va = (const double*)a;
+    double* res = (double*)result;
     const size_t simd_width = 2;
     size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
     __m128d neg_mask = _mm_set1_pd(-0.0);
@@ -58,16 +58,16 @@ void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
     }
 
     for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128d va = _mm_loadu_pd(&pa[i]);
-        __m128d vr = _mm_xor_pd(va, neg_mask);
-        _mm_storeu_pd(&pr[i], vr);
+        __m128d vec = _mm_loadu_pd(&va[i]);
+        __m128d vr = _mm_xor_pd(vec, neg_mask);
+        _mm_storeu_pd(&res[i], vr);
     }
 
 __ort_math_simd_neg_double_fallback:
     if (simd_count < count) {
         ort_math_ops_neg_double(
-            pr + simd_count,
-            pa + simd_count,
+            res + simd_count,
+            va + simd_count,
             count - simd_count);
     }
 }
