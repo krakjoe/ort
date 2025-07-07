@@ -22,51 +22,51 @@
 void ort_math_simd_round_float(void* result, const void* a, size_t count) {
     const float* va = (const float*)a;
     float* res = (float*)result;
-    const size_t simd_width = 4;
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    const size_t mw = 4;
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_round_float_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128 vreg = _mm_loadu_ps(&va[i]);
-        __m128 vr = _mm_round_ps(vreg,
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 mr = _mm_round_ps(ma,
             _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
-        _mm_storeu_ps(&res[i], vr);
+        _mm_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_round_float_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_round_float(
-            res + simd_count,
-            va + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_round_double(void* result, const void* a, size_t count) {
     const double* va = (const double*)a;
     double* res = (double*)result;
-    const size_t simd_width = 2;
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    const size_t mw = 2;
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_round_double_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128d vreg = _mm_loadu_pd(&va[i]);
-        __m128d vr = _mm_round_pd(vreg,
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d mr = _mm_round_pd(ma,
             _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
-        _mm_storeu_pd(&res[i], vr);
+        _mm_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_round_double_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_round_double(
-            res + simd_count,
-            va + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }

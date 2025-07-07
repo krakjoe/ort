@@ -24,57 +24,58 @@
 #include "maths/simd/impl.h"
 
 void ort_math_simd_sqrt_float(void* result, const void* a, size_t count) {
-    const float* da = (const float*)a;
-    float* dr = (float*)result;
+    const float* va = (const float*)a;
+    float* res = (float*)result;
+    const size_t mw = 8; /* AVX2 can process 8 floats at once */
 
-    size_t simd_count = ort_math_simd_optimal_count(count, 8);  /* 8 floats per AVX2 register */
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_sqrt_float_fallback;
     }
 
     /* Vectorized loop - process 8 floats at once */
-    for (size_t i = 0; i < simd_count; i += 8) {
-        __m256 va = _mm256_loadu_ps(&da[i]);
-        __m256 vr = _mm256_sqrt_ps(va);
-        _mm256_storeu_ps(&dr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_loadu_ps(&va[i]);
+        __m256 mr = _mm256_sqrt_ps(ma);
+        _mm256_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_sqrt_float_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_sqrt_float(
-            dr + simd_count,
-            da + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_sqrt_double(void* result, const void* a, size_t count) {
-    const double* da = (const double*)a;
-    double* dr = (double*)result;
-    
-    size_t simd_count = ort_math_simd_optimal_count(count, 4);  /* 4 doubles per AVX2 register */
-    
-    if (simd_count == 0) {
+    const double* va = (const double*)a;
+    double* res = (double*)result;
+    const size_t mw = 4; /* AVX2 can process 4 doubles at once */
+    size_t mc = ort_math_simd_optimal_count(count, mw);
+
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_sqrt_double_fallback;
     }
 
     /* Vectorized loop - process 4 doubles at once */
-    for (size_t i = 0; i < simd_count; i += 4) {
-        __m256d va = _mm256_loadu_pd(&da[i]);
-        __m256d vr = _mm256_sqrt_pd(va);
-        _mm256_storeu_pd(&dr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256d ma = _mm256_loadu_pd(&va[i]);
+        __m256d mr = _mm256_sqrt_pd(ma);
+        _mm256_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_sqrt_double_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_sqrt_double(
-            dr + simd_count,
-            da + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }

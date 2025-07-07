@@ -21,12 +21,13 @@
 #include <immintrin.h>  /* AVX/AVX2 */
 
 void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
-    const float* fa = (const float*)a;
-    float* fr = (float*)result;
-    
-    size_t simd_count = ort_math_simd_optimal_count(count, 8);
+    const float* va = (const float*)a;
+    float* res = (float*)result;
+    const size_t mw = 8; /* AVX2 can process 8 floats at once */
 
-    if (simd_count == 0) {
+    size_t mc = ort_math_simd_optimal_count(count, mw);
+
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_neg_float_fallback;
     }
@@ -34,29 +35,29 @@ void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
     __m256 sign_mask = _mm256_set1_ps(-0.0f);  /* Sign bit mask */
 
     /* Vectorized loop - process 8 floats at once */
-    for (size_t i = 0; i < simd_count; i += 8) {
-        __m256 va = _mm256_loadu_ps(&fa[i]);
-        __m256 vr = _mm256_xor_ps(va, sign_mask);  /* Flip sign bit */
-        _mm256_storeu_ps(&fr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_loadu_ps(&va[i]);
+        __m256 mr = _mm256_xor_ps(ma, sign_mask);  /* Flip sign bit */
+        _mm256_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_neg_float_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_neg_float(
-            fr + simd_count,
-            fa + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
-    const double* da = (const double*)a;
-    double* dr = (double*)result;
+    const double* va = (const double*)a;
+    double* res = (double*)result;
+    const size_t mw = 4; /* AVX2 can process 4 doubles at once */
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    size_t simd_count = ort_math_simd_optimal_count(count, 4);  /* 4 doubles per AVX2 register */
-    
-    if (simd_count == 0) {
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_neg_double_fallback;
     }
@@ -64,18 +65,18 @@ void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
     __m256d sign_mask = _mm256_set1_pd(-0.0);  /* Sign bit mask */
 
     /* Vectorized loop - process 4 doubles at once */
-    for (size_t i = 0; i < simd_count; i += 4) {
-        __m256d va = _mm256_loadu_pd(&da[i]);
-        __m256d vr = _mm256_xor_pd(va, sign_mask);  /* Flip sign bit */
-        _mm256_storeu_pd(&dr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256d ma = _mm256_loadu_pd(&va[i]);
+        __m256d mr = _mm256_xor_pd(ma, sign_mask);  /* Flip sign bit */
+        _mm256_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_neg_double_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_neg_double(
-            dr + simd_count,
-            da + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }

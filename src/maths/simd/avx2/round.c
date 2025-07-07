@@ -21,58 +21,62 @@
 #include <immintrin.h>  /* AVX/AVX2 */
 
 void ort_math_simd_round_float(void* result, const void* a, size_t count) {
-    const float* src = (const float*)a;
-    float* dst = (float*)result;
-    
-    size_t simd_count = ort_math_simd_optimal_count(count, 8);  /* 8 floats per AVX2 register */
-    
-    if (simd_count == 0) {
+    const float* va = (const float*)a;
+    float* res      = (float*)result;
+    const size_t mw = 8; /* AVX2 can process 8 floats at once */
+
+    size_t mc = ort_math_simd_optimal_count(count, mw);
+
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_round_float_fallback;
     }
 
     /* Vectorized loop - process 8 floats at once */
-    for (size_t i = 0; i < simd_count; i += 8) {
-        __m256 vec = _mm256_loadu_ps(&src[i]);
-        __m256 result_vec = _mm256_round_ps(vec, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
-        _mm256_storeu_ps(&dst[i], result_vec);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_loadu_ps(&va[i]);
+        __m256 mr = _mm256_round_ps(ma,
+            _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+        _mm256_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_round_float_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_round_float(
-            dst + simd_count,
-            src + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
 
 /* SIMD round operation for double arrays */
 void ort_math_simd_round_double(void* result, const void* a, size_t count) {
-    const double* src = (const double*)a;
-    double* dst = (double*)result;
-    
-    size_t simd_count = ort_math_simd_optimal_count(count, 4);  /* 4 doubles per AVX2 register */
-    
-    if (simd_count == 0) {
+    const double* va = (const double*)a;
+    double* res      = (double*)result;
+    const size_t mw  = 4; /* AVX2 can process 4 doubles at once */
+
+    size_t mc        = ort_math_simd_optimal_count(count, mw);
+
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_round_double_fallback;
     }
 
-    /* Vectorized loop - process 4 doubles at once */    
-    for (size_t i = 0; i < simd_count; i += 4) {
-        __m256d vec = _mm256_loadu_pd(&src[i]);
-        __m256d result_vec = _mm256_round_pd(vec, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
-        _mm256_storeu_pd(&dst[i], result_vec);
+    /* Vectorized loop - process 4 doubles at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256d ma = _mm256_loadu_pd(&va[i]);
+        __m256d mr = _mm256_round_pd(ma,
+            _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+        _mm256_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_round_double_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_round_double(
-            dst + simd_count,
-            src + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }

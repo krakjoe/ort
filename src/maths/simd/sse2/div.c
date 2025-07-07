@@ -28,63 +28,63 @@
 
 
 void ort_math_simd_div_float(void* result, const void* a, const void* b, size_t count) {
-    const float* fa = (const float*)a;
-    const float* fb = (const float*)b;
-    float* fr = (float*)result;
-    const size_t simd_width = 4; // 4 floats per SSE2 register
+    const float* va = (const float*)a;
+    const float* vb = (const float*)b;
+    float* res = (float*)result;
+    const size_t mw = 4; // 4 floats per SSE2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_div_float_fallback;
     }
 
     /* Vectorized loop - process 4 floats at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128 va = _mm_loadu_ps(&fa[i]);
-        __m128 vb = _mm_loadu_ps(&fb[i]);
-        __m128 vr = _mm_div_ps(va, vb);
-        _mm_storeu_ps(&fr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 mb = _mm_loadu_ps(&vb[i]);
+        __m128 mr = _mm_div_ps(ma, mb);
+        _mm_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_div_float_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_div_float(
-            fr + simd_count,
-            fa + simd_count,
-            fb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_div_double(void* result, const void* a, const void* b, size_t count) {
-    const double* pa = (const double*)a;
-    const double* pb = (const double*)b;
-    double* pr = (double*)result;
-    const size_t simd_width = 2; // 2 doubles per SSE2 register
+    const double* va = (const double*)a;
+    const double* vb = (const double*)b;
+    double* res = (double*)result;
+    const size_t mw = 2; // 2 doubles per SSE2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_div_double_fallback;
     }
 
     /* Vectorized loop - process 2 doubles at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128d va = _mm_loadu_pd(&pa[i]);
-        __m128d vb = _mm_loadu_pd(&pb[i]);
-        __m128d vr = _mm_div_pd(va, vb);
-        _mm_storeu_pd(&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d mb = _mm_loadu_pd(&vb[i]);
+        __m128d mr = _mm_div_pd(ma, mb);
+        _mm_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_div_double_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_div_double(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }

@@ -23,51 +23,53 @@
 void ort_math_simd_neg_float(void* result, const void* a, size_t count) {
     const float* va = (const float*)a;
     float* res = (float*)result;
-    const size_t simd_width = 4;
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
-    __m128 neg_mask = _mm_set1_ps(-0.0f);
+    const size_t mw = 4; // 4 floats per SSE register
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_neg_float_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128 vec = _mm_loadu_ps(&va[i]);
-        __m128 vr = _mm_xor_ps(vec, neg_mask);
-        _mm_storeu_ps(&res[i], vr);
+    __m128 neg_mask = _mm_set1_ps(-0.0f);
+
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 mr = _mm_xor_ps(ma, neg_mask);
+        _mm_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_neg_float_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_neg_float(
-            res + simd_count,
-            va + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_neg_double(void* result, const void* a, size_t count) {
     const double* va = (const double*)a;
     double* res = (double*)result;
-    const size_t simd_width = 2;
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
-    __m128d neg_mask = _mm_set1_pd(-0.0);
+    const size_t mw = 2;
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_neg_double_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128d vec = _mm_loadu_pd(&va[i]);
-        __m128d vr = _mm_xor_pd(vec, neg_mask);
-        _mm_storeu_pd(&res[i], vr);
+    __m128d neg_mask = _mm_set1_pd(-0.0);
+
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d mr = _mm_xor_pd(ma, neg_mask);
+        _mm_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_neg_double_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_neg_double(
-            res + simd_count,
-            va + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }

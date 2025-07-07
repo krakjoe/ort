@@ -40,13 +40,8 @@ void ort_math_simd_install(ort_math_type_dispatch_t* table) {
     /* mul.c */
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)].mul_func     = ort_math_simd_mul_float;
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)].mul_func    = ort_math_simd_mul_double;
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8)].mul_func      = ort_math_simd_mul_int8_t;
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16)].mul_func     = ort_math_simd_mul_int16_t;
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32)].mul_func     = ort_math_simd_mul_int32_t;
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64)].mul_func     = ort_math_simd_mul_int64_t;
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8)].mul_func     = ort_math_simd_mul_uint8_t;
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16)].mul_func    = ort_math_simd_mul_uint16_t;
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32)].mul_func    = ort_math_simd_mul_uint32_t;
 
     /* neg.c */
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)].neg_func     = ort_math_simd_neg_float;

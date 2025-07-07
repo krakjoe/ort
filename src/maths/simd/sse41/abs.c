@@ -21,53 +21,56 @@
 #include <smmintrin.h> /* SSE4.1 */
 
 void ort_math_simd_abs_float(void* result, const void* a, size_t count) {
-    const float* fa = (const float*)a;
-    float* fr = (float*)result;
-    const size_t simd_width = 4;
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
-    __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7fffffff));
+    const float* va = (const float*)a;
+    float* res = (float*)result;
+    const size_t mw = 4; /* 4 floats per SSE4.1 register */
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_abs_float_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128 va = _mm_loadu_ps(&fa[i]);
-        __m128 vr = _mm_and_ps(va, mask);
-        _mm_storeu_ps(&fr[i], vr);
+    __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7fffffff));
+
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 mr = _mm_and_ps(ma, mask);
+        _mm_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_abs_float_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_abs_float(
-            fr + simd_count,
-            fa + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_abs_double(void* result, const void* a, size_t count) {
-    const double* pa = (const double*)a;
-    double* pr = (double*)result;
-    const size_t simd_width = 2;
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
-    __m128d mask = _mm_castsi128_pd(_mm_set1_epi64x(0x7fffffffffffffffLL));
+    const double* va = (const double*)a;
+    double* res = (double*)result;
+    const size_t mw = 2; /* 2 doubles per SSE4.1 register */
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_abs_double_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m128d va = _mm_loadu_pd(&pa[i]);
-        __m128d vr = _mm_and_pd(va, mask);
-        _mm_storeu_pd(&pr[i], vr);
+    __m128d mask = _mm_castsi128_pd(
+        _mm_set1_epi64x(0x7fffffffffffffffLL));
+
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d mr = _mm_and_pd(ma, mask);
+        _mm_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_abs_double_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_abs_double(
-            pr + simd_count,
-            pa + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }

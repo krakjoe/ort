@@ -27,62 +27,63 @@
  */
 
 void ort_math_simd_div_float(void* result, const void* a, const void* b, size_t count) {
-    const float* fa = (const float*)a;
-    const float* fb = (const float*)b;
-    float* fr = (float*)result;
+    const float* va = (const float*)a;
+    const float* vb = (const float*)b;
+    float* res      = (float*)result;
+    const size_t mw = 8; /* AVX2 can process 8 floats at once */
 
-    size_t simd_count = ort_math_simd_optimal_count(count, 8);  /* 8 floats per AVX2 register */
+    size_t mc = ort_math_simd_optimal_count(count, mw);  /* 8 floats per AVX2 register */
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_div_float_fallback;
     }
 
     /* Vectorized loop - process 8 floats at once */
-    for (size_t i = 0; i < simd_count; i += 8) {
-        __m256 va = _mm256_loadu_ps(&fa[i]);
-        __m256 vb = _mm256_loadu_ps(&fb[i]);
-        __m256 vr = _mm256_div_ps(va, vb);
-        _mm256_storeu_ps(&fr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_loadu_ps(&va[i]);
+        __m256 mb = _mm256_loadu_ps(&vb[i]);
+        __m256 mr = _mm256_div_ps(ma, mb);
+        _mm256_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_div_float_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_div_float(
-            fr + simd_count,
-            fa + simd_count,
-            fb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_div_double(void* result, const void* a, const void* b, size_t count) {
-    const double* pa = (const double*)a;
-    const double* pb = (const double*)b;
-    double* pr = (double*)result;
-    const size_t simd_width = 4; // 4 doubles per AVX2 register
+    const double* va = (const double*)a;
+    const double* vb = (const double*)b;
+    double* res = (double*)result;
+    const size_t mw = 4; // 4 doubles per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_div_double_fallback;
     }
 
     /* Vectorized loop - process 4 doubles at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256d va = _mm256_loadu_pd(&pa[i]);
-        __m256d vb = _mm256_loadu_pd(&pb[i]);
-        __m256d vr = _mm256_div_pd(va, vb);
-        _mm256_storeu_pd(&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256d ma = _mm256_loadu_pd(&va[i]);
+        __m256d mb = _mm256_loadu_pd(&vb[i]);
+        __m256d mr = _mm256_div_pd(ma, mb);
+        _mm256_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_div_double_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_div_double(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }

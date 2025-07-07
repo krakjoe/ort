@@ -21,268 +21,269 @@
 #include <immintrin.h>  /* AVX/AVX2 */
 
 void ort_math_simd_add_int8_t(void* result, const void* a, const void* b, size_t count) {
-    const int8_t* pa = (const int8_t*)a;
-    const int8_t* pb = (const int8_t*)b;
-    int8_t* pr = (int8_t*)result;
-    const size_t simd_width = 32; // 32 int8_t per AVX2 register
+    const int8_t* va = (const int8_t*)a;
+    const int8_t* vb = (const int8_t*)b;
+    int8_t* res = (int8_t*)result;
+    const size_t mw = 32; // 32 int8_t per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_int8_fallback;
     }
 
     /* Vectorized loop - process 32 int8_t at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256i va = _mm256_loadu_si256((const __m256i*)&pa[i]);
-        __m256i vb = _mm256_loadu_si256((const __m256i*)&pb[i]);
-        __m256i vr = _mm256_add_epi8(va, vb);
-        _mm256_storeu_si256((__m256i*)&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i mr = _mm256_add_epi8(ma, mb);
+        _mm256_storeu_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_simd_add_int8_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_int8_t(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_int16_t(void* result, const void* a, const void* b, size_t count) {
-    const int16_t* pa = (const int16_t*)a;
-    const int16_t* pb = (const int16_t*)b;
-    int16_t* pr = (int16_t*)result;
-    const size_t simd_width = 16; // 16 int16_t per AVX2 register
+    const int16_t* va = (const int16_t*)a;
+    const int16_t* vb = (const int16_t*)b;
+    int16_t* res = (int16_t*)result;
+    const size_t mw = 16; // 16 int16_t per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_int16_fallback;
     }
 
     /* Vectorized loop - process 16 int16_t at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256i va = _mm256_loadu_si256((const __m256i*)&pa[i]);
-        __m256i vb = _mm256_loadu_si256((const __m256i*)&pb[i]);
-        __m256i vr = _mm256_add_epi16(va, vb);
-        _mm256_storeu_si256((__m256i*)&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i mr = _mm256_add_epi16(ma, mb);
+        _mm256_storeu_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_simd_add_int16_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_int16_t(
-            pr + simd_count, 
-            pa + simd_count, 
-            pb + simd_count, 
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_int32_t(void* result, const void* a, const void* b, size_t count) {
-    const int32_t* pa = (const int32_t*)a;
-    const int32_t* pb = (const int32_t*)b;
-    int32_t* pr = (int32_t*)result;
-    const size_t simd_width = 8; // 8 int32_t per AVX2 register
+    const int32_t* va = (const int32_t*)a;
+    const int32_t* vb = (const int32_t*)b;
+    int32_t* res = (int32_t*)result;
+    const size_t mw = 8; // 8 int32_t per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_int32_fallback;
     }
 
     /* Vectorized loop - process 8 int32_t at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256i va = _mm256_loadu_si256((const __m256i*)&pa[i]);
-        __m256i vb = _mm256_loadu_si256((const __m256i*)&pb[i]);
-        __m256i vr = _mm256_add_epi32(va, vb);
-        _mm256_storeu_si256((__m256i*)&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i mr = _mm256_add_epi32(ma, mb);
+        _mm256_storeu_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_simd_add_int32_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_int32_t(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res    + mc,
+            va     + mc,
+            vb     + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_int64_t(void* result, const void* a, const void* b, size_t count) {
-    const int64_t* pa = (const int64_t*)a;
-    const int64_t* pb = (const int64_t*)b;
-    int64_t* pr = (int64_t*)result;
-    const size_t simd_width = 4; // 4 int64_t per AVX2 register
+    const int64_t* va = (const int64_t*)a;
+    const int64_t* vb = (const int64_t*)b;
+    int64_t* res = (int64_t*)result;
+    const size_t mw = 4; // 4 int64_t per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_int64_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256i va = _mm256_loadu_si256((const __m256i*)&pa[i]);
-        __m256i vb = _mm256_loadu_si256((const __m256i*)&pb[i]);
-        __m256i vr = _mm256_add_epi64(va, vb);
-        _mm256_storeu_si256((__m256i*)&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i mr = _mm256_add_epi64(ma, mb);
+        _mm256_storeu_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_simd_add_int64_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_int64_t(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_uint8_t(void* result, const void* a, const void* b, size_t count) {
-    const uint8_t* pa = (const uint8_t*)a;
-    const uint8_t* pb = (const uint8_t*)b;
-    uint8_t* pr = (uint8_t*)result;
-    const size_t simd_width = 32; // 32 uint8_t per AVX2 register
+    const uint8_t* va = (const uint8_t*)a;
+    const uint8_t* vb = (const uint8_t*)b;
+    uint8_t* res = (uint8_t*)result;
+    const size_t mw = 32; // 32 uint8_t per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_uint8_fallback;
     }
 
     /* Vectorized loop - process 32 uint8_t at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256i va = _mm256_loadu_si256((const __m256i*)&pa[i]);
-        __m256i vb = _mm256_loadu_si256((const __m256i*)&pb[i]);
-        __m256i vr = _mm256_add_epi8(va, vb);
-        _mm256_storeu_si256((__m256i*)&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i mr = _mm256_add_epi8(ma, mb);
+        _mm256_storeu_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_simd_add_uint8_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_uint8_t(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_uint16_t(void* result, const void* a, const void* b, size_t count) {
-    const uint16_t* pa = (const uint16_t*)a;
-    const uint16_t* pb = (const uint16_t*)b;
-    uint16_t* pr = (uint16_t*)result;
-    const size_t simd_width = 16; // 16 uint16_t per AVX2 register
+    const uint16_t* va = (const uint16_t*)a;
+    const uint16_t* vb = (const uint16_t*)b;
+    uint16_t* res = (uint16_t*)result;
+    const size_t mw = 16; // 16 uint16_t per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_uint16_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256i va = _mm256_loadu_si256((const __m256i*)&pa[i]);
-        __m256i vb = _mm256_loadu_si256((const __m256i*)&pb[i]);
-        __m256i vr = _mm256_add_epi16(va, vb);
-        _mm256_storeu_si256((__m256i*)&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i mr = _mm256_add_epi16(ma, mb);
+        _mm256_storeu_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_simd_add_uint16_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_uint16_t(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_uint32_t(void* result, const void* a, const void* b, size_t count) {
-    const uint32_t* pa = (const uint32_t*)a;
-    const uint32_t* pb = (const uint32_t*)b;
-    uint32_t* pr = (uint32_t*)result;
-    const size_t simd_width = 8; // 8 uint32_t per AVX2 register
+    const uint32_t* va = (const uint32_t*)a;
+    const uint32_t* vb = (const uint32_t*)b;
+    uint32_t* res = (uint32_t*)result;
+    const size_t mw = 8; // 8 uint32_t per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_uint32_fallback;
     }
 
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256i va = _mm256_loadu_si256((const __m256i*)&pa[i]);
-        __m256i vb = _mm256_loadu_si256((const __m256i*)&pb[i]);
-        __m256i vr = _mm256_add_epi32(va, vb);
-        _mm256_storeu_si256((__m256i*)&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i mr = _mm256_add_epi32(ma, mb);
+        _mm256_storeu_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_simd_add_uint32_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_uint32_t(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_float(void* result, const void* a, const void* b, size_t count) {
-    const float* fa = (const float*)a;
-    const float* fb = (const float*)b;
-    float* fr = (float*)result;
+    const float* va = (const float*)a;
+    const float* vb = (const float*)b;
+    float* res = (float*)result;
+    const size_t mw = 8; // 8 floats per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, 8);  /* 8 floats per AVX2 register */
+    size_t mc = ort_math_simd_optimal_count(count, mw);  /* 8 floats per AVX2 register */
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_add_float_fallback;
     }
 
     /* Vectorized loop - process 8 floats at once */
-    for (size_t i = 0; i < simd_count; i += 8) {
-        __m256 va = _mm256_loadu_ps(&fa[i]);
-        __m256 vb = _mm256_loadu_ps(&fb[i]);
-        __m256 vr = _mm256_add_ps(va, vb);
-        _mm256_storeu_ps(&fr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_loadu_ps(&va[i]);
+        __m256 mb = _mm256_loadu_ps(&vb[i]);
+        __m256 mr = _mm256_add_ps(ma, mb);
+        _mm256_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_add_float_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_float(
-            fr + simd_count,
-            fa + simd_count,
-            fb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_add_double(void* result, const void* a, const void* b, size_t count) {
-    const double* pa = (const double*)a;
-    const double* pb = (const double*)b;
-    double* pr = (double*)result;
-    const size_t simd_width = 4; // 4 doubles per AVX2 register
+    const double* va = (const double*)a;
+    const double* vb = (const double*)b;
+    double* res = (double*)result;
+    const size_t mw = 4; // 4 doubles per AVX2 register
 
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    size_t mc = ort_math_simd_optimal_count(count, mw);
 
-    if (simd_count == 0) {
+    if (mc == 0) {
         goto __ort_math_simd_add_double_fallback;
     }
 
     /* Vectorized loop - process 4 doubles at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256d va = _mm256_loadu_pd(&pa[i]);
-        __m256d vb = _mm256_loadu_pd(&pb[i]);
-        __m256d vr = _mm256_add_pd(va, vb);
-        _mm256_storeu_pd(&pr[i], vr);
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256d ma = _mm256_loadu_pd(&va[i]);
+        __m256d mb = _mm256_loadu_pd(&vb[i]);
+        __m256d mr = _mm256_add_pd(ma, mb);
+        _mm256_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_add_double_fallback:
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_add_double(
-            pr + simd_count,
-            pa + simd_count,
-            pb + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
     }
 }

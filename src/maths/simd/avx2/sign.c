@@ -21,54 +21,54 @@
 #include <immintrin.h>  /* AVX/AVX2 */
 
 void ort_math_simd_sign_float(void* result, const void* a, size_t count) {
-    const float* src = (const float*)a;
-    float* dst = (float*)result;
-    const size_t simd_width = 8; /* AVX2 can process 8 floats at once */
+    const float* va = (const float*)a;
+    float* res = (float*)result;
+    const size_t mw = 8; /* AVX2 can process 8 floats at once */
     
     const __m256 zero = _mm256_setzero_ps();
     const __m256 one = _mm256_set1_ps(1.0f);
     const __m256 neg_one = _mm256_set1_ps(-1.0f);
-    
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
 
-    if (simd_count == 0) {
+    size_t mc = ort_math_simd_optimal_count(count, mw);
+
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_sign_float_fallback;
     }
 
     /* Vectorized loop - process 8 floats at once */
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256 va = _mm256_loadu_ps(&src[i]);
-        
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_loadu_ps(&va[i]);
+
         /* Check for positive, negative, and zero */
-        __m256 pos_mask = _mm256_cmp_ps(va, zero, _CMP_GT_OQ);
-        __m256 neg_mask = _mm256_cmp_ps(va, zero, _CMP_LT_OQ);
-        
+        __m256 pos_mask = _mm256_cmp_ps(ma, zero, _CMP_GT_OQ);
+        __m256 neg_mask = _mm256_cmp_ps(ma, zero, _CMP_LT_OQ);
+
         /* Apply sign: positive -> 1, negative -> -1, zero -> 0 */
-        __m256 result_vec = _mm256_blendv_ps(zero, one, pos_mask);
-        result_vec = _mm256_blendv_ps(result_vec, neg_one, neg_mask);
-        
-        _mm256_storeu_ps(&dst[i], result_vec);
+        __m256 mr = _mm256_blendv_ps(zero, one, pos_mask);
+        mr = _mm256_blendv_ps(mr, neg_one, neg_mask);
+
+        _mm256_storeu_ps(&res[i], mr);
     }
 
 __ort_math_simd_sign_float_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_sign_float(
-            dst + simd_count,
-            src + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
 
 void ort_math_simd_sign_double(void* result, const void* a, size_t count) {
-    const double* src = (const double*)a;
-    double* dst = (double*)result;
-    const size_t simd_width = 4; /* AVX2 can process 4 doubles at once */
-    
-    size_t simd_count = ort_math_simd_optimal_count(count, simd_width);
+    const double* va = (const double*)a;
+    double* res = (double*)result;
+    const size_t mw = 4; /* AVX2 can process 4 doubles at once */
 
-    if (simd_count == 0) {
+    size_t mc = ort_math_simd_optimal_count(count, mw);
+
+    if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
         goto __ort_math_simd_sign_double_fallback;
     }
@@ -76,27 +76,27 @@ void ort_math_simd_sign_double(void* result, const void* a, size_t count) {
     const __m256d zero = _mm256_setzero_pd();
     const __m256d one = _mm256_set1_pd(1.0);
     const __m256d neg_one = _mm256_set1_pd(-1.0);
-    
-    for (size_t i = 0; i < simd_count; i += simd_width) {
-        __m256d va = _mm256_loadu_pd(&src[i]);
-        
+
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256d ma = _mm256_loadu_pd(&va[i]);
+
         /* Check for positive, negative, and zero */
-        __m256d pos_mask = _mm256_cmp_pd(va, zero, _CMP_GT_OQ);
-        __m256d neg_mask = _mm256_cmp_pd(va, zero, _CMP_LT_OQ);
-        
+        __m256d pos_mask = _mm256_cmp_pd(ma, zero, _CMP_GT_OQ);
+        __m256d neg_mask = _mm256_cmp_pd(ma, zero, _CMP_LT_OQ);
+
         /* Apply sign: positive -> 1, negative -> -1, zero -> 0 */
-        __m256d result_vec = _mm256_blendv_pd(zero, one, pos_mask);
-        result_vec = _mm256_blendv_pd(result_vec, neg_one, neg_mask);
-        
-        _mm256_storeu_pd(&dst[i], result_vec);
+        __m256d mr = _mm256_blendv_pd(zero, one, pos_mask);
+        mr = _mm256_blendv_pd(mr, neg_one, neg_mask);
+
+        _mm256_storeu_pd(&res[i], mr);
     }
 
 __ort_math_simd_sign_double_fallback:
     /* Handle remaining elements with scalar operations */
-    if (simd_count < count) {
+    if (mc < count) {
         ort_math_ops_sign_double(
-            dst + simd_count,
-            src + simd_count,
-            count - simd_count);
+            res   + mc,
+            va    + mc,
+            count - mc);
     }
 }
