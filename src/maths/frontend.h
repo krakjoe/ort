@@ -138,4 +138,15 @@ extern void ort_math_ops_pow_uint16_t(void* result, const void* a, const void* b
 extern void ort_math_ops_pow_uint32_t(void* result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_pow_float(void* result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_pow_double(void* result, const void* a, const void* b, size_t count);
+
+extern void ort_math_ops_dot_float(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_double(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_int8_t(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_int16_t(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_int32_t(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_int64_t(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_uint8_t(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_uint16_t(void *result, const void* a, const void* b, size_t count);
+extern void ort_math_ops_dot_uint32_t(void *result, const void* a, const void* b, size_t count);
+
 #endif

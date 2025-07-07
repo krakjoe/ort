@@ -69,6 +69,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_MATHS_FRONTEND_DIR/sqrt.c
     $PHP_ORT_MATHS_FRONTEND_DIR/matmul.c
     $PHP_ORT_MATHS_FRONTEND_DIR/sum.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/dot.c
     $PHP_ORT_MATHS_FRONTEND_DIR/real.c
   ")
   PHP_ORT_MATHS_IMPL=m4_normalize("

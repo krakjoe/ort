@@ -49,7 +49,7 @@
     } break;
 
 /* Type casting helper for element-wise ops */
-static void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type) {
+void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type) {
     /* Fast path for same type */
     if (src_type == dst_type) {
         ort_tensor_t temp_tensor = {0};
@@ -193,13 +193,14 @@ static zend_always_inline ONNXTensorElementDataType ort_math_promote_unsigned_in
     return ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8;
 }
 
-/* Type promotion implementation */
+
+/* Type promotion implementation (permissive, for elementwise ops) */
 ort_math_type_promotion_t ort_math_type_promote(
     ONNXTensorElementDataType type_a,
     ONNXTensorElementDataType type_b
 ) {
     ort_math_type_promotion_t result = {ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED, 0};
-    
+    /* ...existing code for permissive promotion... */
     /* Handle bool special cases first */
     if (type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL) {
         result.result_type = type_b;
@@ -211,19 +212,16 @@ ort_math_type_promotion_t ort_math_type_promote(
         result.is_valid = 1;
         return result;
     }
-    
     /* Same types */
     if (type_a == type_b) {
         result.result_type = type_a;
         result.is_valid = 1;
         return result;
     }
-    
     /* Type promotion hierarchy (simplified NumPy-style) */
     /* BOOL < INT8 < INT16 < INT32 < INT64 */
     /* UINT8 < UINT16 < UINT32 */  
     /* FLOAT < DOUBLE */
-    
     /* Handle floating point types first */
     if (type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE || type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
         result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
@@ -248,7 +246,86 @@ ort_math_type_promotion_t ort_math_type_promote(
         result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64;
         result.is_valid = 1;
     }
-    
+    return result;
+}
+
+/* Strict type promotion for dot/matmul/reductions (NumPy/ONNX style) */
+ort_math_type_promotion_t ort_math_type_promote_strict(
+    ONNXTensorElementDataType type_a,
+    ONNXTensorElementDataType type_b
+) {
+    ort_math_type_promotion_t result = {ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED, 0};
+
+    /* Handle bool special cases first */
+    if (type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL) {
+        result.result_type = type_b;
+        result.is_valid = 1;
+        return result;
+    }
+    if (type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL) {
+        result.result_type = type_a;
+        result.is_valid = 1;
+        return result;
+    }
+
+    /* Same types */
+    if (type_a == type_b) {
+        result.result_type = type_a;
+        result.is_valid = 1;
+        return result;
+    }
+
+    /* Type promotion hierarchy (simplified NumPy-style) */
+    /* BOOL < INT8 < INT16 < INT32 < INT64 */
+    /* UINT8 < UINT16 < UINT32 */  
+    /* FLOAT < DOUBLE */
+
+    /* Handle floating point types first */
+    if (type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE || type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+        result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
+        result.is_valid = 1;
+    } else if (type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT || type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
+        result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
+        result.is_valid = 1;
+    }
+    /* Handle signed integer types */
+    else if (ort_math_is_signed_integer(type_a) && ort_math_is_signed_integer(type_b)) {
+        result.result_type = ort_math_promote_signed_integers(type_a, type_b);
+        result.is_valid = 1;
+    }
+    /* Handle unsigned integer types */
+    else if (ort_math_is_unsigned_integer(type_a) && ort_math_is_unsigned_integer(type_b)) {
+        result.result_type = ort_math_promote_unsigned_integers(type_a, type_b);
+        result.is_valid = 1;
+    }
+    /* Mixed signed/unsigned - follow ONNX/NumPy promotion rules */
+    else if ((ort_math_is_signed_integer(type_a) && ort_math_is_unsigned_integer(type_b)) ||
+             (ort_math_is_unsigned_integer(type_a) && ort_math_is_signed_integer(type_b))) {
+        // int8 + uint8 => int32
+        if ((type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8 && type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8) ||
+            (type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8 && type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8)) {
+            result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32;
+            result.is_valid = 1;
+        }
+        // int16 + uint16 => int32
+        else if ((type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16 && type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16) ||
+                 (type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16 && type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16)) {
+            result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32;
+            result.is_valid = 1;
+        }
+        // int32 + uint32 => int64
+        else if ((type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32 && type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32) ||
+                 (type_b == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32 && type_a == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32)) {
+            result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64;
+            result.is_valid = 1;
+        }
+        // All other mixed signed/unsigned cases are not supported (e.g., int64 + uint32, etc.)
+        else {
+            result.result_type = ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED;
+            result.is_valid = 0;
+        }
+    }
+
     return result;
 }
 
@@ -663,6 +740,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = ort_math_ops_recip_float,
         .sign_func       = ort_math_ops_sign_float,
         .trunc_func      = ort_math_ops_trunc_float,
+        .dot_func        = ort_math_ops_dot_float,
     },
     /* DOUBLE */
     {
@@ -682,6 +760,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = ort_math_ops_recip_double,
         .sign_func       = ort_math_ops_sign_double,
         .trunc_func      = ort_math_ops_trunc_double,
+        .dot_func        = ort_math_ops_dot_double,
     },
     /* INT8 */
     {
@@ -701,6 +780,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
+        .dot_func        = ort_math_ops_dot_int8_t,
     },
     /* INT16 */
     {
@@ -720,6 +800,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
+        .dot_func        = ort_math_ops_dot_int16_t,
     },
     /* INT32 */
     {
@@ -739,6 +820,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
+        .dot_func        = ort_math_ops_dot_int32_t,
     },
     /* INT64 */
     {
@@ -758,6 +840,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
+        .dot_func        = ort_math_ops_dot_int64_t,
     },
     /* UINT8 */
     {
@@ -777,6 +860,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
+        .dot_func        = ort_math_ops_dot_uint8_t,
     },
     /* UINT16 */
     {
@@ -796,6 +880,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
+        .dot_func        = ort_math_ops_dot_uint16_t,
     },
     /* UINT32 */
     {
@@ -815,6 +900,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,
         .sign_func       = NULL,
         .trunc_func      = NULL,
+        .dot_func        = ort_math_ops_dot_uint32_t,
     },
     /* BOOL */
     {
@@ -834,6 +920,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .recip_func      = NULL,                         // Not meaningful for bool
         .sign_func       = NULL,                         // Identity for bool
         .trunc_func      = NULL,                         // Not meaningful for bool
+        .dot_func        = NULL,
     }
 };
 

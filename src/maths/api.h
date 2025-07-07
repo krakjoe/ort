@@ -92,12 +92,12 @@ ort_math_result_t* ort_math_result_neg(ort_tensor_t* tensor);
 ort_math_result_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matrix_b);
 
 /* {{{ TODO(krakjoe) */
-ort_math_result_t* ort_math_result_dot(ort_tensor_t* vector_a, ort_tensor_t* vector_b);
 ort_math_result_t* ort_math_result_transpose(ort_tensor_t* matrix);
 ort_math_result_t* ort_math_result_inverse(ort_tensor_t* matrix); /* }}} */
 
 /* Reduction operations */
 ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis, zend_bool keepdims);
+ort_math_result_t* ort_math_result_dot(ort_tensor_t* vector_a, ort_tensor_t* vector_b);
 
 /* {{{ TODO(krakjoe) */
 ort_math_result_t* ort_math_result_mean(ort_tensor_t* tensor, zval* axis, zend_bool keepdims);

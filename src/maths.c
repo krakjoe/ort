@@ -887,6 +887,37 @@ PHP_FUNCTION(sum)
     ort_math_result_free(result);
 }
 
+/* Dot reduction function */
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ONNX\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor_a, ONNX\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor_b, ONNX\\Tensor, 0)
+ZEND_END_ARG_INFO()
+
+PHP_FUNCTION(dot)
+{
+    zval *tensor_a, *tensor_b;
+
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_OBJECT_OF_CLASS(tensor_a, php_ort_tensor_interface_ce)
+        Z_PARAM_OBJECT_OF_CLASS(tensor_b, php_ort_tensor_interface_ce)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_ort_tensor_t* tensor_a_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_a));
+    php_ort_tensor_t* tensor_b_ort = php_ort_tensor_fetch(Z_OBJ_P(tensor_b));
+    ort_math_result_t* result = ort_math_result_dot(
+        tensor_a_ort->object, tensor_b_ort->object);
+
+    if (!result || !result->success) {
+        return;
+    }
+
+    object_init_ex(return_value, php_ort_tensor_transient_ce);
+    php_ort_tensor_t* result_ort = php_ort_tensor_fetch(Z_OBJ_P(return_value));
+    result_ort->object = result->tensor;
+
+    ort_math_result_free(result);
+}
+
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_neg_arginfo, 0, 1, ONNX\\Tensor, 0)
     ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)
 ZEND_END_ARG_INFO()
@@ -998,6 +1029,7 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", pow, php_ort_math_pow_arginfo)
     ZEND_NS_FE("ONNX\\Math", mod, php_ort_math_mod_arginfo)
     ZEND_NS_FE("ONNX\\Math", sum, php_ort_math_sum_arginfo)
+    ZEND_NS_FE("ONNX\\Math", dot, php_ort_math_dot_arginfo)
     ZEND_NS_FE("ONNX\\Math", neg, php_ort_math_neg_arginfo)
     ZEND_NS_FE("ONNX\\Math", recip, php_ort_math_recip_arginfo)
     ZEND_NS_FE("ONNX\\Math", trunc, php_ort_math_trunc_arginfo)

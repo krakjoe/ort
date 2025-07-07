@@ -69,6 +69,11 @@ ort_math_type_promotion_t ort_math_type_promote(
     ONNXTensorElementDataType type_b
 );
 
+ort_math_type_promotion_t ort_math_type_promote_strict(
+    ONNXTensorElementDataType type_a,
+    ONNXTensorElementDataType type_b
+);
+
 /* Shape comparison helper */
 zend_bool ort_math_shapes_identical(ort_tensor_t* tensor_a, ort_tensor_t* tensor_b);
 
@@ -130,6 +135,7 @@ zend_bool ort_math_validate_axis(ort_tensor_t* tensor, zend_long axis, const cha
 size_t ort_math_util_calculate_total_elements(const int64_t* shape, size_t dimensions);
 zend_long ort_math_util_get_flat_index(const int64_t* indices, const int64_t* shape, size_t dimensions);
 void ort_math_util_get_multi_index(zend_long flat_index, const int64_t* shape, size_t dimensions, int64_t* indices);
+void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type);
 
 /* Function dispatch table structure for mathematical operations */
 typedef struct _ort_math_type_dispatch_t {
@@ -142,6 +148,7 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_element_op_func_t div_func;
     ort_math_element_op_func_t pow_func;
     ort_math_element_op_func_t mod_func;
+    ort_math_element_op_func_t dot_func;
 
     /* Scalar operations */
     ort_math_scalar_op_func_t add_scalar_func;

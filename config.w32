@@ -1,18 +1,10 @@
 // config.w32 for php-ort
 
-
 ARG_WITH('ort', 'Enable ort extension', 'yes');
 ARG_ENABLE('ort-simd', 'Enable SIMD optimizations', 'yes');
 ARG_ENABLE('ort-sse2', 'Enable SSE2 support', 'yes');
 ARG_ENABLE('ort-sse41', 'Enable SSE4.1 support', 'yes');
 ARG_ENABLE('ort-avx2', 'Enable AVX2 support', 'yes');
-
-// Defensive: If SIMD is disabled, forcibly disable all SIMD sub-options
-if (PHP_ORT_SIMD == 'no') {
-    PHP_ORT_SSE2 = 'no';
-    PHP_ORT_SSE41 = 'no';
-    PHP_ORT_AVX2 = 'no';
-}
 
 if (PHP_ORT != 'no') {
 
@@ -33,7 +25,7 @@ if (PHP_ORT != 'no') {
         "/I" + configure_module_dirname                 + " " +
         "/I" + configure_module_dirname + "\\src"       + " " +
         "/I" + configure_module_dirname + "\\src\\simd" + " " +
-        "/I" + PHP_ORT_INCPATH                          + " " +
+	    "/I" + PHP_ORT_INCPATH                          + " " +
         "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
 
     ADD_FLAG("LDFLAGS_ORT",
@@ -55,7 +47,7 @@ if (PHP_ORT != 'no') {
 
     ADD_SOURCES(
         configure_module_dirname + "\\src\\maths\\frontend",
-        "add.c div.c neg.c mul.c recip.c sign.c sub.c mod.c pow.c real.c sqrt.c sum.c matmul.c",
+        "add.c div.c dot.c neg.c mul.c recip.c sign.c sub.c mod.c pow.c real.c sqrt.c sum.c matmul.c",
         "ort",
         "frontend"
     );
