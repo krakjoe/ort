@@ -54,6 +54,7 @@ typedef struct _ort_math_type_promotion_t {
 typedef void (*ort_math_element_op_func_t)(void* result, const void* a, const void* b, size_t count);
 typedef void (*ort_math_scalar_op_func_t)(void* result, const void* a, const void* b, size_t count);
 typedef void (*ort_math_unary_op_func_t)(void* result, const void* input, size_t count);
+typedef void (*ort_math_matmul_op_func_t)(void* result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
 
 /* Broadcasting functions */
 ort_math_broadcast_info_t* ort_math_broadcast_calculate(
@@ -137,6 +138,30 @@ zend_long ort_math_util_get_flat_index(const int64_t* indices, const int64_t* sh
 void ort_math_util_get_multi_index(zend_long flat_index, const int64_t* shape, size_t dimensions, int64_t* indices);
 void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type);
 
+/* Cast a buffer of elements from src_type to dst_type. Returns 1 on success, 0 on failure. */
+static zend_always_inline zend_bool ort_math_cast_buffer(
+    const void* src, void* dst,
+    ONNXTensorElementDataType src_type,
+    ONNXTensorElementDataType dst_type, size_t count) {
+    if (src_type == dst_type) {
+        size_t size = count * 
+            php_ort_type_sizeof(dst_type);
+        memcpy(dst, src, size);
+        return 1;
+    }
+
+    for (size_t i = 0; i < count; i++) {
+        const void* src_elem = 
+            (const char*) src + i * php_ort_type_sizeof(src_type);
+        void* dst_elem = 
+            (char*)dst + i * php_ort_type_sizeof(dst_type);
+
+        ort_math_cast_element(src_elem, dst_elem, src_type, dst_type);
+    }
+
+    return 1;
+}
+
 /* Function dispatch table structure for mathematical operations */
 typedef struct _ort_math_type_dispatch_t {
     ONNXTensorElementDataType type;
@@ -149,6 +174,7 @@ typedef struct _ort_math_type_dispatch_t {
     ort_math_element_op_func_t pow_func;
     ort_math_element_op_func_t mod_func;
     ort_math_element_op_func_t dot_func;
+    ort_math_matmul_op_func_t  matmul_func;
 
     /* Scalar operations */
     ort_math_scalar_op_func_t add_scalar_func;

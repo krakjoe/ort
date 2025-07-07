@@ -19,18 +19,6 @@
 #ifndef HAVE_ORT_MATHS_SIMD_IMPL
 #define HAVE_ORT_MATHS_SIMD_IMPL
 
-/** {{{ 
- SIMD Support:
-    Backends must fulfill the following requirements:
-    - Implement the SIMD operations declared in this header.
-    - Ensure that the operations handle the count correctly, falling back to frontend
-      operations when the count is not sufficient for SIMD processing.
-    - Use the `ort_math_simd_optimal_count` function to determine the maximum count
-      that can be processed without exceeding the bounds of the input buffers.
-    - Ensure that the SIMD operations are efficient and optimized for the target architecture.
-    - Tail call frontend operations when the count is not sufficient for SIMD processing.
-}}} **/
-
 #include <php.h>
 
 #ifdef HAVE_CONFIG_H
@@ -64,11 +52,15 @@ static zend_always_inline size_t ort_math_simd_optimal_count(size_t count, size_
 #define ORT_MATH_SIMD_UNARY_OP_DECL(op, type)                      \
     extern void ort_math_simd_##op##_##type(                       \
         void* result, const void* a, size_t count)
+#define ORT_MATH_SIMD_MATMUL_OP_DECL(type)                         \
+    extern void ort_math_simd_matmul_##type(                       \
+        void* result, const void* a, const void* b,                \
+        size_t a_rows, size_t a_cols, size_t b_cols)
 
 /**
  * SIMD Forward Declarations of Contracted Binary Operations
  * 
- * Note: These contracts must be implemented by the SIMD backend.
+ * Note: These contracts may be implemented by the SIMD backend.
  */
 
 /* {{{ SIMD Forward Declarations of Contracted Addition Operations */
@@ -149,6 +141,17 @@ ORT_MATH_SIMD_UNARY_OP_DECL(sign, double); /* }}} */
 /* {{{ SIMD Forward Declarations for Contracted Reciprocal Operations */
 ORT_MATH_SIMD_UNARY_OP_DECL(recip, float);
 ORT_MATH_SIMD_UNARY_OP_DECL(recip, double); /* }}} */
+
+/* {{{ SIMD Forward Declarations for Matrix Multiplication Operations */
+ORT_MATH_SIMD_MATMUL_OP_DECL(float);
+ORT_MATH_SIMD_MATMUL_OP_DECL(double);
+ORT_MATH_SIMD_MATMUL_OP_DECL(int8_t);
+ORT_MATH_SIMD_MATMUL_OP_DECL(int16_t);
+ORT_MATH_SIMD_MATMUL_OP_DECL(int32_t);
+ORT_MATH_SIMD_MATMUL_OP_DECL(int64_t);
+ORT_MATH_SIMD_MATMUL_OP_DECL(uint8_t);
+ORT_MATH_SIMD_MATMUL_OP_DECL(uint16_t);
+ORT_MATH_SIMD_MATMUL_OP_DECL(uint32_t); /* }}} */
 
 /* {{{ Each backend must implement this function in its own impl.c */
 void ort_math_simd_install(ort_math_type_dispatch_t* table); /* }}} */

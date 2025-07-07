@@ -32,6 +32,38 @@ typedef enum {
     PHP_ORT_OWN_HEAP = 1
 } php_ort_owner_t;
 
+static zend_always_inline const char* php_ort_type_name(ONNXTensorElementDataType type) {
+    switch (type) {
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:   return "FLOAT";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:  return "DOUBLE";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:    return "INT8";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:   return "INT16";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:   return "INT32";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:   return "INT64";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:   return "UINT8";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:  return "UINT16";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:  return "UINT32";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:    return "BOOL";
+        default: return "UNKNOWN";
+    }
+}
+
+static zend_always_inline size_t php_ort_type_sizeof(ONNXTensorElementDataType type) {
+    switch (type) {
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return sizeof(float);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return sizeof(double);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:   return sizeof(int8_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:  return sizeof(int16_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:  return sizeof(int32_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:  return sizeof(int64_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:  return sizeof(uint8_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16: return sizeof(uint16_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32: return sizeof(uint32_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:   return sizeof(uint8_t);
+        default: return 0;
+    }
+}
+
 static zend_always_inline void php_ort_atomic_addref(uint32_t *refcount) {
 #ifdef _WIN32
     InterlockedAdd(refcount, 1);

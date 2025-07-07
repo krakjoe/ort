@@ -393,8 +393,6 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_transient(ort_tensor
     return php_ort_tensor_flatten(tensor, &offset, php_ort_tensor_sizeof(tensor), data, 0);
 }
 
-static void php_ort_tensor_release(ort_tensor_t *tensor);
-
 static void php_ort_tensor_free(ort_tensor_t *tensor) {
     zend_bool persistent = 
         (tensor->owner == PHP_ORT_OWN_HEAP) ? 1 : 0;
@@ -422,7 +420,7 @@ static void php_ort_tensor_free(ort_tensor_t *tensor) {
     pefree(tensor, persistent);
 }
 
-static void php_ort_tensor_release(ort_tensor_t *tensor) {
+void php_ort_tensor_release(ort_tensor_t *tensor) {
     if (!tensor) {
         return;
     }

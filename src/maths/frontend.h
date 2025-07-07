@@ -149,4 +149,13 @@ extern void ort_math_ops_dot_uint8_t(void *result, const void* a, const void* b,
 extern void ort_math_ops_dot_uint16_t(void *result, const void* a, const void* b, size_t count);
 extern void ort_math_ops_dot_uint32_t(void *result, const void* a, const void* b, size_t count);
 
+extern void ort_math_ops_matmul_float(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_double(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_int8_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_int16_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_int32_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_int64_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_uint8_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_uint16_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+extern void ort_math_ops_matmul_uint32_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
 #endif

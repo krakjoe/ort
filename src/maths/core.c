@@ -52,13 +52,8 @@
 void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type) {
     /* Fast path for same type */
     if (src_type == dst_type) {
-        ort_tensor_t temp_tensor = {0};
-        temp_tensor.type = src_type;
-        size_t size = php_ort_tensor_sizeof(&temp_tensor);
-        if (size == 0) {
-            return; /* Unsupported type */
-        }
-        memcpy(dst, src, size);
+        memcpy(dst, src,
+            php_ort_type_sizeof(src_type));
         return;
     }
 
@@ -741,6 +736,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = ort_math_ops_sign_float,
         .trunc_func      = ort_math_ops_trunc_float,
         .dot_func        = ort_math_ops_dot_float,
+        .matmul_func     = ort_math_ops_matmul_float,
     },
     /* DOUBLE */
     {
@@ -761,6 +757,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = ort_math_ops_sign_double,
         .trunc_func      = ort_math_ops_trunc_double,
         .dot_func        = ort_math_ops_dot_double,
+        .matmul_func     = ort_math_ops_matmul_double,
     },
     /* INT8 */
     {
@@ -781,6 +778,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int8_t,
+        .matmul_func     = ort_math_ops_matmul_int8_t,
     },
     /* INT16 */
     {
@@ -801,6 +799,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int16_t,
+        .matmul_func     = ort_math_ops_matmul_int16_t,
     },
     /* INT32 */
     {
@@ -821,6 +820,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int32_t,
+        .matmul_func     = ort_math_ops_matmul_int32_t,
     },
     /* INT64 */
     {
@@ -841,6 +841,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int64_t,
+        .matmul_func     = ort_math_ops_matmul_int64_t,
     },
     /* UINT8 */
     {
@@ -861,6 +862,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_uint8_t,
+        .matmul_func     = ort_math_ops_matmul_uint8_t,
     },
     /* UINT16 */
     {
@@ -881,6 +883,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_uint16_t,
+        .matmul_func     = ort_math_ops_matmul_uint16_t,
     },
     /* UINT32 */
     {
@@ -901,6 +904,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_uint32_t,
+        .matmul_func     = ort_math_ops_matmul_uint32_t,
     },
     /* BOOL */
     {
@@ -921,6 +925,7 @@ static ort_math_type_dispatch_t ort_math_dispatch_table[] = {
         .sign_func       = NULL,                         // Identity for bool
         .trunc_func      = NULL,                         // Not meaningful for bool
         .dot_func        = NULL,
+        .matmul_func     = NULL,
     }
 };
 

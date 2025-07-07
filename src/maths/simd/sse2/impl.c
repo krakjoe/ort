@@ -37,10 +37,10 @@ void ort_math_simd_install(ort_math_type_dispatch_t* table) {
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)].div_func     = ort_math_simd_div_float;
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)].div_func    = ort_math_simd_div_double;
 
-    /* mul.c */
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)].mul_func     = ort_math_simd_mul_float;
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)].mul_func    = ort_math_simd_mul_double;
-    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16)].mul_func     = ort_math_simd_mul_int16_t;
+    /* matmul.c */
+    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)].matmul_func  = ort_math_simd_matmul_float;
+    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)].matmul_func = ort_math_simd_matmul_double;
+    table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16)].matmul_func  = ort_math_simd_matmul_int16_t;
     table[ort_math_type_dispatch_indexof(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16)].mul_func    = ort_math_simd_mul_uint16_t;
 
     /* neg.c */

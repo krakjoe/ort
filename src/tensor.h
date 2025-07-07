@@ -56,20 +56,10 @@ static zend_always_inline php_ort_tensor_t* php_ort_tensor_from(zval *z) {
 }
 
 static zend_always_inline size_t php_ort_tensor_sizeof(ort_tensor_t *tensor) {
-    switch (tensor->type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return sizeof(float);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return sizeof(double);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:   return sizeof(int8_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:  return sizeof(int16_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:  return sizeof(int32_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:  return sizeof(int64_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:  return sizeof(uint8_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16: return sizeof(uint16_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32: return sizeof(uint32_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:   return sizeof(uint8_t);
-        default: return 0;
-    }
+    return php_ort_type_sizeof(tensor->type);
 }
+
+void php_ort_tensor_release(ort_tensor_t *tensor);
 
 OrtValue*     php_ort_tensor_value(php_ort_tensor_t* ort);
 ort_tensor_t* php_ort_tensor_object(OrtValue* value);

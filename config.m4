@@ -96,6 +96,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_SIMD_DIR/sse2/abs.c
             $PHP_ORT_SIMD_DIR/sse2/add.c
             $PHP_ORT_SIMD_DIR/sse2/div.c
+            $PHP_ORT_SIMD_DIR/sse2/matmul.c
             $PHP_ORT_SIMD_DIR/sse2/mul.c
             $PHP_ORT_SIMD_DIR/sse2/neg.c
             $PHP_ORT_SIMD_DIR/sse2/recip.c
@@ -125,6 +126,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           PHP_ORT_SIMD_IMPL=m4_normalize("
             $PHP_ORT_SIMD_DIR/sse41/add.c
             $PHP_ORT_SIMD_DIR/sse41/sub.c
+            $PHP_ORT_SIMD_DIR/sse41/matmul.c
             $PHP_ORT_SIMD_DIR/sse41/mul.c
             $PHP_ORT_SIMD_DIR/sse41/div.c
             $PHP_ORT_SIMD_DIR/sse41/sqrt.c
@@ -159,6 +161,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           PHP_ORT_SIMD_IMPL=m4_normalize("
             $PHP_ORT_SIMD_DIR/avx2/add.c
             $PHP_ORT_SIMD_DIR/avx2/sub.c
+            $PHP_ORT_SIMD_DIR/avx2/matmul.c
             $PHP_ORT_SIMD_DIR/avx2/mul.c
             $PHP_ORT_SIMD_DIR/avx2/div.c
             $PHP_ORT_SIMD_DIR/avx2/sqrt.c
