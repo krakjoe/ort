@@ -31,6 +31,17 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_EVAL_INCLINE([$ONNX_CFLAGS])
   PHP_EVAL_LIBLINE([$ONNX_LIBS], [ORT_SHARED_LIBADD])
 
+  AC_MSG_CHECKING([support for __atomic_add_fetch])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([], [[
+    int variable = 1;
+    return (__atomic_add_fetch(&variable, 1, __ATOMIC_SEQ_CST)) ? 1 : 0;
+  ]])], [
+    AC_MSG_RESULT([yes])
+    AC_DEFINE(HAVE_BUILTIN_ATOMIC_CPP11, 1, [Define to 1 if supports __atomic_add_fetch()])
+  ], [
+    AC_MSG_RESULT([no])
+  ])
+
   dnl Check for coverage support
   AC_MSG_CHECKING([for coverage support])
   AS_VAR_IF([PHP_ORT_COVERAGE], [no], [
