@@ -35,11 +35,11 @@
             for (size_t j = 0; j < b_cols; j++) {      \
                 int64_t sum = 0;                       \
                 for (size_t k = 0; k < a_cols; k++) {  \
-                    sum += (int64_t)va[                \
+                    sum += va[                         \
                         i * a_cols + k                 \
-                    ] * (int64_t)vb[k * b_cols + j];   \
+                    ] * vb[k * b_cols + j];            \
                 }                                      \
-                /* Clamp for small integer types */                        \
+                /* Clamp for small integer types */    \
                 if (sizeof(c_type) == 1) {                                 \
                     if ((c_type)-128 == (int8_t)-128) { /* int8_t */       \
                         if (sum > INT8_MAX) sum = INT8_MAX;                \
