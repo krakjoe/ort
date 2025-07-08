@@ -30,9 +30,7 @@
 /* Result management */
 ort_math_result_t* ort_math_result_create(ort_tensor_t* tensor) {
     ort_math_result_t* result = ecalloc(1, sizeof(ort_math_result_t));
-    if (!result) {
-        return NULL;
-    }
+
     memset(result, 0, sizeof(ort_math_result_t));
     result->tensor = tensor;
     result->success = 1;
@@ -79,6 +77,30 @@ void ort_math_result_multi(zend_long flat_index, const int64_t* shape, size_t di
     }
 }
 
+static zend_always_inline ort_math_result_t* 
+    ort_math_result_element_wise_binary_fast(
+    ort_tensor_t* tensor_a,
+    ort_tensor_t* tensor_b,
+    ort_math_element_op_func_t operation,
+    const char* operation_name
+) {
+    /* Create result tensor with same shape and type as inputs */
+    ort_tensor_t* result_tensor = ort_math_result_tensor(
+        tensor_a->shape, 
+        tensor_a->dimensions,
+        tensor_a->type, operation_name);
+    
+    operation(
+        result_tensor->data,
+        tensor_a->data,
+        tensor_b->data,
+        tensor_a->elements);
+
+    ort_math_result_t* result = ort_math_result_create(result_tensor);
+
+    return result;
+}
+
 /* Element-wise operation helpers implementation */
 ort_math_result_t* ort_math_result_element_wise_binary(
     ort_tensor_t* tensor_a,
@@ -96,31 +118,39 @@ ort_math_result_t* ort_math_result_element_wise_binary(
     ort_math_broadcast_info_t* binfo = ort_math_broadcast_calculate(
         tensor_a->shape, tensor_a->dimensions,
         tensor_b->shape, tensor_b->dimensions);
-    if (!binfo->is_compatible) {
-        ort_math_broadcast_free(binfo);
-        php_ort_status_throw(php_ort_status_math_invalidshape_ce,
-            "%s: tensor shapes are not broadcast compatible", operation_name);
-        return NULL;
-    }
+
+    php_ort_status_flow(
+        !binfo->is_compatible,
+        {
+            ort_math_broadcast_free(binfo);
+            return NULL;
+        },
+        php_ort_status_math_invalidshape_ce,
+        "%s: tensor shapes are not broadcast compatible",
+        operation_name
+    );
 
     /* Type promotion */
     ort_math_type_promotion_t promotion = ort_math_type_promote(tensor_a->type, tensor_b->type);
-    if (!promotion.is_valid) {
-        ort_math_broadcast_free(binfo);
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,
-            "%s: incompatible tensor types", operation_name);
-        return NULL;
-    }
+
+    php_ort_status_flow(
+        !promotion.is_valid,
+        {
+            ort_math_broadcast_free(binfo);
+            return NULL;
+        },
+        php_ort_status_math_invalidtype_ce,
+        "%s: incompatible tensor types",
+        operation_name
+    );
 
     ort_tensor_t* result_tensor = ort_math_result_tensor(
-        binfo->result_shape, binfo->result_dimensions, promotion.result_type, operation_name);
-    if (!result_tensor) {
-        ort_math_broadcast_free(binfo);
-        return NULL;
-    }
+        binfo->result_shape, binfo->result_dimensions, 
+        promotion.result_type, operation_name);
 
     /* Broadcasting index logic with stack allocation optimization */
-    size_t total = ort_math_result_total(binfo->result_shape, binfo->result_dimensions);
+    size_t total = ort_math_result_total(
+        binfo->result_shape, binfo->result_dimensions);
     
     /* Stack allocation for small tensors (< 8 dimensions) */
     int64_t out_indices_stack[ORT_MATH_RESULT_STACK_DIMENSIONS];
@@ -130,7 +160,8 @@ ort_math_result_t* ort_math_result_element_wise_binary(
     int64_t* out_indices;
     int64_t* a_indices;
     int64_t* b_indices;
-    zend_bool use_stack = (binfo->result_dimensions <= ORT_MATH_RESULT_STACK_DIMENSIONS);
+    zend_bool use_stack = 
+        (binfo->result_dimensions <= ORT_MATH_RESULT_STACK_DIMENSIONS);
     
     if (use_stack) {
         /* Use stack allocation for small tensors - no heap overhead */
@@ -142,11 +173,8 @@ ort_math_result_t* ort_math_result_element_wise_binary(
         out_indices = ecalloc(binfo->result_dimensions, sizeof(int64_t));
         a_indices = ecalloc(binfo->result_dimensions, sizeof(int64_t));
         b_indices = ecalloc(binfo->result_dimensions, sizeof(int64_t));
-        
-        memset(out_indices, 0, binfo->result_dimensions * sizeof(int64_t));
-        memset(a_indices, 0, binfo->result_dimensions * sizeof(int64_t));
-        memset(b_indices, 0, binfo->result_dimensions * sizeof(int64_t));
     }
+
     for (size_t flat = 0; flat < total; flat++) {
         ort_math_result_multi(
             flat, 
@@ -176,70 +204,42 @@ ort_math_result_t* ort_math_result_element_wise_binary(
             tensor_b->dimensions);
         
         // Type promotion: operate on promoted type
-        ort_tensor_t temp_tensor = {0};
-        temp_tensor.type = promotion.result_type;
         void* res_ptr = 
             (char*)result_tensor->data + 
-                flat * php_ort_tensor_sizeof(&temp_tensor);
+                flat * php_ort_type_sizeof(
+                    promotion.result_type);
 
-        ort_tensor_t temp_tensor_a = {0};
-        temp_tensor_a.type = tensor_a->type;
         void* a_ptr = 
             (char*)tensor_a->data + 
-                a_flat * php_ort_tensor_sizeof(&temp_tensor_a);
+                a_flat * php_ort_type_sizeof(
+                    tensor_a->type);
 
-        ort_tensor_t temp_tensor_b = {0};
-        temp_tensor_b.type = tensor_b->type;
         void* b_ptr = 
             (char*)tensor_b->data + 
-            b_flat * php_ort_tensor_sizeof(&temp_tensor_b);
+            b_flat * php_ort_type_sizeof(
+                tensor_b->type);
 
         // Use a temporary buffer for type promotion if needed
         char a_buf[16], b_buf[16];
+
         ort_math_cast_element(
             a_ptr, a_buf, tensor_a->type, 
             promotion.result_type);
         ort_math_cast_element(
             b_ptr, b_buf, tensor_b->type,
             promotion.result_type);
+
         operation(res_ptr, a_buf, b_buf, 1);
     }
 
     /* Clean up heap-allocated index arrays if needed */
     if (!use_stack) {
-        if (out_indices) efree(out_indices);
-        if (a_indices) efree(a_indices);
-        if (b_indices) efree(b_indices);
+        efree(out_indices);
+        efree(a_indices);
+        efree(b_indices);
     }
 
     ort_math_broadcast_free(binfo);
-
-    ort_math_result_t* result = ort_math_result_create(result_tensor);
-    
-    return result;
-}
-
-ort_math_result_t* ort_math_result_element_wise_binary_fast(
-    ort_tensor_t* tensor_a,
-    ort_tensor_t* tensor_b,
-    ort_math_element_op_func_t operation,
-    const char* operation_name
-) {
-    /* Create result tensor with same shape and type as inputs */
-    ort_tensor_t* result_tensor = ort_math_result_tensor(
-        tensor_a->shape, 
-        tensor_a->dimensions,
-        tensor_a->type, operation_name);
-    
-    if (!result_tensor) {
-        return NULL;
-    }
-
-    operation(
-        result_tensor->data,
-        tensor_a->data,
-        tensor_b->data,
-        tensor_a->elements);
 
     ort_math_result_t* result = ort_math_result_create(result_tensor);
     
@@ -257,10 +257,6 @@ ort_math_result_t* ort_math_result_element_wise_scalar(
         tensor->shape,
         tensor->dimensions,
         tensor->type, operation_name);
-    
-    if (!result_tensor) {
-        return NULL;
-    }
     
     /* Convert scalar to appropriate type */
     void* scalar_data = NULL;

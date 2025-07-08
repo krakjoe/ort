@@ -37,14 +37,6 @@ ort_math_result_t* ort_math_result_element_wise_binary(
     const char* operation_name
 );
 
-/* Fast path for same-shape operations */
-ort_math_result_t* ort_math_result_element_wise_binary_fast(
-    ort_tensor_t* tensor_a,
-    ort_tensor_t* tensor_b,
-    ort_math_element_op_func_t operation,
-    const char* operation_name
-);
-
 /* Element-wise scalar operation */
 ort_math_result_t* ort_math_result_element_wise_scalar(
     ort_tensor_t* tensor,
