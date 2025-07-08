@@ -154,6 +154,8 @@ ORT_MATH_UNARY_FUNCTION_IMPL(sqrt)
 
 ORT_MATH_REDUCTION_FUNCTION_IMPL(sum)
 ORT_MATH_REDUCTION_FUNCTION_IMPL(mean)
+ORT_MATH_REDUCTION_FUNCTION_IMPL(min)
+ORT_MATH_REDUCTION_FUNCTION_IMPL(max)
 
 /* Dot reduction function */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ONNX\\Tensor, 0)
@@ -241,6 +243,8 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", mod, php_ort_math_mod_arginfo)
     ZEND_NS_FE("ONNX\\Math", sum, php_ort_math_sum_arginfo)
     ZEND_NS_FE("ONNX\\Math", mean, php_ort_math_sum_arginfo)
+    ZEND_NS_FE("ONNX\\Math", min, php_ort_math_min_arginfo)
+    ZEND_NS_FE("ONNX\\Math", max, php_ort_math_max_arginfo)
     ZEND_NS_FE("ONNX\\Math", dot, php_ort_math_dot_arginfo)
     ZEND_NS_FE("ONNX\\Math", neg, php_ort_math_neg_arginfo)
     ZEND_NS_FE("ONNX\\Math", recip, php_ort_math_recip_arginfo)

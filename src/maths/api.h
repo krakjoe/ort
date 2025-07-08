@@ -92,15 +92,15 @@ ort_tensor_t* ort_math_result_transpose(ort_tensor_t* matrix);
 ort_tensor_t* ort_math_result_inverse(ort_tensor_t* matrix); /* }}} */
 
 /* Reduction operations */
+ort_tensor_t* ort_math_result_dot(ort_tensor_t* vector_a, ort_tensor_t* vector_b);
 ort_tensor_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis, zend_bool keepdims);
 ort_tensor_t* ort_math_result_mean(ort_tensor_t* tensor, zval* axis, zend_bool keepdims);
-ort_tensor_t* ort_math_result_dot(ort_tensor_t* vector_a, ort_tensor_t* vector_b);
+ort_tensor_t* ort_math_result_min(ort_tensor_t* tensor, zval* axis, zend_bool keepdims);
+ort_tensor_t* ort_math_result_max(ort_tensor_t* tensor, zval* axis, zend_bool keepdims); 
 
 /* {{{ TODO(krakjoe) */
 ort_tensor_t* ort_math_result_std(ort_tensor_t* tensor, zval* axis, zend_long ddof, zend_bool keepdims);
 ort_tensor_t* ort_math_result_var(ort_tensor_t* tensor, zval* axis, zend_long ddof, zend_bool keepdims);
-ort_tensor_t* ort_math_result_min(ort_tensor_t* tensor, zval* axis, zend_bool keepdims);
-ort_tensor_t* ort_math_result_max(ort_tensor_t* tensor, zval* axis, zend_bool keepdims); 
 /* Shape operations */
 ort_tensor_t* ort_math_result_reshape(ort_tensor_t* tensor, zval* new_shape);
 ort_tensor_t* ort_math_result_flatten(ort_tensor_t* tensor);
