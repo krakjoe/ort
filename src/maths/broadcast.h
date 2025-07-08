@@ -16,19 +16,25 @@
   +----------------------------------------------------------------------+
  */
 
-#include "ort.h"
+#ifndef HAVE_ORT_MATHS_BROADCAST
+#define HAVE_ORT_MATHS_BROADCAST
 
-#ifdef ORT_SIMD_ENABLED
-#include "maths/simd/impl.h"
+#include <php.h>
+
+/* Broadcasting information */
+typedef struct _ort_math_broadcast_info_t {
+    int64_t* result_shape;
+    size_t result_dimensions;
+    zend_bool is_compatible;
+    zend_bool needs_broadcast_a;
+    zend_bool needs_broadcast_b;
+} ort_math_broadcast_info_t;
+
+/* Broadcasting functions */
+ort_math_broadcast_info_t* ort_math_broadcast_calculate(
+    const int64_t* shape_a, size_t dims_a,
+    const int64_t* shape_b, size_t dims_b
+);
+
+void ort_math_broadcast_free(ort_math_broadcast_info_t* info);
 #endif
-
-void ort_math_startup() {
-#ifdef ORT_SIMD_ENABLED
-    ort_math_simd_install(
-        ort_math_dispatch_table());
-#endif
-}
-
-void ort_math_shutdown() {
-    // Currently no specific shutdown logic, but can be extended in the future
-}

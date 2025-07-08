@@ -16,12 +16,13 @@
   +----------------------------------------------------------------------+
  */
 
- #include <math.h>
+#include <math.h>
 
- #include "status.h"
+#include "status.h"
 
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
+#include "maths/result.h"
 
 #define ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     static zend_always_inline void ort_math_sum_axis_impl_##c_type( \
@@ -98,7 +99,7 @@ ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, ze
 
     // If no axis specified, sum all elements
     if (axis_zval == NULL || Z_TYPE_P(axis_zval) == IS_NULL) {
-        ort_tensor_t* result_tensor = ort_tensor_create_result(NULL, 0, tensor->type, "sum_result");
+        ort_tensor_t* result_tensor = ort_math_result_tensor(NULL, 0, tensor->type, "sum_result");
         if (!result_tensor) {
             return NULL;
         }
@@ -154,7 +155,7 @@ ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, ze
         result_shape[0] = 1;
     }
 
-    ort_tensor_t* result_tensor = ort_tensor_create_result(result_shape, result_dims, tensor->type, "sum_result");
+    ort_tensor_t* result_tensor = ort_math_result_tensor(result_shape, result_dims, tensor->type, "sum_result");
     if (!result_tensor) {
         efree(result_shape);
         return NULL;

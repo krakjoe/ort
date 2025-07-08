@@ -16,19 +16,26 @@
   +----------------------------------------------------------------------+
  */
 
-#include "ort.h"
+#ifndef HAVE_ORT_MATHS_PROMOTION
+#define HAVE_ORT_MATHS_PROMOTION
 
-#ifdef ORT_SIMD_ENABLED
-#include "maths/simd/impl.h"
+#include "maths/core.h"
+
+/* Type promotion rules */
+typedef struct _ort_math_type_promotion_t {
+    ONNXTensorElementDataType result_type;
+    zend_bool is_valid;
+} ort_math_type_promotion_t;
+
+/* Type promotion functions */
+ort_math_type_promotion_t ort_math_type_promote(
+    ONNXTensorElementDataType type_a,
+    ONNXTensorElementDataType type_b
+);
+
+ort_math_type_promotion_t ort_math_type_promote_strict(
+    ONNXTensorElementDataType type_a,
+    ONNXTensorElementDataType type_b
+);
+
 #endif
-
-void ort_math_startup() {
-#ifdef ORT_SIMD_ENABLED
-    ort_math_simd_install(
-        ort_math_dispatch_table());
-#endif
-}
-
-void ort_math_shutdown() {
-    // Currently no specific shutdown logic, but can be extended in the future
-}

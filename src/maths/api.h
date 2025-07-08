@@ -33,12 +33,8 @@
   *       intended for use at the C layer.
 }}} */
 #include <php.h>
-#include "tensor.h"
-#include "maths/core.h"
 
-/** {{{  Startup and shutdown, called from the PHP layer */
-void ort_math_startup(void);
-void ort_math_shutdown(void); /* }}} */
+#include "maths/result.h"
 
 /* Element-wise operations */
 ort_math_result_t* ort_math_result_add(ort_tensor_t* tensor_a, ort_tensor_t* tensor_b);

@@ -40,7 +40,7 @@ if (PHP_ORT != 'no') {
 
     ADD_SOURCES(
         configure_module_dirname + "\\src\\maths",
-        "core.c",
+        "cast.c core.c dispatch.c broadcast.c promotion.c result.c validate.c",
         "ort",
         "maths"
     );

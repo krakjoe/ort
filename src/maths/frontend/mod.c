@@ -20,7 +20,7 @@
 #include "status.h"
 
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
 
 /* =============================================================================
  * MODULO OPERATIONS
@@ -49,8 +49,8 @@ void ort_math_ops_mod_double(void* result, const void* a, const void* b, size_t 
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_IMPL)
 
 static ort_math_element_op_func_t ort_math_ops_get_mod_func(ONNXTensorElementDataType type) {
-    const ort_math_type_dispatch_t* dispatch =
-        ort_math_get_dispatch(type);
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
     return dispatch->mod_func;
 }
 

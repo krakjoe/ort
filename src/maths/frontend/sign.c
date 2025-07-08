@@ -21,7 +21,7 @@
 #include "status.h"
 
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
 
 void ort_math_ops_sign_float(void* result, const void* a, size_t count) {
     float* res = (float*)result;
@@ -41,9 +41,9 @@ void ort_math_ops_sign_double(void* result, const void* a, size_t count) {
     }
 }
 
-static ort_math_unary_op_func_t ort_math_ops_get_sign_func(ONNXTensorElementDataType type) {    
-    const ort_math_type_dispatch_t* dispatch =
-        ort_math_get_dispatch(type);
+static ort_math_unary_op_func_t ort_math_ops_get_sign_func(ONNXTensorElementDataType type) {
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
     return dispatch->sign_func;
 }
 

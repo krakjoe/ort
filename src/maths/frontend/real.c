@@ -21,7 +21,7 @@
 #include "status.h"
 
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
 
 /* =============================================================================
  * UNARY MATHEMATICAL FUNCTIONS
@@ -43,8 +43,8 @@ void ort_math_ops_##func_name##_##c_type(                           \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)        \
     static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func( \
         ONNXTensorElementDataType type) {                                \
-    const ort_math_type_dispatch_t* dispatch =                           \
-        ort_math_get_dispatch(type);                                     \
+    const ort_math_dispatch_t* dispatch =                                \
+        ort_math_dispatch_type(type);                                    \
     return dispatch->func_name##_func;                                   \
 }
 

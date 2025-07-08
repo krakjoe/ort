@@ -16,33 +16,43 @@
   +----------------------------------------------------------------------+
  */
 
-#include <math.h>
-
 #include "status.h"
 
-#include "maths/codegen.h"
-#include "maths/dispatch.h"
+#include "maths/validate.h"
 
-void ort_math_ops_recip_float(void* result, const void* a, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = 1.0f / va[i];
+zend_bool ort_math_validate_input(ort_tensor_t* tensor, const char* operation_name) {
+    php_ort_status_flow(
+        (!tensor || !tensor->data),
+        return 0,
+        php_ort_status_tensor_invaliddata_ce,
+        "%s: tensor has no data", operation_name);
+
+    php_ort_status_flow(
+        (tensor->elements == 0),
+        return 0,
+        php_ort_status_tensor_invalidshape_ce,
+        "%s: tensor is empty", operation_name);
+
+    php_ort_status_flow(
+        (tensor->type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64),
+        return 0,
+        php_ort_status_tensor_invalidtype_ce,
+        "%s: UINT64 tensor type is not supported", operation_name);
+    
+    return 1;
+}
+
+zend_bool ort_math_validate_axis(ort_tensor_t* tensor, zend_long axis, const char* operation_name) {
+    if (axis < 0) {
+        axis += tensor->dimensions;
     }
-}
 
-void ort_math_ops_recip_double(void* result, const void* a, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = 1.0 / va[i];
-    }
-}
+    php_ort_status_flow(
+        (axis < 0 || axis >= tensor->dimensions),
+        return 0,
+        php_ort_status_tensor_invalidshape_ce,
+        "%s: axis %ld is out of bounds for tensor with %zu dimensions", 
+        operation_name, axis, tensor->dimensions);
 
-static ort_math_unary_op_func_t ort_math_ops_get_recip_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->recip_func;
+    return 1;
 }
-
-ORT_MATH_UNARY_RESULT_IMPL(recip, ort_math_ops_get_recip_func)

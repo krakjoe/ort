@@ -24,8 +24,9 @@
  * @brief Code generation macros for mathematical operations.
  */
 
-#include "ort.h"
-#include "tensor.h"
+#include "maths/promotion.h"
+#include "maths/result.h"
+#include "maths/validate.h"
 
 /* Code Generation Macro Helpers */
 #define ORT_MATH_FOREACH_INTEGER_TYPE(macro)              \

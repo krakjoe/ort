@@ -16,12 +16,14 @@
   +----------------------------------------------------------------------+
  */
 
- #include <math.h>
+#include <math.h>
 
- #include "status.h"
+#include "status.h"
 
+#include "maths/cast.h"
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
+#include "maths/result.h"
 
 // Matrix multiplication for a single batch (C = A x B)
 #define ORT_MATH_MATMUL_IMPL_FOR_TYPE(c_type, unused)  \
@@ -65,8 +67,8 @@
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MATMUL_IMPL_FOR_TYPE)
 
 static ort_math_element_op_func_t ort_math_ops_get_matmul_func(ONNXTensorElementDataType type) {
-    const ort_math_type_dispatch_t* dispatch =
-        ort_math_get_dispatch(type);
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
     return (void*) dispatch->matmul_func;
 }
 
@@ -136,9 +138,9 @@ ort_math_result_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* 
     result_shape[matrix_a->dimensions - 1] = b_cols;
 
     // Allocate result tensor with promoted type
-    ort_tensor_t* result = ort_tensor_create_result(
-        result_shape, 
-        matrix_a->dimensions, 
+    ort_tensor_t* result = ort_math_result_tensor(
+        result_shape,
+        matrix_a->dimensions,
         promoted_type, "matmul_result");
     efree(result_shape);
     if (!result) {

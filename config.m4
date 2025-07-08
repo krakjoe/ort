@@ -73,7 +73,13 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_MATHS_FRONTEND_DIR/real.c
   ")
   PHP_ORT_MATHS_IMPL=m4_normalize("
+    $PHP_ORT_MATHS_DIR/broadcast.c
+    $PHP_ORT_MATHS_DIR/cast.c
     $PHP_ORT_MATHS_DIR/core.c
+    $PHP_ORT_MATHS_DIR/dispatch.c
+    $PHP_ORT_MATHS_DIR/promotion.c
+    $PHP_ORT_MATHS_DIR/result.c
+    $PHP_ORT_MATHS_DIR/validate.c
     $PHP_ORT_MATHS_FRONTEND_IMPL
   ")
 

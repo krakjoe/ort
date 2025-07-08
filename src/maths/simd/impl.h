@@ -25,7 +25,7 @@
 #include "config.h"
 #endif
 
-#include "maths/core.h"
+#include "maths/dispatch.h"
 #include "maths/frontend.h"
 
 /** 
@@ -154,5 +154,5 @@ ORT_MATH_SIMD_MATMUL_OP_DECL(uint16_t);
 ORT_MATH_SIMD_MATMUL_OP_DECL(uint32_t); /* }}} */
 
 /* {{{ Each backend must implement this function in its own impl.c */
-void ort_math_simd_install(ort_math_type_dispatch_t* table); /* }}} */
+void ort_math_simd_install(ort_math_dispatch_t* table); /* }}} */
 #endif

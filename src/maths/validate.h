@@ -16,19 +16,36 @@
   +----------------------------------------------------------------------+
  */
 
-#include "ort.h"
+#ifndef HAVE_ORT_MATHS_VALIDATE
+#define HAVE_ORT_MATHS_VALIDATE
 
-#ifdef ORT_SIMD_ENABLED
-#include "maths/simd/impl.h"
-#endif
+#include "tensor.h"
 
-void ort_math_startup() {
-#ifdef ORT_SIMD_ENABLED
-    ort_math_simd_install(
-        ort_math_dispatch_table());
-#endif
+zend_bool ort_math_validate_input(
+    ort_tensor_t* tensor, const char* operation_name);
+zend_bool ort_math_validate_axis(
+    ort_tensor_t* tensor, zend_long axis, const char* operation_name);
+
+static zend_always_inline zend_bool ort_math_validate_identity(
+    ort_tensor_t* tensor_a, ort_tensor_t* tensor_b) {
+    /* Type must match to be considered identical */
+    if (tensor_a->type != tensor_b->type) {
+        return 0;
+    }
+
+    /* Dimensions must match */
+    if (tensor_a->dimensions != tensor_b->dimensions) {
+        return 0;
+    }
+
+    /* Compare each dimension */
+    for (size_t i = 0; i < tensor_a->dimensions; i++) {
+        if (tensor_a->shape[i] != tensor_b->shape[i]) {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
-void ort_math_shutdown() {
-    // Currently no specific shutdown logic, but can be extended in the future
-}
+#endif

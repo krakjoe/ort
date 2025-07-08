@@ -21,7 +21,7 @@
 #include "status.h"
 
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
 
 #define ORT_MATH_DIV_IMPL(c_type, onnx_type) \
     ORT_MATH_BINARY_OP_IMPL(div, c_type, onnx_type, /)
@@ -31,8 +31,8 @@ ORT_MATH_BINARY_OP_IMPL(div, \
 
 static ort_math_element_op_func_t 
     ort_math_ops_get_div_func(ONNXTensorElementDataType type) {
-    const ort_math_type_dispatch_t* dispatch =
-        ort_math_get_dispatch(type);
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
     return dispatch->div_func;
 }
 

@@ -16,19 +16,38 @@
   +----------------------------------------------------------------------+
  */
 
-#include "ort.h"
+#ifndef HAVE_ORT_MATHS_CAST
+#define HAVE_ORT_MATHS_CAST
 
-#ifdef ORT_SIMD_ENABLED
-#include "maths/simd/impl.h"
-#endif
+#include "maths/core.h"
 
-void ort_math_startup() {
-#ifdef ORT_SIMD_ENABLED
-    ort_math_simd_install(
-        ort_math_dispatch_table());
-#endif
+void ort_math_cast_element(
+    const void* src, void* dst, 
+    ONNXTensorElementDataType src_type, 
+    ONNXTensorElementDataType dst_type);
+
+/* Cast a buffer of elements from src_type to dst_type. Returns 1 on success, 0 on failure. */
+static zend_always_inline zend_bool ort_math_cast_buffer(
+    const void* src, void* dst,
+    ONNXTensorElementDataType src_type,
+    ONNXTensorElementDataType dst_type, size_t count) {
+    if (src_type == dst_type) {
+        size_t size = count * 
+            php_ort_type_sizeof(dst_type);
+        memcpy(dst, src, size);
+        return 1;
+    }
+
+    for (size_t i = 0; i < count; i++) {
+        const void* src_elem = 
+            (const char*) src + i * php_ort_type_sizeof(src_type);
+        void* dst_elem = 
+            (char*)dst + i * php_ort_type_sizeof(dst_type);
+
+        ort_math_cast_element(src_elem, dst_elem, src_type, dst_type);
+    }
+
+    return 1;
 }
 
-void ort_math_shutdown() {
-    // Currently no specific shutdown logic, but can be extended in the future
-}
+#endif

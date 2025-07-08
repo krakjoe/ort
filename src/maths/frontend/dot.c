@@ -19,8 +19,10 @@
 
 #include "status.h"
 
+#include "maths/cast.h"
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
+#include "maths/result.h"
 
 /* =============================================================================
  * DOT OPERATIONS
@@ -51,8 +53,8 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL_FOR_TYPE)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL)
 
 static ort_math_element_op_func_t ort_math_ops_get_dot_func(ONNXTensorElementDataType type) {
-    const ort_math_type_dispatch_t* dispatch =
-        ort_math_get_dispatch(type);
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
     return dispatch->dot_func;
 }
 
@@ -88,7 +90,7 @@ ort_math_result_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
     }
 
     int64_t shape[1] = {1};
-    ort_tensor_t* result_tensor = ort_tensor_create_result(
+    ort_tensor_t* result_tensor = ort_math_result_tensor(
         shape, 1, promotion.result_type, "dot");
 
     // Cast input data to promoted type if needed

@@ -21,6 +21,7 @@
 
 #include "maths.h"
 #include "maths/api.h"
+#include "maths/result.h"
 
 /* Mathematical functions in ONNX\Math namespace */
 

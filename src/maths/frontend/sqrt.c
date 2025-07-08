@@ -20,7 +20,7 @@
 #include "status.h"
 
 #include "maths/codegen.h"
-#include "maths/core.h"
+#include "maths/dispatch.h"
 
 /* =============================================================================
  * SQRT OPERATIONS
@@ -71,8 +71,8 @@ void ort_math_ops_sqrt_##ctype(void* result, const void* a, size_t count) { \
 ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SQRT_REAL_IMPL)
 
 static ort_math_unary_op_func_t ort_math_ops_get_sqrt_func(ONNXTensorElementDataType type) {
-    const ort_math_type_dispatch_t* dispatch =
-        ort_math_get_dispatch(type);
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
     return dispatch->sqrt_func;
 }
 
