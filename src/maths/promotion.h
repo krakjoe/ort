@@ -21,13 +21,11 @@
 
 #include "maths/core.h"
 
-/* Type promotion rules */
 typedef struct _ort_math_type_promotion_t {
     ONNXTensorElementDataType result_type;
     zend_bool is_valid;
 } ort_math_type_promotion_t;
 
-/* Type promotion functions */
 ort_math_type_promotion_t ort_math_type_promote(
     ONNXTensorElementDataType type_a,
     ONNXTensorElementDataType type_b

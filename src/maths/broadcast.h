@@ -23,11 +23,11 @@
 
 /* Broadcasting information */
 typedef struct _ort_math_broadcast_info_t {
-    int64_t* result_shape;
     size_t result_dimensions;
     zend_bool is_compatible;
     zend_bool needs_broadcast_a;
     zend_bool needs_broadcast_b;
+    int64_t* result_shape;
 } ort_math_broadcast_info_t;
 
 /* Broadcasting functions */

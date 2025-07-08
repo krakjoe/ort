@@ -23,19 +23,17 @@ ort_math_broadcast_info_t* ort_math_broadcast_calculate(
     const int64_t* shape_a, size_t dims_a,
     const int64_t* shape_b, size_t dims_b
 ) {
-    ort_math_broadcast_info_t* info = ecalloc(1, sizeof(ort_math_broadcast_info_t));
-    if (!info) {
-        return NULL;
-    }
-    memset(info, 0, sizeof(ort_math_broadcast_info_t));
-    
+    ort_math_broadcast_info_t* info = ecalloc(1, 
+        sizeof(ort_math_broadcast_info_t) +
+            (sizeof(int64_t) * MAX(dims_a, dims_b)));
+
     /* Determine result dimensions (max of both) */
-    info->result_dimensions = dims_a > dims_b ? dims_a : dims_b;
-    info->result_shape = ecalloc(info->result_dimensions, sizeof(int64_t));
+    info->result_dimensions = MAX(dims_a, dims_b);
     info->is_compatible = 1;
     info->needs_broadcast_a = 0;
     info->needs_broadcast_b = 0;
-    
+    info->result_shape = (int64_t*)(info + 1);
+
     /* Work backwards from the last dimension */
     for (size_t i = 0; i < info->result_dimensions; i++) {
         size_t idx_a = dims_a > i ? dims_a - 1 - i : SIZE_MAX;
@@ -65,9 +63,6 @@ ort_math_broadcast_info_t* ort_math_broadcast_calculate(
 
 void ort_math_broadcast_free(ort_math_broadcast_info_t* info) {
     if (info) {
-        if (info->result_shape) {
-            efree(info->result_shape);
-        }
         efree(info);
     }
 }
