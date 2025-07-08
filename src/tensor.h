@@ -59,7 +59,7 @@ static zend_always_inline size_t php_ort_tensor_sizeof(ort_tensor_t *tensor) {
     return php_ort_type_sizeof(tensor->type);
 }
 
-void php_ort_tensor_release(ort_tensor_t *tensor);
+void ort_tensor_release(ort_tensor_t *tensor);
 
 OrtValue*     php_ort_tensor_value(php_ort_tensor_t* ort);
 ort_tensor_t* php_ort_tensor_object(OrtValue* value);

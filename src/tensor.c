@@ -393,7 +393,7 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_transient(ort_tensor
     return php_ort_tensor_flatten(tensor, &offset, php_ort_tensor_sizeof(tensor), data, 0);
 }
 
-static void php_ort_tensor_free(ort_tensor_t *tensor) {
+static void ort_tensor_free(ort_tensor_t *tensor) {
     zend_bool persistent = 
         (tensor->owner == PHP_ORT_OWN_HEAP) ? 1 : 0;
 
@@ -414,24 +414,24 @@ static void php_ort_tensor_free(ort_tensor_t *tensor) {
     }
 
     if (tensor->parent) {
-        php_ort_tensor_release(tensor->parent);
+        ort_tensor_release(tensor->parent);
     }
 
     pefree(tensor, persistent);
 }
 
-void php_ort_tensor_release(ort_tensor_t *tensor) {
+void ort_tensor_release(ort_tensor_t *tensor) {
     if (!tensor) {
         return;
     }
 
     if (php_ort_atomic_delref(&tensor->refcount) == 0){
-        php_ort_tensor_free(tensor);
+        ort_tensor_free(tensor);
     }
 }
 
 static void php_ort_tensor_del(zval *zv) {
-    php_ort_tensor_release(
+    ort_tensor_release(
         ((ort_tensor_t*)
             Z_PTR_P(zv)));
 }
@@ -511,7 +511,7 @@ ort_tensor_t* php_ort_tensor_object(OrtValue* value) {
 
     php_ort_status_flow(
         api->GetTensorTypeAndShape(value, &otsi), {
-            php_ort_tensor_free(tensor);
+            ort_tensor_free(tensor);
 
             return NULL;
         },
@@ -521,7 +521,7 @@ ort_tensor_t* php_ort_tensor_object(OrtValue* value) {
     php_ort_status_flow(
         api->GetTensorElementType(otsi, &tensor->type),
         {
-            php_ort_tensor_free(tensor);
+            ort_tensor_free(tensor);
 
             return NULL;
         },
@@ -531,7 +531,7 @@ ort_tensor_t* php_ort_tensor_object(OrtValue* value) {
     php_ort_status_flow(
         api->GetDimensionsCount(otsi, &tensor->dimensions),
         {
-            php_ort_tensor_free(tensor);
+            ort_tensor_free(tensor);
 
             return NULL;
         },
@@ -545,7 +545,7 @@ ort_tensor_t* php_ort_tensor_object(OrtValue* value) {
         php_ort_status_flow(
             api->GetDimensions(otsi, tensor->shape, tensor->dimensions),
             {
-                php_ort_tensor_free(tensor);
+                ort_tensor_free(tensor);
 
                 return NULL;
             },
@@ -559,7 +559,7 @@ ort_tensor_t* php_ort_tensor_object(OrtValue* value) {
     php_ort_status_flow(
         api->GetTensorShapeElementCount(otsi, &tensor->elements),
         {
-            php_ort_tensor_free(tensor);
+            ort_tensor_free(tensor);
 
             return NULL;
         },
@@ -569,7 +569,7 @@ ort_tensor_t* php_ort_tensor_object(OrtValue* value) {
     php_ort_status_flow(
         api->GetTensorMutableData(value, &tensor->data),
         {
-            php_ort_tensor_free(tensor);
+            ort_tensor_free(tensor);
 
             return NULL;
         },
@@ -1530,7 +1530,7 @@ void php_ort_tensor_destroy(zend_object *o) {
     php_ort_tensor_t *ort =
         php_ort_tensor_fetch(o);
 
-    php_ort_tensor_release(ort->object);
+    ort_tensor_release(ort->object);
 
     zend_object_std_dtor(o);
 }

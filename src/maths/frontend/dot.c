@@ -58,7 +58,7 @@ static ort_math_element_op_func_t ort_math_ops_get_dot_func(ONNXTensorElementDat
     return dispatch->dot_func;
 }
 
-ort_math_result_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
+ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
     if (!ort_math_validate_input(a, "dot") || !ort_math_validate_input(b, "dot")) {
         return NULL;
     }
@@ -90,11 +90,11 @@ ort_math_result_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
     }
 
     int64_t shape[1] = {1};
-    ort_tensor_t* result_tensor = ort_math_result_tensor(
+    ort_tensor_t* result = ort_math_result_tensor(
         shape, 1, promotion.result_type, "dot");
 
     // Cast input data to promoted type if needed
-    size_t element_size = php_ort_tensor_sizeof(result_tensor);
+    size_t element_size = php_ort_tensor_sizeof(result);
     void* a_buf = NULL;
     void* b_buf = NULL;
     const void* a_data = a->data;
@@ -118,7 +118,7 @@ ort_math_result_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         b_data = b_buf;
     }
 
-    operation(result_tensor->data, a_data, b_data, a->elements);
+    operation(result->data, a_data, b_data, a->elements);
 
     if (a_buf) {
         pefree(a_buf, 0);
@@ -128,5 +128,5 @@ ort_math_result_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         pefree(b_buf, 0);
     }
 
-    return ort_math_result_create(result_tensor);
+    return result;
 }

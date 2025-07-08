@@ -27,26 +27,6 @@
 /* Stack allocation threshold for math optimizations */
 #define ORT_MATH_RESULT_STACK_DIMENSIONS 8
 
-/* Result management */
-ort_math_result_t* ort_math_result_create(ort_tensor_t* tensor) {
-    ort_math_result_t* result = ecalloc(1, sizeof(ort_math_result_t));
-
-    memset(result, 0, sizeof(ort_math_result_t));
-    result->tensor = tensor;
-    result->success = 1;
-    result->error_message = NULL;
-    return result;
-}
-
-void ort_math_result_free(ort_math_result_t* result) {
-    if (result) {
-        if (result->error_message) {
-            zend_string_release(result->error_message);
-        }
-        efree(result);
-    }
-}
-
 /* Utility functions */
 size_t ort_math_result_total(const int64_t* shape, size_t dimensions) {
     size_t total = 1;
@@ -77,7 +57,7 @@ void ort_math_result_multi(zend_long flat_index, const int64_t* shape, size_t di
     }
 }
 
-static zend_always_inline ort_math_result_t* 
+static zend_always_inline ort_tensor_t* 
     ort_math_result_element_wise_binary_fast(
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
@@ -85,24 +65,22 @@ static zend_always_inline ort_math_result_t*
     const char* operation_name
 ) {
     /* Create result tensor with same shape and type as inputs */
-    ort_tensor_t* result_tensor = ort_math_result_tensor(
+    ort_tensor_t* result = ort_math_result_tensor(
         tensor_a->shape, 
         tensor_a->dimensions,
         tensor_a->type, operation_name);
-    
+
     operation(
-        result_tensor->data,
+        result->data,
         tensor_a->data,
         tensor_b->data,
         tensor_a->elements);
-
-    ort_math_result_t* result = ort_math_result_create(result_tensor);
 
     return result;
 }
 
 /* Element-wise operation helpers implementation */
-ort_math_result_t* ort_math_result_element_wise_binary(
+ort_tensor_t* ort_math_result_element_wise_binary(
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
     ort_math_element_op_func_t operation,
@@ -144,7 +122,7 @@ ort_math_result_t* ort_math_result_element_wise_binary(
         operation_name
     );
 
-    ort_tensor_t* result_tensor = ort_math_result_tensor(
+    ort_tensor_t* result = ort_math_result_tensor(
         binfo->result_shape, binfo->result_dimensions, 
         promotion.result_type, operation_name);
 
@@ -205,7 +183,7 @@ ort_math_result_t* ort_math_result_element_wise_binary(
         
         // Type promotion: operate on promoted type
         void* res_ptr = 
-            (char*)result_tensor->data + 
+            (char*)result->data + 
                 flat * php_ort_type_sizeof(
                     promotion.result_type);
 
@@ -241,19 +219,17 @@ ort_math_result_t* ort_math_result_element_wise_binary(
 
     ort_math_broadcast_free(binfo);
 
-    ort_math_result_t* result = ort_math_result_create(result_tensor);
-    
     return result;
 }
 
-ort_math_result_t* ort_math_result_element_wise_scalar(
+ort_tensor_t* ort_math_result_element_wise_scalar(
     ort_tensor_t* tensor,
     zval* scalar,
     ort_math_scalar_op_func_t operation,
     const char* operation_name
 ) {
     /* Create result tensor with same shape and type as input */
-    ort_tensor_t* result_tensor = ort_math_result_tensor(
+    ort_tensor_t* result = ort_math_result_tensor(
         tensor->shape,
         tensor->dimensions,
         tensor->type, operation_name);
@@ -342,46 +318,44 @@ ort_math_result_t* ort_math_result_element_wise_scalar(
                         (uint8_t)Z_DVAL_P(scalar);
             scalar_data = &scalar_bool;
             break;
+
         default:
             php_ort_status_throw(php_ort_status_math_invalidtype_ce,
                 "%s: unsupported tensor type for scalar operation",
                 operation_name);
+            ort_tensor_release(result);
             return NULL;
     }
-    
+
     /* Perform operation */
     operation(
-        result_tensor->data,
+        result->data,
         tensor->data,
         scalar_data,
         tensor->elements);
     
-    ort_math_result_t* result = ort_math_result_create(result_tensor);
-    
     return result;
 }
 
-ort_math_result_t* ort_math_result_element_wise_unary(
+ort_tensor_t* ort_math_result_element_wise_unary(
     ort_tensor_t* tensor,
     ort_math_unary_op_func_t operation,
     const char* operation_name
 ) {
     /* Create result tensor with same shape and type as input */
-    ort_tensor_t* result_tensor = ort_math_result_tensor(
+    ort_tensor_t* result = ort_math_result_tensor(
         tensor->shape,
         tensor->dimensions,
         tensor->type, operation_name);
     
-    if (!result_tensor) {
+    if (!result) {
         return NULL;
     }
 
     operation(
-        result_tensor->data,
+        result->data,
         tensor->data,
         tensor->elements);
-    
-    ort_math_result_t* result = ort_math_result_create(result_tensor);
     
     return result;
 }

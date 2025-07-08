@@ -22,15 +22,8 @@
 #include "tensor.h"
 #include "maths/core.h"
 
-/* Mathematical operation result structure */
-typedef struct _ort_math_result_t {
-    ort_tensor_t* tensor;
-    zend_bool success;
-    zend_string* error_message;
-} ort_math_result_t;
-
 /* Element-wise binary operation */
-ort_math_result_t* ort_math_result_element_wise_binary(
+ort_tensor_t* ort_math_result_element_wise_binary(
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
     ort_math_element_op_func_t operation,
@@ -38,7 +31,7 @@ ort_math_result_t* ort_math_result_element_wise_binary(
 );
 
 /* Element-wise scalar operation */
-ort_math_result_t* ort_math_result_element_wise_scalar(
+ort_tensor_t* ort_math_result_element_wise_scalar(
     ort_tensor_t* tensor,
     zval* scalar,
     ort_math_scalar_op_func_t operation,
@@ -46,7 +39,7 @@ ort_math_result_t* ort_math_result_element_wise_scalar(
 );
 
 /* Element-wise unary operation */
-ort_math_result_t* ort_math_result_element_wise_unary(
+ort_tensor_t* ort_math_result_element_wise_unary(
     ort_tensor_t* tensor,
     ort_math_unary_op_func_t operation,
     const char* operation_name
@@ -59,6 +52,6 @@ ort_tensor_t* ort_math_result_tensor(
     ONNXTensorElementDataType type,
     const char* name_prefix);
 
-ort_math_result_t* ort_math_result_create(ort_tensor_t* tensor);
-void ort_math_result_free(ort_math_result_t* result);
+ort_tensor_t** ort_math_result_create(ort_tensor_t* tensor);
+void ort_math_result_free(ort_tensor_t** result);
 #endif

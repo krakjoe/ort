@@ -103,7 +103,7 @@ void ort_math_ops_##op_name##_scalar_##c_type(void* result,           \
 
 /** {{{ Result Implementation Generation }}} */
 #define ORT_MATH_BINARY_RESULT_IMPL(func_name, getter_func)             \
-ort_math_result_t* ort_math_result_##func_name(                         \
+ort_tensor_t* ort_math_result_##func_name(                              \
         ort_tensor_t* tensor_a, ort_tensor_t* tensor_b) {               \
     if (!ort_math_validate_input(tensor_a, #func_name) ||               \
         !ort_math_validate_input(tensor_b, #func_name)) {               \
@@ -132,7 +132,7 @@ ort_math_result_t* ort_math_result_##func_name(                         \
 }
 
 #define ORT_MATH_SCALAR_RESULT_IMPL(func_name, getter_func)             \
-ort_math_result_t* ort_math_result_##func_name##_scalar(                \
+ort_tensor_t* ort_math_result_##func_name##_scalar(                     \
     ort_tensor_t* tensor, zval* scalar) {                               \
     if (!ort_math_validate_input(tensor, #func_name)) {                 \
         return NULL;                                                    \
@@ -150,7 +150,7 @@ ort_math_result_t* ort_math_result_##func_name##_scalar(                \
 } 
 
 #define ORT_MATH_UNARY_RESULT_IMPL(func_name, getter_func)                   \
-ort_math_result_t* ort_math_result_##func_name(                              \
+ort_tensor_t* ort_math_result_##func_name(                                   \
     ort_tensor_t* tensor) {                                                  \
     if (!ort_math_validate_input(tensor, #func_name)) {                      \
         return NULL;                                                         \

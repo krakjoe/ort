@@ -72,7 +72,7 @@ static ort_math_element_op_func_t ort_math_ops_get_matmul_func(ONNXTensorElement
     return (void*) dispatch->matmul_func;
 }
 
-ort_math_result_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matrix_b) {
+ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matrix_b) {
     if (!ort_math_validate_input(matrix_a, "matmul") || !ort_math_validate_input(matrix_b, "matmul")) {
         return NULL;
     }
@@ -142,10 +142,8 @@ ort_math_result_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* 
         result_shape,
         matrix_a->dimensions,
         promoted_type, "matmul_result");
+
     efree(result_shape);
-    if (!result) {
-        return NULL;
-    }
 
     // Get the correct matmul kernel for the promoted type
     ort_math_matmul_op_func_t operation = 
@@ -200,5 +198,5 @@ ort_math_result_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* 
         efree(tmp_b);
     }
 
-    return ort_math_result_create(result);
+    return result;
 }

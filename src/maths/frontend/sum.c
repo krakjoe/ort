@@ -85,7 +85,7 @@ static zend_always_inline void ort_math_sum_impl_zend_bool(
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUM_IMPL_FOR_TYPE)
 
-ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, zend_bool keepdims) {
+ort_tensor_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, zend_bool keepdims) {
     if (!ort_math_validate_input(tensor, "sum")) {
         return NULL;
     }
@@ -99,16 +99,13 @@ ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, ze
 
     // If no axis specified, sum all elements
     if (axis_zval == NULL || Z_TYPE_P(axis_zval) == IS_NULL) {
-        ort_tensor_t* result_tensor = ort_math_result_tensor(NULL, 0, tensor->type, "sum_result");
-        if (!result_tensor) {
-            return NULL;
-        }
+        ort_tensor_t* result = ort_math_result_tensor(NULL, 0, tensor->type, "sum_result");
 
         switch (tensor->type) {
             #define ORT_MATH_SUM_CASE(c_type, onnx_type) \
             case onnx_type:                              \
                 ort_math_sum_impl_##c_type(              \
-                    result_tensor->data,                 \
+                    result->data,                 \
                     tensor->data, element_count);        \
                 break;
             ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SUM_CASE)
@@ -120,7 +117,7 @@ ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, ze
                 return NULL;
         }
 
-        return ort_math_result_create(result_tensor);
+        return result;
     }
 
     // Handle specified axis
@@ -155,11 +152,7 @@ ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, ze
         result_shape[0] = 1;
     }
 
-    ort_tensor_t* result_tensor = ort_math_result_tensor(result_shape, result_dims, tensor->type, "sum_result");
-    if (!result_tensor) {
-        efree(result_shape);
-        return NULL;
-    }
+    ort_tensor_t* result = ort_math_result_tensor(result_shape, result_dims, tensor->type, "sum_result");
 
     // Calculate strides
     size_t* strides = ecalloc(tensor->dimensions, sizeof(size_t));
@@ -179,7 +172,7 @@ ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, ze
         #define ORT_MATH_SUM_AXIS_CASE(c_type, onnx_type) \
         case onnx_type:                                   \
             ort_math_sum_axis_impl_##c_type(              \
-                result_tensor->data,                      \
+                result->data,                      \
                 tensor->data,                             \
                 outer_size, axis_size, inner_size);       \
             break;
@@ -197,5 +190,5 @@ ort_math_result_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, ze
     efree(strides);
     efree(result_shape);
 
-    return ort_math_result_create(result_tensor);
+    return result;
 }
