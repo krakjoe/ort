@@ -54,7 +54,7 @@ enum {
 
 # Goal
 
-The maths layer contains a lot of generated and hand crafted code. By strictly conforming to convention, we make debug and development time as easy as possible.
+The maths layer contains a lot of macro generations and hand crafted code. By strictly conforming to convention, we make debug and development time as easy as possible.
 
 # Deviation
 
