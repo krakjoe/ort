@@ -90,13 +90,6 @@ ort_tensor_t* ort_math_result_max(ort_tensor_t* tensor, zval* axis_zval, zend_bo
         return NULL;
     }
 
-    size_t element_count = tensor->elements;
-    if (element_count == 0) {
-        php_ort_status_throw(php_ort_status_math_error_ce, 
-            "max: cannot max empty tensor");
-        return NULL;
-    }
-
     // If no axis specified, max all elements
     if (axis_zval == NULL || Z_TYPE_P(axis_zval) == IS_NULL) {
         ort_tensor_t* result = ort_math_result_tensor(NULL, 0, tensor->type, "max_result");
@@ -105,16 +98,11 @@ ort_tensor_t* ort_math_result_max(ort_tensor_t* tensor, zval* axis_zval, zend_bo
             #define ORT_MATH_MAX_CASE(c_type, onnx_type) \
             case onnx_type:                              \
                 ort_math_max_impl_##c_type(              \
-                    result->data,                 \
-                    tensor->data, element_count);        \
+                    result->data,                        \
+                    tensor->data, tensor->elements);     \
                 break;
             ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_MAX_CASE)
             #undef ORT_MATH_MAX_CASE
-
-            default:
-                php_ort_status_throw(php_ort_status_math_invalidtype_ce,
-                    "max: unsupported data type for reduction operation");
-                return NULL;
         }
 
         return result;
@@ -147,10 +135,6 @@ ort_tensor_t* ort_math_result_max(ort_tensor_t* tensor, zval* axis_zval, zend_bo
             result_shape[result_dims++] = 1;
         }
     }
-    if (result_dims == 0 && !keepdims) {
-        result_dims = 1;
-        result_shape[0] = 1;
-    }
 
     ort_tensor_t* result = ort_math_result_tensor(result_shape, result_dims, tensor->type, "max_result");
 
@@ -178,13 +162,6 @@ ort_tensor_t* ort_math_result_max(ort_tensor_t* tensor, zval* axis_zval, zend_bo
             break;
         ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_MAX_AXIS_CASE)
         #undef ORT_MATH_MAX_AXIS_CASE
-
-        default:
-            php_ort_status_throw(php_ort_status_math_invalidtype_ce,
-                "max: unsupported data type for reduction operation");
-            efree(strides);
-            efree(result_shape);
-            return NULL;
     }
 
     efree(strides);

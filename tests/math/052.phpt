@@ -77,6 +77,22 @@ foreach ($types as $name => $type) {
     }
 }
 
+// 3b. Min along axis=-1 (negative axis, should match axis=1)
+foreach ($types as $name => $type) {
+    if ($type === ONNX\Tensor::BOOL) {
+        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    } else {
+        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    }
+    try {
+        $result = ONNX\Math\min($a, -1);
+        echo "PASS: $name min axis=-1\n";
+        print_result($result);
+    } catch (Throwable $e) {
+        echo "FAIL: $name min axis=-1: ".$e->getMessage()."\n";
+    }
+}
+
 // 4. Min along axis=1, keepdims=true
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
@@ -247,6 +263,46 @@ RESULT: [1,4]
 TYPE: %d
 SHAPE: [2]
 PASS: BOOL min axis=1
+RESULT: [false,false]
+TYPE: %d
+SHAPE: [2]
+PASS: FLOAT min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: DOUBLE min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: INT8 min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: INT16 min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: INT32 min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: INT64 min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT8 min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT16 min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT32 min axis=-1
+RESULT: [1,4]
+TYPE: %d
+SHAPE: [2]
+PASS: BOOL min axis=-1
 RESULT: [false,false]
 TYPE: %d
 SHAPE: [2]

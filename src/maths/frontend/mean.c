@@ -91,31 +91,19 @@ ort_tensor_t* ort_math_result_mean(ort_tensor_t* tensor, zval* axis_zval, zend_b
         return NULL;
     }
 
-    size_t element_count = tensor->elements;
-    if (element_count == 0) {
-        php_ort_status_throw(php_ort_status_math_error_ce, 
-            "mean: cannot mean empty tensor");
-        return NULL;
-    }
-
     // If no axis specified, mean all elements
     if (axis_zval == NULL || Z_TYPE_P(axis_zval) == IS_NULL) {
         ort_tensor_t* result = ort_math_result_tensor(NULL, 0, tensor->type, "mean_result");
 
         switch (tensor->type) {
             #define ORT_MATH_MEAN_CASE(c_type, onnx_type) \
-            case onnx_type:                              \
+            case onnx_type:                               \
                 ort_math_mean_impl_##c_type(              \
-                    result->data,                 \
-                    tensor->data, element_count);        \
+                    result->data,                         \
+                    tensor->data, tensor->elements);      \
                 break;
             ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_MEAN_CASE)
             #undef ORT_MATH_MEAN_CASE
-
-            default:
-                php_ort_status_throw(php_ort_status_math_invalidtype_ce,
-                    "mean: unsupported data type for reduction operation");
-                return NULL;
         }
 
         return result;
@@ -148,10 +136,6 @@ ort_tensor_t* ort_math_result_mean(ort_tensor_t* tensor, zval* axis_zval, zend_b
             result_shape[result_dims++] = 1;
         }
     }
-    if (result_dims == 0 && !keepdims) {
-        result_dims = 1;
-        result_shape[0] = 1;
-    }
 
     ort_tensor_t* result = ort_math_result_tensor(result_shape, result_dims, tensor->type, "mean_result");
 
@@ -171,21 +155,14 @@ ort_tensor_t* ort_math_result_mean(ort_tensor_t* tensor, zval* axis_zval, zend_b
 
     switch (tensor->type) {
         #define ORT_MATH_MEAN_AXIS_CASE(c_type, onnx_type) \
-        case onnx_type:                                   \
+        case onnx_type:                                    \
             ort_math_mean_axis_impl_##c_type(              \
-                result->data,                      \
-                tensor->data,                             \
-                outer_size, axis_size, inner_size);       \
+                result->data,                              \
+                tensor->data,                              \
+                outer_size, axis_size, inner_size);        \
             break;
         ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_MEAN_AXIS_CASE)
         #undef ORT_MATH_MEAN_AXIS_CASE
-
-        default:
-            php_ort_status_throw(php_ort_status_math_invalidtype_ce,
-                "mean: unsupported data type for reduction operation");
-            efree(strides);
-            efree(result_shape);
-            return NULL;
     }
 
     efree(strides);

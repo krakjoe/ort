@@ -77,6 +77,22 @@ foreach ($types as $name => $type) {
     }
 }
 
+// 3b. Max along axis=-1 (negative axis, should match axis=1)
+foreach ($types as $name => $type) {
+    if ($type === ONNX\Tensor::BOOL) {
+        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    } else {
+        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    }
+    try {
+        $result = ONNX\Math\max($a, -1);
+        echo "PASS: $name max axis=-1\n";
+        print_result($result);
+    } catch (Throwable $e) {
+        echo "FAIL: $name max axis=-1: ".$e->getMessage()."\n";
+    }
+}
+
 // 4. Max along axis=1, keepdims=true
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
@@ -90,6 +106,38 @@ foreach ($types as $name => $type) {
         print_result($result);
     } catch (Throwable $e) {
         echo "FAIL: $name max axis=1 keepdims: ".$e->getMessage()."\n";
+    }
+}
+
+// 4b. Max along all axes (result is scalar, result_dims == 0), keepdims=false (default)
+foreach ($types as $name => $type) {
+    if ($type === ONNX\Tensor::BOOL) {
+        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    } else {
+        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    }
+    try {
+        $result = ONNX\Math\max($a, null, false); // reduce all axes, keepdims false
+        echo "PASS: $name max all axes scalar\n";
+        print_result($result);
+    } catch (Throwable $e) {
+        echo "FAIL: $name max all axes scalar: ".$e->getMessage()."\n";
+    }
+}
+
+// 4c. Max along all axes (result is scalar, result_dims == 0), keepdims=true
+foreach ($types as $name => $type) {
+    if ($type === ONNX\Tensor::BOOL) {
+        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    } else {
+        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    }
+    try {
+        $result = ONNX\Math\max($a, null, true); // reduce all axes, keepdims true
+        echo "PASS: $name max all axes keepdims\n";
+        print_result($result);
+    } catch (Throwable $e) {
+        echo "FAIL: $name max all axes keepdims: ".$e->getMessage()."\n";
     }
 }
 
@@ -250,6 +298,46 @@ PASS: BOOL max axis=1
 RESULT: [true,true]
 TYPE: %d
 SHAPE: [2]
+PASS: FLOAT max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: DOUBLE max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: INT8 max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: INT16 max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: INT32 max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: INT64 max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT8 max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT16 max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT32 max axis=-1
+RESULT: [3,6]
+TYPE: %d
+SHAPE: [2]
+PASS: BOOL max axis=-1
+RESULT: [true,true]
+TYPE: %d
+SHAPE: [2]
 PASS: FLOAT max axis=1 keepdims
 RESULT: [[3],[6]]
 TYPE: %d
@@ -290,6 +378,86 @@ PASS: BOOL max axis=1 keepdims
 RESULT: [[true],[true]]
 TYPE: %d
 SHAPE: [2,1]
+PASS: FLOAT max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: DOUBLE max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT8 max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT16 max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT32 max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT64 max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: UINT8 max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: UINT16 max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: UINT32 max all axes scalar
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: BOOL max all axes scalar
+RESULT: [true]
+TYPE: %d
+SHAPE: []
+PASS: FLOAT max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: DOUBLE max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT8 max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT16 max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT32 max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: INT64 max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: UINT8 max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: UINT16 max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: UINT32 max all axes keepdims
+RESULT: [6]
+TYPE: %d
+SHAPE: []
+PASS: BOOL max all axes keepdims
+RESULT: [true]
+TYPE: %d
+SHAPE: []
 PASS: Error on empty tensor: shape information must be an array of positive integers
 PASS: Error on non-integer axis: max: axis must be an integer
 PASS: Error on axis out of range: max: axis 2 is out of bounds for tensor with 2 dimensions

@@ -77,6 +77,22 @@ foreach ($types as $name => $type) {
     }
 }
 
+// 3b. Mean along axis=-1 (negative axis, should match axis=1)
+foreach ($types as $name => $type) {
+    if ($type === ONNX\Tensor::BOOL) {
+        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    } else {
+        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    }
+    try {
+        $result = ONNX\Math\mean($a, -1);
+        echo "PASS: $name mean axis=-1\n";
+        print_result($result);
+    } catch (Throwable $e) {
+        echo "FAIL: $name mean axis=-1: ".$e->getMessage()."\n";
+    }
+}
+
 // 4. Mean along axis=1, keepdims=true
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
@@ -247,6 +263,46 @@ RESULT: [2,5]
 TYPE: %d
 SHAPE: [2]
 PASS: BOOL mean axis=1
+RESULT: [true,false]
+TYPE: %d
+SHAPE: [2]
+PASS: FLOAT mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: DOUBLE mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: INT8 mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: INT16 mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: INT32 mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: INT64 mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT8 mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT16 mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: UINT32 mean axis=-1
+RESULT: [2,5]
+TYPE: %d
+SHAPE: [2]
+PASS: BOOL mean axis=-1
 RESULT: [true,false]
 TYPE: %d
 SHAPE: [2]
