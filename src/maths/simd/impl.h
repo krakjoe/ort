@@ -25,6 +25,7 @@
 #include "config.h"
 #endif
 
+#include "maths/codegen.h"
 #include "maths/dispatch.h"
 #include "maths/frontend.h"
 
@@ -56,200 +57,123 @@ static zend_always_inline size_t ort_math_simd_optimal_count(size_t count, size_
     extern void ort_math_simd_matmul_##type(                       \
         void* result, const void* a, const void* b,                \
         size_t a_rows, size_t a_cols, size_t b_cols)
-
 #define ORT_MATH_SIMD_REDUCTION_OP_DECL ORT_MATH_SIMD_UNARY_OP_DECL
 #define ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(op, type)             \
     extern void ort_math_simd_##op##_axis_##type(                  \
         void* result, const void* a,                               \
         size_t outer_size, size_t axis_size, size_t inner_size)
 
-/**
- * SIMD Forward Declarations of Contracted Binary Operations
- * 
- * Note: These contracts may be implemented by the SIMD backend.
- */
+/* {{{ SIMD Forward Declarations of Addition Operations */
+#define ORT_MATH_SIMD_ADD_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_BINARY_OP_DECL(add, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_ADD_OP_DECL)
+#undef ORT_MATH_SIMD_ADD_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations of Contracted Addition Operations */
-ORT_MATH_SIMD_BINARY_OP_DECL(add, int8_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(add, int16_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(add, int32_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(add, int64_t);
+/* {{{ SIMD Forward Declarations of Subtraction Operations */
+#define ORT_MATH_SIMD_SUB_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_BINARY_OP_DECL(sub, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_SUB_OP_DECL)
+#undef ORT_MATH_SIMD_SUB_OP_DECL /* }}} */
 
-ORT_MATH_SIMD_BINARY_OP_DECL(add, uint8_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(add, uint16_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(add, uint32_t);
+/* {{{ SIMD Forward Declarations of Multiplication Operations */
+#define ORT_MATH_SIMD_MUL_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_BINARY_OP_DECL(mul, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_MUL_OP_DECL)
+#undef ORT_MATH_SIMD_MUL_OP_DECL /* }}} */
 
-ORT_MATH_SIMD_BINARY_OP_DECL(add, float);
-ORT_MATH_SIMD_BINARY_OP_DECL(add, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Division Operations */
+#define ORT_MATH_SIMD_DIV_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_BINARY_OP_DECL(div, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_DIV_OP_DECL)
+#undef ORT_MATH_SIMD_DIV_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations of Contracted Subtraction Operations */
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, int8_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, int16_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, int32_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, int64_t);
+/* {{{ SIMD Forward Declarations of Square Root Operations */
+#define ORT_MATH_SIMD_SQRT_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(sqrt, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_SQRT_OP_DECL)
+#undef ORT_MATH_SIMD_SQRT_OP_DECL /* }}} */
 
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, uint8_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, uint16_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, uint32_t);
+/* {{{ SIMD Forward Declarations of Negation Operations */
+#define ORT_MATH_SIMD_NEG_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(neg, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_NEG_OP_DECL)
+#undef ORT_MATH_SIMD_NEG_OP_DECL /* }}} */
 
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, float);
-ORT_MATH_SIMD_BINARY_OP_DECL(sub, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Ceil Operations */
+#define ORT_MATH_SIMD_CEIL_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(ceil, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_CEIL_OP_DECL)
+#undef ORT_MATH_SIMD_CEIL_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations of Contracted Muiltiplication Operations */
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, int8_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, int16_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, int32_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, int64_t);
+/* {{{ SIMD Forward Declarations of Floor Operations */
+#define ORT_MATH_SIMD_FLOOR_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(floor, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_FLOOR_OP_DECL)
+#undef ORT_MATH_SIMD_FLOOR_OP_DECL /* }}} */
 
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, uint8_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, uint16_t);
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, uint32_t);
+/* {{{ SIMD Forward Declarations of Round Operations */
+#define ORT_MATH_SIMD_ROUND_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(round, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_ROUND_OP_DECL)
+#undef ORT_MATH_SIMD_ROUND_OP_DECL  /* }}} */
 
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, float);
-ORT_MATH_SIMD_BINARY_OP_DECL(mul, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Truncation Operations */
+#define ORT_MATH_SIMD_TRUNC_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(trunc, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_TRUNC_OP_DECL)
+#undef ORT_MATH_SIMD_TRUNC_OP_DECL  /* }}} */
 
-/* {{{ SIMD Forward Declarations of Contracted Division Operations */
-ORT_MATH_SIMD_BINARY_OP_DECL(div, float);
-ORT_MATH_SIMD_BINARY_OP_DECL(div, double); /* }}} */
+/** SIMD Forward Declarations of Absolute Operations */
+#define ORT_MATH_SIMD_ABS_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(abs, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_ABS_OP_DECL)
+#undef ORT_MATH_SIMD_ABS_OP_DECL  /* }}} */
 
-/* {{{ SIMD Forward Declarations for Contracted Square Root Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(sqrt, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(sqrt, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Sign Operations */
+#define ORT_MATH_SIMD_SIGN_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(sign, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_SIGN_OP_DECL)
+#undef ORT_MATH_SIMD_SIGN_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations for Contracted Negation Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(neg, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(neg, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Reciprocal Operations */
+#define ORT_MATH_SIMD_RECIP_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_UNARY_OP_DECL(recip, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_RECIP_OP_DECL)
+#undef ORT_MATH_SIMD_RECIP_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations for Contracted Ceil Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(ceil, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(ceil, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Matrix Multiplication Operations */
+#define _ORT_MATH_SIMD_MATMUL_OP_DECL(type, unused) \
+        ORT_MATH_SIMD_MATMUL_OP_DECL(type);
+ORT_MATH_FOREACH_ALL_TYPES(_ORT_MATH_SIMD_MATMUL_OP_DECL)
+#undef _ORT_MATH_SIMD_MATMUL_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations for Contracted Floor Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(floor, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(floor, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Min Reduction Operations */
+#define ORT_MATH_SIMD_MIN_OP_DECL(type, unused)         \
+        ORT_MATH_SIMD_REDUCTION_OP_DECL(min, type);     \
+        ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_MIN_OP_DECL)
+#undef ORT_MATH_SIMD_MIN_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations for Contracted Round Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(round, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(round, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Max Reduction Operations */
+#define ORT_MATH_SIMD_MAX_OP_DECL(type, unused)         \
+        ORT_MATH_SIMD_REDUCTION_OP_DECL(max, type);     \
+        ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_MAX_OP_DECL)
+#undef ORT_MATH_SIMD_MAX_OP_DECL /* }}} */
 
-/* {{{ SIMD Forward Declarations for Contracted Truncation Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(trunc, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(trunc, double); /* }}} */
+/* {{{ SIMD Forward Declarations of Mean Reduction Operations */
+#define ORT_MATH_SIMD_MEAN_OP_DECL(type, unused)         \
+        ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, type);     \
+        ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_MEAN_OP_DECL)
+#undef ORT_MATH_SIMD_MEAN_OP_DECL /* }}} */
 
-/** SIMD Forward Declarations for Contracted Absolute Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(abs, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(abs, double); /* }}} */
-
-/* {{{ SIMD Forward Declarations for Contracted Sign Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(sign, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(sign, double); /* }}} */
-
-/* {{{ SIMD Forward Declarations for Contracted Reciprocal Operations */
-ORT_MATH_SIMD_UNARY_OP_DECL(recip, float);
-ORT_MATH_SIMD_UNARY_OP_DECL(recip, double); /* }}} */
-
-/* {{{ SIMD Forward Declarations for Matrix Multiplication Operations */
-ORT_MATH_SIMD_MATMUL_OP_DECL(float);
-ORT_MATH_SIMD_MATMUL_OP_DECL(double);
-ORT_MATH_SIMD_MATMUL_OP_DECL(int8_t);
-ORT_MATH_SIMD_MATMUL_OP_DECL(int16_t);
-ORT_MATH_SIMD_MATMUL_OP_DECL(int32_t);
-ORT_MATH_SIMD_MATMUL_OP_DECL(int64_t);
-ORT_MATH_SIMD_MATMUL_OP_DECL(uint8_t);
-ORT_MATH_SIMD_MATMUL_OP_DECL(uint16_t);
-ORT_MATH_SIMD_MATMUL_OP_DECL(uint32_t); /* }}} */
-
-/* {{{ SIMD Forward Declarations for Min Reduction Operations */
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, float);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, double);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int64_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, uint8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, uint16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, uint32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(min, zend_bool);
-
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, float);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, double);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int64_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, uint8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, uint16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, uint32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, zend_bool); /* }}} */
-
-/* {{{ SIMD Forward Declarations for Max Reduction Operations */
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, float);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, double);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int64_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, uint8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, uint16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, uint32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(max, zend_bool);
-
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, float);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, double);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int64_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, uint8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, uint16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, uint32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, zend_bool); /* }}} */
-
-/* {{{ SIMD Forward Declarations for Mean Reduction Operations */
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, float);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, double);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int64_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, uint8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, uint16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, uint32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, zend_bool);
-
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, float);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, double);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int64_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, uint8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, uint16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, uint32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, zend_bool); /* }}} */
-
-/* {{{ SIMD Forward Declarations for Sum Reduction Operations */
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, float);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, double);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int64_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, uint8_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, uint16_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, uint32_t);
-ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, zend_bool);
-
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, float);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, double);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int64_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, uint8_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, uint16_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, uint32_t);
-ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, zend_bool); /* }}} */
+/* {{{ SIMD Forward Declarations of Sum Reduction Operations */
+#define ORT_MATH_SIMD_SUM_OP_DECL(type, unused)         \
+        ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, type);     \
+        ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SIMD_SUM_OP_DECL)
+#undef ORT_MATH_SIMD_SUM_OP_DECL /* }}} */
 
 /* {{{ Each backend must implement this function in its own impl.c */
 void ort_math_simd_install(ort_math_dispatch_t* table); /* }}} */
