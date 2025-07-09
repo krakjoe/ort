@@ -277,6 +277,20 @@ PHP_MINIT_FUNCTION(ORT_MATH)
     return SUCCESS;
 }
 
+PHP_RINIT_FUNCTION(ORT_MATH)
+{
+    ort_math_activate();
+
+    return SUCCESS;
+}
+
+PHP_RSHUTDOWN_FUNCTION(ORT_MATH)
+{
+    ort_math_deactivate();
+
+    return SUCCESS;
+}
+
 PHP_MSHUTDOWN_FUNCTION(ORT_MATH)
 {
     ort_math_shutdown();

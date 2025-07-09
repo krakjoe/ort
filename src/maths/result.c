@@ -17,45 +17,15 @@
  */
 
 #include "status.h"
-
 #include "maths/broadcast.h"
 #include "maths/cast.h"
 #include "maths/promotion.h"
 #include "maths/result.h"
 #include "maths/validate.h"
+#include "maths/pool.h"
 
 /* Stack allocation threshold for math optimizations */
 #define ORT_MATH_RESULT_STACK_DIMENSIONS 8
-
-/* Utility functions */
-size_t ort_math_result_total(const int64_t* shape, size_t dimensions) {
-    size_t total = 1;
-    for (size_t i = 0; i < dimensions; i++) {
-        total *= shape[i];
-    }
-    return total;
-}
-
-zend_long ort_math_result_flat(const int64_t* indices, const int64_t* shape, size_t dimensions) {
-    zend_long flat_index = 0;
-    zend_long stride = 1;
-    
-    /* Calculate flat index using row-major order */
-    for (size_t i = dimensions; i > 0; i--) {
-        flat_index += indices[i-1] * stride;
-        stride *= shape[i-1];
-    }
-    
-    return flat_index;
-}
-
-void ort_math_result_multi(zend_long flat_index, const int64_t* shape, size_t dimensions, int64_t* indices) {
-    /* Convert flat index back to multi-dimensional indices */
-    for (size_t i = dimensions; i > 0; i--) {
-        indices[i-1] = flat_index % shape[i-1];
-        flat_index /= shape[i-1];
-    }
-}
 
 static zend_always_inline ort_tensor_t* 
     ort_math_result_element_wise_binary_fast(
@@ -70,11 +40,25 @@ static zend_always_inline ort_tensor_t*
         tensor_a->dimensions,
         tensor_a->type, operation_name);
 
-    operation(
-        result->data,
-        tensor_a->data,
-        tensor_b->data,
-        tensor_a->elements);
+    size_t elements = tensor_a->elements;
+    size_t element_size = php_ort_type_sizeof(tensor_a->type);
+    size_t pool_size = ort_pool_cores();
+    size_t chunk = (elements + pool_size - 1) / pool_size;
+    size_t num_chunks = (elements + chunk - 1) / chunk;
+
+    ort_pool_binary_ctx_t ctx = {
+        .layout = {
+            .element = element_size,
+            .total = elements,
+            .chunk = chunk
+        },
+        .result = result->data,
+        .a = tensor_a->data,
+        .b = tensor_b->data,
+        .op = operation
+    };
+
+    ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
 
     return result;
 }
@@ -126,99 +110,42 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         binfo->result_shape, binfo->result_dimensions, 
         promotion.result_type, operation_name);
 
-    /* Broadcasting index logic with stack allocation optimization */
+    /* Parallel slow path using thread pool */
     size_t total = ort_math_result_total(
         binfo->result_shape, binfo->result_dimensions);
-    
-    /* Stack allocation for small tensors (< 8 dimensions) */
-    int64_t out_indices_stack[ORT_MATH_RESULT_STACK_DIMENSIONS];
-    int64_t a_indices_stack[ORT_MATH_RESULT_STACK_DIMENSIONS];
-    int64_t b_indices_stack[ORT_MATH_RESULT_STACK_DIMENSIONS];
-    
-    int64_t* out_indices;
-    int64_t* a_indices;
-    int64_t* b_indices;
-    zend_bool use_stack = 
-        (binfo->result_dimensions <= ORT_MATH_RESULT_STACK_DIMENSIONS);
-    
-    if (use_stack) {
-        /* Use stack allocation for small tensors - no heap overhead */
-        out_indices = out_indices_stack;
-        a_indices = a_indices_stack;
-        b_indices = b_indices_stack;
-    } else {
-        /* Fall back to heap allocation for large tensors */
-        out_indices = ecalloc(binfo->result_dimensions, sizeof(int64_t));
-        a_indices = ecalloc(binfo->result_dimensions, sizeof(int64_t));
-        b_indices = ecalloc(binfo->result_dimensions, sizeof(int64_t));
-    }
+    size_t pool_size = ort_pool_cores();
+    size_t chunk = (total + pool_size - 1) / pool_size;
+    size_t num_chunks = (total + chunk - 1) / chunk;
 
-    for (size_t flat = 0; flat < total; flat++) {
-        ort_math_result_multi(
-            flat, 
-            binfo->result_shape,
-            binfo->result_dimensions,
-            out_indices);
+    ort_pool_slow_binary_ctx_t ctx = {
+        .layout = {
+            .element = php_ort_type_sizeof(promotion.result_type),
+            .total = total,
+            .chunk = chunk
+        },
+        .result = result->data,
+        .a = tensor_a->data,
+        .b = tensor_b->data,
+        .result_shape = binfo->result_shape,
+        .result_dimensions = binfo->result_dimensions,
+        .a_shape = tensor_a->shape,
+        .a_dimensions = tensor_a->dimensions,
+        .b_shape = tensor_b->shape,
+        .b_dimensions = tensor_b->dimensions,
+        .op = operation,
+        .a_type = tensor_a->type,
+        .b_type = tensor_b->type,
+        .result_type = promotion.result_type,
+        .element_size = php_ort_type_sizeof(promotion.result_type),
+        .a_element_size = php_ort_type_sizeof(tensor_a->type),
+        .b_element_size = php_ort_type_sizeof(tensor_b->type),
+        .a_dim_offset = binfo->result_dimensions - tensor_a->dimensions,
+        .b_dim_offset = binfo->result_dimensions - tensor_b->dimensions
+    };
 
-        // Map output indices to a/b indices
-        size_t a_dim_offset = binfo->result_dimensions - tensor_a->dimensions;
-        size_t b_dim_offset = binfo->result_dimensions - tensor_b->dimensions;
-        
-        for (size_t i = 0; i < binfo->result_dimensions; i++) {
-            a_indices[i] = (i < a_dim_offset) ? 0 :
-                (tensor_a->shape[i - a_dim_offset] == 1 ? 0 : out_indices[i]);
-            b_indices[i] = (i < b_dim_offset) ? 0 :
-                (tensor_b->shape[i - b_dim_offset] == 1 ? 0 : out_indices[i]);
-        }
-
-        zend_long a_flat = ort_math_result_flat(
-            a_indices + a_dim_offset,
-            tensor_a->shape, 
-            tensor_a->dimensions);
-
-        zend_long b_flat = ort_math_result_flat(
-            b_indices + b_dim_offset,
-            tensor_b->shape,
-            tensor_b->dimensions);
-        
-        // Type promotion: operate on promoted type
-        void* res_ptr = 
-            (char*)result->data + 
-                flat * php_ort_type_sizeof(
-                    promotion.result_type);
-
-        void* a_ptr = 
-            (char*)tensor_a->data + 
-                a_flat * php_ort_type_sizeof(
-                    tensor_a->type);
-
-        void* b_ptr = 
-            (char*)tensor_b->data + 
-            b_flat * php_ort_type_sizeof(
-                tensor_b->type);
-
-        // Use a temporary buffer for type promotion if needed
-        char a_buf[16], b_buf[16];
-
-        ort_math_cast_element(
-            a_ptr, a_buf, tensor_a->type, 
-            promotion.result_type);
-        ort_math_cast_element(
-            b_ptr, b_buf, tensor_b->type,
-            promotion.result_type);
-
-        operation(res_ptr, a_buf, b_buf, 1);
-    }
-
-    /* Clean up heap-allocated index arrays if needed */
-    if (!use_stack) {
-        efree(out_indices);
-        efree(a_indices);
-        efree(b_indices);
-    }
-
+    ort_pool_submit(
+        ort_pool_slow_binary_worker, &ctx, num_chunks);
     ort_math_broadcast_free(binfo);
-
     return result;
 }
 
@@ -327,13 +254,26 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
             return NULL;
     }
 
-    /* Perform operation */
-    operation(
-        result->data,
-        tensor->data,
-        scalar_data,
-        tensor->elements);
-    
+    /* Parallelize scalar operation */
+    size_t elements = tensor->elements;
+    size_t element_size = php_ort_type_sizeof(tensor->type);
+    size_t pool_size = ort_pool_cores();
+    size_t chunk = (elements + pool_size - 1) / pool_size;
+    size_t num_chunks = (elements + chunk - 1) / chunk;
+
+    ort_pool_scalar_ctx_t ctx = {
+        .layout = {
+            .element = element_size,
+            .total = elements,
+            .chunk = chunk
+        },
+        .result = result->data,
+        .a = tensor->data,
+        .b = scalar_data,
+        .op = operation
+    };
+
+    ort_pool_submit(ort_pool_scalar_worker, &ctx, num_chunks);
     return result;
 }
 
@@ -352,11 +292,24 @@ ort_tensor_t* ort_math_result_element_wise_unary(
         return NULL;
     }
 
-    operation(
-        result->data,
-        tensor->data,
-        tensor->elements);
-    
+    size_t elements = tensor->elements;
+    size_t element_size = php_ort_type_sizeof(tensor->type);
+    size_t pool_size = ort_pool_cores();
+    size_t chunk = (elements + pool_size - 1) / pool_size;
+    size_t num_chunks = (elements + chunk - 1) / chunk;
+
+    ort_pool_unary_ctx_t ctx = {
+        .layout = {
+            .element = element_size,
+            .total = elements,
+            .chunk = chunk
+        },
+        .result = result->data,
+        .a = tensor->data,
+        .op = operation
+    };
+
+    ort_pool_submit(ort_pool_unary_worker, &ctx, num_chunks);
     return result;
 }
 

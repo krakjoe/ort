@@ -54,4 +54,34 @@ ort_tensor_t* ort_math_result_tensor(
 
 ort_tensor_t** ort_math_result_create(ort_tensor_t* tensor);
 void ort_math_result_free(ort_tensor_t** result);
+
+/* Utility functions */
+static zend_always_inline size_t ort_math_result_total(const int64_t* shape, size_t dimensions) {
+    size_t total = 1;
+    for (size_t i = 0; i < dimensions; i++) {
+        total *= shape[i];
+    }
+    return total;
+}
+
+static zend_always_inline void ort_math_result_multi(zend_long flat_index, const int64_t* shape, size_t dimensions, int64_t* indices) {
+    /* Convert flat index back to multi-dimensional indices */
+    for (size_t i = dimensions; i > 0; i--) {
+        indices[i-1] = flat_index % shape[i-1];
+        flat_index /= shape[i-1];
+    }
+}
+
+static zend_always_inline zend_long ort_math_result_flat(const int64_t* indices, const int64_t* shape, size_t dimensions) {
+    zend_long flat_index = 0;
+    zend_long stride = 1;
+    
+    /* Calculate flat index using row-major order */
+    for (size_t i = dimensions; i > 0; i--) {
+        flat_index += indices[i-1] * stride;
+        stride *= shape[i-1];
+    }
+    
+    return flat_index;
+}
 #endif

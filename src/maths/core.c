@@ -22,6 +22,10 @@
 #include "maths/backend/impl.h"
 #endif
 
+#ifndef _WIN32
+#include "maths/pool.h"
+#endif
+
 void ort_math_startup() {
 #ifdef ORT_BACKEND_ENABLED
     ort_math_backend_install(
@@ -29,6 +33,15 @@ void ort_math_startup() {
 #endif
 }
 
+void ort_math_activate() {
+    ort_pool_init(
+        ort_pool_cores());
+}
+
+void ort_math_deactivate() {
+    ort_pool_destroy();
+}
+
 void ort_math_shutdown() {
-    // Currently no specific shutdown logic, but can be extended in the future
+    /* nothing to do currently ... */
 }

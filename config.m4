@@ -81,6 +81,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_MATHS_DIR/promotion.c
     $PHP_ORT_MATHS_DIR/result.c
     $PHP_ORT_MATHS_DIR/validate.c
+    $PHP_ORT_MATHS_DIR/pool.c
     $PHP_ORT_MATHS_FRONTEND_IMPL
   ")
 

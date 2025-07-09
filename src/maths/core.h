@@ -27,9 +27,17 @@
  */
 #include "ort.h"
 
+#ifndef _WIN32
+#include "maths/pool.h"
+#endif
+
 /** {{{  Startup and shutdown, called from the PHP layer */
 void ort_math_startup(void);
 void ort_math_shutdown(void); /* }}} */
+
+/** {{{  Activate and deactivate, called from the PHP layer */
+void ort_math_activate(void);
+void ort_math_deactivate(void); /* }}} */
 
 /* Core mathematical operation function pointers */
 typedef void (*ort_math_element_op_func_t)(
