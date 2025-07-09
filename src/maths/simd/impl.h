@@ -57,6 +57,12 @@ static zend_always_inline size_t ort_math_simd_optimal_count(size_t count, size_
         void* result, const void* a, const void* b,                \
         size_t a_rows, size_t a_cols, size_t b_cols)
 
+#define ORT_MATH_SIMD_REDUCTION_OP_DECL ORT_MATH_SIMD_UNARY_OP_DECL
+#define ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(op, type)             \
+    extern void ort_math_simd_##op##_axis_##type(                  \
+        void* result, const void* a,                               \
+        size_t outer_size, size_t axis_size, size_t inner_size)
+
 /**
  * SIMD Forward Declarations of Contracted Binary Operations
  * 
@@ -152,6 +158,98 @@ ORT_MATH_SIMD_MATMUL_OP_DECL(int64_t);
 ORT_MATH_SIMD_MATMUL_OP_DECL(uint8_t);
 ORT_MATH_SIMD_MATMUL_OP_DECL(uint16_t);
 ORT_MATH_SIMD_MATMUL_OP_DECL(uint32_t); /* }}} */
+
+/* {{{ SIMD Forward Declarations for Min Reduction Operations */
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, float);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, double);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, int64_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, uint8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, uint16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, uint32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(min, zend_bool);
+
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, float);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, double);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, int64_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, uint8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, uint16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, uint32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(min, zend_bool); /* }}} */
+
+/* {{{ SIMD Forward Declarations for Max Reduction Operations */
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, float);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, double);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, int64_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, uint8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, uint16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, uint32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(max, zend_bool);
+
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, float);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, double);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, int64_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, uint8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, uint16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, uint32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(max, zend_bool); /* }}} */
+
+/* {{{ SIMD Forward Declarations for Mean Reduction Operations */
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, float);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, double);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, int64_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, uint8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, uint16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, uint32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(mean, zend_bool);
+
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, float);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, double);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, int64_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, uint8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, uint16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, uint32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(mean, zend_bool); /* }}} */
+
+/* {{{ SIMD Forward Declarations for Sum Reduction Operations */
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, float);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, double);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, int64_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, uint8_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, uint16_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, uint32_t);
+ORT_MATH_SIMD_REDUCTION_OP_DECL(sum, zend_bool);
+
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, float);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, double);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, int64_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, uint8_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, uint16_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, uint32_t);
+ORT_MATH_SIMD_REDUCTION_AXIS_OP_DECL(sum, zend_bool); /* }}} */
 
 /* {{{ Each backend must implement this function in its own impl.c */
 void ort_math_simd_install(ort_math_dispatch_t* table); /* }}} */
