@@ -25,7 +25,7 @@
  * All of the functions in this file must be implemented by the frontend.
  * 
  * The implementation of these functions should be used as fallback
- * for the SIMD backends, which are defined in the backend directory.
+ * for the backend, which are defined in the backend directory.
  *
  * Note: This file is intended for use at the maths layer, and is not
  *       intended for use at the PHP layer.

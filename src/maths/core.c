@@ -18,12 +18,12 @@
 
 #include "ort.h"
 
-#ifdef ORT_SIMD_ENABLED
+#ifdef ORT_BACKEND_ENABLED
 #include "maths/backend/impl.h"
 #endif
 
 void ort_math_startup() {
-#ifdef ORT_SIMD_ENABLED
+#ifdef ORT_BACKEND_ENABLED
     ort_math_backend_install(
         ort_math_dispatch_table());
 #endif

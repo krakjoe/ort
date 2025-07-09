@@ -1,6 +1,5 @@
 This extension uses a precise development workflow:
 
-  - During development, the extension should be configured with `--enable-ort-coverage`.
   - Any changes in source must be followed by `make clean install` *before* tests are run.
   - Tests must always be run with `make ort-test-coverage-html` to ensure:
       - They are executed in the correct environment.

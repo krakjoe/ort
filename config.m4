@@ -4,13 +4,9 @@ PHP_ARG_ENABLE([ort],
   [whether to enable ort support],
   [AS_HELP_STRING([--enable-ort], [Enable ort extension])])
 
-PHP_ARG_ENABLE([ort-coverage],
-  [whether to enable ort coverage],
-  [AS_HELP_STRING([--enable-ort-coverage], [Enable ort coverage support, default=no])], no, no)
-
-PHP_ARG_ENABLE([ort-simd],
-  [whether to enable SIMD optimizations],
-  [AS_HELP_STRING([--enable-ort-simd], [Enable SIMD optimizations, default=yes])], yes, no)
+PHP_ARG_ENABLE([ort-backend],
+  [whether to enable backend optimizations],
+  [AS_HELP_STRING([--enable-ort-backend], [Enable backend optimizations, default=yes])], yes, no)
 
 PHP_ARG_ENABLE([ort-sse2],
   [whether to enable SSE2 support],
@@ -40,15 +36,6 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AC_DEFINE(HAVE_BUILTIN_ATOMIC_CPP11, 1, [Define to 1 if supports __atomic_add_fetch()])
   ], [
     AC_MSG_RESULT([no])
-  ])
-
-  dnl Check for coverage support
-  AC_MSG_CHECKING([for coverage support])
-  AS_VAR_IF([PHP_ORT_COVERAGE], [no], [
-        AC_MSG_RESULT([no])
-  ], [
-    PHP_ADD_MAKEFILE_FRAGMENT(Makefile.frag)
-    AC_MSG_RESULT([yes])
   ])
 
   PHP_ORT_SRC_DIR="src"
@@ -97,9 +84,8 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_MATHS_FRONTEND_IMPL
   ")
 
-  dnl SIMD feature detection
-  AC_MSG_CHECKING([for SIMD configuration])
-  AS_VAR_IF([PHP_ORT_SIMD], [no], [
+  AC_MSG_CHECKING([for backend configuration])
+  AS_VAR_IF([PHP_ORT_BACKEND], [no], [
     AC_MSG_RESULT([disabled])
   ], [
     AC_MSG_RESULT([enabled])
@@ -207,21 +193,23 @@ AS_VAR_IF([PHP_ORT], [no],, [
       ])
     fi
 
-    dnl Define the highest available SIMD level
-    AC_MSG_CHECKING([for SIMD build $PHP_SIMD_IMPL])
+    AC_MSG_CHECKING([for backend build])
     if test "$PHP_ORT_BACKEND_LEVEL" = "AVX2"; then
-      AC_DEFINE(HAVE_AVX2, 1, [AVX2 support available])
-      AC_DEFINE(ORT_SIMD_ENABLED, 1, [SIMD optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_ENABLED, 1,
+        [ort backend optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_NAME, "AVX2", [ort backend name])
       PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
       AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
     elif test "$PHP_ORT_BACKEND_LEVEL" = "SSE4.1"; then
-      AC_DEFINE(HAVE_SSE41, 1, [SSE4.1 support available])
-      AC_DEFINE(ORT_SIMD_ENABLED, 1, [SIMD optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_ENABLED, 1,
+        [ort backend optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_NAME, "SSE4.1", [ort backend name])
       PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
       AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
     elif test "$PHP_ORT_BACKEND_LEVEL" = "SSE2"; then
-      AC_DEFINE(HAVE_SSE2, 1, [SSE2 support available])
-      AC_DEFINE(ORT_SIMD_ENABLED, 1, [SIMD optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_ENABLED, 1,
+        [ort backend optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_NAME, "SSE2",[ort backend name])
       PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
       AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
     else
@@ -250,4 +238,5 @@ AS_VAR_IF([PHP_ORT], [no],, [
   fi
 
   PHP_SUBST([ORT_SHARED_LIBADD])
+  PHP_ADD_MAKEFILE_FRAGMENT(Makefile.frag)
 ])

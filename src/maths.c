@@ -211,6 +211,20 @@ PHP_FUNCTION(matmul)
     rv->object = result;
 }
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(php_ort_math_backend_arginfo, 0, 0, MAY_BE_STRING|MAY_BE_FALSE)
+ZEND_END_ARG_INFO()
+
+PHP_FUNCTION(backend)
+{
+    ZEND_PARSE_PARAMETERS_NONE();
+
+#ifdef ORT_BACKEND_ENABLED
+    RETURN_STRING(ORT_BACKEND_NAME);
+#else
+    RETURN_FALSE;
+#endif
+}
+
 /* Function table for ONNX\Math namespace */
 static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", add, php_ort_math_add_arginfo)
@@ -249,6 +263,7 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", neg, php_ort_math_neg_arginfo)
     ZEND_NS_FE("ONNX\\Math", recip, php_ort_math_recip_arginfo)
     ZEND_NS_FE("ONNX\\Math", trunc, php_ort_math_trunc_arginfo)
+    ZEND_NS_FE("ONNX\\Math", backend, php_ort_math_backend_arginfo)
     ZEND_FE_END
 };
 

@@ -1,8 +1,8 @@
-# SIMD Backends
+# Backends
 
 Single-Instruction Multiple Data (SIMD) instructions allow performing operations on multiple values simultaneously within a single CPU instruction using vectorization. This can significantly speed up computations involving large tensors.
 
-`php-ort` uses SIMD backends to accelerate some math functions for the frontend (exposed as `ONNX\Math`), this is transparent and automatic by default.
+`php-ort` uses various backends to accelerate some math functions for the frontend (exposed as `ONNX\Math`), this is transparent and automatic by default.
 
 By default `php-ort` will attempt to build with the best backend available for your system, selected in this order:
 
@@ -10,7 +10,7 @@ By default `php-ort` will attempt to build with the best backend available for y
   - SSE4.1
   - SSE2
 
-To create a build that uses no intrinsics at all, use the configure flag `--disable-ort-simd`.
+To create a build that uses no intrinsics at all, use the configure flag `--disable-ort-backend`.
 
 To create a build using specific intrinsics, use (combinations of) the following flags:
 
