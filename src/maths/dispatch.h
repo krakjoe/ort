@@ -69,6 +69,18 @@ typedef struct _ort_math_dispatch_t {
     ort_math_unary_op_func_t abs_func;
     ort_math_unary_op_func_t sign_func;
     ort_math_unary_op_func_t recip_func;
+
+    ort_math_unary_op_func_t sum_func;
+    ort_math_reduction_op_func_t sum_axis_func;
+
+    ort_math_unary_op_func_t mean_func;
+    ort_math_reduction_op_func_t mean_axis_func;
+
+    ort_math_unary_op_func_t min_func;
+    ort_math_reduction_op_func_t min_axis_func;
+
+    ort_math_unary_op_func_t max_func;
+    ort_math_reduction_op_func_t max_axis_func;
 } ort_math_dispatch_t;
 
 static zend_always_inline int16_t ort_math_dispatch_indexof(ONNXTensorElementDataType type) {

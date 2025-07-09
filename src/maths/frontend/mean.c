@@ -25,8 +25,9 @@
 #include "maths/result.h"
 
 #define ORT_MATH_MEAN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
-    static zend_always_inline void ort_math_mean_axis_impl_##c_type( \
-        void* result, const void *a, size_t outer, size_t axis, size_t inner) { \
+    void ort_math_ops_mean_axis_##c_type( \
+        void* result, const void *a, \
+        size_t outer, size_t axis, size_t inner) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
         for (size_t i = 0; i < outer; i++) { \
@@ -42,7 +43,7 @@
         } \
     }
 
-static zend_always_inline void ort_math_mean_axis_impl_zend_bool(
+void ort_math_ops_mean_axis_zend_bool(
     void* result, const void *a, size_t outer, size_t axis, size_t inner) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
@@ -61,7 +62,7 @@ static zend_always_inline void ort_math_mean_axis_impl_zend_bool(
 
 
 #define ORT_MATH_MEAN_IMPL_FOR_TYPE(c_type, unused) \
-    static zend_always_inline void ort_math_mean_impl_##c_type( \
+    void ort_math_ops_mean_##c_type( \
         void* result, const void *a, size_t count) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
@@ -72,7 +73,7 @@ static zend_always_inline void ort_math_mean_axis_impl_zend_bool(
         res[0] = sum / (c_type)count; \
     }
 
-static zend_always_inline void ort_math_mean_impl_zend_bool(
+void ort_math_ops_mean_zend_bool(
     void* result, const void *a, size_t count) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
@@ -93,18 +94,13 @@ ort_tensor_t* ort_math_result_mean(ort_tensor_t* tensor, zval* axis_zval, zend_b
 
     // If no axis specified, mean all elements
     if (axis_zval == NULL || Z_TYPE_P(axis_zval) == IS_NULL) {
-        ort_tensor_t* result = ort_math_result_tensor(NULL, 0, tensor->type, "mean_result");
+        ort_tensor_t* result =
+            ort_math_result_tensor(NULL, 0, tensor->type, "mean_result");
+        const ort_math_dispatch_t* dispatch =
+            ort_math_dispatch_type(tensor->type);
 
-        switch (tensor->type) {
-            #define ORT_MATH_MEAN_CASE(c_type, onnx_type) \
-            case onnx_type:                               \
-                ort_math_mean_impl_##c_type(              \
-                    result->data,                         \
-                    tensor->data, tensor->elements);      \
-                break;
-            ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_MEAN_CASE)
-            #undef ORT_MATH_MEAN_CASE
-        }
+        dispatch->mean_func(
+            result->data, tensor->data, tensor->elements);
 
         return result;
     }
@@ -153,17 +149,12 @@ ort_tensor_t* ort_math_result_mean(ort_tensor_t* tensor, zval* axis_zval, zend_b
     }
     size_t inner_size = strides[axis];
 
-    switch (tensor->type) {
-        #define ORT_MATH_MEAN_AXIS_CASE(c_type, onnx_type) \
-        case onnx_type:                                    \
-            ort_math_mean_axis_impl_##c_type(              \
-                result->data,                              \
-                tensor->data,                              \
-                outer_size, axis_size, inner_size);        \
-            break;
-        ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_MEAN_AXIS_CASE)
-        #undef ORT_MATH_MEAN_AXIS_CASE
-    }
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(tensor->type);
+
+    dispatch->mean_axis_func(
+        result->data, tensor->data,
+        outer_size, axis_size, inner_size);
 
     efree(strides);
     efree(result_shape);

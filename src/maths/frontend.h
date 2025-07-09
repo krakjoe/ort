@@ -158,4 +158,92 @@ extern void ort_math_ops_matmul_int64_t(void *result, const void* a, const void*
 extern void ort_math_ops_matmul_uint8_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
 extern void ort_math_ops_matmul_uint16_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
 extern void ort_math_ops_matmul_uint32_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+
+extern void ort_math_ops_min_float(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_double(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_int8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_int16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_int32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_int64_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_uint8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_uint16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_uint32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_min_zend_bool(void *result, const void* a, size_t count);
+
+extern void ort_math_ops_min_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_uint8_t(void  *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_min_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+
+extern void ort_math_ops_max_float(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_double(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_int8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_int16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_int32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_int64_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_uint8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_uint16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_uint32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_max_zend_bool(void *result, const void* a, size_t count);
+
+extern void ort_math_ops_max_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_uint8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_max_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+
+extern void ort_math_ops_mean_float(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_double(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_int8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_int16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_int32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_int64_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_uint8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_uint16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_uint32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_mean_zend_bool(void *result, const void* a, size_t count);
+
+extern void ort_math_ops_mean_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_uint8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_mean_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+
+extern void ort_math_ops_sum_float(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_double(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_int8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_int16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_int32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_int64_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_uint8_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_uint16_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_uint32_t(void *result, const void* a, size_t count);
+extern void ort_math_ops_sum_zend_bool(void *result, const void* a, size_t count);
+
+extern void ort_math_ops_sum_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_uint8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+extern void ort_math_ops_sum_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
 #endif

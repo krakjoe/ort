@@ -32,6 +32,7 @@ For an SSE2 build:
 ./configure --disable-ort-avx2 --disable-ort-sse41
 ```
 
+
 # SIMD Acceleration Tables
 
 **Legend:**

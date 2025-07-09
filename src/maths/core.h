@@ -32,9 +32,15 @@ void ort_math_startup(void);
 void ort_math_shutdown(void); /* }}} */
 
 /* Core mathematical operation function pointers */
-typedef void (*ort_math_element_op_func_t)(void* result, const void* a, const void* b, size_t count);
-typedef void (*ort_math_scalar_op_func_t)(void* result, const void* a, const void* b, size_t count);
-typedef void (*ort_math_unary_op_func_t)(void* result, const void* input, size_t count);
-typedef void (*ort_math_matmul_op_func_t)(void* result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+typedef void (*ort_math_element_op_func_t)(
+  void* result, const void* a, const void* b, size_t count);
+typedef void (*ort_math_scalar_op_func_t)(
+  void* result, const void* a, const void* b, size_t count);
+typedef void (*ort_math_unary_op_func_t)(
+  void* result, const void* input, size_t count);
+typedef void (*ort_math_reduction_op_func_t)(
+  void* result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+typedef void (*ort_math_matmul_op_func_t)(
+  void* result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
 
 #endif

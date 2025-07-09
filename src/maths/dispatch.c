@@ -41,6 +41,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = ort_math_ops_trunc_float,
         .dot_func        = ort_math_ops_dot_float,
         .matmul_func     = ort_math_ops_matmul_float,
+        .sum_func        = ort_math_ops_sum_float,
+        .sum_axis_func   = ort_math_ops_sum_axis_float,
+        .min_func        = ort_math_ops_min_float,
+        .min_axis_func   = ort_math_ops_min_axis_float,
+        .max_func        = ort_math_ops_max_float,
+        .max_axis_func   = ort_math_ops_max_axis_float,
+        .mean_func       = ort_math_ops_mean_float,
+        .mean_axis_func  = ort_math_ops_mean_axis_float,
     },
     /* DOUBLE */
     {
@@ -62,6 +70,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = ort_math_ops_trunc_double,
         .dot_func        = ort_math_ops_dot_double,
         .matmul_func     = ort_math_ops_matmul_double,
+        .sum_func        = ort_math_ops_sum_double,
+        .sum_axis_func   = ort_math_ops_sum_axis_double,
+        .min_func        = ort_math_ops_min_double,
+        .min_axis_func   = ort_math_ops_min_axis_double,
+        .max_func        = ort_math_ops_max_double,
+        .max_axis_func   = ort_math_ops_max_axis_double,
+        .mean_func       = ort_math_ops_mean_double,
+        .mean_axis_func  = ort_math_ops_mean_axis_double,
     },
     /* INT8 */
     {
@@ -83,6 +99,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int8_t,
         .matmul_func     = ort_math_ops_matmul_int8_t,
+        .sum_func        = ort_math_ops_sum_int8_t,
+        .sum_axis_func   = ort_math_ops_sum_axis_int8_t,
+        .min_func        = ort_math_ops_min_int8_t,
+        .min_axis_func   = ort_math_ops_min_axis_int8_t,
+        .max_func        = ort_math_ops_max_int8_t,
+        .max_axis_func   = ort_math_ops_max_axis_int8_t,
+        .mean_func       = ort_math_ops_mean_int8_t,
+        .mean_axis_func  = ort_math_ops_mean_axis_int8_t,
     },
     /* INT16 */
     {
@@ -104,6 +128,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int16_t,
         .matmul_func     = ort_math_ops_matmul_int16_t,
+        .sum_func        = ort_math_ops_sum_int16_t,
+        .sum_axis_func   = ort_math_ops_sum_axis_int16_t,
+        .min_func        = ort_math_ops_min_int16_t,
+        .min_axis_func   = ort_math_ops_min_axis_int16_t,
+        .max_func        = ort_math_ops_max_int16_t,
+        .max_axis_func   = ort_math_ops_max_axis_int16_t,
+        .mean_func       = ort_math_ops_mean_int16_t,
+        .mean_axis_func  = ort_math_ops_mean_axis_int16_t,
     },
     /* INT32 */
     {
@@ -125,6 +157,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int32_t,
         .matmul_func     = ort_math_ops_matmul_int32_t,
+        .sum_func        = ort_math_ops_sum_int32_t,
+        .sum_axis_func   = ort_math_ops_sum_axis_int32_t,
+        .min_func        = ort_math_ops_min_int32_t,
+        .min_axis_func   = ort_math_ops_min_axis_int32_t,
+        .max_func        = ort_math_ops_max_int32_t,
+        .max_axis_func   = ort_math_ops_max_axis_int32_t,
+        .mean_func       = ort_math_ops_mean_int32_t,
+        .mean_axis_func  = ort_math_ops_mean_axis_int32_t,
     },
     /* INT64 */
     {
@@ -146,6 +186,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_int64_t,
         .matmul_func     = ort_math_ops_matmul_int64_t,
+        .sum_func        = ort_math_ops_sum_int64_t,
+        .sum_axis_func   = ort_math_ops_sum_axis_int64_t,
+        .min_func        = ort_math_ops_min_int64_t,
+        .min_axis_func   = ort_math_ops_min_axis_int64_t,
+        .max_func        = ort_math_ops_max_int64_t,
+        .max_axis_func   = ort_math_ops_max_axis_int64_t,
+        .mean_func       = ort_math_ops_mean_int64_t,
+        .mean_axis_func  = ort_math_ops_mean_axis_int64_t,
     },
     /* UINT8 */
     {
@@ -167,6 +215,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_uint8_t,
         .matmul_func     = ort_math_ops_matmul_uint8_t,
+        .sum_func        = ort_math_ops_sum_uint8_t,
+        .sum_axis_func   = ort_math_ops_sum_axis_uint8_t,
+        .min_func        = ort_math_ops_min_uint8_t,
+        .min_axis_func   = ort_math_ops_min_axis_uint8_t,
+        .max_func        = ort_math_ops_max_uint8_t,
+        .max_axis_func   = ort_math_ops_max_axis_uint8_t,
+        .mean_func       = ort_math_ops_mean_uint8_t,
+        .mean_axis_func  = ort_math_ops_mean_axis_uint8_t,
     },
     /* UINT16 */
     {
@@ -188,6 +244,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_uint16_t,
         .matmul_func     = ort_math_ops_matmul_uint16_t,
+        .sum_func        = ort_math_ops_sum_uint16_t,
+        .sum_axis_func   = ort_math_ops_sum_axis_uint16_t,
+        .min_func        = ort_math_ops_min_uint16_t,
+        .min_axis_func   = ort_math_ops_min_axis_uint16_t,
+        .max_func        = ort_math_ops_max_uint16_t,
+        .max_axis_func   = ort_math_ops_max_axis_uint16_t,
+        .mean_func       = ort_math_ops_mean_uint16_t,
+        .mean_axis_func  = ort_math_ops_mean_axis_uint16_t,
     },
     /* UINT32 */
     {
@@ -209,6 +273,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,
         .dot_func        = ort_math_ops_dot_uint32_t,
         .matmul_func     = ort_math_ops_matmul_uint32_t,
+        .sum_func        = ort_math_ops_sum_uint32_t,
+        .sum_axis_func   = ort_math_ops_sum_axis_uint32_t,
+        .min_func        = ort_math_ops_min_uint32_t,
+        .min_axis_func   = ort_math_ops_min_axis_uint32_t,
+        .max_func        = ort_math_ops_max_uint32_t,
+        .max_axis_func   = ort_math_ops_max_axis_uint32_t,
+        .mean_func       = ort_math_ops_mean_uint32_t,
+        .mean_axis_func  = ort_math_ops_mean_axis_uint32_t,
     },
     /* BOOL */
     {
@@ -230,6 +302,14 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .trunc_func      = NULL,                         // Not meaningful for bool
         .dot_func        = NULL,
         .matmul_func     = NULL,
+        .sum_func        = ort_math_ops_sum_zend_bool,
+        .sum_axis_func   = ort_math_ops_sum_axis_zend_bool,
+        .min_func        = ort_math_ops_min_zend_bool,
+        .min_axis_func   = ort_math_ops_min_axis_zend_bool,
+        .max_func        = ort_math_ops_max_zend_bool,
+        .max_axis_func   = ort_math_ops_max_axis_zend_bool,
+        .mean_func       = ort_math_ops_mean_zend_bool,
+        .mean_axis_func  = ort_math_ops_mean_axis_zend_bool,
     }
 };
 
