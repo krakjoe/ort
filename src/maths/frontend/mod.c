@@ -26,7 +26,7 @@
  * MODULO OPERATIONS
  * =============================================================================
  */
-void ort_math_frontend_mod_float(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_FRONTEND_BINARY_OP_DECL(mod, float) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
@@ -35,7 +35,7 @@ void ort_math_frontend_mod_float(void* result, const void* a, const void* b, siz
     }
 }
 
-void ort_math_frontend_mod_double(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_FRONTEND_BINARY_OP_DECL(mod, double) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     const double* vb = (const double*)b;

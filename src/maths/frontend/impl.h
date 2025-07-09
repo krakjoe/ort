@@ -16,8 +16,8 @@
   +----------------------------------------------------------------------+
  */
 
-#ifndef HAVE_ORT_MATHS_FRONTEND
-#define HAVE_ORT_MATHS_FRONTEND
+#ifndef HAVE_ORT_MATHS_FRONTEND_IMPL
+#define HAVE_ORT_MATHS_FRONTEND_IMPL
 
 /* @file impl.h
  * @brief Frontend interface for mathematical operations
@@ -30,220 +30,145 @@
  * Note: This file is intended for use at the maths layer, and is not
  *       intended for use at the PHP layer.
  */
-#include "ort.h"
+#include <php.h>
 
-/* Mathematical operation implementations */
-extern void ort_math_frontend_add_float(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_double(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_int8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_int16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_int32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_int64_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_uint8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_uint16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_uint32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_add_zend_bool(void* result, const void* a, const void* b, size_t count);
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-extern void ort_math_frontend_sub_float(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_double(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_int8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_int16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_int32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_int64_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_uint8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_uint16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_uint32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_sub_zend_bool(void* result, const void* a, const void* b, size_t count);
+#include "maths/codegen.h"
+#include "maths/dispatch.h"
+#include "maths/frontend/impl.h"
 
-extern void ort_math_frontend_mul_float(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_double(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_int8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_int16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_int32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_int64_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_uint8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_uint16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_uint32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mul_zend_bool(void* result, const void* a, const void* b, size_t count);
+/* {{{ Frontend Forward Declarations of Addition Operations */
+#define ORT_MATH_FRONTEND_ADD_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_BINARY_OP_DECL(add, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_ADD_OP_DECL)
+#undef ORT_MATH_FRONTEND_ADD_OP_DECL /* }}} */
 
-extern void ort_math_frontend_div_float(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_double(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_int8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_int16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_int32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_int64_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_uint8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_uint16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_uint32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_div_zend_bool(void* result, const void* a, const void* b, size_t count);
+/* {{{ Frontend Forward Declarations of Subtraction Operations */
+#define ORT_MATH_FRONTEND_SUB_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_BINARY_OP_DECL(sub, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_SUB_OP_DECL)
+#undef ORT_MATH_FRONTEND_SUB_OP_DECL /* }}} */
 
-extern void ort_math_frontend_sqrt_int8_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_int16_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_int32_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_int64_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_uint8_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_uint16_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_uint32_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sqrt_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Multiplication Operations */
+#define ORT_MATH_FRONTEND_MUL_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_BINARY_OP_DECL(mul, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_MUL_OP_DECL)
+#undef ORT_MATH_FRONTEND_MUL_OP_DECL /* }}} */
 
-extern void ort_math_frontend_ceil_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_ceil_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Division Operations */
+#define ORT_MATH_FRONTEND_DIV_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_BINARY_OP_DECL(div, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_DIV_OP_DECL)
+#undef ORT_MATH_FRONTEND_DIV_OP_DECL /* }}} */
 
-extern void ort_math_frontend_floor_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_floor_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Square Root Operations */
+#define ORT_MATH_FRONTEND_SQRT_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_SQRT_OP_DECL)
+#undef ORT_MATH_FRONTEND_SQRT_OP_DECL /* }}} */
 
-extern void ort_math_frontend_round_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_round_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Ceiling Operations */
+#define ORT_MATH_FRONTEND_CEIL_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(ceil, type);
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_CEIL_OP_DECL)
+#undef ORT_MATH_FRONTEND_CEIL_OP_DECL /* }}} */
 
-extern void ort_math_frontend_trunc_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_trunc_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Floor Operations */
+#define ORT_MATH_FRONTEND_FLOOR_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(floor, type);
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_FLOOR_OP_DECL)
+#undef ORT_MATH_FRONTEND_FLOOR_OP_DECL /* }}} */
 
-extern void ort_math_frontend_abs_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_abs_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Round Operations */
+#define ORT_MATH_FRONTEND_ROUND_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(round, type);
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_ROUND_OP_DECL)
+#undef ORT_MATH_FRONTEND_ROUND_OP_DECL /* }}} */
 
-extern void ort_math_frontend_sign_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_sign_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Truncation Operations */
+#define ORT_MATH_FRONTEND_TRUNC_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(trunc, type);
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_TRUNC_OP_DECL)
+#undef ORT_MATH_FRONTEND_TRUNC_OP_DECL /* }}} */
 
-extern void ort_math_frontend_recip_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_recip_double(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Absolute Operations */
+#define ORT_MATH_FRONTEND_ABS_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(abs, type);
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_ABS_OP_DECL)
+#undef ORT_MATH_FRONTEND_ABS_OP_DECL /* }}} */
 
-extern void ort_math_frontend_neg_float(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_double(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_int8_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_int16_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_int32_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_int64_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_uint8_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_uint16_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_uint32_t(void* result, const void* a, size_t count);
-extern void ort_math_frontend_neg_zend_bool(void* result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Negation Operations */
+#define ORT_MATH_FRONTEND_NEG_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(neg, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_NEG_OP_DECL)
+#undef ORT_MATH_FRONTEND_NEG_OP_DECL /* }}} */
 
-extern void ort_math_frontend_mod_float(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_double(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_int8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_int16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_int32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_int64_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_uint8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_uint16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_mod_uint32_t(void* result, const void* a, const void* b, size_t count);
+/* {{{ Frontend Forward Declarations of Reciprocal Operations */
+#define ORT_MATH_FRONTEND_RECIP_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(recip, type);
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_RECIP_OP_DECL)
+#undef ORT_MATH_FRONTEND_RECIP_OP_DECL /* }}} */
 
-extern void ort_math_frontend_pow_int8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_int16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_int32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_int64_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_uint8_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_uint16_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_uint32_t(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_float(void* result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_pow_double(void* result, const void* a, const void* b, size_t count);
+/* {{{ Frontend Forward Declarations of Sign Operations */
+#define ORT_MATH_FRONTEND_SIGN_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, type);
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_SIGN_OP_DECL)
+ORT_MATH_FOREACH_SIGNED_TYPE(ORT_MATH_FRONTEND_SIGN_OP_DECL)
+#undef ORT_MATH_FRONTEND_SIGN_OP_DECL /* }}} */
 
-extern void ort_math_frontend_dot_float(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_double(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_int8_t(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_int16_t(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_int32_t(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_int64_t(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_uint8_t(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_uint16_t(void *result, const void* a, const void* b, size_t count);
-extern void ort_math_frontend_dot_uint32_t(void *result, const void* a, const void* b, size_t count);
+/* {{{ Frontend Forward Declarations of Modulo Operations */
+#define ORT_MATH_FRONTEND_MOD_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_BINARY_OP_DECL(mod, type);
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_MOD_OP_DECL)
+#undef ORT_MATH_FRONTEND_MOD_OP_DECL /* }}} */
 
-extern void ort_math_frontend_matmul_float(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_double(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_int8_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_int16_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_int32_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_int64_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_uint8_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_uint16_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
-extern void ort_math_frontend_matmul_uint32_t(void *result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+/* {{{ Frontend Forward Declarations of Power Operations */
+#define ORT_MATH_FRONTEND_POW_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, type);
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_POW_OP_DECL)
+#undef ORT_MATH_FRONTEND_POW_OP_DECL /* }}} */
 
-extern void ort_math_frontend_min_float(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_double(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_int8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_int16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_int32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_int64_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_uint8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_uint16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_uint32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_min_zend_bool(void *result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Dot Product Operations */
+#define ORT_MATH_FRONTEND_DOT_OP_DECL(type, unused) \
+      ORT_MATH_FRONTEND_BINARY_OP_DECL(dot, type);
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_DOT_OP_DECL)
+#undef ORT_MATH_FRONTEND_DOT_OP_DECL /* }}} */
 
-extern void ort_math_frontend_min_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_uint8_t(void  *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_min_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+/* {{{ Frontend Forward Declarations of Matrix Multiplication Operations */
+#define _ORT_MATH_FRONTEND_MATMUL_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_MATMUL_OP_DECL(type);
+ORT_MATH_FOREACH_NUMERIC_TYPE(_ORT_MATH_FRONTEND_MATMUL_OP_DECL)
+#undef ORT_MATH_FRONTEND_MATMUL_OP_DECL /* }}} */
 
-extern void ort_math_frontend_max_float(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_double(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_int8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_int16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_int32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_int64_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_uint8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_uint16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_uint32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_max_zend_bool(void *result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Minimum Operations */
+#define ORT_MATH_FRONTEND_MIN_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_REDUCTION_OP_DECL(min, type); \
+        ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(min, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_MIN_OP_DECL)
+#undef ORT_MATH_FRONTEND_MIN_OP_DECL /* }}} */
 
-extern void ort_math_frontend_max_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_uint8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_max_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+/* {{{ Frontend Forward Declarations of Maximum Operations */
+#define _ORT_MATH_FRONTEND_MAX_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_REDUCTION_OP_DECL(max, type); \
+        ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, type);
+ORT_MATH_FOREACH_ALL_TYPES(_ORT_MATH_FRONTEND_MAX_OP_DECL)
+#undef _ORT_MATH_FRONTEND_MAX_OP_DECL /* }}} */
 
-extern void ort_math_frontend_mean_float(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_double(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_int8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_int16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_int32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_int64_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_uint8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_uint16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_uint32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_mean_zend_bool(void *result, const void* a, size_t count);
+/* {{{ Frontend Forward Declarations of Mean Operations */
+#define ORT_MATH_FRONTEND_MEAN_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_REDUCTION_OP_DECL(mean, type); \
+        ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(mean, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_MEAN_OP_DECL)
+#undef ORT_MATH_FRONTEND_MEAN_OP_DECL /* }}} */
 
-extern void ort_math_frontend_mean_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_uint8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_mean_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
+/* {{{ Frontend Forward Declarations of Sum Operations */
+#define ORT_MATH_FRONTEND_SUM_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_REDUCTION_OP_DECL(sum, type); \
+        ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(sum, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_SUM_OP_DECL)
+#undef ORT_MATH_FRONTEND_SUM_OP_DECL /* }}} */
 
-extern void ort_math_frontend_sum_float(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_double(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_int8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_int16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_int32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_int64_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_uint8_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_uint16_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_uint32_t(void *result, const void* a, size_t count);
-extern void ort_math_frontend_sum_zend_bool(void *result, const void* a, size_t count);
-
-extern void ort_math_frontend_sum_axis_float(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_double(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_int8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_int16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_int32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_int64_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_uint8_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_uint16_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_uint32_t(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-extern void ort_math_frontend_sum_axis_zend_bool(void *result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
 #endif

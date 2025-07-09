@@ -25,8 +25,7 @@
 #include "maths/result.h"
 
 #define ORT_MATH_MAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_frontend_max_axis_##c_type( \
-        void* result, const void *a, size_t outer, size_t axis, size_t inner) { \
+    ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, c_type) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
         for (size_t i = 0; i < outer; i++) { \
@@ -42,8 +41,7 @@
         } \
     }
 
-void ort_math_frontend_max_axis_zend_bool(
-    void* result, const void *a, size_t outer, size_t axis, size_t inner) {
+ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
     for (size_t i = 0; i < outer; i++) {
@@ -60,19 +58,17 @@ void ort_math_frontend_max_axis_zend_bool(
 }
 
 #define ORT_MATH_MAX_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_frontend_max_##c_type( \
-        void* result, const void *a, size_t count) { \
-        c_type* va = (c_type*)a; \
-        c_type* res = (c_type*)result; \
-        c_type max = va[0]; \
+    ORT_MATH_FRONTEND_UNARY_OP_DECL(max, c_type) { \
+        c_type* va = (c_type*)a;                   \
+        c_type* res = (c_type*)result;             \
+        c_type max = va[0];                        \
         for (size_t idx = 1; idx < count; idx++) { \
-            if (va[idx] > max) max = va[idx]; \
-        } \
-        res[0] = max; \
+            if (va[idx] > max) max = va[idx];      \
+        }                                          \
+        res[0] = max;                              \
     }
 
-void ort_math_frontend_max_zend_bool(
-    void* result, const void *a, size_t count) {
+ORT_MATH_FRONTEND_UNARY_OP_DECL(max, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
     zend_bool max = 0;

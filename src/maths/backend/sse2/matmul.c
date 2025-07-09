@@ -20,11 +20,7 @@
 
 #include <emmintrin.h> /* SSE2 */
 
-void ort_math_backend_matmul_float(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
     const float *va = (const float *)a;
     const float *vb = (const float *)b;
     float *res = (float *)result;
@@ -57,11 +53,7 @@ void ort_math_backend_matmul_float(
     }
 }
 
-void ort_math_backend_matmul_double(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
     const double *va = (const double *)a;
     const double *vb = (const double *)b;
     double *res = (double *)result;
@@ -92,10 +84,7 @@ void ort_math_backend_matmul_double(
     }
 }
 
-void ort_math_backend_matmul_int16_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
+ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t)
 {
     const int16_t *va = (const int16_t *)a;
     const int16_t *vb = (const int16_t *)b;
@@ -133,10 +122,7 @@ void ort_math_backend_matmul_int16_t(
     }
 }
 
-void ort_math_backend_matmul_uint16_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
+ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t)
 {
     const uint16_t *va = (const uint16_t *)a;
     const uint16_t *vb = (const uint16_t *)b;

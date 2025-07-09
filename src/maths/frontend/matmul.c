@@ -27,9 +27,7 @@
 
 // Matrix multiplication for a single batch (C = A x B)
 #define ORT_MATH_MATMUL_IMPL_FOR_TYPE(c_type, unused)  \
-    void ort_math_frontend_matmul_##c_type(          \
-        void* result, const void* a, const void* b,    \
-        size_t a_rows, size_t a_cols, size_t b_cols) { \
+    ORT_MATH_FRONTEND_MATMUL_OP_DECL(c_type) {         \
         const c_type* va = (const c_type*)a;           \
         const c_type* vb = (const c_type*)b;           \
         c_type* res = (c_type*)result;                 \

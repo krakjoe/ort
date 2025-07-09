@@ -19,7 +19,7 @@
 #include "maths/backend/impl.h"
 #include <smmintrin.h> /* SSE4.1 */
 
-void ort_math_backend_round_float(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(round, float) {
     const float* va = (const float*)a;
     float* res = (float*)result;
     const size_t mw = 4;
@@ -38,14 +38,14 @@ void ort_math_backend_round_float(void* result, const void* a, size_t count) {
 
 __ort_math_backend_round_float_fallback:
     if (mc < count) {
-        ort_math_frontend_round_float(
+        ORT_MATH_FRONTEND_OP_SYMBOL(round, float)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-void ort_math_backend_round_double(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(round, double) {
     const double* va = (const double*)a;
     double* res = (double*)result;
     const size_t mw = 2;
@@ -64,7 +64,7 @@ void ort_math_backend_round_double(void* result, const void* a, size_t count) {
 
 __ort_math_backend_round_double_fallback:
     if (mc < count) {
-        ort_math_frontend_round_double(
+        ORT_MATH_FRONTEND_OP_SYMBOL(round, double)(
             res   + mc,
             va    + mc,
             count - mc);

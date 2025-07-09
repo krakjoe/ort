@@ -41,12 +41,11 @@
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL_FOR_TYPE)
 
-#define ORT_MATH_DOT_IMPL(c_type, onnx_type) \
-    void ort_math_frontend_dot_##c_type( \
-        void* result, const void* a, const void* b, size_t count) { \
-        c_type* res = (c_type*)result;       \
-        const c_type* va = (const c_type*)a; \
-        const c_type* vb = (const c_type*)b; \
+#define ORT_MATH_DOT_IMPL(c_type, onnx_type)        \
+    ORT_MATH_FRONTEND_BINARY_OP_DECL(dot, c_type) { \
+        c_type* res = (c_type*)result;              \
+        const c_type* va = (const c_type*)a;        \
+        const c_type* vb = (const c_type*)b;        \
         res[0] = ort_math_dot_impl_##c_type(va, vb, count); \
     }
 

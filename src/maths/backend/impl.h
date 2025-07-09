@@ -43,26 +43,6 @@ static zend_always_inline size_t ort_math_backend_optimal_count(size_t count, si
     return (count / width) * width;
 }
 
-/** 
- * Backend Code Generation Macros
- ***/
-
-#define ORT_MATH_BACKEND_BINARY_OP_DECL(op, type)                     \
-    extern void ort_math_backend_##op##_##type(                       \
-        void* result, const void* a, const void* b, size_t count)
-#define ORT_MATH_BACKEND_UNARY_OP_DECL(op, type)                      \
-    extern void ort_math_backend_##op##_##type(                       \
-        void* result, const void* a, size_t count)
-#define ORT_MATH_BACKEND_MATMUL_OP_DECL(type)                         \
-    extern void ort_math_backend_matmul_##type(                       \
-        void* result, const void* a, const void* b,                \
-        size_t a_rows, size_t a_cols, size_t b_cols)
-#define ORT_MATH_BACKEND_REDUCTION_OP_DECL ORT_MATH_BACKEND_UNARY_OP_DECL
-#define ORT_MATH_BACKEND_REDUCTION_AXIS_OP_DECL(op, type)             \
-    extern void ort_math_backend_##op##_axis_##type(                  \
-        void* result, const void* a,                               \
-        size_t outer_size, size_t axis_size, size_t inner_size)
-
 /* {{{ Backend Forward Declarations of Addition Operations */
 #define ORT_MATH_BACKEND_ADD_OP_DECL(type, unused) \
         ORT_MATH_BACKEND_BINARY_OP_DECL(add, type);

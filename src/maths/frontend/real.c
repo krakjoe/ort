@@ -29,8 +29,7 @@
  */
 
 #define ORT_MATH_REAL_EXPORT_FOR_TYPE(c_type, func_name, math_func) \
-void ort_math_frontend_##func_name##_##c_type(                           \
-    void* result, const void* a, size_t count) {                    \
+ORT_MATH_FRONTEND_UNARY_OP_DECL(func_name, c_type) {                \
     c_type* res = (c_type*)result;                                  \
     const c_type* va = (const c_type*)a;                            \
     for (size_t i = 0; i < count; i++) {                            \
@@ -51,13 +50,13 @@ void ort_math_frontend_##func_name##_##c_type(                           \
 #define ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(func_name, math_func_f, math_func_d) \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(float, func_name, math_func_f)                   \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)                  \
-    static ort_math_unary_op_func_t ort_math_frontend_get_##func_name##_func(           \
+    static ort_math_unary_op_func_t ort_math_frontend_get_##func_name##_func(      \
         ONNXTensorElementDataType type) {                                          \
     switch (type) {                                                                \
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:                                  \
-            return ort_math_frontend_##func_name##_float;                               \
+            return ORT_MATH_FRONTEND_OP_SYMBOL(func_name, float);                  \
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:                                 \
-            return ort_math_frontend_##func_name##_double;                              \
+            return ORT_MATH_FRONTEND_OP_SYMBOL(func_name, double);                 \
         default: return NULL;                                                      \
     }                                                                              \
 }

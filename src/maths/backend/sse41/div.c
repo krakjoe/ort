@@ -20,7 +20,7 @@
 
 #include <smmintrin.h> /* SSE4.1 */
 
-void ort_math_backend_div_float(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(div, float) {
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
     float* res = (float*)result;
@@ -41,7 +41,7 @@ void ort_math_backend_div_float(void* result, const void* a, const void* b, size
 
 __ort_math_backend_div_float_fallback:
     if (mc < count) {
-        ort_math_frontend_div_float(
+        ORT_MATH_FRONTEND_OP_SYMBOL(div, float)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -49,7 +49,7 @@ __ort_math_backend_div_float_fallback:
     }
 }
 
-void ort_math_backend_div_double(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(div, double) {
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
     double* res = (double*)result;
@@ -70,7 +70,7 @@ void ort_math_backend_div_double(void* result, const void* a, const void* b, siz
 
 __ort_math_backend_div_double_fallback:
     if (mc < count) {
-        ort_math_frontend_div_double(
+        ORT_MATH_FRONTEND_OP_SYMBOL(div, double)(
             res   + mc,
             va    + mc,
             vb    + mc,

@@ -25,9 +25,7 @@
 #include "maths/result.h"
 
 #define ORT_MATH_MIN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_frontend_min_axis_##c_type( \
-        void* result, const void *a, \
-        size_t outer, size_t axis, size_t inner) { \
+    ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(min, c_type) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
         for (size_t i = 0; i < outer; i++) { \
@@ -43,9 +41,7 @@
         } \
     }
 
-void ort_math_frontend_min_axis_zend_bool(
-    void* result, const void *a,
-    size_t outer, size_t axis, size_t inner) {
+ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(min, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
     for (size_t i = 0; i < outer; i++) {
@@ -63,8 +59,7 @@ void ort_math_frontend_min_axis_zend_bool(
 
 
 #define ORT_MATH_MIN_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_frontend_min_##c_type( \
-        void* result, const void *a, size_t count) { \
+    ORT_MATH_FRONTEND_REDUCTION_OP_DECL(min, c_type) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
         c_type min = va[0]; \
@@ -74,8 +69,7 @@ void ort_math_frontend_min_axis_zend_bool(
         res[0] = min; \
     }
 
-void ort_math_frontend_min_zend_bool(
-    void* result, const void *a, size_t count) {
+ORT_MATH_FRONTEND_REDUCTION_OP_DECL(min, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
     zend_bool min = 1;

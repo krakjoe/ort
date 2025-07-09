@@ -47,8 +47,7 @@
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_SQRT_IMPL_FOR_TYPE)
 
 #define ORT_MATH_SQRT_INTEGER_IMPL(c_type, onnx_type)                \
-    void ort_math_frontend_sqrt_##c_type(                                 \
-        void* result, const void* a, size_t count) {                 \
+    ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {                  \
     c_type* res = (c_type*)result;                                   \
     const c_type* va = (const c_type*)a;                             \
     for (size_t i = 0; i < count; i++) {                             \
@@ -59,10 +58,10 @@ ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_SQRT_IMPL_FOR_TYPE)
 
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_SQRT_INTEGER_IMPL)
 
-#define ORT_MATH_SQRT_REAL_IMPL(ctype, onnx_type)                           \
-void ort_math_frontend_sqrt_##ctype(void* result, const void* a, size_t count) { \
-    ctype* res = (ctype*)result;                                            \
-    const ctype* va = (const ctype*)a;                                      \
+#define ORT_MATH_SQRT_REAL_IMPL(c_type, onnx_type)                           \
+ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {                             \
+    c_type* res = (c_type*)result;                                            \
+    const c_type* va = (const c_type*)a;                                      \
     for (size_t i = 0; i < count; i++) {                                    \
         res[i] = sqrt(va[i]);                                               \
     }                                                                       \

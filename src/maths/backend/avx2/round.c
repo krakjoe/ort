@@ -20,7 +20,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-void ort_math_backend_round_float(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(round, float) {
     const float* va = (const float*)a;
     float* res      = (float*)result;
     const size_t mw = 8; /* AVX2 can process 8 floats at once */
@@ -43,7 +43,7 @@ void ort_math_backend_round_float(void* result, const void* a, size_t count) {
 __ort_math_backend_round_float_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ort_math_frontend_round_float(
+        ORT_MATH_FRONTEND_OP_SYMBOL(round, float)(
             res   + mc,
             va    + mc,
             count - mc);
@@ -51,7 +51,7 @@ __ort_math_backend_round_float_fallback:
 }
 
 /* SIMD round operation for double arrays */
-void ort_math_backend_round_double(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(round, double) {
     const double* va = (const double*)a;
     double* res      = (double*)result;
     const size_t mw  = 4; /* AVX2 can process 4 doubles at once */
@@ -74,7 +74,7 @@ void ort_math_backend_round_double(void* result, const void* a, size_t count) {
 __ort_math_backend_round_double_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ort_math_frontend_round_double(
+        ORT_MATH_FRONTEND_OP_SYMBOL(round, double)(
             res   + mc,
             va    + mc,
             count - mc);

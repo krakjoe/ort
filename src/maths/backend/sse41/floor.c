@@ -20,7 +20,7 @@
 
 #include <smmintrin.h> /* SSE4.1 */
 
-void ort_math_backend_floor_float(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(floor, float) {
     const float* va = (const float*)a;
     float* res = (float*)result;
     const size_t mw = 4;
@@ -38,14 +38,14 @@ void ort_math_backend_floor_float(void* result, const void* a, size_t count) {
 
 __ort_math_backend_floor_float_fallback:
     if (mc < count) {
-        ort_math_frontend_floor_float(
+        ORT_MATH_FRONTEND_OP_SYMBOL(floor, float)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-void ort_math_backend_floor_double(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(floor, double) {
     const double* va = (const double*)a;
     double* res = (double*)result;
     const size_t mw = 2; // 2 doubles per SSE register
@@ -63,7 +63,7 @@ void ort_math_backend_floor_double(void* result, const void* a, size_t count) {
 
 __ort_math_backend_floor_double_fallback:
     if (mc < count) {
-        ort_math_frontend_floor_double(
+        ORT_MATH_FRONTEND_OP_SYMBOL(floor, double)(
             res   + mc,
             va    + mc,
             count - mc);

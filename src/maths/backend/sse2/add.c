@@ -26,7 +26,7 @@
  */
 
 
-void ort_math_backend_add_int8_t(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, int8_t) {
     const int8_t* va = (const int8_t*)a;
     const int8_t* vb = (const int8_t*)b;
     int8_t* res = (int8_t*)result;
@@ -49,7 +49,7 @@ void ort_math_backend_add_int8_t(void* result, const void* a, const void* b, siz
 
 __ort_math_backend_add_int8_fallback:
     if (mc < count) {
-        ort_math_frontend_add_int8_t(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, int8_t)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -57,7 +57,7 @@ __ort_math_backend_add_int8_fallback:
     }
 }
 
-void ort_math_backend_add_int16_t(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, int16_t) {
     const int16_t* va = (const int16_t*)a;
     const int16_t* vb = (const int16_t*)b;
     int16_t* res = (int16_t*)result;
@@ -78,7 +78,7 @@ void ort_math_backend_add_int16_t(void* result, const void* a, const void* b, si
 
 __ort_math_backend_add_int16_fallback:
     if (mc < count) {
-        ort_math_frontend_add_int16_t(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, int16_t)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -86,7 +86,7 @@ __ort_math_backend_add_int16_fallback:
     }
 }
 
-void ort_math_backend_add_int32_t(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, int32_t) {
     const int32_t* va = (const int32_t*)a;
     const int32_t* vb = (const int32_t*)b;
     int32_t* res = (int32_t*)result;
@@ -107,7 +107,7 @@ void ort_math_backend_add_int32_t(void* result, const void* a, const void* b, si
 
 __ort_math_backend_add_int32_fallback:
     if (mc < count) {
-        ort_math_frontend_add_int32_t(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, int32_t)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -115,7 +115,7 @@ __ort_math_backend_add_int32_fallback:
     }
 }
 
-void ort_math_backend_add_uint8_t(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint8_t) {
     const uint8_t* va = (const uint8_t*)a;
     const uint8_t* vb = (const uint8_t*)b;
     uint8_t* res = (uint8_t*)result;
@@ -136,7 +136,7 @@ void ort_math_backend_add_uint8_t(void* result, const void* a, const void* b, si
 
 __ort_math_backend_add_uint8_fallback:
     if (mc < count) {
-        ort_math_frontend_add_uint8_t(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, uint8_t)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -144,7 +144,7 @@ __ort_math_backend_add_uint8_fallback:
     }
 }
 
-void ort_math_backend_add_uint16_t(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint16_t) {
     const uint16_t* va = (const uint16_t*)a;
     const uint16_t* vb = (const uint16_t*)b;
     uint16_t* res = (uint16_t*)result;
@@ -165,7 +165,7 @@ void ort_math_backend_add_uint16_t(void* result, const void* a, const void* b, s
 
 __ort_math_backend_add_uint16_fallback:
     if (mc < count) {
-        ort_math_frontend_add_uint16_t(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, uint16_t)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -173,7 +173,7 @@ __ort_math_backend_add_uint16_fallback:
     }
 }
 
-void ort_math_backend_add_uint32_t(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint32_t) {
     const uint32_t* va = (const uint32_t*)a;
     const uint32_t* vb = (const uint32_t*)b;
     uint32_t* res = (uint32_t*)result;
@@ -194,7 +194,7 @@ void ort_math_backend_add_uint32_t(void* result, const void* a, const void* b, s
 
 __ort_math_backend_add_uint32_fallback:
     if (mc < count) {
-        ort_math_frontend_add_uint32_t(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, uint32_t)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -202,7 +202,7 @@ __ort_math_backend_add_uint32_fallback:
     }
 }
 
-void ort_math_backend_add_float(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, float) {
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
     float* res = (float*)result;
@@ -223,7 +223,7 @@ void ort_math_backend_add_float(void* result, const void* a, const void* b, size
 
 __ort_math_backend_add_float_fallback:
     if (mc < count) {
-        ort_math_frontend_add_float(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, float)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -231,7 +231,7 @@ __ort_math_backend_add_float_fallback:
     }
 }
 
-void ort_math_backend_add_double(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(add, double) {
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
     double* res = (double*)result;
@@ -252,7 +252,7 @@ void ort_math_backend_add_double(void* result, const void* a, const void* b, siz
 
 __ort_math_backend_add_double_fallback:
     if (mc < count) {
-        ort_math_frontend_add_double(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, double)(
             res   + mc,
             va    + mc,
             vb    + mc,

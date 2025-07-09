@@ -23,18 +23,18 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 
-#define ORT_MATH_NEG_IMPL(c_type, onnx_type) \
-void ort_math_frontend_neg_##c_type(void* result, const void* a, size_t count) { \
-    c_type* res = (c_type*)result; \
-    const c_type* va = (const c_type*)a; \
-    for (size_t i = 0; i < count; i++) { \
-        res[i] = -va[i]; \
-    } \
+#define ORT_MATH_NEG_IMPL(c_type, onnx_type)   \
+ORT_MATH_FRONTEND_UNARY_OP_DECL(neg, c_type) { \
+    c_type* res = (c_type*)result;             \
+    const c_type* va = (const c_type*)a;       \
+    for (size_t i = 0; i < count; i++) {       \
+        res[i] = -va[i];                       \
+    }                                          \
 }
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_NEG_IMPL)
 
-void ort_math_frontend_neg_zend_bool(void* result, const void* a, size_t count) {
+ORT_MATH_FRONTEND_UNARY_OP_DECL(neg, zend_bool) {
     zend_bool* res = (zend_bool*)result;
     const zend_bool* va = (const zend_bool*)a;
     for (size_t i = 0; i < count; i++) {

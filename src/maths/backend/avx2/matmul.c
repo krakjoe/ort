@@ -20,11 +20,7 @@
 
 #include <immintrin.h> /* AVX2 */
 
-void ort_math_backend_matmul_float(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
     const float *va = (const float *)a;
     const float *vb = (const float *)b;
     float *res = (float *)result;
@@ -56,11 +52,7 @@ void ort_math_backend_matmul_float(
     }
 }
 
-void ort_math_backend_matmul_double(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
     const double *va = (const double *)a;
     const double *vb = (const double *)b;
     double *res = (double *)result;
@@ -89,11 +81,7 @@ void ort_math_backend_matmul_double(
     }
 }
 
-void ort_math_backend_matmul_int32_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
     const int32_t *va = (const int32_t *)a;
     const int32_t *vb = (const int32_t *)b;
     int32_t *res = (int32_t *)result;
@@ -124,11 +112,7 @@ void ort_math_backend_matmul_int32_t(
     }
 }
 
-void ort_math_backend_matmul_uint32_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
     const uint32_t *va = (const uint32_t *)a;
     const uint32_t *vb = (const uint32_t *)b;
     uint32_t *res = (uint32_t *)result;
@@ -159,11 +143,7 @@ void ort_math_backend_matmul_uint32_t(
     }
 }
 
-void ort_math_backend_matmul_int16_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
     const int16_t *va = (const int16_t *)a;
     const int16_t *vb = (const int16_t *)b;
     int16_t *res = (int16_t *)result;
@@ -205,11 +185,7 @@ void ort_math_backend_matmul_int16_t(
     }
 }
 
-void ort_math_backend_matmul_uint16_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
     const uint16_t *va = (const uint16_t *)a;
     const uint16_t *vb = (const uint16_t *)b;
     uint16_t *res = (uint16_t *)result;
@@ -249,11 +225,7 @@ void ort_math_backend_matmul_uint16_t(
     }
 }
 
-void ort_math_backend_matmul_int8_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
     const int8_t *va = (const int8_t *)a;
     const int8_t *vb = (const int8_t *)b;
     int8_t *res = (int8_t *)result;
@@ -306,11 +278,7 @@ void ort_math_backend_matmul_int8_t(
     }
 }
 
-void ort_math_backend_matmul_uint8_t(
-    void *result,
-    const void *a, const void *b,
-    size_t a_rows, size_t a_cols, size_t b_cols)
-{
+ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
     const uint8_t *va = (const uint8_t *)a;
     const uint8_t *vb = (const uint8_t *)b;
     uint8_t *res = (uint8_t *)result;

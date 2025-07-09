@@ -45,8 +45,7 @@
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_POW_IMPL_FOR_TYPE)
 
 #define ORT_MATH_POW_IMPL(c_type, onnx_type)                        \
-    void ort_math_frontend_pow_##c_type(                                 \
-        void* result, const void* a, const void* b, size_t count) { \
+    ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, c_type) {                 \
     c_type* res = (c_type*)result;                                  \
     const c_type* va = (const c_type*)a;                            \
     const c_type* vb = (const c_type*)b;                            \
@@ -58,7 +57,7 @@ ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_POW_IMPL_FOR_TYPE)
 
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_POW_IMPL)
 
-void ort_math_frontend_pow_float(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, float) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
@@ -67,7 +66,7 @@ void ort_math_frontend_pow_float(void* result, const void* a, const void* b, siz
     }
 }
 
-void ort_math_frontend_pow_double(void* result, const void* a, const void* b, size_t count) {
+ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, double) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     const double* vb = (const double*)b;

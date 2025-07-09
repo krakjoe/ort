@@ -2,6 +2,20 @@
 
 All math operation implementations (frontend and backend) must strictly adhere to the conventions set out in this document:
 
+# Convenience macros:
+
+For convenience, there are a number of macros focused on code generation that should be used to generate names and signatures which conform to our naming conventions.
+
+ - `ORT_MATH_FRONTEND_OP_SYMBOL(op, type)`      - Generates frontend op symbol name.
+ - `ORT_MATH_FRONTEND_BINARY_OP_DECL(op, type)` - Generates frontend binary op function signature.
+ - `ORT_MATH_FRONTEND_UNARY_OP_DECL(op, type)`  - Generates frontend unary op function signature.
+ - `ORT_MATH_FRONTEND_SCALAR_OP_DECL(op, type)` - Generates frontend scalar op function signature.
+ - `ORT_MATH_BACKEND_OP_SYMBOL(op, type)`       - Generates backend op symbol name.
+ - `ORT_MATH_BACKEND_BINARY_OP_DECL(op, type)`  - Generates backend binary op function signature.
+ - `ORT_MATH_BACKEND_UNARY_OP_DECL(op, type)`   - Generates backend unary op function signature.
+
+*See: `src/maths/codegen.h` for more information about these and other macros.*
+
 # Function signatures:
 
 ```c

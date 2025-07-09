@@ -23,7 +23,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 
-void ort_math_frontend_sign_float(void* result, const void* a, size_t count) {
+ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, float) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     for (size_t i = 0; i < count; i++) {
@@ -32,7 +32,7 @@ void ort_math_frontend_sign_float(void* result, const void* a, size_t count) {
     }
 }
 
-void ort_math_frontend_sign_double(void* result, const void* a, size_t count) {
+ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, double) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     for (size_t i = 0; i < count; i++) {

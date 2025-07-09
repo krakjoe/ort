@@ -25,26 +25,23 @@
 #include "maths/result.h"
 
 #define ORT_MATH_MEAN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_frontend_mean_axis_##c_type( \
-        void* result, const void *a, \
-        size_t outer, size_t axis, size_t inner) { \
-        c_type* va = (c_type*)a; \
-        c_type* res = (c_type*)result; \
-        for (size_t i = 0; i < outer; i++) { \
-            for (size_t k = 0; k < inner; k++) { \
-                c_type sum = 0; \
-                for (size_t j = 0; j < axis; j++) { \
-                    size_t idx =  \
-                        i * (axis * inner) + j * inner + k; \
-                    sum += va[idx]; \
-                } \
-                res[i * inner + k] = sum / (c_type)axis; \
-            } \
-        } \
+    ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(mean, c_type) { \
+        c_type* va = (c_type*)a;                             \
+        c_type* res = (c_type*)result;                       \
+        for (size_t i = 0; i < outer; i++) {                 \
+            for (size_t k = 0; k < inner; k++) {             \
+                c_type sum = 0;                              \
+                for (size_t j = 0; j < axis; j++) {          \
+                    size_t idx =                             \
+                        i * (axis * inner) + j * inner + k;  \
+                    sum += va[idx];                          \
+                }                                            \
+                res[i * inner + k] = sum / (c_type)axis;     \
+            }                                                \
+        }                                                    \
     }
 
-void ort_math_frontend_mean_axis_zend_bool(
-    void* result, const void *a, size_t outer, size_t axis, size_t inner) {
+ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(mean, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
     for (size_t i = 0; i < outer; i++) {
@@ -55,26 +52,25 @@ void ort_math_frontend_mean_axis_zend_bool(
                     i * (axis * inner) + j * inner + k;
                 if (va[idx]) count++;
             }
-            res[i * inner + k] = (count >= (axis / 2 + axis % 2)) ? 1 : 0; // majority vote
+            res[i * inner + k] = 
+                (count >= (axis / 2 + axis % 2)) ?
+                    1 : 0; // majority vote
         }
     }
 }
 
-
 #define ORT_MATH_MEAN_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_frontend_mean_##c_type( \
-        void* result, const void *a, size_t count) { \
-        c_type* va = (c_type*)a; \
-        c_type* res = (c_type*)result; \
-        c_type sum = 0; \
-        for (size_t idx = 0; idx < count; idx++) { \
-            sum += va[idx]; \
-        } \
-        res[0] = sum / (c_type)count; \
+    ORT_MATH_FRONTEND_UNARY_OP_DECL(mean, c_type) { \
+        c_type* va = (c_type*)a;                    \
+        c_type* res = (c_type*)result;              \
+        c_type sum = 0;                             \
+        for (size_t idx = 0; idx < count; idx++) {  \
+            sum += va[idx];                         \
+        }                                           \
+        res[0] = sum / (c_type)count;               \
     }
 
-void ort_math_frontend_mean_zend_bool(
-    void* result, const void *a, size_t count) {
+ORT_MATH_FRONTEND_UNARY_OP_DECL(mean, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
     size_t true_count = 0;
