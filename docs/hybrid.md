@@ -16,7 +16,7 @@ ONNX\Math\add($tensors[0], $tensors[1]);
 
 ### Distribution of Computation Across the Pool
 
-Where tensors are large enough for vectorization, the call to `ONNX\Math\add` will, on a typical 24-core AVX2 machine, be executing:
+Where tensors are large enough for vectorization, the call to `ONNX\Math\add` will, on a typical 24-core AVX2 machine, result in:
 
   - The input tensors are split into 24 chunks (one per core/thread in the pool).
   - Each worker thread processes its chunk independently and in parallel.
