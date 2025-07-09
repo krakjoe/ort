@@ -20,7 +20,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-void ort_math_backend_ceil_float(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(ceil, float) {
     const float* va = (const float*)a;
     float* res      = (float*)result;
     const size_t mw = 8; // 8 floats per AVX2 register
@@ -48,7 +48,7 @@ __ort_math_backend_ceil_float_fallback:
     }
 }
 
-void ort_math_backend_ceil_double(void* result, const void* a, size_t count) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(ceil, double)  {
     const double* va = (const double*)a;
     double* res      = (double*)result;
     const size_t mw = 4; // 4 doubles per AVX2 register
