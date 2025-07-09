@@ -57,9 +57,6 @@ typedef struct _ort_pool_slow_binary_ctx_t {
     size_t a_dimensions;
     int64_t *b_shape;
     size_t b_dimensions;
-    void (*op)(void *result, const void *a, const void *b, size_t n);
-    void (*cast_a)(const void *src, void *dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type);
-    void (*cast_b)(const void *src, void *dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type);
     ONNXTensorElementDataType a_type;
     ONNXTensorElementDataType b_type;
     ONNXTensorElementDataType result_type;
@@ -68,6 +65,7 @@ typedef struct _ort_pool_slow_binary_ctx_t {
     size_t b_element_size;
     size_t a_dim_offset;
     size_t b_dim_offset;
+    void (*op)(void *result, const void *a, const void *b, size_t n);
 } ort_pool_slow_binary_ctx_t;
 
 typedef struct _ort_pool_scalar_ctx_t {
