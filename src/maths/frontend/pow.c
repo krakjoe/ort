@@ -45,7 +45,7 @@
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_POW_IMPL_FOR_TYPE)
 
 #define ORT_MATH_POW_IMPL(c_type, onnx_type)                        \
-    void ort_math_ops_pow_##c_type(                                 \
+    void ort_math_frontend_pow_##c_type(                                 \
         void* result, const void* a, const void* b, size_t count) { \
     c_type* res = (c_type*)result;                                  \
     const c_type* va = (const c_type*)a;                            \
@@ -58,7 +58,7 @@ ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_POW_IMPL_FOR_TYPE)
 
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_POW_IMPL)
 
-void ort_math_ops_pow_float(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_pow_float(void* result, const void* a, const void* b, size_t count) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
@@ -67,7 +67,7 @@ void ort_math_ops_pow_float(void* result, const void* a, const void* b, size_t c
     }
 }
 
-void ort_math_ops_pow_double(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_pow_double(void* result, const void* a, const void* b, size_t count) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
@@ -76,14 +76,14 @@ void ort_math_ops_pow_double(void* result, const void* a, const void* b, size_t 
     }
 }
 
-static ort_math_element_op_func_t ort_math_ops_get_pow_func(ONNXTensorElementDataType type) {
+static ort_math_element_op_func_t ort_math_frontend_get_pow_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->pow_func;
 }
 
 #define ORT_MATH_POW_SCALAR_IMPL(c_type, onnx_type)                   \
-void ort_math_ops_pow_scalar_##c_type(                                \
+void ort_math_frontend_pow_scalar_##c_type(                                \
     void* result, const void* a, const void* b, size_t count) {       \
     c_type* res = (c_type*)result;                                    \
     const c_type* va = (const c_type*)a;                              \
@@ -95,7 +95,7 @@ void ort_math_ops_pow_scalar_##c_type(                                \
 
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_POW_SCALAR_IMPL)
 
-void ort_math_ops_pow_scalar_float(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_pow_scalar_float(void* result, const void* a, const void* b, size_t count) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     float vb = *(const float*)b;
@@ -104,7 +104,7 @@ void ort_math_ops_pow_scalar_float(void* result, const void* a, const void* b, s
     }
 }
 
-void ort_math_ops_pow_scalar_double(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_pow_scalar_double(void* result, const void* a, const void* b, size_t count) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     double sb = *(const double*)b;
@@ -113,7 +113,7 @@ void ort_math_ops_pow_scalar_double(void* result, const void* a, const void* b, 
     }
 }
 
-static ort_math_scalar_op_func_t ort_math_ops_get_pow_scalar_func(ONNXTensorElementDataType type) {
+static ort_math_scalar_op_func_t ort_math_frontend_get_pow_scalar_func(ONNXTensorElementDataType type) {
     switch (type) {
 #define ORT_MATH_POW_SCALAR_CASE(c_type, onnx_type) \
     ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, pow)
@@ -123,5 +123,5 @@ static ort_math_scalar_op_func_t ort_math_ops_get_pow_scalar_func(ONNXTensorElem
     }
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(pow, ort_math_ops_get_pow_func)
-ORT_MATH_SCALAR_RESULT_IMPL(pow, ort_math_ops_get_pow_scalar_func)
+ORT_MATH_BINARY_RESULT_IMPL(pow, ort_math_frontend_get_pow_func)
+ORT_MATH_SCALAR_RESULT_IMPL(pow, ort_math_frontend_get_pow_scalar_func)

@@ -22,10 +22,10 @@ if (PHP_ORT != 'no') {
     EXTENSION('ort', 
         'php_ort.c',
         PHP_ORT_SHARED,
-        "/I" + configure_module_dirname                 + " " +
-        "/I" + configure_module_dirname + "\\src"       + " " +
-        "/I" + configure_module_dirname + "\\src\\simd" + " " +
-	    "/I" + PHP_ORT_INCPATH                          + " " +
+        "/I" + configure_module_dirname                    + " " +
+        "/I" + configure_module_dirname + "\\src"          + " " +
+        "/I" + configure_module_dirname + "\\src\\backend" + " " +
+	    "/I" + PHP_ORT_INCPATH                             + " " +
         "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
 
     ADD_FLAG("LDFLAGS_ORT",
@@ -57,7 +57,7 @@ if (PHP_ORT != 'no') {
             AC_DEFINE('HAVE_AVX2', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
             ADD_SOURCES(
-                configure_module_dirname + "\\src\\maths\\simd\\avx2",
+                configure_module_dirname + "\\src\\maths\\backend\\avx2",
                 "abs.c add.c ceil.c div.c floor.c matmul.c mul.c neg.c recip.c round.c sign.c sqrt.c sub.c trunc.c impl.c",
                 "ort",
                 "backend");
@@ -65,7 +65,7 @@ if (PHP_ORT != 'no') {
         } else if (PHP_ORT_SSE41 == 'yes') {
             AC_DEFINE('HAVE_SSE41', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
-            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\simd\\sse41",
+            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse41",
                 "abs.c add.c ceil.c div.c floor.c matmul.c mul.c neg.c recip.c round.c sign.c sqrt.c sub.c trunc.c impl.c",
                 "ort",
                 "backend");
@@ -74,7 +74,7 @@ if (PHP_ORT != 'no') {
         } else if (PHP_ORT_SSE2 == 'yes') {
             AC_DEFINE('HAVE_SSE2', 1);
             AC_DEFINE('ORT_SIMD_ENABLED', 1);
-            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\simd\\sse2",
+            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse2",
                 "abs.c add.c div.c matmul.c mul.c neg.c recip.c sign.c sqrt.c sub.c impl.c",
                 "ort",
                 "backend");

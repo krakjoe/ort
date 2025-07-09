@@ -42,7 +42,7 @@
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL_FOR_TYPE)
 
 #define ORT_MATH_DOT_IMPL(c_type, onnx_type) \
-    void ort_math_ops_dot_##c_type( \
+    void ort_math_frontend_dot_##c_type( \
         void* result, const void* a, const void* b, size_t count) { \
         c_type* res = (c_type*)result;       \
         const c_type* va = (const c_type*)a; \
@@ -52,7 +52,7 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL_FOR_TYPE)
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL)
 
-static ort_math_element_op_func_t ort_math_ops_get_dot_func(ONNXTensorElementDataType type) {
+static ort_math_element_op_func_t ort_math_frontend_get_dot_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->dot_func;
@@ -82,7 +82,7 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         return NULL;
     }
 
-    ort_math_element_op_func_t operation = ort_math_ops_get_dot_func(promotion.result_type);
+    ort_math_element_op_func_t operation = ort_math_frontend_get_dot_func(promotion.result_type);
     if (!operation) {
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,
             "dot: unsupported data type for dot product");

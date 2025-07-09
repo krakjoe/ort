@@ -6,21 +6,21 @@ All math operation implementations (frontend and backend) must strictly adhere t
 
 ```c
 /* {{{ Binary operation */
-void ort_math_ops_%op%_%type%(
+void ort_math_frontend_%op%_%type%(
     void *result, 
     const void *a, const void *b, size_t count); /* }}} */
 
 /* {{{ Unary operation */
-void ort_math_ops_%op%_%type%(
+void ort_math_frontend_%op%_%type%(
     void *result, const void *a, size_t count); /* }}} */
 
 /* {{{ Scalar operation */
-void ort_math_ops_%op%_%type%_scalar(
+void ort_math_frontend_%op%_%type%_scalar(
     void *result,
     const void *a, const void *b, size_t count); /* }}} */
 
 /* {{{ Vectorized operation */
-void ort_math_simd_%op%_%type%(
+void ort_math_backend_%op%_%type%(
     void *result, const void *a, const void *b, size_t count); /* }}} */
 
 /* {{{ Supported %type% */

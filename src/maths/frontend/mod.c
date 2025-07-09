@@ -26,7 +26,7 @@
  * MODULO OPERATIONS
  * =============================================================================
  */
-void ort_math_ops_mod_float(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_mod_float(void* result, const void* a, const void* b, size_t count) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
@@ -35,7 +35,7 @@ void ort_math_ops_mod_float(void* result, const void* a, const void* b, size_t c
     }
 }
 
-void ort_math_ops_mod_double(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_mod_double(void* result, const void* a, const void* b, size_t count) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
@@ -48,13 +48,13 @@ void ort_math_ops_mod_double(void* result, const void* a, const void* b, size_t 
     ORT_MATH_BINARY_OP_IMPL(mod, c_type, onnx_type, %)
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_IMPL)
 
-static ort_math_element_op_func_t ort_math_ops_get_mod_func(ONNXTensorElementDataType type) {
+static ort_math_element_op_func_t ort_math_frontend_get_mod_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->mod_func;
 }
 
-void ort_math_ops_mod_scalar_float(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_mod_scalar_float(void* result, const void* a, const void* b, size_t count) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     float sb = *(const float*)b;
@@ -63,7 +63,7 @@ void ort_math_ops_mod_scalar_float(void* result, const void* a, const void* b, s
     }
 }
 
-void ort_math_ops_mod_scalar_double(void* result, const void* a, const void* b, size_t count) {
+void ort_math_frontend_mod_scalar_double(void* result, const void* a, const void* b, size_t count) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     double sb = *(const double*)b;
@@ -76,7 +76,7 @@ void ort_math_ops_mod_scalar_double(void* result, const void* a, const void* b, 
     ORT_MATH_SCALAR_OP_IMPL(mod, c_type, onnx_type, %)
 ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_SCALAR_IMPL)
 
-static ort_math_scalar_op_func_t ort_math_ops_get_mod_scalar_func(ONNXTensorElementDataType type) {
+static ort_math_scalar_op_func_t ort_math_frontend_get_mod_scalar_func(ONNXTensorElementDataType type) {
     switch (type) {
 #define ORT_MATH_MOD_SCALAR_CASE(c_type, onnx_type) \
     ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, mod)
@@ -86,5 +86,5 @@ static ort_math_scalar_op_func_t ort_math_ops_get_mod_scalar_func(ONNXTensorElem
     }
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(mod, ort_math_ops_get_mod_func)
-ORT_MATH_SCALAR_RESULT_IMPL(mod, ort_math_ops_get_mod_scalar_func)
+ORT_MATH_BINARY_RESULT_IMPL(mod, ort_math_frontend_get_mod_func)
+ORT_MATH_SCALAR_RESULT_IMPL(mod, ort_math_frontend_get_mod_scalar_func)

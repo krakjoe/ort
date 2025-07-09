@@ -27,7 +27,7 @@
 
 // Matrix multiplication for a single batch (C = A x B)
 #define ORT_MATH_MATMUL_IMPL_FOR_TYPE(c_type, unused)  \
-    void ort_math_ops_matmul_##c_type(          \
+    void ort_math_frontend_matmul_##c_type(          \
         void* result, const void* a, const void* b,    \
         size_t a_rows, size_t a_cols, size_t b_cols) { \
         const c_type* va = (const c_type*)a;           \
@@ -66,7 +66,7 @@
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MATMUL_IMPL_FOR_TYPE)
 
-static ort_math_element_op_func_t ort_math_ops_get_matmul_func(ONNXTensorElementDataType type) {
+static ort_math_element_op_func_t ort_math_frontend_get_matmul_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return (void*) dispatch->matmul_func;
@@ -148,7 +148,7 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     // Get the correct matmul kernel for the promoted type
     ort_math_matmul_op_func_t operation = 
         (ort_math_matmul_op_func_t)
-            ort_math_ops_get_matmul_func(promoted_type);
+            ort_math_frontend_get_matmul_func(promoted_type);
 
     // Prepare pointers for each batch, with type casting if needed
     size_t matrix_size_a = a_rows * a_cols;

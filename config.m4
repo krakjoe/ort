@@ -103,27 +103,27 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AC_MSG_RESULT([disabled])
   ], [
     AC_MSG_RESULT([enabled])
-    PHP_ORT_SIMD_LEVEL="none"
-    PHP_ORT_SIMD_DIR="$PHP_ORT_MATHS_DIR/simd"
+    PHP_ORT_BACKEND_LEVEL="none"
+    PHP_ORT_BACKEND_DIR="$PHP_ORT_MATHS_DIR/backend"
 
     dnl Check for SSE2 support (lowest level)
     if test "$PHP_ORT_SSE2" != "no"; then
       AX_CHECK_COMPILE_FLAG([-msse2], [
         AC_CHECK_HEADERS([emmintrin.h], [
-          PHP_ORT_SIMD_CFLAGS="-msse2"
-          PHP_ORT_SIMD_LEVEL="SSE2"
-          PHP_ORT_SIMD_IMPL=m4_normalize("
-            $PHP_ORT_SIMD_DIR/sse2/abs.c
-            $PHP_ORT_SIMD_DIR/sse2/add.c
-            $PHP_ORT_SIMD_DIR/sse2/div.c
-            $PHP_ORT_SIMD_DIR/sse2/matmul.c
-            $PHP_ORT_SIMD_DIR/sse2/mul.c
-            $PHP_ORT_SIMD_DIR/sse2/neg.c
-            $PHP_ORT_SIMD_DIR/sse2/recip.c
-            $PHP_ORT_SIMD_DIR/sse2/sign.c
-            $PHP_ORT_SIMD_DIR/sse2/sqrt.c
-            $PHP_ORT_SIMD_DIR/sse2/sub.c
-            $PHP_ORT_SIMD_DIR/sse2/impl.c
+          PHP_ORT_BACKEND_CFLAGS="-msse2"
+          PHP_ORT_BACKEND_LEVEL="SSE2"
+          PHP_ORT_BACKEND_IMPL=m4_normalize("
+            $PHP_ORT_BACKEND_DIR/sse2/abs.c
+            $PHP_ORT_BACKEND_DIR/sse2/add.c
+            $PHP_ORT_BACKEND_DIR/sse2/div.c
+            $PHP_ORT_BACKEND_DIR/sse2/matmul.c
+            $PHP_ORT_BACKEND_DIR/sse2/mul.c
+            $PHP_ORT_BACKEND_DIR/sse2/neg.c
+            $PHP_ORT_BACKEND_DIR/sse2/recip.c
+            $PHP_ORT_BACKEND_DIR/sse2/sign.c
+            $PHP_ORT_BACKEND_DIR/sse2/sqrt.c
+            $PHP_ORT_BACKEND_DIR/sse2/sub.c
+            $PHP_ORT_BACKEND_DIR/sse2/impl.c
           ")
         ], [
           if test "$PHP_ORT_SSE2" = "yes"; then
@@ -141,24 +141,24 @@ AS_VAR_IF([PHP_ORT], [no],, [
     if test "$PHP_ORT_SSE41" != "no"; then
       AX_CHECK_COMPILE_FLAG([-msse4.1], [
         AC_CHECK_HEADERS([smmintrin.h], [
-          PHP_ORT_SIMD_CFLAGS="-msse4.1"
-          PHP_ORT_SIMD_LEVEL="SSE4.1"
-          PHP_ORT_SIMD_IMPL=m4_normalize("
-            $PHP_ORT_SIMD_DIR/sse41/add.c
-            $PHP_ORT_SIMD_DIR/sse41/sub.c
-            $PHP_ORT_SIMD_DIR/sse41/matmul.c
-            $PHP_ORT_SIMD_DIR/sse41/mul.c
-            $PHP_ORT_SIMD_DIR/sse41/div.c
-            $PHP_ORT_SIMD_DIR/sse41/sqrt.c
-            $PHP_ORT_SIMD_DIR/sse41/neg.c
-            $PHP_ORT_SIMD_DIR/sse41/ceil.c
-            $PHP_ORT_SIMD_DIR/sse41/floor.c
-            $PHP_ORT_SIMD_DIR/sse41/round.c
-            $PHP_ORT_SIMD_DIR/sse41/abs.c
-            $PHP_ORT_SIMD_DIR/sse41/sign.c
-            $PHP_ORT_SIMD_DIR/sse41/recip.c
-            $PHP_ORT_SIMD_DIR/sse41/trunc.c
-            $PHP_ORT_SIMD_DIR/sse41/impl.c
+          PHP_ORT_BACKEND_CFLAGS="-msse4.1"
+          PHP_ORT_BACKEND_LEVEL="SSE4.1"
+          PHP_ORT_BACKEND_IMPL=m4_normalize("
+            $PHP_ORT_BACKEND_DIR/sse41/add.c
+            $PHP_ORT_BACKEND_DIR/sse41/sub.c
+            $PHP_ORT_BACKEND_DIR/sse41/matmul.c
+            $PHP_ORT_BACKEND_DIR/sse41/mul.c
+            $PHP_ORT_BACKEND_DIR/sse41/div.c
+            $PHP_ORT_BACKEND_DIR/sse41/sqrt.c
+            $PHP_ORT_BACKEND_DIR/sse41/neg.c
+            $PHP_ORT_BACKEND_DIR/sse41/ceil.c
+            $PHP_ORT_BACKEND_DIR/sse41/floor.c
+            $PHP_ORT_BACKEND_DIR/sse41/round.c
+            $PHP_ORT_BACKEND_DIR/sse41/abs.c
+            $PHP_ORT_BACKEND_DIR/sse41/sign.c
+            $PHP_ORT_BACKEND_DIR/sse41/recip.c
+            $PHP_ORT_BACKEND_DIR/sse41/trunc.c
+            $PHP_ORT_BACKEND_DIR/sse41/impl.c
           ")
         ], [
           if test "$PHP_ORT_SSE41" = "yes"; then
@@ -176,24 +176,24 @@ AS_VAR_IF([PHP_ORT], [no],, [
     if test "$PHP_ORT_AVX2" != "no"; then
       AX_CHECK_COMPILE_FLAG([-mavx2], [
         AC_CHECK_HEADERS([immintrin.h], [
-          PHP_ORT_SIMD_CFLAGS="-mavx2"
-          PHP_ORT_SIMD_LEVEL="AVX2"
-          PHP_ORT_SIMD_IMPL=m4_normalize("
-            $PHP_ORT_SIMD_DIR/avx2/add.c
-            $PHP_ORT_SIMD_DIR/avx2/sub.c
-            $PHP_ORT_SIMD_DIR/avx2/matmul.c
-            $PHP_ORT_SIMD_DIR/avx2/mul.c
-            $PHP_ORT_SIMD_DIR/avx2/div.c
-            $PHP_ORT_SIMD_DIR/avx2/sqrt.c
-            $PHP_ORT_SIMD_DIR/avx2/neg.c
-            $PHP_ORT_SIMD_DIR/avx2/ceil.c
-            $PHP_ORT_SIMD_DIR/avx2/floor.c
-            $PHP_ORT_SIMD_DIR/avx2/round.c
-            $PHP_ORT_SIMD_DIR/avx2/abs.c
-            $PHP_ORT_SIMD_DIR/avx2/sign.c
-            $PHP_ORT_SIMD_DIR/avx2/recip.c
-            $PHP_ORT_SIMD_DIR/avx2/trunc.c
-            $PHP_ORT_SIMD_DIR/avx2/impl.c
+          PHP_ORT_BACKEND_CFLAGS="-mavx2"
+          PHP_ORT_BACKEND_LEVEL="AVX2"
+          PHP_ORT_BACKEND_IMPL=m4_normalize("
+            $PHP_ORT_BACKEND_DIR/avx2/add.c
+            $PHP_ORT_BACKEND_DIR/avx2/sub.c
+            $PHP_ORT_BACKEND_DIR/avx2/matmul.c
+            $PHP_ORT_BACKEND_DIR/avx2/mul.c
+            $PHP_ORT_BACKEND_DIR/avx2/div.c
+            $PHP_ORT_BACKEND_DIR/avx2/sqrt.c
+            $PHP_ORT_BACKEND_DIR/avx2/neg.c
+            $PHP_ORT_BACKEND_DIR/avx2/ceil.c
+            $PHP_ORT_BACKEND_DIR/avx2/floor.c
+            $PHP_ORT_BACKEND_DIR/avx2/round.c
+            $PHP_ORT_BACKEND_DIR/avx2/abs.c
+            $PHP_ORT_BACKEND_DIR/avx2/sign.c
+            $PHP_ORT_BACKEND_DIR/avx2/recip.c
+            $PHP_ORT_BACKEND_DIR/avx2/trunc.c
+            $PHP_ORT_BACKEND_DIR/avx2/impl.c
           ")
         ], [
           if test "$PHP_ORT_AVX2" = "yes"; then
@@ -209,28 +209,28 @@ AS_VAR_IF([PHP_ORT], [no],, [
 
     dnl Define the highest available SIMD level
     AC_MSG_CHECKING([for SIMD build $PHP_SIMD_IMPL])
-    if test "$PHP_ORT_SIMD_LEVEL" = "AVX2"; then
+    if test "$PHP_ORT_BACKEND_LEVEL" = "AVX2"; then
       AC_DEFINE(HAVE_AVX2, 1, [AVX2 support available])
       AC_DEFINE(ORT_SIMD_ENABLED, 1, [SIMD optimizations enabled])
-      PHP_SUBST(PHP_ORT_SIMD_CFLAGS)
-      AC_MSG_RESULT([$PHP_ORT_SIMD_LEVEL with $PHP_ORT_SIMD_CFLAGS])
-    elif test "$PHP_ORT_SIMD_LEVEL" = "SSE4.1"; then
+      PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
+      AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
+    elif test "$PHP_ORT_BACKEND_LEVEL" = "SSE4.1"; then
       AC_DEFINE(HAVE_SSE41, 1, [SSE4.1 support available])
       AC_DEFINE(ORT_SIMD_ENABLED, 1, [SIMD optimizations enabled])
-      PHP_SUBST(PHP_ORT_SIMD_CFLAGS)
-      AC_MSG_RESULT([$PHP_ORT_SIMD_LEVEL with $PHP_ORT_SIMD_CFLAGS])
-    elif test "$PHP_ORT_SIMD_LEVEL" = "SSE2"; then
+      PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
+      AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
+    elif test "$PHP_ORT_BACKEND_LEVEL" = "SSE2"; then
       AC_DEFINE(HAVE_SSE2, 1, [SSE2 support available])
       AC_DEFINE(ORT_SIMD_ENABLED, 1, [SIMD optimizations enabled])
-      PHP_SUBST(PHP_ORT_SIMD_CFLAGS)
-      AC_MSG_RESULT([$PHP_ORT_SIMD_LEVEL with $PHP_ORT_SIMD_CFLAGS])
+      PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
+      AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
     else
       AC_MSG_RESULT([none])
     fi
   ])
 
   dnl Add source files
-  PHP_NEW_EXTENSION(ort, [php_ort.c $PHP_ORT_CORE_IMPL $PHP_ORT_MATHS_IMPL $PHP_ORT_SIMD_IMPL], $ext_shared,, [${PHP_ORT_SIMD_CFLAGS}])
+  PHP_NEW_EXTENSION(ort, [php_ort.c $PHP_ORT_CORE_IMPL $PHP_ORT_MATHS_IMPL $PHP_ORT_BACKEND_IMPL], $ext_shared,, [${PHP_ORT_BACKEND_CFLAGS}])
 
   dnl Add include paths
   PHP_ADD_INCLUDE([$ext_srcdir/src])
@@ -240,12 +240,12 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ADD_BUILD_DIR([
     $ext_builddir/$PHP_ORT_MATHS_DIR])
 
-  if test "$PHP_ORT_SIMD_LEVEL" != "none"; then
+  if test "$PHP_ORT_BACKEND_LEVEL" != "none"; then
     PHP_ADD_INCLUDE([
-      $ext_builddir/$PHP_ORT_SIMD_DIR
+      $ext_builddir/$PHP_ORT_BACKEND_DIR
     ])
     PHP_ADD_BUILD_DIR([
-      $ext_builddir/$PHP_ORT_SIMD_DIR
+      $ext_builddir/$PHP_ORT_BACKEND_DIR
     ])
   fi
 

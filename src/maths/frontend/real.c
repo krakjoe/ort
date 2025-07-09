@@ -29,7 +29,7 @@
  */
 
 #define ORT_MATH_REAL_EXPORT_FOR_TYPE(c_type, func_name, math_func) \
-void ort_math_ops_##func_name##_##c_type(                           \
+void ort_math_frontend_##func_name##_##c_type(                           \
     void* result, const void* a, size_t count) {                    \
     c_type* res = (c_type*)result;                                  \
     const c_type* va = (const c_type*)a;                            \
@@ -41,7 +41,7 @@ void ort_math_ops_##func_name##_##c_type(                           \
 #define ORT_MATH_REAL_EXPORT_WITH_DISPATCH(func_name, math_func_f, math_func_d) \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(float, func_name, math_func_f)         \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)        \
-    static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func( \
+    static ort_math_unary_op_func_t ort_math_frontend_get_##func_name##_func( \
         ONNXTensorElementDataType type) {                                \
     const ort_math_dispatch_t* dispatch =                                \
         ort_math_dispatch_type(type);                                    \
@@ -51,13 +51,13 @@ void ort_math_ops_##func_name##_##c_type(                           \
 #define ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(func_name, math_func_f, math_func_d) \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(float, func_name, math_func_f)                   \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)                  \
-    static ort_math_unary_op_func_t ort_math_ops_get_##func_name##_func(           \
+    static ort_math_unary_op_func_t ort_math_frontend_get_##func_name##_func(           \
         ONNXTensorElementDataType type) {                                          \
     switch (type) {                                                                \
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:                                  \
-            return ort_math_ops_##func_name##_float;                               \
+            return ort_math_frontend_##func_name##_float;                               \
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:                                 \
-            return ort_math_ops_##func_name##_double;                              \
+            return ort_math_frontend_##func_name##_double;                              \
         default: return NULL;                                                      \
     }                                                                              \
 }
@@ -90,23 +90,23 @@ ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc)
  * =============================================================================
  */
 
-ORT_MATH_UNARY_RESULT_IMPL(sin, ort_math_ops_get_sin_func)
-ORT_MATH_UNARY_RESULT_IMPL(cos, ort_math_ops_get_cos_func)
-ORT_MATH_UNARY_RESULT_IMPL(tan, ort_math_ops_get_tan_func)
-ORT_MATH_UNARY_RESULT_IMPL(asin, ort_math_ops_get_asin_func)
-ORT_MATH_UNARY_RESULT_IMPL(acos, ort_math_ops_get_acos_func)
-ORT_MATH_UNARY_RESULT_IMPL(atan, ort_math_ops_get_atan_func)
-ORT_MATH_UNARY_RESULT_IMPL(sinh, ort_math_ops_get_sinh_func)
-ORT_MATH_UNARY_RESULT_IMPL(cosh, ort_math_ops_get_cosh_func)
-ORT_MATH_UNARY_RESULT_IMPL(tanh, ort_math_ops_get_tanh_func)
-ORT_MATH_UNARY_RESULT_IMPL(exp, ort_math_ops_get_exp_func)
-ORT_MATH_UNARY_RESULT_IMPL(exp2, ort_math_ops_get_exp2_func)
-ORT_MATH_UNARY_RESULT_IMPL(log, ort_math_ops_get_log_func)
-ORT_MATH_UNARY_RESULT_IMPL(log2, ort_math_ops_get_log2_func)
-ORT_MATH_UNARY_RESULT_IMPL(log10, ort_math_ops_get_log10_func)
-ORT_MATH_UNARY_RESULT_IMPL(ceil, ort_math_ops_get_ceil_func)
-ORT_MATH_UNARY_RESULT_IMPL(floor, ort_math_ops_get_floor_func)
-ORT_MATH_UNARY_RESULT_IMPL(trunc, ort_math_ops_get_trunc_func)
-ORT_MATH_UNARY_RESULT_IMPL(round, ort_math_ops_get_round_func)
-ORT_MATH_UNARY_RESULT_IMPL(cbrt, ort_math_ops_get_cbrt_func)
-ORT_MATH_UNARY_RESULT_IMPL(abs, ort_math_ops_get_abs_func)
+ORT_MATH_UNARY_RESULT_IMPL(sin, ort_math_frontend_get_sin_func)
+ORT_MATH_UNARY_RESULT_IMPL(cos, ort_math_frontend_get_cos_func)
+ORT_MATH_UNARY_RESULT_IMPL(tan, ort_math_frontend_get_tan_func)
+ORT_MATH_UNARY_RESULT_IMPL(asin, ort_math_frontend_get_asin_func)
+ORT_MATH_UNARY_RESULT_IMPL(acos, ort_math_frontend_get_acos_func)
+ORT_MATH_UNARY_RESULT_IMPL(atan, ort_math_frontend_get_atan_func)
+ORT_MATH_UNARY_RESULT_IMPL(sinh, ort_math_frontend_get_sinh_func)
+ORT_MATH_UNARY_RESULT_IMPL(cosh, ort_math_frontend_get_cosh_func)
+ORT_MATH_UNARY_RESULT_IMPL(tanh, ort_math_frontend_get_tanh_func)
+ORT_MATH_UNARY_RESULT_IMPL(exp, ort_math_frontend_get_exp_func)
+ORT_MATH_UNARY_RESULT_IMPL(exp2, ort_math_frontend_get_exp2_func)
+ORT_MATH_UNARY_RESULT_IMPL(log, ort_math_frontend_get_log_func)
+ORT_MATH_UNARY_RESULT_IMPL(log2, ort_math_frontend_get_log2_func)
+ORT_MATH_UNARY_RESULT_IMPL(log10, ort_math_frontend_get_log10_func)
+ORT_MATH_UNARY_RESULT_IMPL(ceil, ort_math_frontend_get_ceil_func)
+ORT_MATH_UNARY_RESULT_IMPL(floor, ort_math_frontend_get_floor_func)
+ORT_MATH_UNARY_RESULT_IMPL(trunc, ort_math_frontend_get_trunc_func)
+ORT_MATH_UNARY_RESULT_IMPL(round, ort_math_frontend_get_round_func)
+ORT_MATH_UNARY_RESULT_IMPL(cbrt, ort_math_frontend_get_cbrt_func)
+ORT_MATH_UNARY_RESULT_IMPL(abs, ort_math_frontend_get_abs_func)

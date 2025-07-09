@@ -25,7 +25,7 @@
 #include "maths/result.h"
 
 #define ORT_MATH_MEAN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_ops_mean_axis_##c_type( \
+    void ort_math_frontend_mean_axis_##c_type( \
         void* result, const void *a, \
         size_t outer, size_t axis, size_t inner) { \
         c_type* va = (c_type*)a; \
@@ -43,7 +43,7 @@
         } \
     }
 
-void ort_math_ops_mean_axis_zend_bool(
+void ort_math_frontend_mean_axis_zend_bool(
     void* result, const void *a, size_t outer, size_t axis, size_t inner) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
@@ -62,7 +62,7 @@ void ort_math_ops_mean_axis_zend_bool(
 
 
 #define ORT_MATH_MEAN_IMPL_FOR_TYPE(c_type, unused) \
-    void ort_math_ops_mean_##c_type( \
+    void ort_math_frontend_mean_##c_type( \
         void* result, const void *a, size_t count) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
@@ -73,7 +73,7 @@ void ort_math_ops_mean_axis_zend_bool(
         res[0] = sum / (c_type)count; \
     }
 
-void ort_math_ops_mean_zend_bool(
+void ort_math_frontend_mean_zend_bool(
     void* result, const void *a, size_t count) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;

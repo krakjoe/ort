@@ -23,7 +23,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 
-void ort_math_ops_sign_float(void* result, const void* a, size_t count) {
+void ort_math_frontend_sign_float(void* result, const void* a, size_t count) {
     float* res = (float*)result;
     const float* va = (const float*)a;
     for (size_t i = 0; i < count; i++) {
@@ -32,7 +32,7 @@ void ort_math_ops_sign_float(void* result, const void* a, size_t count) {
     }
 }
 
-void ort_math_ops_sign_double(void* result, const void* a, size_t count) {
+void ort_math_frontend_sign_double(void* result, const void* a, size_t count) {
     double* res = (double*)result;
     const double* va = (const double*)a;
     for (size_t i = 0; i < count; i++) {
@@ -41,10 +41,10 @@ void ort_math_ops_sign_double(void* result, const void* a, size_t count) {
     }
 }
 
-static ort_math_unary_op_func_t ort_math_ops_get_sign_func(ONNXTensorElementDataType type) {
+static ort_math_unary_op_func_t ort_math_frontend_get_sign_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->sign_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(sign, ort_math_ops_get_sign_func)
+ORT_MATH_UNARY_RESULT_IMPL(sign, ort_math_frontend_get_sign_func)

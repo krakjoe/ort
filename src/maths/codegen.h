@@ -72,7 +72,7 @@
     macro(zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, ex)
 
 #define ORT_MATH_BINARY_OP_IMPL(op_name, c_type, onnx_type, operator) \
-void ort_math_ops_##op_name##_##c_type(void* result,                  \
+void ort_math_frontend_##op_name##_##c_type(void* result,                  \
         const void* a, const void* b, size_t count) {                 \
     c_type* res = (c_type*)result;                                    \
     const c_type* va = (const c_type*)a;                              \
@@ -83,11 +83,11 @@ void ort_math_ops_##op_name##_##c_type(void* result,                  \
 }
 
 #define ORT_MATH_BINARY_OP_EXTERN(op_name, c_type, onnx_type)     \
-    extern void ort_math_ops_##op_name##_##c_type(                \
+    extern void ort_math_frontend_##op_name##_##c_type(                \
         void* result, const void* a, const void* b, size_t count);
 
 #define ORT_MATH_SCALAR_OP_IMPL(op_name, c_type, onnx_type, operator) \
-void ort_math_ops_##op_name##_scalar_##c_type(void* result,           \
+void ort_math_frontend_##op_name##_scalar_##c_type(void* result,           \
         const void* a, const void* b, size_t count) {                 \
     c_type* res = (c_type*)result;                                    \
     const c_type* va = (const c_type*)a;                              \
@@ -98,7 +98,7 @@ void ort_math_ops_##op_name##_scalar_##c_type(void* result,           \
 }
 
 #define ORT_MATH_SCALAR_OP_EXTERN(op_name, c_type, onnx_type)     \
-    extern void ort_math_ops_##op_name##_scalar_##c_type(         \
+    extern void ort_math_frontend_##op_name##_scalar_##c_type(         \
         void* result, const void* a, const void* b, size_t count);
 
 /** {{{ Result Implementation Generation }}} */
@@ -166,9 +166,9 @@ ort_tensor_t* ort_math_result_##func_name(                                   \
 
 /* {{{ Switch Casing for Getter Functions */
 #define ORT_MATH_BINARY_FUNC_GETTER_CASE(c_type, onnx_type, op_name) \
-    case onnx_type: return ort_math_ops_##op_name##_##c_type;
+    case onnx_type: return ort_math_frontend_##op_name##_##c_type;
 
 #define ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, op_name) \
-    case onnx_type: return ort_math_ops_##op_name##_scalar_##c_type; /* }}} */
+    case onnx_type: return ort_math_frontend_##op_name##_scalar_##c_type; /* }}} */
 
 #endif

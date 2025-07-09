@@ -19,12 +19,12 @@
 #include "ort.h"
 
 #ifdef ORT_SIMD_ENABLED
-#include "maths/simd/impl.h"
+#include "maths/backend/impl.h"
 #endif
 
 void ort_math_startup() {
 #ifdef ORT_SIMD_ENABLED
-    ort_math_simd_install(
+    ort_math_backend_install(
         ort_math_dispatch_table());
 #endif
 }
