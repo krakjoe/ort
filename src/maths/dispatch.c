@@ -49,6 +49,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_float,
         .mean_func       = ort_math_frontend_mean_float,
         .mean_axis_func  = ort_math_frontend_mean_axis_float,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_float,
     },
     /* DOUBLE */
     {
@@ -78,6 +79,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_double,
         .mean_func       = ort_math_frontend_mean_double,
         .mean_axis_func  = ort_math_frontend_mean_axis_double,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_double,
     },
     /* INT8 */
     {
@@ -107,6 +109,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_int8_t,
         .mean_func       = ort_math_frontend_mean_int8_t,
         .mean_axis_func  = ort_math_frontend_mean_axis_int8_t,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_int8_t,
     },
     /* INT16 */
     {
@@ -136,6 +139,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_int16_t,
         .mean_func       = ort_math_frontend_mean_int16_t,
         .mean_axis_func  = ort_math_frontend_mean_axis_int16_t,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_int16_t,
     },
     /* INT32 */
     {
@@ -165,6 +169,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_int32_t,
         .mean_func       = ort_math_frontend_mean_int32_t,
         .mean_axis_func  = ort_math_frontend_mean_axis_int32_t,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_int32_t,
     },
     /* INT64 */
     {
@@ -194,6 +199,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_int64_t,
         .mean_func       = ort_math_frontend_mean_int64_t,
         .mean_axis_func  = ort_math_frontend_mean_axis_int64_t,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_int64_t,
     },
     /* UINT8 */
     {
@@ -223,6 +229,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_uint8_t,
         .mean_func       = ort_math_frontend_mean_uint8_t,
         .mean_axis_func  = ort_math_frontend_mean_axis_uint8_t,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_uint8_t,
     },
     /* UINT16 */
     {
@@ -252,6 +259,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_uint16_t,
         .mean_func       = ort_math_frontend_mean_uint16_t,
         .mean_axis_func  = ort_math_frontend_mean_axis_uint16_t,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_uint16_t,
     },
     /* UINT32 */
     {
@@ -281,6 +289,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_uint32_t,
         .mean_func       = ort_math_frontend_mean_uint32_t,
         .mean_axis_func  = ort_math_frontend_mean_axis_uint32_t,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_uint32_t,
     },
     /* BOOL */
     {
@@ -310,6 +319,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .max_axis_func   = ort_math_frontend_max_axis_zend_bool,
         .mean_func       = ort_math_frontend_mean_zend_bool,
         .mean_axis_func  = ort_math_frontend_mean_axis_zend_bool,
+        .softmax_axis_func = ort_math_frontend_softmax_axis_zend_bool,
     }
 };
 

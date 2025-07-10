@@ -67,6 +67,7 @@ For an SSE2 build:
 | **min**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
 | **max**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
 | **mean**  |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **softmax**|  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 
 ## SSE4.1 Backend
 
@@ -93,6 +94,7 @@ For an SSE2 build:
 | **min**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
 | **max**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
 | **mean**  |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **softmax**|  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 
 ## SSE2 Backend
 
@@ -119,6 +121,7 @@ For an SSE2 build:
 | **min**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 | **max**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 | **mean**  |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **softmax**|  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 
 **Notes:**
 - Cells marked ⬛ are mathematically meaningless (e.g. abs or sign of unsigned types).

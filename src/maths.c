@@ -156,6 +156,7 @@ ORT_MATH_REDUCTION_FUNCTION_IMPL(sum)
 ORT_MATH_REDUCTION_FUNCTION_IMPL(mean)
 ORT_MATH_REDUCTION_FUNCTION_IMPL(min)
 ORT_MATH_REDUCTION_FUNCTION_IMPL(max)
+ORT_MATH_REDUCTION_FUNCTION_IMPL(softmax)
 
 /* Dot reduction function */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ONNX\\Tensor, 0)
@@ -225,6 +226,17 @@ PHP_FUNCTION(backend)
 #endif
 }
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_cores_arginfo, 0, 0, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+PHP_FUNCTION(cores)
+{
+    ZEND_PARSE_PARAMETERS_NONE();
+
+    RETURN_LONG(
+        ort_pool_cores());
+}
+
 /* Function table for ONNX\Math namespace */
 static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", add, php_ort_math_add_arginfo)
@@ -259,11 +271,13 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", mean, php_ort_math_sum_arginfo)
     ZEND_NS_FE("ONNX\\Math", min, php_ort_math_min_arginfo)
     ZEND_NS_FE("ONNX\\Math", max, php_ort_math_max_arginfo)
+    ZEND_NS_FE("ONNX\\Math", softmax, php_ort_math_max_arginfo)
     ZEND_NS_FE("ONNX\\Math", dot, php_ort_math_dot_arginfo)
-    ZEND_NS_FE("ONNX\\Math", neg, php_ort_math_neg_arginfo)
-    ZEND_NS_FE("ONNX\\Math", recip, php_ort_math_recip_arginfo)
-    ZEND_NS_FE("ONNX\\Math", trunc, php_ort_math_trunc_arginfo)
+    ZEND_NS_FE("ONNX\\Math", neg,     php_ort_math_neg_arginfo)
+    ZEND_NS_FE("ONNX\\Math", recip,   php_ort_math_recip_arginfo)
+    ZEND_NS_FE("ONNX\\Math", trunc,   php_ort_math_trunc_arginfo)
     ZEND_NS_FE("ONNX\\Math", backend, php_ort_math_backend_arginfo)
+    ZEND_NS_FE("ONNX\\Math", cores,   php_ort_math_cores_arginfo)
     ZEND_FE_END
 };
 
