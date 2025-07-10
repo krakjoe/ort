@@ -72,6 +72,10 @@ static zend_always_inline ONNXTensorElementDataType ort_math_frontend_softmax_ge
 static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_softmax(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
+    if (!dispatch) {
+        return NULL;
+    }
+    
     return dispatch->softmax_axis_func;
 }
 
