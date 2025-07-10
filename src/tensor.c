@@ -409,7 +409,7 @@ static void ort_tensor_free(ort_tensor_t *tensor) {
         api->ReleaseValue(tensor->value);
     }
 
-    if (tensor->name) {
+    if (tensor->name && !persistent) {
         zend_string_release(tensor->name);
     }
 
