@@ -1,5 +1,5 @@
 --TEST--
-ONNX\Math\max: type promotion, shape, axis, keepdims, and error handling
+ONNX\Math\reduce\axis\max: all types, axis, keepdims, negative axis, and error handling
 --EXTENSIONS--
 ort
 --FILE--
@@ -29,7 +29,7 @@ function print_result($result) {
     }
 }
 
-// 1. Basic max for all types (2x3)
+// 1. Max along axis=0
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -37,23 +37,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\max($a);
-        echo "PASS: $name max\n";
-        print_result($result);
-    } catch (Throwable $e) {
-        echo "FAIL: $name max: ".$e->getMessage()."\n";
-    }
-}
-
-// 2. Max along axis=0
-foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
-    } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
-    }
-    try {
-        $result = ONNX\Math\max($a, 0);
+        $result = ONNX\Math\reduce\axis\max($a, 0);
         echo "PASS: $name max axis=0\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -61,7 +45,7 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 3. Max along axis=1
+// 2. Max along axis=1
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -69,7 +53,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\max($a, 1);
+        $result = ONNX\Math\reduce\axis\max($a, 1);
         echo "PASS: $name max axis=1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -77,7 +61,7 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 3b. Max along axis=-1 (negative axis, should match axis=1)
+// 3. Max along axis=-1 (negative axis, should match axis=1)
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -85,7 +69,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\max($a, -1);
+        $result = ONNX\Math\reduce\axis\max($a, -1);
         echo "PASS: $name max axis=-1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -101,7 +85,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\max($a, 1, true);
+        $result = ONNX\Math\reduce\axis\max($a, 1, true);
         echo "PASS: $name max axis=1 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -109,115 +93,34 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 4b. Max along all axes (result is scalar, result_dims == 0), keepdims=false (default)
-foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
-    } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
-    }
-    try {
-        $result = ONNX\Math\max($a, null, false); // reduce all axes, keepdims false
-        echo "PASS: $name max all axes scalar\n";
-        print_result($result);
-    } catch (Throwable $e) {
-        echo "FAIL: $name max all axes scalar: ".$e->getMessage()."\n";
-    }
-}
-
-// 4c. Max along all axes (result is scalar, result_dims == 0), keepdims=true
-foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
-    } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
-    }
-    try {
-        $result = ONNX\Math\max($a, null, true); // reduce all axes, keepdims true
-        echo "PASS: $name max all axes keepdims\n";
-        print_result($result);
-    } catch (Throwable $e) {
-        echo "FAIL: $name max all axes keepdims: ".$e->getMessage()."\n";
-    }
-}
-
-// 5. Error: empty tensor
-try {
-    $a = new ONNX\Tensor\Transient([0], [], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\max($a);
-    echo "FAIL: Did not throw on empty tensor\n";
-} catch (Throwable $e) {
-    echo "PASS: Error on empty tensor: ".$e->getMessage()."\n";
-}
-
-// 6. Error: axis not integer
+// 5. Error: axis not integer
 try {
     $a = new ONNX\Tensor\Transient([3], [1,2,3], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\max($a, 'foo');
+    $result = ONNX\Math\reduce\axis\max($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-integer axis: ".$e->getMessage()."\n";
 }
 
-// 7. Error: axis out of range
+// 6. Error: axis out of range
 try {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\max($a, 2);
+    $result = ONNX\Math\reduce\axis\max($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
     echo "PASS: Error on axis out of range: ".$e->getMessage()."\n";
 }
 
-// 8. Error: bool max with non-binary values (should not happen, but check)
+// 7. Error: bool max with non-binary values
 try {
     $a = new ONNX\Tensor\Transient([2,2], [[1,2],[3,4]], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\max($a);
+    $result = ONNX\Math\reduce\axis\max($a, 0);
     echo "FAIL: Did not throw on non-binary bool tensor\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-binary bool tensor: ".$e->getMessage()."\n";
 }
 ?>
 --EXPECTF--
-PASS: FLOAT max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: DOUBLE max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT8 max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT16 max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT32 max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT64 max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT8 max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT16 max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT32 max
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: BOOL max
-RESULT: [true]
-TYPE: %d
-SHAPE: []
 PASS: FLOAT max axis=0
 RESULT: [4,5,6]
 TYPE: %d
@@ -378,87 +281,6 @@ PASS: BOOL max axis=1 keepdims
 RESULT: [[true],[true]]
 TYPE: %d
 SHAPE: [2,1]
-PASS: FLOAT max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: DOUBLE max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT8 max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT16 max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT32 max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT64 max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT8 max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT16 max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT32 max all axes scalar
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: BOOL max all axes scalar
-RESULT: [true]
-TYPE: %d
-SHAPE: []
-PASS: FLOAT max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: DOUBLE max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT8 max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT16 max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT32 max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: INT64 max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT8 max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT16 max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: UINT32 max all axes keepdims
-RESULT: [6]
-TYPE: %d
-SHAPE: []
-PASS: BOOL max all axes keepdims
-RESULT: [true]
-TYPE: %d
-SHAPE: []
-PASS: Error on empty tensor: shape information must be an array of positive integers
-PASS: Error on non-integer axis: max: axis must be an integer
+PASS: Error on non-integer axis: %s
 PASS: Error on axis out of range: max: axis 2 is out of bounds for tensor with 2 dimensions
 PASS: Error on non-binary bool tensor: validation of data according to the shape provided has failed

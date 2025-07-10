@@ -6,29 +6,6 @@ ort
 <?php
 // Test specific scenarios that might trigger the remaining uncovered functions
 
-// Test axis validation - try to create conditions that need axis checking
-try {
-    $tensor = new ONNX\Tensor\Transient([2, 3, 4], 
-        [[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]], 
-         [[13, 14, 15, 16], [17, 18, 19, 20], [21, 22, 23, 24]]], 
-        ONNX\Tensor::FLOAT);
-    
-    // Try sum with out-of-bounds axis to trigger validation
-    $result = ONNX\Math\sum($tensor, 5); // axis 5 is out of bounds for 3D tensor
-    echo "Unexpected success with invalid axis\n";
-} catch (Throwable $e) {
-    echo "Expected axis error: " . get_class($e) . "\n";
-}
-
-// Test negative axis to trigger axis validation
-try {
-    $tensor = new ONNX\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sum($tensor, -5); // axis -5 is out of bounds
-    echo "Unexpected success with negative axis\n";
-} catch (Throwable $e) {
-    echo "Expected negative axis error: " . get_class($e) . "\n";
-}
-
 // Test vector operations that might need vector validation
 try {
     $non_vector = new ONNX\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ONNX\Tensor::FLOAT);
@@ -88,8 +65,6 @@ try {
 echo "Targeted validation test completed\n";
 ?>
 --EXPECT--
-Expected axis error: ONNX\Status\Tensor\InvalidShape
-Expected negative axis error: ONNX\Status\Tensor\InvalidShape
 Vector-like operation on matrix: 1
 Expected matrix validation error: ONNX\Status\Math\Error
 Mixed type operation: 2

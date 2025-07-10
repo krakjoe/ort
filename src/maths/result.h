@@ -21,6 +21,7 @@
 
 #include "tensor.h"
 #include "maths/core.h"
+#include "maths/promotion.h"
 
 /* Element-wise binary operation */
 ort_tensor_t* ort_math_result_element_wise_binary(
@@ -45,6 +46,25 @@ ort_tensor_t* ort_math_result_element_wise_unary(
     const char* operation_name
 );
 
+/* Element wise reduction */
+ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
+    ort_math_type_promotion_t* promotion,
+    ort_tensor_t* tensor,
+    void (*operation)(void *result, const void *a, size_t n),
+    const char* operation_name
+);
+
+/* Element-wise reduction along axis */
+ort_tensor_t* ort_math_result_element_wise_reduce_axis(
+    ort_math_type_promotion_t* promotion,
+    ort_tensor_t* tensor,
+    size_t axis,
+    zend_bool keepdims,
+    void (*operation)(void *result, const void *a, size_t outer, size_t axis, size_t inner),
+    const char* operation_name,
+    int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
+);
+
 /* Tensor creation for result */
 ort_tensor_t* ort_math_result_tensor(
     const int64_t* shape,
@@ -53,6 +73,29 @@ ort_tensor_t* ort_math_result_tensor(
     const char* name_prefix);
 
 ort_tensor_t** ort_math_result_create(ort_tensor_t* tensor);
+static zend_always_inline int64_t* ort_math_result_reduce(
+    ort_tensor_t* tensor,
+    size_t axis, zend_bool keepdims, size_t* result_dims) {
+    size_t out_dims = 
+        keepdims ?
+            tensor->dimensions : 
+                tensor->dimensions - 1;
+    
+    int64_t* result_shape = ecalloc(out_dims, sizeof(int64_t));
+    
+    size_t j = 0;
+    for (size_t i = 0; i < tensor->dimensions; i++) {
+        if (i == axis) {
+            if (keepdims) result_shape[j++] = 1;
+        } else {
+            result_shape[j++] = tensor->shape[i];
+        }
+    }
+
+    *result_dims = out_dims;
+
+    return result_shape;
+}
 void ort_math_result_free(ort_tensor_t** result);
 
 /* Utility functions */

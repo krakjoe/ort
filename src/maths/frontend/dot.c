@@ -74,7 +74,7 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         return NULL;
     }
 
-    ort_math_type_promotion_t promotion = ort_math_type_promote_strict(a->type, b->type);
+    ort_math_type_promotion_t promotion = ort_math_type_promote_strict(a, b);
     if (!promotion.is_valid) {
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,
             "dot: incompatible types for operation");

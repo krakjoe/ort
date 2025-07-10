@@ -1,4 +1,3 @@
-
 /*
   +----------------------------------------------------------------------+
   | ort                                                                  |
@@ -232,6 +231,60 @@ void ort_pool_slow_binary_worker(void *arg, size_t index, size_t count) {
         efree(out_indices);
         efree(a_indices);
         efree(b_indices);
+    }
+}
+
+void ort_pool_reduce_tensor_worker(void *arg, size_t index, size_t count) {
+    ort_pool_reduce_tensor_ctx_t *ctx =
+        (ort_pool_reduce_tensor_ctx_t *)arg;
+    size_t chunk = ctx->layout.chunk;
+    size_t start = index * chunk;
+    size_t end = start + chunk;
+
+    if (end > ctx->layout.total)
+        end = ctx->layout.total;
+    
+    size_t n = end - start;
+
+    if (n > 0) {
+        // Each thread reduces a chunk of the input, but for full reduction to scalar,
+        // only one thread should do the reduction (to avoid race conditions).
+        // For now, only thread 0 does the reduction.
+        if (start == 0) {
+            ctx->op(
+                ctx->result, ctx->a, ctx->elements);
+        }
+    }
+}
+
+void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count) {
+    ort_pool_reduce_axis_ctx_t *ctx =
+        (ort_pool_reduce_axis_ctx_t *)arg;
+
+    size_t chunk     = ctx->layout.chunk;
+    size_t outer     = ctx->layout.outer;
+    size_t inner     = ctx->layout.inner;
+    size_t axis_size = ctx->layout.axis_size;
+    size_t element   = ctx->layout.element;
+
+    size_t start = index * chunk;
+    size_t end = start + chunk;
+    if (end > outer)
+        end = outer;
+
+    if (start < end) {
+        void *result_ptr =
+            (char*)ctx->result +
+                start * inner * element;
+        const void *a_ptr =
+            (const char*)ctx->a + 
+                start * axis_size * inner * element;
+        ctx->op(
+            result_ptr,
+            a_ptr,
+            end - start,
+            axis_size,
+            inner);
     }
 }
 

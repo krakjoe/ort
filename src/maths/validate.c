@@ -42,17 +42,17 @@ zend_bool ort_math_validate_input(ort_tensor_t* tensor, const char* operation_na
     return 1;
 }
 
-zend_bool ort_math_validate_axis(ort_tensor_t* tensor, zend_long axis, const char* operation_name) {
-    if (axis < 0) {
-        axis += tensor->dimensions;
+zend_bool ort_math_validate_axis(ort_tensor_t* tensor, zend_long* axis, const char* operation_name) {
+    if ((*axis) < 0) {
+        (*axis) += tensor->dimensions;
     }
 
     php_ort_status_flow(
-        (axis < 0 || axis >= tensor->dimensions),
+        ((*axis) < 0 || (*axis) >= tensor->dimensions),
         return 0,
-        php_ort_status_tensor_invalidshape_ce,
-        "%s: axis %ld is out of bounds for tensor with %zu dimensions", 
-        operation_name, axis, tensor->dimensions);
+        php_ort_status_math_invalidshape_ce,
+        "%s: axis %ld is out of bounds for tensor with %zu dimensions",
+        operation_name, (*axis), tensor->dimensions);
 
     return 1;
 }

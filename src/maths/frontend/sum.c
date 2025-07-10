@@ -24,7 +24,7 @@
 #include "maths/dispatch.h"
 #include "maths/result.h"
 
-#define ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(c_type, unused)     \
+#define ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(c_type)             \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(sum, c_type) { \
         c_type* va = (c_type*)a;                            \
         c_type* res = (c_type*)result;                      \
@@ -41,23 +41,7 @@
         }                                                   \
     }
 
-ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(sum, zend_bool) {
-    zend_bool* va = (zend_bool*)a;
-    zend_bool* res = (zend_bool*)result;
-    for (size_t i = 0; i < outer; i++) {
-        for (size_t k = 0; k < inner; k++) {
-            zend_bool sum = 0;
-            for (size_t j = 0; j < axis; j++) {
-                size_t idx =
-                    i * (axis * inner) + j * inner + k;
-                sum = sum || va[idx];
-            }
-            res[i * inner + k] = sum;
-        }
-    }
-}
-
-#define ORT_MATH_SUM_IMPL_FOR_TYPE(c_type, unused)     \
+#define ORT_MATH_SUM_IMPL_FOR_TYPE(c_type)             \
     ORT_MATH_FRONTEND_REDUCTION_OP_DECL(sum, c_type) { \
         c_type* va = (c_type*)a;                       \
         c_type* res = (c_type*)result;                 \
@@ -68,90 +52,47 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(sum, zend_bool) {
         res[0] = sum;                                  \
     }
 
-ORT_MATH_FRONTEND_REDUCTION_OP_DECL(sum, zend_bool) {
-    zend_bool* va = (zend_bool*)a;
-    zend_bool* res = (zend_bool*)result;
-    zend_bool sum = 0;
-    for (size_t idx = 0; idx < count; idx++) {
-        sum = sum || va[idx];
+ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(float)
+ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(double)
+ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(int64_t)
+
+ORT_MATH_SUM_IMPL_FOR_TYPE(float)
+ORT_MATH_SUM_IMPL_FOR_TYPE(double)
+ORT_MATH_SUM_IMPL_FOR_TYPE(int64_t)
+
+static zend_always_inline ONNXTensorElementDataType ort_math_frontend_sum_get_promotion_schema(ONNXTensorElementDataType type) {
+    if (type == ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL   ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8   ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8  ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16  ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16 ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32  ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32) {
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64;
     }
-    res[0] = sum;
+    return type; // FLOAT, DOUBLE, INT64, etc.
 }
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUM_IMPL_FOR_TYPE)
-
-ort_tensor_t* ort_math_result_sum(ort_tensor_t* tensor, zval* axis_zval, zend_bool keepdims) {
-    if (!ort_math_validate_input(tensor, "sum")) {
-        return NULL;
-    }
-
-    // If no axis specified, sum all elements
-    if (axis_zval == NULL || Z_TYPE_P(axis_zval) == IS_NULL) {
-        ort_tensor_t* result = ort_math_result_tensor(NULL, 0, tensor->type, "sum_result");
-        const ort_math_dispatch_t* dispatch =
-            ort_math_dispatch_type(tensor->type);
-
-        dispatch->sum_func(
-            result->data, tensor->data, tensor->elements);
-
-        return result;
-    }
-
-    // Handle specified axis
-    if (Z_TYPE_P(axis_zval) != IS_LONG) {
-        php_ort_status_throw(php_ort_status_tensor_invalidshape_ce, 
-            "sum: axis must be an integer");
-        return NULL;
-    }
-
-    int64_t axis = Z_LVAL_P(axis_zval);
-    if (!ort_math_validate_axis(tensor, axis, "sum")) {
-        return NULL;
-    }
-
-    // Normalize negative axis
-    if (axis < 0) {
-        axis += tensor->dimensions;
-    }
-
-    // Calculate result shape
-    int64_t* result_shape = ecalloc(tensor->dimensions - (keepdims ? 0 : 1), sizeof(int64_t));
-    size_t result_dims = 0;
-    for (size_t i = 0; i < tensor->dimensions; i++) {
-        if (i != (size_t)axis) {
-            result_shape[result_dims++] = tensor->shape[i];
-        } else if (keepdims) {
-            result_shape[result_dims++] = 1;
-        }
-    }
-
-    ort_tensor_t* result = ort_math_result_tensor(result_shape, result_dims, tensor->type, "sum_result");
-
-    // Calculate strides
-    size_t* strides = ecalloc(tensor->dimensions, sizeof(size_t));
-    strides[tensor->dimensions - 1] = 1;
-    for (int64_t i = tensor->dimensions - 2; i >= 0; i--) {
-        strides[i] = strides[i + 1] * tensor->shape[i + 1];
-    }
-
-    size_t axis_size = tensor->shape[axis];
-    size_t outer_size = 1;
-    for (size_t i = 0; i < (size_t)axis; i++) {
-        outer_size *= tensor->shape[i];
-    }
-    size_t inner_size = strides[axis];
-
+static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_sum(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(tensor->type);
-
-    dispatch->sum_axis_func(
-        result->data,
-        tensor->data,
-        outer_size, axis_size, inner_size);
-
-    efree(strides);
-    efree(result_shape);
-
-    return result;
+        ort_math_dispatch_type(type);
+    return dispatch->sum_func;
 }
+
+ORT_MATH_REDUCE_TENSOR_PROMOTE_RESULT_IMPL(sum,
+    ort_math_frontend_get_reduce_tensor_sum,
+    ort_math_validate_input,
+    ort_math_frontend_sum_get_promotion_schema)
+
+static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_sum(ONNXTensorElementDataType type) {
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
+    return dispatch->sum_axis_func;
+}
+
+ORT_MATH_REDUCE_AXIS_PROMOTE_RESULT_IMPL(sum,
+    ort_math_frontend_get_reduce_axis_sum,
+    ort_math_validate_input,
+    ort_math_validate_axis,
+    ort_math_result_reduce,
+    ort_math_frontend_sum_get_promotion_schema)

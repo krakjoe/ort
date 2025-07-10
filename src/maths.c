@@ -87,28 +87,55 @@
         rv->object = result;                                    \
     }
 
-// Macro for reduction functions (Tensor, axis, keepdims)
-#define ORT_MATH_REDUCTION_FUNCTION_IMPL(fname)                    \
+
+#define ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(fname)             \
     ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                        \
-            php_ort_math_##fname##_arginfo, 0, 1, ONNX\\Tensor, 0) \
+            php_ort_math_reduce_tensor_##fname##_arginfo,          \
+                0, 1, ONNX\\Tensor, 0)                             \
         ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)              \
-        ZEND_ARG_INFO(0, axis)                                     \
-        ZEND_ARG_TYPE_INFO(0, keepdims, _IS_BOOL, 0)               \
     ZEND_END_ARG_INFO()                                            \
-    PHP_FUNCTION(fname)                                            \
+    PHP_NAMED_FUNCTION(php_ort_math_reduce_tensor_##fname)         \
     {                                                              \
-        zval *tensor_zv, *axis = NULL;                             \
-        zend_bool keepdims = 0;                                    \
-        ZEND_PARSE_PARAMETERS_START(1, 3)                          \
+        zval *tensor_zv;                                           \
+        ZEND_PARSE_PARAMETERS_START(1, 1)                          \
             Z_PARAM_OBJECT_OF_CLASS(tensor_zv,                     \
                 php_ort_tensor_interface_ce)                       \
+        ZEND_PARSE_PARAMETERS_END();                               \
+        php_ort_tensor_t* tensor_ort =                             \
+            php_ort_tensor_fetch(Z_OBJ_P(tensor_zv));              \
+        ort_tensor_t* result =                                     \
+            ort_math_result_reduce_tensor_##fname(                 \
+                tensor_ort->object);                               \
+        object_init_ex(return_value,                               \
+            php_ort_tensor_transient_ce);                          \
+        php_ort_tensor_t* rv =                                     \
+            php_ort_tensor_fetch(Z_OBJ_P(return_value));           \
+        rv->object = result;                                       \
+    }
+
+// Macro for reduction functions (Tensor, axis, keepdims)
+#define ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(fname)               \
+    ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                        \
+            php_ort_math_reduce_axis_##fname##_arginfo, 0, 2, ONNX\\Tensor, 0) \
+        ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)              \
+        ZEND_ARG_TYPE_INFO(0, axis, IS_LONG, 0)                    \
+        ZEND_ARG_TYPE_INFO(0, keepdims, _IS_BOOL, 0)               \
+    ZEND_END_ARG_INFO()                                            \
+    PHP_NAMED_FUNCTION(php_ort_math_reduce_axis_##fname)           \
+    {                                                              \
+        zval *tensor_zv;                                           \
+        zend_long axis = 0;                                        \
+        zend_bool keepdims = 0;                                    \
+        ZEND_PARSE_PARAMETERS_START(2, 3)                          \
+            Z_PARAM_OBJECT_OF_CLASS(tensor_zv,                     \
+                php_ort_tensor_interface_ce)                       \
+            Z_PARAM_LONG(axis)                                     \
             Z_PARAM_OPTIONAL                                       \
-            Z_PARAM_ZVAL_OR_NULL(axis)                             \
             Z_PARAM_BOOL(keepdims)                                 \
         ZEND_PARSE_PARAMETERS_END();                               \
         php_ort_tensor_t* tensor_ort =                             \
             php_ort_tensor_fetch(Z_OBJ_P(tensor_zv));              \
-        ort_tensor_t* result = ort_math_result_##fname(            \
+        ort_tensor_t* result = ort_math_result_reduce_axis_##fname(\
             tensor_ort->object, axis, keepdims);                   \
         object_init_ex(return_value,                               \
             php_ort_tensor_transient_ce);                          \
@@ -152,11 +179,19 @@ ORT_MATH_UNARY_FUNCTION_IMPL(trunc)
 ORT_MATH_UNARY_FUNCTION_IMPL(sign)
 ORT_MATH_UNARY_FUNCTION_IMPL(sqrt)
 
-ORT_MATH_REDUCTION_FUNCTION_IMPL(sum)
-ORT_MATH_REDUCTION_FUNCTION_IMPL(mean)
-ORT_MATH_REDUCTION_FUNCTION_IMPL(min)
-ORT_MATH_REDUCTION_FUNCTION_IMPL(max)
-ORT_MATH_REDUCTION_FUNCTION_IMPL(softmax)
+ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(min)
+ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(min)
+
+ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(max)
+ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(max)
+
+ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(mean)
+ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(mean)
+
+ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(sum)
+ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(sum)
+
+ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(softmax)
 
 /* Dot reduction function */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ONNX\\Tensor, 0)
@@ -267,15 +302,23 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", abs, php_ort_math_abs_arginfo)
     ZEND_NS_FE("ONNX\\Math", pow, php_ort_math_pow_arginfo)
     ZEND_NS_FE("ONNX\\Math", mod, php_ort_math_mod_arginfo)
-    ZEND_NS_FE("ONNX\\Math", sum, php_ort_math_sum_arginfo)
-    ZEND_NS_FE("ONNX\\Math", mean, php_ort_math_sum_arginfo)
-    ZEND_NS_FE("ONNX\\Math", min, php_ort_math_min_arginfo)
-    ZEND_NS_FE("ONNX\\Math", max, php_ort_math_max_arginfo)
-    ZEND_NS_FE("ONNX\\Math", softmax, php_ort_math_max_arginfo)
-    ZEND_NS_FE("ONNX\\Math", dot, php_ort_math_dot_arginfo)
+
     ZEND_NS_FE("ONNX\\Math", neg,     php_ort_math_neg_arginfo)
     ZEND_NS_FE("ONNX\\Math", recip,   php_ort_math_recip_arginfo)
     ZEND_NS_FE("ONNX\\Math", trunc,   php_ort_math_trunc_arginfo)
+
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", min, php_ort_math_reduce_tensor_min, php_ort_math_reduce_tensor_min_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   min, php_ort_math_reduce_axis_min,   php_ort_math_reduce_axis_min_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", max, php_ort_math_reduce_tensor_max, php_ort_math_reduce_tensor_max_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   max, php_ort_math_reduce_axis_max,   php_ort_math_reduce_axis_max_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", mean, php_ort_math_reduce_tensor_mean, php_ort_math_reduce_tensor_mean_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   mean, php_ort_math_reduce_axis_mean,   php_ort_math_reduce_axis_mean_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", sum, php_ort_math_reduce_tensor_sum, php_ort_math_reduce_tensor_sum_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   sum, php_ort_math_reduce_axis_sum,   php_ort_math_reduce_axis_sum_arginfo)
+    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   softmax, php_ort_math_reduce_axis_softmax,   php_ort_math_reduce_axis_softmax_arginfo)
+
+    ZEND_NS_FE("ONNX\\Math", dot, php_ort_math_dot_arginfo)
+
     ZEND_NS_FE("ONNX\\Math", backend, php_ort_math_backend_arginfo)
     ZEND_NS_FE("ONNX\\Math", cores,   php_ort_math_cores_arginfo)
     ZEND_FE_END

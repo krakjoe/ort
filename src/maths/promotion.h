@@ -19,21 +19,37 @@
 #ifndef HAVE_ORT_MATHS_PROMOTION
 #define HAVE_ORT_MATHS_PROMOTION
 
+#include "tensor.h"
 #include "maths/core.h"
 
 typedef struct _ort_math_type_promotion_t {
     ONNXTensorElementDataType result_type;
     zend_bool is_valid;
+    struct {
+        ort_tensor_t* inputs[2];
+        size_t        count;
+    } upcast;
 } ort_math_type_promotion_t;
 
 ort_math_type_promotion_t ort_math_type_promote(
-    ONNXTensorElementDataType type_a,
-    ONNXTensorElementDataType type_b
+    ort_tensor_t* tensor_a,
+    ort_tensor_t* tensor_b
 );
 
 ort_math_type_promotion_t ort_math_type_promote_strict(
-    ONNXTensorElementDataType type_a,
-    ONNXTensorElementDataType type_b
+    ort_tensor_t* tensor_a,
+    ort_tensor_t* tensor_b
+);
+
+ort_math_type_promotion_t ort_math_operation_promote(
+    ONNXTensorElementDataType type,
+    size_t inputs,
+    ... /* ort_tensor_t* inputs[] */
+);
+
+void* ort_math_operation_upcast(
+    const ort_math_type_promotion_t* promotion,
+    void* data
 );
 
 #endif

@@ -108,4 +108,21 @@ ort_tensor_t* ort_math_result_flatten(ort_tensor_t* tensor);
 ort_tensor_t* ort_math_result_squeeze(ort_tensor_t* tensor, zval* axis);
 ort_tensor_t* ort_math_result_unsqueeze(ort_tensor_t* tensor, zend_long axis);
 /* }}} */
+
+/** {{{ Reduction operations */
+ort_tensor_t* ort_math_result_reduce_tensor_min(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_reduce_axis_min(
+  ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
+ort_tensor_t* ort_math_result_reduce_tensor_max(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_reduce_axis_max(
+  ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
+ort_tensor_t* ort_math_result_reduce_tensor_mean(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_reduce_axis_mean(
+  ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
+ort_tensor_t* ort_math_result_reduce_tensor_sum(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_reduce_axis_sum(
+  ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
+ort_tensor_t* ort_math_result_reduce_axis_softmax(
+  ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
+/* }}} */
 #endif

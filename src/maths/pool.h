@@ -45,6 +45,13 @@ typedef struct _ort_pool_unary_ctx_t {
     void (*op)(void *result, const void *a, size_t n);
 } ort_pool_unary_ctx_t;
 
+typedef struct _ort_pool_scalar_ctx_t {
+    ort_pool_ctx_layout_t layout;
+    void *result;
+    void *a;
+    void *b;
+    void (*op)(void *result, const void *a, const void *b, size_t n);
+} ort_pool_scalar_ctx_t;
 
 typedef struct _ort_pool_slow_binary_ctx_t {
     ort_pool_ctx_layout_t layout;
@@ -68,13 +75,29 @@ typedef struct _ort_pool_slow_binary_ctx_t {
     void (*op)(void *result, const void *a, const void *b, size_t n);
 } ort_pool_slow_binary_ctx_t;
 
-typedef struct _ort_pool_scalar_ctx_t {
+typedef struct _ort_pool_reduce_tensor_ctx_t {
     ort_pool_ctx_layout_t layout;
     void *result;
-    void *a;
-    void *b;
-    void (*op)(void *result, const void *a, const void *b, size_t n);
-} ort_pool_scalar_ctx_t;
+    const void *a;
+    size_t elements;
+    void (*op)(void *result, const void *a, size_t n);
+} ort_pool_reduce_tensor_ctx_t;
+
+typedef struct _ort_reduce_axis_layout_t {
+    size_t element;      // size of one element in bytes
+    size_t total;        // total number of output elements (outer * inner)
+    size_t chunk;        // chunk size for thread pool
+    size_t axis_size;    // length of reduction axis
+    size_t outer;        // product of dims before axis
+    size_t inner;        // product of dims after axis
+} ort_reduce_axis_layout_t;
+
+typedef struct _ort_pool_reduce_axis_ctx_t {
+    ort_reduce_axis_layout_t layout; // all scheduling/precomputed info
+    void *result;                    // output data pointer
+    const void *a;                   // input data pointer
+    void (*op)(void *result, const void *a, size_t outer, size_t axis, size_t inner); // reduction kernel
+} ort_pool_reduce_axis_ctx_t;
 
 size_t ort_pool_cores(void);
 
@@ -87,4 +110,7 @@ void ort_pool_binary_worker(void *arg, size_t index, size_t count);
 void ort_pool_unary_worker(void *arg, size_t index, size_t count);
 void ort_pool_scalar_worker(void *arg, size_t index, size_t count);
 void ort_pool_slow_binary_worker(void *arg, size_t index, size_t count);
+
+void ort_pool_reduce_tensor_worker(void *arg, size_t index, size_t count);
+void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count);
 #endif

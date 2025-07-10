@@ -59,94 +59,25 @@
         } \
     }
 
-ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(softmax, zend_bool) {
-    zend_bool* va = (zend_bool*)a;
-    zend_bool* res = (zend_bool*)result;
-    for (size_t i = 0; i < outer; i++) {
-        for (size_t k = 0; k < inner; k++) {
-            zend_bool any = 0;
-            for (size_t j = 0; j < axis; j++) {
-                size_t idx =
-                    i * (axis * inner) + j * inner + k;
-                any = any || va[idx];
-            }
-            for (size_t j = 0; j < axis; j++) {
-                size_t idx = i * (axis * inner) + j * inner + k;
-                res[idx] = any ? 1 : 0;
-            }
-        }
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SOFTMAX_AXIS_IMPL_FOR_TYPE)
+
+static zend_always_inline ONNXTensorElementDataType ort_math_frontend_softmax_get_promotion_schema(ONNXTensorElementDataType type) {
+    if (type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+        return type;
     }
+    return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED; // or trigger error upstream
 }
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SOFTMAX_AXIS_IMPL_FOR_TYPE)
-
-ort_tensor_t* ort_math_result_softmax(ort_tensor_t* tensor, zval* axis_zval, zend_bool keepdims) {
-    if (!ort_math_validate_input(tensor, "softmax")) {
-        return NULL;
-    }
-
-    int64_t axis;
-    if (axis_zval == NULL || Z_TYPE_P(axis_zval) == IS_NULL) {
-        // Default to last axis (ONNX/NumPy semantics)
-        axis = tensor->dimensions - 1;
-    } else {
-        if (Z_TYPE_P(axis_zval) != IS_LONG) {
-            php_ort_status_throw(php_ort_status_tensor_invalidshape_ce, 
-                "softmax: axis must be an integer");
-            return NULL;
-        }
-        axis = Z_LVAL_P(axis_zval);
-        if (!ort_math_validate_axis(tensor, axis, "softmax")) {
-            return NULL;
-        }
-        // Normalize negative axis
-        if (axis < 0) {
-            axis += tensor->dimensions;
-        }
-    }
-
-    // Calculate result shape: if keepdims, axis dim is 1; else, shape is same as input
-    int64_t* result_shape = NULL;
-    size_t result_dims = 0;
-    if (keepdims) {
-        result_shape = ecalloc(tensor->dimensions, sizeof(int64_t));
-        for (size_t i = 0; i < tensor->dimensions; i++) {
-            result_shape[i] = tensor->shape[i];
-        }
-        result_shape[axis] = 1;
-        result_dims = tensor->dimensions;
-    } else {
-        result_shape = ecalloc(tensor->dimensions, sizeof(int64_t));
-        for (size_t i = 0; i < tensor->dimensions; i++) {
-            result_shape[i] = tensor->shape[i];
-        }
-        result_dims = tensor->dimensions;
-    }
-    ort_tensor_t* result = ort_math_result_tensor(result_shape, result_dims, tensor->type, "softmax_result");
-
-    // Calculate strides
-    size_t* strides = ecalloc(tensor->dimensions, sizeof(size_t));
-    strides[tensor->dimensions - 1] = 1;
-    for (int64_t i = tensor->dimensions - 2; i >= 0; i--) {
-        strides[i] = strides[i + 1] * tensor->shape[i + 1];
-    }
-
-    size_t axis_size = tensor->shape[axis];
-    size_t outer_size = 1;
-    for (size_t i = 0; i < (size_t)axis; i++) {
-        outer_size *= tensor->shape[i];
-    }
-    size_t inner_size = strides[axis];
-
+static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_softmax(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(tensor->type);
-
-    dispatch->softmax_axis_func(
-        result->data, tensor->data,
-        outer_size, axis_size, inner_size);
-
-    efree(strides);
-    efree(result_shape);
-
-    return result;
+        ort_math_dispatch_type(type);
+    return dispatch->softmax_axis_func;
 }
+
+ORT_MATH_REDUCE_AXIS_PROMOTE_RESULT_IMPL(softmax,
+    ort_math_frontend_get_reduce_axis_softmax,
+    ort_math_validate_input,
+    ort_math_validate_axis,
+    ort_math_result_reduce,
+    ort_math_frontend_softmax_get_promotion_schema)

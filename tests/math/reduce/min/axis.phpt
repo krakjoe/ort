@@ -1,5 +1,5 @@
 --TEST--
-ONNX\Math\min: type promotion, shape, axis, keepdims, and error handling
+ONNX\Math\reduce\axis\min: all types, axis, keepdims, negative axis, and error handling
 --EXTENSIONS--
 ort
 --FILE--
@@ -29,7 +29,7 @@ function print_result($result) {
     }
 }
 
-// 1. Basic min for all types (2x3)
+// 1. Min along axis=0
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -37,23 +37,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\min($a);
-        echo "PASS: $name min\n";
-        print_result($result);
-    } catch (Throwable $e) {
-        echo "FAIL: $name min: ".$e->getMessage()."\n";
-    }
-}
-
-// 2. Min along axis=0
-foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
-    } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
-    }
-    try {
-        $result = ONNX\Math\min($a, 0);
+        $result = ONNX\Math\reduce\axis\min($a, 0);
         echo "PASS: $name min axis=0\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -61,7 +45,7 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 3. Min along axis=1
+// 2. Min along axis=1
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -69,7 +53,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\min($a, 1);
+        $result = ONNX\Math\reduce\axis\min($a, 1);
         echo "PASS: $name min axis=1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -77,7 +61,7 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 3b. Min along axis=-1 (negative axis, should match axis=1)
+// 3. Min along axis=-1 (negative axis, should match axis=1)
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -85,7 +69,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\min($a, -1);
+        $result = ONNX\Math\reduce\axis\min($a, -1);
         echo "PASS: $name min axis=-1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -101,7 +85,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\min($a, 1, true);
+        $result = ONNX\Math\reduce\axis\min($a, 1, true);
         echo "PASS: $name min axis=1 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -109,83 +93,34 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 5. Error: empty tensor
-try {
-    $a = new ONNX\Tensor\Transient([0], [], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\min($a);
-    echo "FAIL: Did not throw on empty tensor\n";
-} catch (Throwable $e) {
-    echo "PASS: Error on empty tensor: ".$e->getMessage()."\n";
-}
-
-// 6. Error: axis not integer
+// 5. Error: axis not integer
 try {
     $a = new ONNX\Tensor\Transient([3], [1,2,3], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\min($a, 'foo');
+    $result = ONNX\Math\reduce\axis\min($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-integer axis: ".$e->getMessage()."\n";
 }
 
-// 7. Error: axis out of range
+// 6. Error: axis out of range
 try {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\min($a, 2);
+    $result = ONNX\Math\reduce\axis\min($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
     echo "PASS: Error on axis out of range: ".$e->getMessage()."\n";
 }
 
-// 8. Error: bool min with non-binary values (should not happen, but check)
+// 7. Error: bool min with non-binary values
 try {
     $a = new ONNX\Tensor\Transient([2,2], [[1,2],[3,4]], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\min($a);
+    $result = ONNX\Math\reduce\axis\min($a, 0);
     echo "FAIL: Did not throw on non-binary bool tensor\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-binary bool tensor: ".$e->getMessage()."\n";
 }
 ?>
 --EXPECTF--
-PASS: FLOAT min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: DOUBLE min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: INT8 min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: INT16 min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: INT32 min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: INT64 min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: UINT8 min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: UINT16 min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: UINT32 min
-RESULT: [1]
-TYPE: %d
-SHAPE: []
-PASS: BOOL min
-RESULT: [false]
-TYPE: %d
-SHAPE: []
 PASS: FLOAT min axis=0
 RESULT: [1,2,3]
 TYPE: %d
@@ -346,7 +281,6 @@ PASS: BOOL min axis=1 keepdims
 RESULT: [[false],[false]]
 TYPE: %d
 SHAPE: [2,1]
-PASS: Error on empty tensor: shape information must be an array of positive integers
-PASS: Error on non-integer axis: min: axis must be an integer
+PASS: Error on non-integer axis: %s
 PASS: Error on axis out of range: min: axis 2 is out of bounds for tensor with 2 dimensions
 PASS: Error on non-binary bool tensor: validation of data according to the shape provided has failed

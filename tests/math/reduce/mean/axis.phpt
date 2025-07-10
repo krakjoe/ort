@@ -1,5 +1,5 @@
 --TEST--
-ONNX\Math\mean: type promotion, shape, axis, keepdims, and error handling
+ONNX\Math\reduce\axis\mean: all types, axis, keepdims, negative axis, and error handling
 --EXTENSIONS--
 ort
 --FILE--
@@ -29,7 +29,7 @@ function print_result($result) {
     }
 }
 
-// 1. Basic mean for all types (2x3)
+// 1. Mean along axis=0
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -37,23 +37,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\mean($a);
-        echo "PASS: $name mean\n";
-        print_result($result);
-    } catch (Throwable $e) {
-        echo "FAIL: $name mean: ".$e->getMessage()."\n";
-    }
-}
-
-// 2. Mean along axis=0
-foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
-    } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
-    }
-    try {
-        $result = ONNX\Math\mean($a, 0);
+        $result = ONNX\Math\reduce\axis\mean($a, 0);
         echo "PASS: $name mean axis=0\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -61,7 +45,7 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 3. Mean along axis=1
+// 2. Mean along axis=1
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -69,7 +53,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\mean($a, 1);
+        $result = ONNX\Math\reduce\axis\mean($a, 1);
         echo "PASS: $name mean axis=1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -77,7 +61,7 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 3b. Mean along axis=-1 (negative axis, should match axis=1)
+// 3. Mean along axis=-1 (negative axis, should match axis=1)
 foreach ($types as $name => $type) {
     if ($type === ONNX\Tensor::BOOL) {
         $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
@@ -85,7 +69,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\mean($a, -1);
+        $result = ONNX\Math\reduce\axis\mean($a, -1);
         echo "PASS: $name mean axis=-1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -101,7 +85,7 @@ foreach ($types as $name => $type) {
         $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\mean($a, 1, true);
+        $result = ONNX\Math\reduce\axis\mean($a, 1, true);
         echo "PASS: $name mean axis=1 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -109,83 +93,34 @@ foreach ($types as $name => $type) {
     }
 }
 
-// 5. Error: empty tensor
-try {
-    $a = new ONNX\Tensor\Transient([0], [], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\mean($a);
-    echo "FAIL: Did not throw on empty tensor\n";
-} catch (Throwable $e) {
-    echo "PASS: Error on empty tensor: ".$e->getMessage()."\n";
-}
-
-// 6. Error: axis not integer
+// 5. Error: axis not integer
 try {
     $a = new ONNX\Tensor\Transient([3], [1,2,3], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\mean($a, 'foo');
+    $result = ONNX\Math\reduce\axis\mean($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-integer axis: ".$e->getMessage()."\n";
 }
 
-// 7. Error: axis out of range
+// 6. Error: axis out of range
 try {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\mean($a, 2);
+    $result = ONNX\Math\reduce\axis\mean($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
     echo "PASS: Error on axis out of range: ".$e->getMessage()."\n";
 }
 
-// 8. Error: bool mean with non-binary values (should not happen, but check)
+// 7. Error: bool mean with non-binary values
 try {
     $a = new ONNX\Tensor\Transient([2,2], [[1,2],[3,4]], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\mean($a);
+    $result = ONNX\Math\reduce\axis\mean($a, 0);
     echo "FAIL: Did not throw on non-binary bool tensor\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-binary bool tensor: ".$e->getMessage()."\n";
 }
 ?>
 --EXPECTF--
-PASS: FLOAT mean
-RESULT: [3.5]
-TYPE: %d
-SHAPE: []
-PASS: DOUBLE mean
-RESULT: [3.5]
-TYPE: %d
-SHAPE: []
-PASS: INT8 mean
-RESULT: [3]
-TYPE: %d
-SHAPE: []
-PASS: INT16 mean
-RESULT: [3]
-TYPE: %d
-SHAPE: []
-PASS: INT32 mean
-RESULT: [3]
-TYPE: %d
-SHAPE: []
-PASS: INT64 mean
-RESULT: [3]
-TYPE: %d
-SHAPE: []
-PASS: UINT8 mean
-RESULT: [3]
-TYPE: %d
-SHAPE: []
-PASS: UINT16 mean
-RESULT: [3]
-TYPE: %d
-SHAPE: []
-PASS: UINT32 mean
-RESULT: [3]
-TYPE: %d
-SHAPE: []
-PASS: BOOL mean
-RESULT: [true]
-TYPE: %d
-SHAPE: []
 PASS: FLOAT mean axis=0
 RESULT: [2.5,3.5,4.5]
 TYPE: %d
@@ -195,35 +130,35 @@ RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: INT8 mean axis=0
-RESULT: [2,3,4]
+RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: INT16 mean axis=0
-RESULT: [2,3,4]
+RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: INT32 mean axis=0
-RESULT: [2,3,4]
+RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: INT64 mean axis=0
-RESULT: [2,3,4]
+RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: UINT8 mean axis=0
-RESULT: [2,3,4]
+RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: UINT16 mean axis=0
-RESULT: [2,3,4]
+RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: UINT32 mean axis=0
-RESULT: [2,3,4]
+RESULT: [2.5,3.5,4.5]
 TYPE: %d
 SHAPE: [3]
 PASS: BOOL mean axis=0
-RESULT: [true,true,true]
+RESULT: [0.5,0.5,0.5]
 TYPE: %d
 SHAPE: [3]
 PASS: FLOAT mean axis=1
@@ -263,7 +198,7 @@ RESULT: [2,5]
 TYPE: %d
 SHAPE: [2]
 PASS: BOOL mean axis=1
-RESULT: [true,false]
+RESULT: [0.66%d,0.33%d]
 TYPE: %d
 SHAPE: [2]
 PASS: FLOAT mean axis=-1
@@ -303,7 +238,7 @@ RESULT: [2,5]
 TYPE: %d
 SHAPE: [2]
 PASS: BOOL mean axis=-1
-RESULT: [true,false]
+RESULT: [0.66%d,0.33%d]
 TYPE: %d
 SHAPE: [2]
 PASS: FLOAT mean axis=1 keepdims
@@ -343,10 +278,9 @@ RESULT: [[2],[5]]
 TYPE: %d
 SHAPE: [2,1]
 PASS: BOOL mean axis=1 keepdims
-RESULT: [[true],[false]]
+RESULT: [[0.66%d],[0.33%d]]
 TYPE: %d
 SHAPE: [2,1]
-PASS: Error on empty tensor: shape information must be an array of positive integers
-PASS: Error on non-integer axis: mean: axis must be an integer
+PASS: Error on non-integer axis: %s
 PASS: Error on axis out of range: mean: axis 2 is out of bounds for tensor with 2 dimensions
 PASS: Error on non-binary bool tensor: validation of data according to the shape provided has failed

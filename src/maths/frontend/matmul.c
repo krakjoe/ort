@@ -118,7 +118,7 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     }
 
     // Strict ONNX/NumPy-style type promotion for matmul (use struct for richer info)
-    ort_math_type_promotion_t promotion = ort_math_type_promote_strict(matrix_a->type, matrix_b->type);
+    ort_math_type_promotion_t promotion = ort_math_type_promote_strict(matrix_a, matrix_b);
     if (!promotion.is_valid) {
         php_ort_status_throw(php_ort_status_math_error_ce,
             "matmul: unsupported type promotion (%s x %s)",

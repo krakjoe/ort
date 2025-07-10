@@ -24,7 +24,7 @@
 zend_bool ort_math_validate_input(
     ort_tensor_t* tensor, const char* operation_name);
 zend_bool ort_math_validate_axis(
-    ort_tensor_t* tensor, zend_long axis, const char* operation_name);
+    ort_tensor_t* tensor, zend_long* axis, const char* operation_name);
 
 static zend_always_inline zend_bool ort_math_validate_identity(
     ort_tensor_t* tensor_a, ort_tensor_t* tensor_b) {
