@@ -329,11 +329,11 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_persistent(ort_tenso
     size_t i = 0, offset = 0;
     size_t size;
 
-    tensor->name       = zend_string_dup(name, 1);
+    tensor->name       = php_ort_string_copy(name);
     tensor->dimensions = zend_hash_num_elements(Z_ARRVAL_P(shape));
     tensor->type       = type;
     tensor->owner      = PHP_ORT_OWN_HEAP;
-    
+
     // Handle scalar tensor case (empty shape array)
     if (tensor->dimensions == 0) {
         tensor->shape    = NULL;  // No shape array needed for scalars
@@ -410,7 +410,7 @@ static void ort_tensor_free(ort_tensor_t *tensor) {
     }
 
     if (tensor->name && !persistent) {
-        zend_string_release(tensor->name);
+        zend_string_free(tensor->name);
     }
 
     if (tensor->parent) {

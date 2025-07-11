@@ -45,8 +45,8 @@ static void php_ort_model_free(ort_model_t *model) {
         api->ReleaseSession(model->session);
     }
 
-    zend_string_release(model->name);
-    zend_string_release(model->file);
+    zend_string_free(model->file);
+    zend_string_free(model->name);
 
     if (model->names.input) {
         for (idx = 0; idx < model->counters.input; idx++) {
@@ -105,8 +105,8 @@ static zend_bool php_ort_model_construct(ort_model_t *model,  zend_string *name,
     OrtStatus* status;
     size_t idx;
 
-    model->name = zend_string_dup(name, 1);
-    model->file = zend_string_dup(file, 1);
+    model->name = php_ort_string_copy(name);
+    model->file = php_ort_string_copy(file);
 
     php_ort_status_flow(
         (status = api->CreateSessionOptions(&options)),

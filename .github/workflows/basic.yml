@@ -1,4 +1,4 @@
-name: CI
+name: Basic
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ develop, release ]
 jobs:
-  BuildCoverallsReport:
+  RunBasicTests:
     runs-on: ubuntu-latest
 
     strategy:
@@ -19,7 +19,7 @@ jobs:
           - nosimd
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up PHP
@@ -27,14 +27,14 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
 
-      - name: Install build dependencies
+      - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
           sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
           sudo ldconfig
-      - name: Prepare extension (configure for SIMD backend)
+      - name: Install Extension
         run: |
           phpize
           case "${{ matrix.simd }}" in
@@ -54,31 +54,12 @@ jobs:
           make -j$(nproc)
           sudo make install
 
-      - name: Run tests and generate coverage
+      - name: Run Tests
         run: |
-          make ort-test-coverage-html
+          make test
 
-      - name: Upload HTML coverage report
+      - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-html-php${{ matrix.php }}-${{ matrix.simd }}
-          path: html/
-
-      - name: Send Coveralls Report
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ${{ github.workspace }}/coverage.info
-          flag-name: ${{ matrix.simd }}
-          parallel: true
-  FinishCoverallsReport:
-    if: always()
-    runs-on: ubuntu-latest
-    needs: [BuildCoverallsReport]
-    steps:
-    - name: Finish Coveralls Reporting
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        parallel-finished: true
-        carryforward: "nosimd, sse2, sse41, avx2"
+          name: tests-php${{ matrix.php }}-${{ matrix.simd }}
+          path: tests/

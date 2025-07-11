@@ -1,0 +1,65 @@
+name: Valgrind
+
+on:
+  push:
+    branches: [ develop, release ]
+  pull_request:
+    branches: [ develop, release ]
+jobs:
+  RunValgrindTests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ '8.1', '8.2', '8.3', '8.4' ]
+        simd:
+          - avx2
+          - sse41
+          - sse2
+          - nosimd
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Install build dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
+          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
+          sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
+          sudo ldconfig
+      - name: Install Extension
+        run: |
+          phpize
+          case "${{ matrix.simd }}" in
+            avx2)
+              ./configure --enable-ort-coverage --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+              ;;
+            sse41)
+              ./configure --enable-ort-coverage --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2
+              ;;
+            sse2)
+              ./configure --enable-ort-coverage --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
+              ;;
+            nosimd)
+              ./configure --enable-ort-coverage --disable-ort-simd
+              ;;
+          esac
+          make -j$(nproc)
+          sudo make install
+
+      - name: Run Tests
+        run: |
+          make test TEST_PHP_ARGS="-m --show-mem"
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: valgrind-php${{ matrix.php }}-${{ matrix.simd }}
+          path: tests/

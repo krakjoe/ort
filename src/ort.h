@@ -134,6 +134,25 @@ static zend_always_inline void php_ort_string_free(php_ort_string_temp_t utf8) {
 }
 #endif
 
+static zend_always_inline zend_string* php_ort_string_copy(zend_string *source) {
+    zend_string *dest = zend_string_alloc(ZSTR_LEN(source), 1);
+
+    memcpy(ZSTR_VAL(dest),
+           ZSTR_VAL(source),
+           ZSTR_LEN(source));
+
+    ZSTR_VAL(dest)[ZSTR_LEN(dest)] = 0;
+
+    ZSTR_LEN(dest) = ZSTR_LEN(source);
+    ZSTR_H(dest)   = ZSTR_H(source);
+
+    GC_TYPE_INFO(dest) =
+        IS_STRING |
+        ((IS_STR_INTERNED | IS_STR_PERMANENT) << GC_FLAGS_SHIFT);
+
+    return dest;
+}
+
 extern const OrtApi* api;
 
 PHP_MINIT_FUNCTION(ORT_CORE);
