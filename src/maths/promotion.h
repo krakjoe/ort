@@ -53,4 +53,12 @@ void* ort_math_operation_upcast(
     void* data
 );
 
+
+void* ort_math_operation_broadcast(
+    const ort_tensor_t* result,
+    const struct _ort_math_type_promotion_t* promotion,
+    const ort_tensor_t* input,
+    void* out_buf
+);
+
 #endif

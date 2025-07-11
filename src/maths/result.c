@@ -76,7 +76,7 @@ ort_tensor_t* ort_math_result_element_wise_binary(
             tensor_a, tensor_b, operation, operation_name);
     }
 
-    /* General path: broadcast and upcast both inputs to result shape/type, then use fast worker */
+    /* General path: use centralized upcast/broadcast logic */
     ort_math_broadcast_info_t* binfo = ort_math_broadcast_calculate(
         tensor_a->shape, tensor_a->dimensions,
         tensor_b->shape, tensor_b->dimensions);
@@ -92,7 +92,6 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         operation_name
     );
 
-    /* Type promotion */
     ort_math_type_promotion_t promotion = ort_math_type_promote(tensor_a, tensor_b);
 
     php_ort_status_flow(
@@ -106,59 +105,36 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         operation_name
     );
 
-    size_t total = ort_math_result_total(
-        binfo->result_shape, binfo->result_dimensions);
-    size_t element_size = php_ort_type_sizeof(promotion.result_type);
-
-    /* Allocate upcasted, broadcasted buffers for a and b */
-    void* a_buf = emalloc(total * element_size);
-    void* b_buf = emalloc(total * element_size);
-
-    /* Fill a_buf and b_buf with broadcasted, upcasted data */
-    for (size_t i = 0; i < total; ++i) {
-        int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-        ort_math_result_multi(i, binfo->result_shape, binfo->result_dimensions, out_indices);
-
-        int64_t a_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-        int64_t b_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-        for (size_t d = 0; d < binfo->result_dimensions; ++d) {
-            a_indices[d] = (d < binfo->result_dimensions - tensor_a->dimensions) ? 0 :
-                (tensor_a->shape[d - (binfo->result_dimensions - tensor_a->dimensions)] == 1 ? 0 : out_indices[d]);
-            b_indices[d] = (d < binfo->result_dimensions - tensor_b->dimensions) ? 0 :
-                (tensor_b->shape[d - (binfo->result_dimensions - tensor_b->dimensions)] == 1 ? 0 : out_indices[d]);
-        }
-        zend_long a_flat = ort_math_result_flat(
-            a_indices + (binfo->result_dimensions - tensor_a->dimensions),
-            tensor_a->shape, tensor_a->dimensions);
-        zend_long b_flat = ort_math_result_flat(
-            b_indices + (binfo->result_dimensions - tensor_b->dimensions),
-            tensor_b->shape, tensor_b->dimensions);
-
-        void* a_ptr = (char*)tensor_a->data + a_flat * php_ort_type_sizeof(tensor_a->type);
-        void* b_ptr = (char*)tensor_b->data + b_flat * php_ort_type_sizeof(tensor_b->type);
-        void* a_out = (char*)a_buf + i * element_size;
-        void* b_out = (char*)b_buf + i * element_size;
-        
-        ort_math_cast_element(
-            a_ptr, a_out, tensor_a->type, promotion.result_type);
-        ort_math_cast_element(
-            b_ptr, b_out, tensor_b->type, promotion.result_type);
-    }
-
     /* Create result tensor */
     ort_tensor_t* result = ort_math_result_tensor(
-        binfo->result_shape, binfo->result_dimensions, 
+        binfo->result_shape, binfo->result_dimensions,
         promotion.result_type, operation_name);
+
+    /* Upcast and broadcast both inputs to result buffer */
+    void* a_buf = ecalloc(
+        result->elements,
+        php_ort_type_sizeof(promotion.result_type));
+    void* b_buf = ecalloc(
+        result->elements, 
+        php_ort_type_sizeof(promotion.result_type));
+    ort_math_operation_broadcast(
+        result,
+        &promotion,
+        tensor_a, a_buf);
+    ort_math_operation_broadcast(
+        result,
+        &promotion,
+        tensor_b, b_buf);
 
     /* Use fast worker for the upcasted, broadcasted buffers */
     size_t pool_size = ort_pool_cores();
-    size_t chunk = (total + pool_size - 1) / pool_size;
-    size_t num_chunks = (total + chunk - 1) / chunk;
+    size_t chunk = (result->elements + pool_size - 1) / pool_size;
+    size_t num_chunks = (result->elements + chunk - 1) / chunk;
 
     ort_pool_binary_ctx_t ctx = {
         .layout = {
-            .element = element_size,
-            .total = total,
+            .element = php_ort_type_sizeof(promotion.result_type),
+            .total = result->elements,
             .chunk = chunk
         },
         .result = result->data,
@@ -181,108 +157,65 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
     ort_math_scalar_op_func_t operation,
     const char* operation_name
 ) {
-    /* Create result tensor with same shape and type as input */
+    /* Promote type if needed */
+    ort_math_type_promotion_t promotion = ort_math_operation_promote(tensor->type, 1, tensor);
+    ONNXTensorElementDataType result_type = promotion.result_type;
+
+    /* Create result tensor with same shape and promoted type as input */
     ort_tensor_t* result = ort_math_result_tensor(
         tensor->shape,
         tensor->dimensions,
-        tensor->type, operation_name);
-    
-    /* Convert scalar to appropriate type */
-    void* scalar_data = NULL;
-    float scalar_float;
-    double scalar_double;
-    int8_t scalar_int8;
-    int16_t scalar_int16;
-    int32_t scalar_int32;
-    int64_t scalar_int64;
-    uint8_t scalar_uint8;
-    uint16_t scalar_uint16;
-    uint32_t scalar_uint32;
-    uint8_t scalar_bool;
-    
-    switch (tensor->type) {
+        result_type, operation_name);
+
+    /* Upcast input if needed */
+    void* a_buf = ort_math_operation_upcast(result, &promotion, tensor->data);
+
+    /* Convert scalar to promoted type */
+    uint8_t scalar_buffer[16];
+    void* scalar_data = scalar_buffer;
+    switch (result_type) {
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            scalar_float = 
-                (Z_TYPE_P(scalar) == IS_DOUBLE) ?
-                    (float)Z_DVAL_P(scalar) :
-                        (float)Z_LVAL_P(scalar);
-            scalar_data = &scalar_float;
+            *(float*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ? (float)Z_DVAL_P(scalar) : (float)Z_LVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-            scalar_double =
-                (Z_TYPE_P(scalar) == IS_DOUBLE) ?
-                    Z_DVAL_P(scalar) :
-                        (double)Z_LVAL_P(scalar);
-            scalar_data = &scalar_double;
+            *(double*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ? Z_DVAL_P(scalar) : (double)Z_LVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
-            scalar_int8 =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    (int8_t)Z_LVAL_P(scalar) :
-                        (int8_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_int8;
+            *(int8_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (int8_t)Z_LVAL_P(scalar) : (int8_t)Z_DVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
-            scalar_int16 =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    (int16_t)Z_LVAL_P(scalar) :
-                        (int16_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_int16;
+            *(int16_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (int16_t)Z_LVAL_P(scalar) : (int16_t)Z_DVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
-            scalar_int32 =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    (int32_t)Z_LVAL_P(scalar) :
-                        (int32_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_int32;
+            *(int32_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (int32_t)Z_LVAL_P(scalar) : (int32_t)Z_DVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
-            scalar_int64 =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    Z_LVAL_P(scalar) :
-                        (int64_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_int64;
+            *(int64_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? Z_LVAL_P(scalar) : (int64_t)Z_DVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
-            scalar_uint8 =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    (uint8_t)Z_LVAL_P(scalar) :
-                        (uint8_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_uint8;
+            *(uint8_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (uint8_t)Z_LVAL_P(scalar) : (uint8_t)Z_DVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
-            scalar_uint16 =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    (uint16_t)Z_LVAL_P(scalar) :
-                        (uint16_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_uint16;
+            *(uint16_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (uint16_t)Z_LVAL_P(scalar) : (uint16_t)Z_DVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
-            scalar_uint32 =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    (uint32_t)Z_LVAL_P(scalar) :
-                        (uint32_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_uint32;
+            *(uint32_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (uint32_t)Z_LVAL_P(scalar) : (uint32_t)Z_DVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
-            scalar_bool =
-                (Z_TYPE_P(scalar) == IS_LONG) ?
-                    (uint8_t)Z_LVAL_P(scalar) :
-                        (uint8_t)Z_DVAL_P(scalar);
-            scalar_data = &scalar_bool;
+            *(uint8_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (uint8_t)Z_LVAL_P(scalar) : (uint8_t)Z_DVAL_P(scalar);
             break;
-
         default:
             php_ort_status_throw(php_ort_status_math_invalidtype_ce,
                 "%s: unsupported tensor type for scalar operation",
                 operation_name);
             ort_tensor_release(result);
+            if (a_buf != tensor->data) efree(a_buf);
             return NULL;
     }
 
     /* Parallelize scalar operation */
     size_t elements = tensor->elements;
-    size_t element_size = php_ort_type_sizeof(tensor->type);
+    size_t element_size = php_ort_type_sizeof(result_type);
     size_t pool_size = ort_pool_cores();
     size_t chunk = (elements + pool_size - 1) / pool_size;
     size_t num_chunks = (elements + chunk - 1) / chunk;
@@ -294,32 +227,37 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
             .chunk = chunk
         },
         .result = result->data,
-        .a = tensor->data,
+        .a = a_buf,
         .b = scalar_data,
         .op = operation
     };
 
     ort_pool_submit(ort_pool_scalar_worker, &ctx, num_chunks);
+    if (a_buf != tensor->data) efree(a_buf);
     return result;
 }
 
 ort_tensor_t* ort_math_result_element_wise_unary(
+    ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor,
     ort_math_unary_op_func_t operation,
     const char* operation_name
 ) {
-    /* Create result tensor with same shape and type as input */
+    /* Create result tensor with same shape and promoted type as input */
     ort_tensor_t* result = ort_math_result_tensor(
         tensor->shape,
         tensor->dimensions,
-        tensor->type, operation_name);
-    
+        promotion ? promotion->result_type : tensor->type, 
+        operation_name);
     if (!result) {
         return NULL;
     }
 
+    /* Upcast input if needed */
+    void* a_buf = ort_math_operation_upcast(result, promotion, tensor->data);
+
     size_t elements = tensor->elements;
-    size_t element_size = php_ort_type_sizeof(tensor->type);
+    size_t element_size = php_ort_type_sizeof(result->type);
     size_t pool_size = ort_pool_cores();
     size_t chunk = (elements + pool_size - 1) / pool_size;
     size_t num_chunks = (elements + chunk - 1) / chunk;
@@ -331,11 +269,14 @@ ort_tensor_t* ort_math_result_element_wise_unary(
             .chunk = chunk
         },
         .result = result->data,
-        .a = tensor->data,
+        .a = a_buf,
         .op = operation
     };
 
     ort_pool_submit(ort_pool_unary_worker, &ctx, num_chunks);
+    if (promotion && promotion->upcast.count) {
+        efree((void*)a_buf);
+    }
     return result;
 }
 

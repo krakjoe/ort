@@ -27,52 +27,30 @@
  * =============================================================================
  */
 
-#define ORT_MATH_SQRT_IMPL_FOR_TYPE(c_type, unused)                          \
-    static zend_always_inline c_type ort_math_sqrt_impl_##c_type(c_type a) { \
-        if (a < 0) {                                                         \
-            return 0;                                                        \
-        }                                                                    \
-        if (a == 0 || a == 1) {                                              \
-            return a;                                                        \
-        }                                                                    \
-        c_type x = a;                                                        \
-        c_type y = (x + 1) / 2;                                              \
-        while (y < x) {                                                      \
-            x = y;                                                           \
-            y = (x + a / x) / 2;                                             \
-        }                                                                    \
-        return x;                                                            \
+#define ORT_MATH_SQRT_IMPL(c_type, onnx_type)     \
+ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {   \
+    c_type* res = (c_type*)result;                \
+    const c_type* va = (const c_type*)a;          \
+    for (size_t i = 0; i < count; i++) {          \
+        res[i] = sqrt(va[i]);                     \
+    }                                             \
 }
 
-ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_SQRT_IMPL_FOR_TYPE)
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SQRT_IMPL)
 
-#define ORT_MATH_SQRT_INTEGER_IMPL(c_type, onnx_type)                \
-    ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {                  \
-    c_type* res = (c_type*)result;                                   \
-    const c_type* va = (const c_type*)a;                             \
-    for (size_t i = 0; i < count; i++) {                             \
-        res[i] = ort_math_sqrt_impl_##c_type(                        \
-            va[i]);                                                  \
-    }                                                                \
+static zend_always_inline ONNXTensorElementDataType ort_math_frontend_sqrt_get_promotion_schema(ONNXTensorElementDataType type) {
+    if (type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+        return type;
+    }
+
+    return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
 }
 
-ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_SQRT_INTEGER_IMPL)
-
-#define ORT_MATH_SQRT_REAL_IMPL(c_type, onnx_type)                           \
-ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {                             \
-    c_type* res = (c_type*)result;                                            \
-    const c_type* va = (const c_type*)a;                                      \
-    for (size_t i = 0; i < count; i++) {                                    \
-        res[i] = sqrt(va[i]);                                               \
-    }                                                                       \
-}
-
-ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SQRT_REAL_IMPL)
-
-static ort_math_unary_op_func_t ort_math_frontend_get_sqrt_func(ONNXTensorElementDataType type) {
+static zend_always_inline ort_math_unary_op_func_t ort_math_frontend_get_sqrt_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->sqrt_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(sqrt, ort_math_frontend_get_sqrt_func)
+ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(sqrt, ort_math_frontend_get_sqrt_func, ort_math_frontend_sqrt_get_promotion_schema)

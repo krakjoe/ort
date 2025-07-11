@@ -41,6 +41,7 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
 
 /* Element-wise unary operation */
 ort_tensor_t* ort_math_result_element_wise_unary(
+    ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor,
     ort_math_unary_op_func_t operation,
     const char* operation_name

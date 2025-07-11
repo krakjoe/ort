@@ -67,7 +67,7 @@ ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_DIV_OP_DECL)
 /* {{{ Frontend Forward Declarations of Square Root Operations */
 #define ORT_MATH_FRONTEND_SQRT_OP_DECL(type, unused) \
         ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, type);
-ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_SQRT_OP_DECL)
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_SQRT_OP_DECL)
 #undef ORT_MATH_FRONTEND_SQRT_OP_DECL /* }}} */
 
 /* {{{ Frontend Forward Declarations of Ceiling Operations */

@@ -266,43 +266,33 @@ ort_math_type_promotion_t ort_math_operation_promote(
 
 #define ORT_MATH_RESULT_STACK_DIMENSIONS 8
 
-void* ort_math_operation_broadcast(const ort_tensor_t* result, const ort_math_type_promotion_t* promotion, ort_tensor_t* input, void* cast) {
-    /* Broadcast input to result shape and upcast to result type */
+// Centralized upcast + broadcast routine for elementwise ops
+void* ort_math_operation_broadcast(
+    const ort_tensor_t* result,
+    const ort_math_type_promotion_t* promotion,
+    const ort_tensor_t* input,
+    void* out_buf
+) {
+    // Broadcast input to result shape and upcast to result type
     int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
     int64_t in_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
     size_t in_offset = result->dimensions - input->dimensions;
-    size_t in_type_size =
-        php_ort_type_sizeof(input->type);
-    size_t out_type_size =
-        php_ort_type_sizeof(promotion->result_type);
-    
+    size_t in_type_size = php_ort_type_sizeof(input->type);
+    size_t out_type_size = php_ort_type_sizeof(promotion->result_type);
     for (size_t i = 0; i < result->elements; ++i) {
-        ort_math_result_multi(i, 
-            result->shape, 
-            result->dimensions, 
-            out_indices);
-
+        ort_math_result_multi(i, result->shape, result->dimensions, out_indices);
         for (size_t d = 0; d < result->dimensions; ++d) {
             in_indices[d] = (d < in_offset) ? 0 :
                 (input->shape[d - in_offset] == 1 ? 0 : out_indices[d]);
         }
-        
         zend_long in_flat = ort_math_result_flat(
             in_indices + in_offset,
             input->shape, input->dimensions);
-        
-        void* src_ptr =
-            (char*) input->data + in_flat * in_type_size;
-        void* dst_ptr =
-            (char*) cast + i * out_type_size;
-        
-        ort_math_cast_element(
-            src_ptr, dst_ptr, 
-            input->type, 
-            promotion->result_type);
+        void* src_ptr = (char*)input->data + in_flat * in_type_size;
+        void* dst_ptr = (char*)out_buf + i * out_type_size;
+        ort_math_cast_element(src_ptr, dst_ptr, input->type, promotion->result_type);
     }
-
-    return cast;
+    return out_buf;
 }
 
 void* ort_math_operation_upcast(

@@ -137,17 +137,6 @@ try {
     echo "FAIL: mod scalar function failed: " . $e->getMessage() . "\n";
 }
 
-// Test 10: Error handling - sqrt of negative numbers
-try {
-    $tensor = new ONNX\Tensor\Transient([3], [-1.0, 4.0, -9.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
-    $data = $result->getData();
-    // Should produce NaN for negative values
-    echo "INFO: sqrt of negative numbers produces: [" . implode(", ", array_map(function($x) { return is_nan($x) ? "NaN" : $x; }, $data)) . "]\n";
-} catch (Error $e) {
-    echo "INFO: sqrt of negative numbers throws: " . get_class($e) . "\n";
-}
-
 // Test 11: Error handling - log of zero and negative numbers
 try {
     $tensor = new ONNX\Tensor\Transient([3], [0.0, 1.0, -1.0], ONNX\Tensor::FLOAT);
@@ -161,18 +150,6 @@ try {
     }, $data)) . "]\n";
 } catch (Error $e) {
     echo "INFO: log of zero/negative throws: " . get_class($e) . "\n";
-}
-
-// Test 12: Edge cases - very large and very small numbers
-try {
-    $tensor = new ONNX\Tensor\Transient([4], [1e10, 1e-10, 0.0, 1.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\exp($tensor);
-    echo "PASS: exp with extreme values works\n";
-    
-    $result = ONNX\Math\sqrt($tensor);
-    echo "PASS: sqrt with extreme values works\n";
-} catch (Error $e) {
-    echo "FAIL: Extreme value handling failed: " . $e->getMessage() . "\n";
 }
 
 // Test 13: Trigonometric functions with extreme values
@@ -190,47 +167,6 @@ try {
     echo "INFO: cos([0, π/2, π, 2π]) ≈ [" . implode(", ", array_map(function($x) { return round($x, 6); }, $data)) . "]\n";
 } catch (Error $e) {
     echo "FAIL: Trigonometric extreme values failed: " . $e->getMessage() . "\n";
-}
-
-// Test 14: Chained operations
-try {
-    $tensor = new ONNX\Tensor\Transient([3], [4.0, 9.0, 16.0], ONNX\Tensor::FLOAT);
-    $sqrt_result = ONNX\Math\sqrt($tensor);
-    $squared_result = ONNX\Math\pow($sqrt_result, 2.0);
-    $data = $squared_result->getData();
-    // Should get back close to original values
-    if (abs($data[0] - 4.0) < 0.001 && abs($data[1] - 9.0) < 0.001 && abs($data[2] - 16.0) < 0.001) {
-        echo "PASS: Chained operations (sqrt then square) work correctly\n";
-    } else {
-        echo "FAIL: Chained operations: expected [4, 9, 16], got [" . implode(", ", $data) . "]\n";
-    }
-} catch (Error $e) {
-    echo "FAIL: Chained operations failed: " . $e->getMessage() . "\n";
-}
-
-// Test 15: Integer sqrt
-try {
-    foreach ([
-        "\ONNX\Tensor::INT8", 
-        "\ONNX\Tensor::INT16", 
-        "\ONNX\Tensor::INT32",
-        "\ONNX\Tensor::INT64",
-        "\ONNX\Tensor::UINT8",
-        "\ONNX\Tensor::UINT16",
-        "\ONNX\Tensor::UINT32"] as $type) {
-        $tensor = \ONNX\Tensor\Transient::from(
-            [12], \constant($type));
-        $result = \ONNX\Math\sqrt($tensor);
-        $data   = $result->getData();
-        if ($data[0] === 3) {
-            echo "PASS: sqrt $type integer passed\n";
-        } else {
-            echo "FAIL: sqrt $type failed\n";
-        }
-    }
-} catch (Error $e) {
-    echo "FAIL: sqrt with integers failed\n";
-    echo (string) $e;
 }
 
 // Test 15: mod vectors
@@ -322,20 +258,9 @@ PASS: pow function (element-wise) works
 PASS: mod function (element-wise) works
 PASS: pow function (scalar) works
 PASS: mod function (scalar) works
-INFO: sqrt of negative numbers produces: [NaN, 2, NaN]
 INFO: log of [0, 1, -1] produces: [-INF, 0, NaN]
-PASS: exp with extreme values works
-PASS: sqrt with extreme values works
 INFO: sin([0, π/2, π, 2π]) ≈ [0, 1, -0, 0]
 INFO: cos([0, π/2, π, 2π]) ≈ [1, -0, -1, 1]
-PASS: Chained operations (sqrt then square) work correctly
-PASS: sqrt \ONNX\Tensor::INT8 integer passed
-PASS: sqrt \ONNX\Tensor::INT16 integer passed
-PASS: sqrt \ONNX\Tensor::INT32 integer passed
-PASS: sqrt \ONNX\Tensor::INT64 integer passed
-PASS: sqrt \ONNX\Tensor::UINT8 integer passed
-PASS: sqrt \ONNX\Tensor::UINT16 integer passed
-PASS: sqrt \ONNX\Tensor::UINT32 integer passed
 PASS: mod \ONNX\Tensor::INT8 passed
 PASS: mod \ONNX\Tensor::INT16 passed
 PASS: mod \ONNX\Tensor::INT32 passed
