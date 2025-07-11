@@ -27,11 +27,22 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
 
+      - name: Cache ONNX Runtime
+        id: cache-ort
+        uses: actions/cache@v4
+        with:
+          path: /onnxruntime-linux-x64-1.22.0.tgz
+          key: onnxruntime-1.22.0-${{ runner.os }}
+
+      - name: Download ONNX Runtime
+        if: steps.cache-ort.outputs.cache-hit != 'true'
+        run: |
+          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
+
       - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
-          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
           sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
           sudo ldconfig
       - name: Install Extension
