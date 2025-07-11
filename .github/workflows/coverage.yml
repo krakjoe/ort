@@ -16,7 +16,7 @@ jobs:
           - avx2
           - sse41
           - sse2
-          - nosimd
+          - frontend
 
     steps:
       - name: Checkout Repository
@@ -47,8 +47,8 @@ jobs:
             sse2)
               ./configure --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
               ;;
-            nosimd)
-              ./configure --disable-ort-simd
+            frontend)
+              ./configure --disable-ort-backend
               ;;
           esac
           make -j$(nproc)

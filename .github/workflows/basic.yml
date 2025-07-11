@@ -16,7 +16,7 @@ jobs:
           - avx2
           - sse41
           - sse2
-          - nosimd
+          - frontend
 
     steps:
       - name: Checkout Repository
@@ -39,16 +39,16 @@ jobs:
           phpize
           case "${{ matrix.simd }}" in
             avx2)
-              ./configure --enable-ort-coverage --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+              ./configure --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
               ;;
             sse41)
-              ./configure --enable-ort-coverage --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2
+              ./configure --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2
               ;;
             sse2)
-              ./configure --enable-ort-coverage --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
+              ./configure --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
               ;;
-            nosimd)
-              ./configure --enable-ort-coverage --disable-ort-simd
+            frontend)
+              ./configure --disable-ort-backend
               ;;
           esac
           make -j$(nproc)
