@@ -313,6 +313,36 @@ ort_tensor_t* ort_math_result_element_wise_unary(
     return result;
 }
 
+ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
+    ort_math_type_promotion_t *promotion,
+    ort_tensor_t* tensor,
+    void (*operation)(void *result, const void *a, size_t n),
+    const char* operation_name
+) {
+    // Output is always a scalar (0-dim tensor)
+    ort_tensor_t* result = ort_math_result_tensor(
+        NULL, 0,
+        promotion ?
+            promotion->result_type :
+                tensor->type,
+        operation_name);
+    if (!result) {
+        return NULL;
+    }
+
+    void* buffer = ort_math_operation_upcast(promotion, tensor->data);
+
+    /* Call the operation directly, no threading */
+    operation(result->data, buffer, tensor->elements);
+
+    /* Free upcasted buffer if necessary */
+    if (promotion && promotion->upcast.count) {
+        efree((void*)buffer);
+    }
+
+    return result;
+}
+
 ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
     ort_math_type_promotion_t *promotion,
     ort_tensor_t* tensor,
@@ -418,6 +448,52 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
 
     if (promotion && promotion->upcast.count) {
         efree((void*)ctx.a);
+    }
+
+    return result;
+}
+
+ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
+    ort_math_type_promotion_t* promotion,
+    ort_tensor_t* tensor,
+    size_t axis,
+    zend_bool keepdims,
+    void (*operation)(void *result, const void *a, size_t outer, size_t as, size_t inner),
+    const char* operation_name,
+    int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
+) {
+    // Calculate output shape
+    size_t result_dims = 0;
+    int64_t* result_shape = shape(
+        tensor, axis, keepdims, &result_dims);
+
+    // Create result tensor
+    ort_tensor_t* result = ort_math_result_tensor(
+        result_shape, result_dims,
+        promotion ?
+            promotion->result_type :
+                tensor->type,
+        operation_name);
+    efree(result_shape);
+
+    // Compute reduction layout (robust for all axis values)
+    size_t outer = 1, inner = 1;
+    if (axis > 0) {
+        for (size_t i = 0; i < axis; ++i)
+            outer *= tensor->shape[i];
+    }
+    if (axis + 1 < tensor->dimensions) {
+        for (size_t i = axis + 1; i < tensor->dimensions; ++i)
+            inner *= tensor->shape[i];
+    }
+
+    void* buffer = ort_math_operation_upcast(promotion, tensor->data);
+
+    operation(
+        result->data, buffer, outer, axis, inner);
+
+    if (promotion && promotion->upcast.count) {
+        efree((void*)buffer);
     }
 
     return result;

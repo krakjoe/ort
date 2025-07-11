@@ -54,8 +54,25 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
     const char* operation_name
 );
 
+ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
+    ort_math_type_promotion_t* promotion,
+    ort_tensor_t* tensor,
+    void (*operation)(void *result, const void *a, size_t n),
+    const char* operation_name
+);
+
 /* Element-wise reduction along axis */
 ort_tensor_t* ort_math_result_element_wise_reduce_axis(
+    ort_math_type_promotion_t* promotion,
+    ort_tensor_t* tensor,
+    size_t axis,
+    zend_bool keepdims,
+    void (*operation)(void *result, const void *a, size_t outer, size_t axis, size_t inner),
+    const char* operation_name,
+    int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
+);
+
+ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor,
     size_t axis,

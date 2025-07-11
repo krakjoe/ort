@@ -143,7 +143,6 @@
             php_ort_tensor_fetch(Z_OBJ_P(return_value));           \
         rv->object = result;                                       \
     }
-
 /* Mathematical functions in ONNX\Math namespace */
 
 ORT_MATH_BINARY_FUNCTION_IMPL(add)
