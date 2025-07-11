@@ -76,7 +76,7 @@ ort_tensor_t* ort_math_result_element_wise_binary(
             tensor_a, tensor_b, operation, operation_name);
     }
 
-    /* Fall back to current broadcasting implementation */
+    /* General path: broadcast and upcast both inputs to result shape/type, then use fast worker */
     ort_math_broadcast_info_t* binfo = ort_math_broadcast_calculate(
         tensor_a->shape, tensor_a->dimensions,
         tensor_b->shape, tensor_b->dimensions);
@@ -106,45 +106,71 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         operation_name
     );
 
+    size_t total = ort_math_result_total(
+        binfo->result_shape, binfo->result_dimensions);
+    size_t element_size = php_ort_type_sizeof(promotion.result_type);
+
+    /* Allocate upcasted, broadcasted buffers for a and b */
+    void* a_buf = emalloc(total * element_size);
+    void* b_buf = emalloc(total * element_size);
+
+    /* Fill a_buf and b_buf with broadcasted, upcasted data */
+    for (size_t i = 0; i < total; ++i) {
+        int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
+        ort_math_result_multi(i, binfo->result_shape, binfo->result_dimensions, out_indices);
+
+        int64_t a_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
+        int64_t b_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
+        for (size_t d = 0; d < binfo->result_dimensions; ++d) {
+            a_indices[d] = (d < binfo->result_dimensions - tensor_a->dimensions) ? 0 :
+                (tensor_a->shape[d - (binfo->result_dimensions - tensor_a->dimensions)] == 1 ? 0 : out_indices[d]);
+            b_indices[d] = (d < binfo->result_dimensions - tensor_b->dimensions) ? 0 :
+                (tensor_b->shape[d - (binfo->result_dimensions - tensor_b->dimensions)] == 1 ? 0 : out_indices[d]);
+        }
+        zend_long a_flat = ort_math_result_flat(
+            a_indices + (binfo->result_dimensions - tensor_a->dimensions),
+            tensor_a->shape, tensor_a->dimensions);
+        zend_long b_flat = ort_math_result_flat(
+            b_indices + (binfo->result_dimensions - tensor_b->dimensions),
+            tensor_b->shape, tensor_b->dimensions);
+
+        void* a_ptr = (char*)tensor_a->data + a_flat * php_ort_type_sizeof(tensor_a->type);
+        void* b_ptr = (char*)tensor_b->data + b_flat * php_ort_type_sizeof(tensor_b->type);
+        void* a_out = (char*)a_buf + i * element_size;
+        void* b_out = (char*)b_buf + i * element_size;
+        
+        ort_math_cast_element(
+            a_ptr, a_out, tensor_a->type, promotion.result_type);
+        ort_math_cast_element(
+            b_ptr, b_out, tensor_b->type, promotion.result_type);
+    }
+
+    /* Create result tensor */
     ort_tensor_t* result = ort_math_result_tensor(
         binfo->result_shape, binfo->result_dimensions, 
         promotion.result_type, operation_name);
 
-    /* Parallel slow patreductionh using thread pool */
-    size_t total = ort_math_result_total(
-        binfo->result_shape, binfo->result_dimensions);
+    /* Use fast worker for the upcasted, broadcasted buffers */
     size_t pool_size = ort_pool_cores();
     size_t chunk = (total + pool_size - 1) / pool_size;
     size_t num_chunks = (total + chunk - 1) / chunk;
 
-    ort_pool_slow_binary_ctx_t ctx = {
+    ort_pool_binary_ctx_t ctx = {
         .layout = {
-            .element = php_ort_type_sizeof(promotion.result_type),
+            .element = element_size,
             .total = total,
             .chunk = chunk
         },
         .result = result->data,
-        .a = tensor_a->data,
-        .b = tensor_b->data,
-        .result_shape = binfo->result_shape,
-        .result_dimensions = binfo->result_dimensions,
-        .a_shape = tensor_a->shape,
-        .a_dimensions = tensor_a->dimensions,
-        .b_shape = tensor_b->shape,
-        .b_dimensions = tensor_b->dimensions,
-        .op = operation,
-        .a_type = tensor_a->type,
-        .b_type = tensor_b->type,
-        .result_type = promotion.result_type,
-        .element_size = php_ort_type_sizeof(promotion.result_type),
-        .a_element_size = php_ort_type_sizeof(tensor_a->type),
-        .b_element_size = php_ort_type_sizeof(tensor_b->type),
-        .a_dim_offset = binfo->result_dimensions - tensor_a->dimensions,
-        .b_dim_offset = binfo->result_dimensions - tensor_b->dimensions
+        .a = a_buf,
+        .b = b_buf,
+        .op = operation
     };
 
-    ort_pool_submit(
-        ort_pool_slow_binary_worker, &ctx, num_chunks);
+    ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
+
+    efree(a_buf);
+    efree(b_buf);
     ort_math_broadcast_free(binfo);
     return result;
 }
@@ -330,7 +356,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
         return NULL;
     }
 
-    void* buffer = ort_math_operation_upcast(promotion, tensor->data);
+    void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
     /* Call the operation directly, no threading */
     operation(result->data, buffer, tensor->elements);
@@ -372,7 +398,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
             .chunk   = 1
         },
         .result   = result->data,
-        .a        = ort_math_operation_upcast(promotion, tensor->data),
+        .a        = ort_math_operation_upcast(result, promotion, tensor->data),
         .elements = elements,
         .op       = operation
     };
@@ -440,7 +466,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
             .inner = inner
         },
         .result = result->data,
-        .a      = ort_math_operation_upcast(promotion, tensor->data),
+        .a      = ort_math_operation_upcast(result, promotion, tensor->data),
         .op     = operation
     };
 
@@ -487,7 +513,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
             inner *= tensor->shape[i];
     }
 
-    void* buffer = ort_math_operation_upcast(promotion, tensor->data);
+    void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
     operation(
         result->data, buffer, outer, axis, inner);

@@ -18,6 +18,8 @@
 
 #include "maths/promotion.h"
 #include "maths/cast.h"
+#include "maths/result.h"
+#include "maths/validate.h"
 
 /* Helper function to check if a type is a signed integer */
 static zend_always_inline int ort_math_promote_is_signed(ONNXTensorElementDataType type) {
@@ -262,7 +264,49 @@ ort_math_type_promotion_t ort_math_operation_promote(
     return promotion;
 }
 
+#define ORT_MATH_RESULT_STACK_DIMENSIONS 8
+
+void* ort_math_operation_broadcast(const ort_tensor_t* result, const ort_math_type_promotion_t* promotion, ort_tensor_t* input, void* cast) {
+    /* Broadcast input to result shape and upcast to result type */
+    int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
+    int64_t in_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
+    size_t in_offset = result->dimensions - input->dimensions;
+    size_t in_type_size =
+        php_ort_type_sizeof(input->type);
+    size_t out_type_size =
+        php_ort_type_sizeof(promotion->result_type);
+    
+    for (size_t i = 0; i < result->elements; ++i) {
+        ort_math_result_multi(i, 
+            result->shape, 
+            result->dimensions, 
+            out_indices);
+
+        for (size_t d = 0; d < result->dimensions; ++d) {
+            in_indices[d] = (d < in_offset) ? 0 :
+                (input->shape[d - in_offset] == 1 ? 0 : out_indices[d]);
+        }
+        
+        zend_long in_flat = ort_math_result_flat(
+            in_indices + in_offset,
+            input->shape, input->dimensions);
+        
+        void* src_ptr =
+            (char*) input->data + in_flat * in_type_size;
+        void* dst_ptr =
+            (char*) cast + i * out_type_size;
+        
+        ort_math_cast_element(
+            src_ptr, dst_ptr, 
+            input->type, 
+            promotion->result_type);
+    }
+
+    return cast;
+}
+
 void* ort_math_operation_upcast(
+    const ort_tensor_t* result,
     const ort_math_type_promotion_t* promotion,
     void* data
 ) {
@@ -273,12 +317,12 @@ void* ort_math_operation_upcast(
 
     for (size_t i = 0; i < promotion->upcast.count; i++) {
         if (promotion->upcast.inputs[i]->data == data) {
-            /* we must return this input data upcast */
 
             void *cast = ecalloc(
                 promotion->upcast.inputs[i]->elements,
                 php_ort_type_sizeof(
-                    promotion->result_type)
+                    promotion->result_type
+                )
             );
 
             ort_math_cast_buffer(

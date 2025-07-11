@@ -53,28 +53,6 @@ typedef struct _ort_pool_scalar_ctx_t {
     void (*op)(void *result, const void *a, const void *b, size_t n);
 } ort_pool_scalar_ctx_t;
 
-typedef struct _ort_pool_slow_binary_ctx_t {
-    ort_pool_ctx_layout_t layout;
-    void *result;
-    void *a;
-    void *b;
-    int64_t *result_shape;
-    size_t result_dimensions;
-    int64_t *a_shape;
-    size_t a_dimensions;
-    int64_t *b_shape;
-    size_t b_dimensions;
-    ONNXTensorElementDataType a_type;
-    ONNXTensorElementDataType b_type;
-    ONNXTensorElementDataType result_type;
-    size_t element_size;
-    size_t a_element_size;
-    size_t b_element_size;
-    size_t a_dim_offset;
-    size_t b_dim_offset;
-    void (*op)(void *result, const void *a, const void *b, size_t n);
-} ort_pool_slow_binary_ctx_t;
-
 typedef struct _ort_pool_reduce_tensor_ctx_t {
     ort_pool_ctx_layout_t layout;
     void *result;
@@ -109,7 +87,6 @@ void ort_pool_destroy(void);
 void ort_pool_binary_worker(void *arg, size_t index, size_t count);
 void ort_pool_unary_worker(void *arg, size_t index, size_t count);
 void ort_pool_scalar_worker(void *arg, size_t index, size_t count);
-void ort_pool_slow_binary_worker(void *arg, size_t index, size_t count);
 
 void ort_pool_reduce_tensor_worker(void *arg, size_t index, size_t count);
 void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count);

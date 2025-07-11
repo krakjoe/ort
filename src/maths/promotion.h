@@ -48,6 +48,7 @@ ort_math_type_promotion_t ort_math_operation_promote(
 );
 
 void* ort_math_operation_upcast(
+    const ort_tensor_t* result,
     const ort_math_type_promotion_t* promotion,
     void* data
 );
