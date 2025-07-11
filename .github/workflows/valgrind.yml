@@ -19,7 +19,7 @@ jobs:
           - nosimd
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up PHP
@@ -27,10 +27,10 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
 
-      - name: Install build dependencies
+      - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
+          sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc valgrind
           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
           sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
           sudo ldconfig
