@@ -50,6 +50,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_SRC_DIR/options.c
     $PHP_ORT_SRC_DIR/iterator.c
     $PHP_ORT_SRC_DIR/maths.c
+    $PHP_ORT_SRC_DIR/alloc.c
   ")
 
   PHP_ORT_MATHS_DIR=$PHP_ORT_SRC_DIR/maths

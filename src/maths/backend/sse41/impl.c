@@ -96,4 +96,7 @@ void ort_math_backend_install(ort_math_dispatch_t* table) {
     /* trunc.c */
     ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   trunc, ort_math_backend_trunc_float);
     ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  trunc, ort_math_backend_trunc_double);
+
+    /* set allocation alignment to SSE41 vector length */
+    ort_alloc_align(16);
 }

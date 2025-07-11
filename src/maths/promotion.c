@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
  */
 
+#include "alloc.h"
 #include "maths/promotion.h"
 #include "maths/cast.h"
 #include "maths/result.h"
@@ -308,7 +309,7 @@ void* ort_math_operation_upcast(
     for (size_t i = 0; i < promotion->upcast.count; i++) {
         if (promotion->upcast.inputs[i]->data == data) {
 
-            void *cast = ecalloc(
+            void *cast = ort_alloc(
                 promotion->upcast.inputs[i]->elements,
                 php_ort_type_sizeof(
                     promotion->result_type

@@ -18,6 +18,7 @@
 
 #include "ort.h"
 
+#include "alloc.h"
 #include "tensor.h"
 #include "status.h"
 
@@ -338,7 +339,7 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_persistent(ort_tenso
     if (tensor->dimensions == 0) {
         tensor->shape    = NULL;  // No shape array needed for scalars
         tensor->elements = 1;     // A scalar has exactly one element
-        tensor->data     = pecalloc(php_ort_tensor_sizeof(tensor), 1, 1);
+        tensor->data     = ort_alloc(php_ort_tensor_sizeof(tensor), 1);
         
         return php_ort_tensor_flatten(tensor, &offset, php_ort_tensor_sizeof(tensor), data, 0);
     }
@@ -354,7 +355,8 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_persistent(ort_tenso
         tensor->elements *= size;
     } ZEND_HASH_FOREACH_END();
 
-    tensor->data = pecalloc(php_ort_tensor_sizeof(tensor), tensor->elements, 1);
+    tensor->data = ort_alloc(
+        php_ort_tensor_sizeof(tensor), tensor->elements);
 
     return php_ort_tensor_flatten(tensor, &offset, php_ort_tensor_sizeof(tensor), data, 0);
 }
@@ -372,7 +374,7 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_transient(ort_tensor
     if (tensor->dimensions == 0) {
         tensor->shape    = NULL;  // No shape array needed for scalars
         tensor->elements = 1;     // A scalar has exactly one element
-        tensor->data     = ecalloc(1, php_ort_tensor_sizeof(tensor));
+        tensor->data     = ort_alloc(1, php_ort_tensor_sizeof(tensor));
         
         return php_ort_tensor_flatten(tensor, &offset, php_ort_tensor_sizeof(tensor), data, 0);
     }
@@ -388,7 +390,8 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_transient(ort_tensor
         tensor->elements *= size;
     } ZEND_HASH_FOREACH_END();
 
-    tensor->data = ecalloc(tensor->elements, php_ort_tensor_sizeof(tensor));
+    tensor->data = ort_alloc(
+        php_ort_tensor_sizeof(tensor), tensor->elements);
 
     return php_ort_tensor_flatten(tensor, &offset, php_ort_tensor_sizeof(tensor), data, 0);
 }
@@ -402,7 +405,7 @@ static void ort_tensor_free(ort_tensor_t *tensor) {
     }
 
     if (!tensor->parent && tensor->data && !tensor->value) {
-        pefree(tensor->data, persistent);
+        ort_free(tensor->data);
     }
 
     if (tensor->value) {

@@ -18,6 +18,7 @@
 #include <math.h>
 
 #include "status.h"
+#include "alloc.h"
 
 #include "maths/cast.h"
 #include "maths/codegen.h"
@@ -99,7 +100,7 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
     const void* a_data = a->data;
     const void* b_data = b->data;
     if (a->type != promotion.result_type) {
-        a_buf = pecalloc(a->elements, element_size, 0);
+        a_buf = ort_alloc(element_size, a->elements);
         for (size_t i = 0; i < a->elements; i++) {
             ort_math_cast_element((char*)a->data + i * php_ort_tensor_sizeof(a),
                                  (char*)a_buf + i * element_size,
@@ -108,7 +109,7 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         a_data = a_buf;
     }
     if (b->type != promotion.result_type) {
-        b_buf = pecalloc(b->elements, element_size, 0);
+        b_buf = ort_alloc(element_size, b->elements);
         for (size_t i = 0; i < b->elements; i++) {
             ort_math_cast_element((char*)b->data + i * php_ort_tensor_sizeof(b),
                                  (char*)b_buf + i * element_size,
@@ -120,11 +121,11 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
     operation(result->data, a_data, b_data, a->elements);
 
     if (a_buf) {
-        pefree(a_buf, 0);
+        ort_free(a_buf);
     }
 
     if (b_buf) {
-        pefree(b_buf, 0);
+        ort_free(b_buf);
     }
 
     return result;

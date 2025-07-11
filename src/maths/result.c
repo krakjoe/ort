@@ -17,6 +17,7 @@
  */
 
 #include "status.h"
+#include "alloc.h"
 #include "maths/broadcast.h"
 #include "maths/cast.h"
 #include "maths/promotion.h"
@@ -111,12 +112,12 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         promotion.result_type, operation_name);
 
     /* Upcast and broadcast both inputs to result buffer */
-    void* a_buf = ecalloc(
-        result->elements,
-        php_ort_type_sizeof(promotion.result_type));
-    void* b_buf = ecalloc(
-        result->elements, 
-        php_ort_type_sizeof(promotion.result_type));
+    void* a_buf = ort_alloc(
+        php_ort_type_sizeof(promotion.result_type),
+        result->elements);
+    void* b_buf = ort_alloc(
+        php_ort_type_sizeof(promotion.result_type),
+        result->elements);
     ort_math_operation_broadcast(
         result,
         &promotion,
@@ -145,8 +146,8 @@ ort_tensor_t* ort_math_result_element_wise_binary(
 
     ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
 
-    efree(a_buf);
-    efree(b_buf);
+    ort_free(a_buf);
+    ort_free(b_buf);
     ort_math_broadcast_free(binfo);
     return result;
 }
@@ -209,7 +210,8 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
                 "%s: unsupported tensor type for scalar operation",
                 operation_name);
             ort_tensor_release(result);
-            if (a_buf != tensor->data) efree(a_buf);
+            if (a_buf != tensor->data) 
+                ort_free(a_buf);
             return NULL;
     }
 
@@ -233,7 +235,8 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
     };
 
     ort_pool_submit(ort_pool_scalar_worker, &ctx, num_chunks);
-    if (a_buf != tensor->data) efree(a_buf);
+    if (a_buf != tensor->data)
+        ort_free(a_buf);
     return result;
 }
 
@@ -275,7 +278,7 @@ ort_tensor_t* ort_math_result_element_wise_unary(
 
     ort_pool_submit(ort_pool_unary_worker, &ctx, num_chunks);
     if (promotion && promotion->upcast.count) {
-        efree((void*)a_buf);
+        ort_free((void*)a_buf);
     }
     return result;
 }
@@ -304,7 +307,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
 
     /* Free upcasted buffer if necessary */
     if (promotion && promotion->upcast.count) {
-        efree((void*)buffer);
+        ort_free((void*)buffer);
     }
 
     return result;
@@ -349,7 +352,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
 
     /* Free upcasted buffer if necessary */
     if (promotion && promotion->upcast.count) {
-        efree((void*)ctx.a);
+        ort_free((void*)ctx.a);
     }
 
     return result;
@@ -414,7 +417,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
     ort_pool_submit(ort_pool_reduce_axis_worker, &ctx, num_chunks);
 
     if (promotion && promotion->upcast.count) {
-        efree((void*)ctx.a);
+        ort_free((void*)ctx.a);
     }
 
     return result;
@@ -460,7 +463,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
         result->data, buffer, outer, axis, inner);
 
     if (promotion && promotion->upcast.count) {
-        efree((void*)buffer);
+        ort_free((void*)buffer);
     }
 
     return result;
@@ -495,9 +498,10 @@ ort_tensor_t* ort_math_result_tensor(
         tensor->elements = 1; // Scalar tensor has 1 element
     }
     
-    /* Allocate data */
-    size_t element_size = php_ort_tensor_sizeof(tensor);
-    tensor->data = pecalloc(tensor->elements, element_size, 0);
+    /* Allocate data */;
+    tensor->data = ort_alloc(
+        php_ort_tensor_sizeof(tensor),
+        tensor->elements);
     
     /* Generate name */
     char name_buffer[64];

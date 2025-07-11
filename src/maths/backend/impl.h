@@ -25,6 +25,7 @@
 #include "config.h"
 #endif
 
+#include "alloc.h"
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 #include "maths/frontend/impl.h"

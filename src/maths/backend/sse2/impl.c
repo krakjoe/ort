@@ -75,4 +75,8 @@ void ort_math_backend_install(ort_math_dispatch_t* table) {
     ORT_MATH_DISPATCH_INSTALL(table, UINT8,   sub, ort_math_backend_sub_uint8_t);
     ORT_MATH_DISPATCH_INSTALL(table, UINT16,  sub, ort_math_backend_sub_uint16_t);
     ORT_MATH_DISPATCH_INSTALL(table, UINT32,  sub, ort_math_backend_sub_uint32_t);
-}
+
+
+    /* set allocation alignment to SSE2 vector length */
+    ort_alloc_align(16);
+  }
