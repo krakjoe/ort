@@ -12,11 +12,11 @@ jobs:
     strategy:
       matrix:
         php: [ '8.1', '8.2', '8.3', '8.4' ]
-        simd:
+        backend:
           - avx2
           - sse41
           - sse2
-          - frontend
+          - none
 
     steps:
       - name: Checkout Repository
@@ -37,7 +37,7 @@ jobs:
       - name: Install Extension
         run: |
           phpize
-          case "${{ matrix.simd }}" in
+          case "${{ matrix.backend }}" in
             avx2)
               ./configure --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
               ;;
@@ -47,7 +47,7 @@ jobs:
             sse2)
               ./configure --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
               ;;
-            frontend)
+            none)
               ./configure --disable-ort-backend
               ;;
           esac
@@ -61,5 +61,5 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: tests-php${{ matrix.php }}-${{ matrix.simd }}
+          name: tests-php${{ matrix.php }}-${{ matrix.backend }}
           path: tests/
