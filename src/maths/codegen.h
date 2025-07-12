@@ -244,6 +244,23 @@ ort_tensor_t* ort_math_result_##func_name(                                   \
     return ort_math_result_element_wise_unary(&promotion, tensor, op_func, #func_name);  \
 }
 
+#define ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(func_name, getter_func, schema) \
+ort_tensor_t* ort_math_result_##func_name(                                   \
+    ort_tensor_t* tensor) {                                                  \
+    if (!ort_math_validate_input(tensor, #func_name)) {                      \
+        return NULL;                                                         \
+    }                                                                        \
+    ort_math_type_promotion_t promotion =                                    \
+        ort_math_type_promote_schema_unary(schema, tensor);                  \
+    ort_math_unary_op_func_t op_func = getter_func(promotion.result_type);   \
+    if (!op_func) {                                                          \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,             \
+            #func_name ": unsupported data type for mathematical function"); \
+        return NULL;                                                         \
+    }                                                                        \
+    return ort_math_result_element_wise_unary(&promotion, tensor, op_func, #func_name);  \
+}
+
 #define ORT_MATH_SERIAL_REDUCE_TENSOR_RESULT_IMPL(func_name, getter_func, validate_tensor_func) \
 ort_tensor_t* ort_math_result_serial_reduce_tensor_##func_name(                     \
     ort_tensor_t* tensor) {                                                  \

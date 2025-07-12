@@ -64,6 +64,117 @@ static zend_always_inline ONNXTensorElementDataType ort_math_promote_unsigned(ON
     return ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8;
 }
 
+static zend_always_inline int ort_math_type_promotion_schema_lookup(const ONNXTensorElementDataType* list, int size, ONNXTensorElementDataType type) {
+    for (int i = 0; i < size; ++i) {
+        if (list[i] == type) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// Get binary promotion type from schema
+static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_binary(
+    const ort_math_type_promotion_schema_t* schema,
+    ONNXTensorElementDataType a_type,
+    ONNXTensorElementDataType b_type
+) {
+    int i = ort_math_type_promotion_schema_lookup(
+        schema->indices, schema->size, a_type);
+    int j = ort_math_type_promotion_schema_lookup(
+        schema->indices, schema->size, b_type);
+    
+    if (i < 0 || j < 0)
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED;
+
+    return schema->table[i * schema->size + j];
+}
+
+// Get unary promotion type from schema
+static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_unary(
+    const ort_math_type_promotion_schema_t* schema,
+    ONNXTensorElementDataType t_type
+) {
+    int i = ort_math_type_promotion_schema_lookup(
+        schema->indices, schema->size, t_type);
+    
+    if (i < 0)
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED;
+
+    return schema->table[i];
+}
+
+ort_math_type_promotion_t ort_math_type_promote_schema_binary(
+    const ort_math_type_promotion_schema_t* schema,
+    ort_tensor_t* tensor_a,
+    ort_tensor_t* tensor_b
+) {
+    ort_math_type_promotion_t promotion = {
+        .result_type =
+            ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
+        .is_valid = 0,
+        .upcast = {
+            .inputs = { 
+                NULL, NULL
+            },
+            .count = 0
+        }
+    };
+
+    ONNXTensorElementDataType resolved =
+        ort_math_type_promotion_schema_resolve_binary(
+            schema, tensor_a->type, tensor_b->type);
+
+    if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
+        promotion.result_type = resolved;
+        promotion.is_valid = 1;
+
+        if (tensor_a->type != promotion.result_type) {
+            promotion.upcast.inputs[0] = tensor_a;
+            promotion.upcast.count++;
+        }
+        if (tensor_b->type != promotion.result_type) {
+            promotion.upcast.inputs[1] = tensor_b;
+            promotion.upcast.count++;
+        }
+    }
+
+    return promotion;
+}
+
+ort_math_type_promotion_t ort_math_type_promote_schema_unary(
+    const ort_math_type_promotion_schema_t* schema,
+    ort_tensor_t* tensor
+) {
+    ort_math_type_promotion_t promotion = {
+        .result_type =
+            ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
+        .is_valid = 0,
+        .upcast = {
+            .inputs = { 
+                NULL, NULL
+            },
+            .count = 0
+        }
+    };
+
+    ONNXTensorElementDataType resolved =
+        ort_math_type_promotion_schema_resolve_unary(schema, tensor->type);
+
+    if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
+        promotion.result_type = resolved;
+        promotion.is_valid = 1;
+
+        if (tensor->type != promotion.result_type) {
+            promotion.upcast.inputs[0] = tensor;
+            promotion.upcast.count++;
+        }
+    }
+
+    return promotion;
+}
+
 /* Type promotion implementation (permissive, for elementwise ops) */
 ort_math_type_promotion_t ort_math_type_promote(
     ort_tensor_t* tensor_a,

@@ -31,6 +31,25 @@ typedef struct _ort_math_type_promotion_t {
     } upcast;
 } ort_math_type_promotion_t;
 
+typedef struct _ort_math_type_promotion_schema_t {
+    // 2D mapping: [a_type][b_type] = result_type
+    // Types are ONNXTensorElementDataType, but must be mapped to indices by the frontend unit
+    const ONNXTensorElementDataType* table;    // flat array [size * size]
+    const ONNXTensorElementDataType* indices;  // array [size]
+    int size; // length of indices
+} ort_math_type_promotion_schema_t;
+
+ort_math_type_promotion_t ort_math_type_promote_schema_binary(
+    const ort_math_type_promotion_schema_t* schema,
+    ort_tensor_t* tensor_a,
+    ort_tensor_t* tensor_b
+);
+
+ort_math_type_promotion_t ort_math_type_promote_schema_unary(
+    const ort_math_type_promotion_schema_t* schema,
+    ort_tensor_t* tensor
+);
+
 ort_math_type_promotion_t ort_math_type_promote(
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b
