@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend real operations for tensors
+ @test tests/math/real
+*/
+
 #include "ort.h"
 
 #include "status.h"
@@ -24,7 +29,7 @@
 #include "maths/dispatch.h"
 
 /* =============================================================================
- * UNARY MATHEMATICAL FUNCTIONS
+ * REAL MATHEMATICAL FUNCTIONS
  * =============================================================================
  */
 
@@ -61,7 +66,7 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(func_name, c_type) {                \
     }                                                                              \
 }
 
-/* Generate all mathematical functions */
+/* Generate all real mathematical functions */
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(sin, sinf, sin)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(cos, cosf, cos)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(tan, tanf, tan)
@@ -128,7 +133,7 @@ ORT_MATH_FOREACH_INTEGER_TYPE_EX(
 ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc) /* }}} */
 
 /* =============================================================================
- * PUBLIC INTERFACE FUNCTIONS FOR UNARY MATHEMATICAL OPERATIONS
+ * PUBLIC INTERFACE FUNCTIONS FOR REAL MATHEMATICAL OPERATIONS
  * =============================================================================
  */
 
