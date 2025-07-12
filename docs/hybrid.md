@@ -18,7 +18,7 @@ ONNX\Math\add($tensors[0], $tensors[1]);
 
 Where tensors are large enough for vectorization, the call to `ONNX\Math\add` will, on a typical 24-core AVX2 machine, result in:
 
-  - The input tensors are split into 24 chunks (one per core/thread in the pool).
+  - Input tensors are split into 24 chunks (one per core/thread in the pool).
   - Each worker thread processes its chunk independently and in parallel.
   - Within each thread, the backend (e.g., AVX2) processes multiple elements at once using SIMD vector instructions (e.g., 8 floats per AVX2 instruction).
   - This means each core is executing vectorized math on its chunk, while all cores are working simultaneously.
@@ -29,6 +29,12 @@ Where tensors are large enough for vectorization, the call to `ONNX\Math\add` wi
 - If the backend vector width is 8 (e.g., AVX2 for float32), then at peak throughput, the CPU can execute 24 (cores) × 8 (SIMD width) = 192 additions simultaneously in a single cycle.
 
 **There can't be a way to execute math on the cpu any faster!**
+
+#### Considerations
+
+This describes a perfect-world scenario, where are there is no contention for resources or other bottlenecks. Threads are not magic sauce, in practice you may need to tune the number of threads available to achieve optimal performance.
+
+The world isn't perfect ... the point of this architecture is not to make sure that 192 additions per cycle is achieved, but rather to ensure than the CPU may be maximally utilized by all means possible.
 
 ## [1] Interpreters
 
