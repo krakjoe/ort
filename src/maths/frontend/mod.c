@@ -15,6 +15,11 @@
   | Author: krakjoe                                                      |
   +----------------------------------------------------------------------+
  */
+
+/*
+ @brief Implements frontend modulo operations for tensors
+ @test tests/math/mod
+*/
 #include <math.h>
 
 #include "status.h"

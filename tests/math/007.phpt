@@ -84,15 +84,6 @@ try {
     echo "PASS: matmul() correctly rejects dimension mismatch\n";
 }
 
-// Test 10: pow with edge cases
-try {
-    $tensor = new ONNX\Tensor\Transient([3], [0.0, 1.0, -1.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\pow($tensor, 2.0);
-    echo "PASS: pow() handles edge values (0, 1, -1)\n";
-} catch (Error $e) {
-    echo "ERROR: pow() failed on edge values: " . $e->getMessage() . "\n";
-}
-
 echo "\n=== Testing Data Type Conversions ===\n";
 
 // Test 11: Mixed integer/float operations
@@ -149,7 +140,6 @@ PASS: sqrt() handles negative values correctly (NaN for -1, 2 for 4)
 PASS: multiply() handles large numbers
 PASS: add() handles small numbers
 PASS: matmul() correctly rejects dimension mismatch
-PASS: pow() handles edge values (0, 1, -1)
 
 === Testing Data Type Conversions ===
 PASS: add() handles INT32 tensor with float scalar

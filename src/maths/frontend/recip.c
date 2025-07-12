@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend reciprocal operations for tensors
+ @test tests/math/recip
+*/
+
 #include <math.h>
 
 #include "status.h"

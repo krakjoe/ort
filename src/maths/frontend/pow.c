@@ -15,6 +15,11 @@
   | Author: krakjoe                                                      |
   +----------------------------------------------------------------------+
  */
+
+/*
+ @brief Implements frontend power operations for tensors
+ @test tests/math/pow
+*/
 #include <math.h>
 
 #include "status.h"
@@ -113,13 +118,9 @@ void ort_math_frontend_pow_scalar_double(void* result, const void* a, const void
 }
 
 static ort_math_scalar_op_func_t ort_math_frontend_get_pow_scalar_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_POW_SCALAR_CASE(c_type, onnx_type) \
-    ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, pow)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_POW_SCALAR_CASE)
-#undef ORT_MATH_POW_SCALAR_CASE
-        default: return NULL;
-    }
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
+    return dispatch->pow_scalar_func;
 }
 
 ORT_MATH_BINARY_RESULT_IMPL(pow, ort_math_frontend_get_pow_func)

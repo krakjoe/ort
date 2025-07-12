@@ -15,6 +15,12 @@
   | Author: krakjoe                                                      |
   +----------------------------------------------------------------------+
  */
+
+/*
+ @brief Implements frontend square root operations for tensors
+ @test tests/math/sqrt
+*/
+
 #include <math.h>
 
 #include "status.h"

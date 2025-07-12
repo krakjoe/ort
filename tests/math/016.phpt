@@ -47,26 +47,6 @@ try {
     echo "PARTIAL: Division by zero: " . $e->getMessage() . "\n";
 }
 
-// Test 4: pow operations with floating point
-try {
-    $base = new ONNX\Tensor\Transient([2, 2], [[2.0, 3.0], [4.0, 5.0]], ONNX\Tensor::FLOAT);
-    $exponent = new ONNX\Tensor\Transient([2, 2], [[2.0, 2.0], [2.0, 2.0]], ONNX\Tensor::FLOAT);
-    
-    $result = ONNX\Math\pow($base, $exponent);
-    echo "PASS: pow operations completed\n";
-} catch (Error $e) {
-    echo "FAIL: pow operations failed: " . $e->getMessage() . "\n";
-}
-
-// Test 5: Scalar pow operations
-try {
-    $tensor = new ONNX\Tensor\Transient([3], [2.0, 3.0, 4.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\pow($tensor, 3);  // Cube each element
-    echo "PASS: Scalar pow operations completed\n";
-} catch (Error $e) {
-    echo "FAIL: Scalar pow operations failed: " . $e->getMessage() . "\n";
-}
-
 echo "Element-wise operation tests completed.\n";
 ?>
 --EXPECT--
@@ -74,6 +54,4 @@ echo "Element-wise operation tests completed.\n";
 PASS: INT32 element-wise operations completed
 PASS: DOUBLE element-wise operations completed
 PASS: Division by zero handled (produces inf)
-PASS: pow operations completed
-PASS: Scalar pow operations completed
 Element-wise operation tests completed.

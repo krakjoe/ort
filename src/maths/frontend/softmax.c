@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend softmax operations for tensors
+ @test tests/math/reduce/softmax
+*/
+
 #include <math.h>
 
 #include "status.h"

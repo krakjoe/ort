@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend mean operations for tensors
+ @test tests/math/reduce/mean
+*/
+
 #include <math.h>
 
 #include "status.h"

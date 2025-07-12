@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend max operations for tensors
+ @test tests/math/reduce/max
+*/
+
 #include <math.h>
 
 #include "status.h"

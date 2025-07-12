@@ -133,17 +133,6 @@ try {
     echo "PARTIAL: sqrt on boolean throws: " . get_class($e) . "\n";
 }
 
-// Test 12: Power function type restrictions
-try {
-    $tensor_int = new ONNX\Tensor\Transient([2], [2, 3], ONNX\Tensor::INT32);
-    $result = ONNX\Math\power($tensor_int, 2.0);
-    echo "INFO: Power with integer base\n";
-} catch (ONNX\Status\Math\InvalidType $e) {
-    echo "PASS: Power correctly restricts to float types\n";
-} catch (Error $e) {
-    echo "INFO: Power with integer: " . get_class($e) . "\n";
-}
-
 // Test 13: Division by zero handling across types
 try {
     $tensor_float = new ONNX\Tensor\Transient([2], [10.0, 20.0], ONNX\Tensor::FLOAT);
@@ -176,7 +165,6 @@ PASS: Scalar broadcasting works
 PASS: Incompatible broadcasting shapes correctly rejected: %s
 %a
 PASS: Same type tensors work correctly
-%a
 %a
 %a
 %a

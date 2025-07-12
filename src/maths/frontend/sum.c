@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend sum operations for tensors
+ @test tests/math/reduce/sum
+*/
+
 #include <math.h>
 
 #include "status.h"

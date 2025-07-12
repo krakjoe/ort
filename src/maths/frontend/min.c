@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend min operations for tensors
+ @test tests/math/reduce/min
+*/
+
 #include <math.h>
 
 #include "status.h"
