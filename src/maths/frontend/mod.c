@@ -26,27 +26,44 @@
  * MODULO OPERATIONS
  * =============================================================================
  */
-ORT_MATH_FRONTEND_BINARY_OP_DECL(mod, float) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmodf(va[i], vb[i]);
+
+
+#define ORT_MATH_MOD_IMPL_FOR_TYPE(c_type, unused)               \
+    static zend_always_inline c_type ort_math_mod_impl_##c_type( \
+        c_type a, c_type b) {                                    \
+        if (b == 0) return 0;                                    \
+        c_type r = a % b;                                        \
+        if ((r != 0) && ((b < 0) != (r < 0)))                    \
+            r += b;                                              \
+        return r;                                                \
     }
+
+ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_IMPL_FOR_TYPE)
+
+static zend_always_inline float ort_math_mod_impl_float(float a, float b) {
+    float r = fmodf(a, b);
+    return 
+        (r < 0) ? r + b : r;
 }
 
-ORT_MATH_FRONTEND_BINARY_OP_DECL(mod, double) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmod(va[i], vb[i]);
-    }
+static zend_always_inline double ort_math_mod_impl_double(double a, double b) {
+    double r = fmod(a, b);
+    return 
+        (r < 0) ? r + b : r;
 }
 
-#define ORT_MATH_MOD_IMPL(c_type, onnx_type) \
-    ORT_MATH_BINARY_OP_IMPL(mod, c_type, onnx_type, %)
-ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_IMPL)
+#define ORT_MATH_MOD_IMPL(c_type, onnx_type)                        \
+    ORT_MATH_FRONTEND_BINARY_OP_DECL(mod, c_type) {                 \
+    c_type* res = (c_type*)result;                                  \
+    const c_type* va = (const c_type*)a;                            \
+    const c_type* vb = (const c_type*)b;                            \
+    for (size_t i = 0; i < count; i++) {                            \
+        res[i] = ort_math_mod_impl_##c_type(                        \
+            va[i], vb[i]);                                          \
+    }                                                               \
+}
+
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MOD_IMPL)
 
 static ort_math_element_op_func_t ort_math_frontend_get_mod_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
@@ -54,36 +71,22 @@ static ort_math_element_op_func_t ort_math_frontend_get_mod_func(ONNXTensorEleme
     return dispatch->mod_func;
 }
 
-void ort_math_frontend_mod_scalar_float(void* result, const void* a, const void* b, size_t count) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    float sb = *(const float*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmodf(va[i], sb);
-    }
+#define ORT_MATH_MOD_SCALAR_IMPL(c_type, onnx_type)                 \
+    ORT_MATH_FRONTEND_SCALAR_OP_DECL(mod, c_type) {                 \
+    c_type* res = (c_type*)result;                                  \
+    const c_type* va = (const c_type*)a;                            \
+    const c_type sb = *(const c_type*)b;                            \
+    for (size_t i = 0; i < count; i++) {                            \
+        res[i] = ort_math_mod_impl_##c_type(va[i], sb);             \
+    }                                                               \
 }
 
-void ort_math_frontend_mod_scalar_double(void* result, const void* a, const void* b, size_t count) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    double sb = *(const double*)b;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = fmod(va[i], sb);
-    }
-}
-
-#define ORT_MATH_MOD_SCALAR_IMPL(c_type, onnx_type) \
-    ORT_MATH_SCALAR_OP_IMPL(mod, c_type, onnx_type, %)
-ORT_MATH_FOREACH_INTEGER_TYPE(ORT_MATH_MOD_SCALAR_IMPL)
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MOD_SCALAR_IMPL)
 
 static ort_math_scalar_op_func_t ort_math_frontend_get_mod_scalar_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_MOD_SCALAR_CASE(c_type, onnx_type) \
-    ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, mod)
-        ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MOD_SCALAR_CASE)
-#undef ORT_MATH_MOD_SCALAR_CASE
-        default: return NULL;
-    }
+    ort_math_dispatch_t* dispatch =
+        (ort_math_dispatch_t*)ort_math_dispatch_type(type);
+    return dispatch->mod_scalar_func;
 }
 
 ORT_MATH_BINARY_RESULT_IMPL(mod, ort_math_frontend_get_mod_func)

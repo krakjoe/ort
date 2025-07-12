@@ -94,6 +94,8 @@
 #define ORT_MATH_FRONTEND_UNARY_OP_DECL(op, type)                     \
     void ORT_MATH_FRONTEND_OP_SYMBOL(op, type)(                       \
         void* result, const void* a, size_t count)
+#define ORT_MATH_FRONTEND_SCALAR_OP_DECL(op, type)                   \
+    ORT_MATH_FRONTEND_BINARY_OP_DECL(op##_scalar, type)
 #define ORT_MATH_FRONTEND_MATMUL_OP_DECL(type)                        \
     void ORT_MATH_FRONTEND_OP_SYMBOL(matmul, type)(                   \
         void* result, const void* a, const void* b,                   \

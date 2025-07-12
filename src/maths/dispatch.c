@@ -50,6 +50,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = ort_math_frontend_mean_float,
         .mean_axis_func  = ort_math_frontend_mean_axis_float,
         .softmax_axis_func = ort_math_frontend_softmax_axis_float,
+
+        .mod_func        = ort_math_frontend_mod_float,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_float,
     },
     /* DOUBLE */
     {
@@ -80,6 +83,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = ort_math_frontend_mean_double,
         .mean_axis_func  = ort_math_frontend_mean_axis_double,
         .softmax_axis_func = ort_math_frontend_softmax_axis_double,
+
+        .mod_func        = ort_math_frontend_mod_double,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_double,
     },
     /* INT8 */
     {
@@ -110,6 +116,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+
+        .mod_func        = ort_math_frontend_mod_int8_t,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_int8_t,
     },
     /* INT16 */
     {
@@ -140,6 +149,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+
+        .mod_func        = ort_math_frontend_mod_int16_t,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_int16_t,
     },
     /* INT32 */
     {
@@ -170,6 +182,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+        
+        .mod_func        = ort_math_frontend_mod_int32_t,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_int32_t,
     },
     /* INT64 */
     {
@@ -200,6 +215,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+
+        .mod_func        = ort_math_frontend_mod_int64_t,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_int64_t,
     },
     /* UINT8 */
     {
@@ -230,6 +248,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+
+        .mod_func        = ort_math_frontend_mod_uint8_t,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_uint8_t,
     },
     /* UINT16 */
     {
@@ -260,6 +281,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+
+        .mod_func        = ort_math_frontend_mod_uint16_t,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_uint16_t,
     },
     /* UINT32 */
     {
@@ -290,6 +314,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+
+        .mod_func        = ort_math_frontend_mod_uint32_t,
+        .mod_scalar_func = ort_math_frontend_mod_scalar_uint32_t,
     },
     /* BOOL */
     {
@@ -320,6 +347,9 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_func       = NULL,
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
+
+        .mod_func        = NULL,
+        .mod_scalar_func = NULL,
     }
 };
 

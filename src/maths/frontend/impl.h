@@ -125,6 +125,12 @@ ORT_MATH_FOREACH_SIGNED_TYPE(ORT_MATH_FRONTEND_SIGN_OP_DECL)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_MOD_OP_DECL)
 #undef ORT_MATH_FRONTEND_MOD_OP_DECL /* }}} */
 
+/* {{{ Frontend Forward Declarations of Scalar Modulo Operations */
+#define ORT_MATH_FRONTEND_MOD_SCALAR_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_SCALAR_OP_DECL(mod, type);
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_MOD_SCALAR_OP_DECL)
+#undef ORT_MATH_FRONTEND_MOD_SCALAR_OP_DECL /* }}} */
+
 /* {{{ Frontend Forward Declarations of Power Operations */
 #define ORT_MATH_FRONTEND_POW_OP_DECL(type, unused) \
         ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, type);
