@@ -15,8 +15,8 @@
   | Author: krakjoe                                                      |
   +----------------------------------------------------------------------+
  */
-#ifndef HAVE_ORT_MATHS_SCHEMA_ADD
-#define HAVE_ORT_MATHS_SCHEMA_ADD
+#ifndef HAVE_ORT_MATHS_SCHEMA_RECIP
+#define HAVE_ORT_MATHS_SCHEMA_RECIP
 
 #include "maths/promotion.h"
 

@@ -16,18 +16,22 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend div operations for tensors
+ @test tests/math/div
+*/
+
 #include <math.h>
 
 #include "status.h"
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
+#include "maths/schema/div.h"
 
 #define ORT_MATH_DIV_IMPL(c_type, onnx_type) \
     ORT_MATH_BINARY_OP_IMPL(div, c_type, onnx_type, /)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DIV_IMPL)
-ORT_MATH_BINARY_OP_IMPL(div, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, &&)
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_DIV_IMPL)
 
 static ort_math_element_op_func_t 
     ort_math_frontend_get_div_func(ONNXTensorElementDataType type) {
@@ -38,20 +42,14 @@ static ort_math_element_op_func_t
 
 #define ORT_MATH_DIV_SCALAR_IMPL(c_type, onnx_type) \
     ORT_MATH_SCALAR_OP_IMPL(div, c_type, onnx_type, /)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DIV_SCALAR_IMPL)
-ORT_MATH_SCALAR_OP_IMPL(div, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, &&)
+ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_DIV_SCALAR_IMPL)
 
 static ort_math_scalar_op_func_t 
     ort_math_frontend_get_div_scalar_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_DIV_SCALAR_CASE(c_type, onnx_type) \
-    ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, div)
-        ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_DIV_SCALAR_CASE)
-#undef ORT_MATH_DIV_SCALAR_CASE
-        default: return NULL;
-    }
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
+    return dispatch->div_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(divide,   ort_math_frontend_get_div_func)
-ORT_MATH_SCALAR_RESULT_IMPL(divide,   ort_math_frontend_get_div_scalar_func)
+ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(divide,   ort_math_frontend_get_div_func, &ort_math_promotion_schema_div)
+ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(divide,   ort_math_frontend_get_div_scalar_func, &ort_math_promotion_schema_div)

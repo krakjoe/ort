@@ -55,22 +55,6 @@ try {
     echo "FAIL: Boolean multiplication failed: " . $e->getMessage() . "\n";
 }
 
-// Test 4: Boolean tensor division (same as AND)
-try {
-    $tensor_a = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $tensor_b = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\divide($tensor_a, $tensor_b);
-    $data = $result->getData();
-    // AND: [true && true, false && false] = [true, false]
-    if ($data[0] === true && $data[1] === false) {
-        echo "PASS: Boolean division (AND) works correctly\n";
-    } else {
-        echo "FAIL: Boolean division result: " . json_encode($data) . "\n";
-    }
-} catch (Error $e) {
-    echo "FAIL: Boolean division failed: " . $e->getMessage() . "\n";
-}
-
 // Test 5: Boolean scalar operations - addition (using 0/1 for false/true)
 try {
     $tensor = new ONNX\Tensor\Transient([3], [true, false, true], ONNX\Tensor::BOOL);
@@ -116,21 +100,6 @@ try {
     echo "FAIL: Boolean scalar multiplication failed: " . $e->getMessage() . "\n";
 }
 
-// Test 8: Boolean scalar division
-try {
-    $tensor = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\divide($tensor, 1); // 1 = true
-    $data = $result->getData();
-    // AND: [true && true, false && true] = [true, false]
-    if ($data[0] === true && $data[1] === false) {
-        echo "PASS: Boolean scalar division works correctly\n";
-    } else {
-        echo "FAIL: Boolean scalar division result: " . json_encode($data) . "\n";
-    }
-} catch (Error $e) {
-    echo "FAIL: Boolean scalar division failed: " . $e->getMessage() . "\n";
-}
-
 // Test 9: Boolean negation (logical NOT)
 try {
     $tensor = new ONNX\Tensor\Transient([4], [true, false, true, false], ONNX\Tensor::BOOL);
@@ -153,10 +122,8 @@ echo "Boolean tensor operation tests completed!\n";
 PASS: Boolean addition (OR) works correctly
 PASS: Boolean subtraction (AND NOT) works correctly
 PASS: Boolean multiplication (AND) works correctly
-PASS: Boolean division (AND) works correctly
 PASS: Boolean scalar addition works correctly
 PASS: Boolean scalar subtraction works correctly
 PASS: Boolean scalar multiplication works correctly
-PASS: Boolean scalar division works correctly
 PASS: Boolean negation (NOT) works correctly
 Boolean tensor operation tests completed!

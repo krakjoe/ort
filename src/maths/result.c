@@ -30,6 +30,7 @@
 
 static zend_always_inline ort_tensor_t* 
     ort_math_result_element_wise_binary_fast(
+    ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
     ort_math_element_op_func_t operation,
@@ -39,10 +40,12 @@ static zend_always_inline ort_tensor_t*
     ort_tensor_t* result = ort_math_result_tensor(
         tensor_a->shape, 
         tensor_a->dimensions,
-        tensor_a->type, operation_name);
+        promotion ? 
+            promotion->result_type :
+                tensor_a->type, operation_name);
 
     size_t elements = tensor_a->elements;
-    size_t element_size = php_ort_type_sizeof(tensor_a->type);
+    size_t element_size = php_ort_type_sizeof(result->type);
     size_t pool_size = ort_pool_cores();
     size_t chunk = (elements + pool_size - 1) / pool_size;
     size_t num_chunks = (elements + chunk - 1) / chunk;
@@ -54,12 +57,24 @@ static zend_always_inline ort_tensor_t*
             .chunk = chunk
         },
         .result = result->data,
-        .a = tensor_a->data,
-        .b = tensor_b->data,
+        .a = ort_math_operation_upcast(result, promotion, tensor_a->data),
+        .b = ort_math_operation_upcast(result, promotion, tensor_b->data),
         .op = operation
     };
 
     ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
+
+    if (promotion && promotion->upcast.count) {
+        for (size_t i = 0; i < promotion->upcast.count; ++i) {
+            if (promotion->upcast.inputs[i] &&
+                promotion->upcast.inputs[i]->data == ctx.a) {
+                ort_free((void*)ctx.a);
+            } else if (promotion->upcast.inputs[i] &&
+                       promotion->upcast.inputs[i]->data == ctx.b) {
+                ort_free((void*)ctx.b);
+            }
+        }
+    }
 
     return result;
 }
@@ -75,7 +90,7 @@ ort_tensor_t* ort_math_result_element_wise_binary(
     /* Fast path: identical shapes and types */
     if (ort_math_validate_identity(tensor_a, tensor_b)) {
         return ort_math_result_element_wise_binary_fast(
-            tensor_a, tensor_b, operation, operation_name);
+            promotion, tensor_a, tensor_b, operation, operation_name);
     }
 
     /* General path: use centralized upcast/broadcast logic */

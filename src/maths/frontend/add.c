@@ -29,11 +29,6 @@
 #include "maths/dispatch.h"
 #include "maths/schema/add.h"
 
-/* =============================================================================
- * ADD OPERATIONS
- * =============================================================================
- */
-
 #define ORT_MATH_ADD_IMPL(c_type, onnx_type) \
     ORT_MATH_BINARY_OP_IMPL(add, c_type, onnx_type, +)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_ADD_IMPL)
