@@ -1,5 +1,5 @@
 --TEST--
-ONNX\Math\sub: tensor - tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
+ONNX\Math\subtract: tensor - tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
 --EXTENSIONS--
 ort
 --FILE--

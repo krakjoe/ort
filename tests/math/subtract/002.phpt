@@ -1,5 +1,5 @@
 --TEST--
-ONNX\Math\sub: tensor - scalar, all types, numpy/onnx semantics
+ONNX\Math\subtract: tensor - scalar, all types, numpy/onnx semantics
 --EXTENSIONS--
 ort
 --FILE--
