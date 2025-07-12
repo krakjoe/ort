@@ -39,10 +39,19 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(recip, double) {
     }
 }
 
+static zend_always_inline ONNXTensorElementDataType ort_math_frontend_recip_get_promotion_schema(ONNXTensorElementDataType type) {
+    if (type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+        return type;
+    }
+
+    return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
+}
+
 static ort_math_unary_op_func_t ort_math_frontend_get_recip_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->recip_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(recip, ort_math_frontend_get_recip_func)
+ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(recip, ort_math_frontend_get_recip_func, ort_math_frontend_recip_get_promotion_schema)

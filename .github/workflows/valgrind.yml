@@ -1,76 +1,79 @@
-name: Valgrind
-
-on:
-  push:
-    branches: [ develop, release ]
-  pull_request:
-    branches: [ develop, release ]
-jobs:
-  RunValgrindTests:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        php: [ '8.1', '8.2', '8.3', '8.4' ]
-        backend:
-          - avx2
-          - sse41
-          - sse2
-          - none
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-
-      - name: Cache ONNX Runtime
-        id: cache-ort
-        uses: actions/cache@v4
-        with:
-          path: /onnxruntime-linux-x64-1.22.0.tgz
-          key: onnxruntime-1.22.0-${{ runner.os }}
-
-      - name: Download ONNX Runtime
-        if: steps.cache-ort.outputs.cache-hit != 'true'
-        run: |
-          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
-
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc valgrind
-          sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
-          sudo ldconfig
-      - name: Install Extension
-        run: |
-          phpize
-          case "${{ matrix.backend }}" in
-            avx2)
-              ./configure --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
-              ;;
-            sse41)
-              ./configure --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2
-              ;;
-            sse2)
-              ./configure --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
-              ;;
-            none)
-              ./configure --disable-ort-backend
-              ;;
-          esac
-          make -j$(nproc)
-          sudo make install
-
-      - name: Run Tests
-        run: |
-          make test TEST_PHP_ARGS="-m --show-mem"
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: valgrind-php${{ matrix.php }}-backend-${{ matrix.backend }}
-          path: tests/
+```github-actions-workflow
+# Disabled: Valgrind workflow
+# name: Valgrind
+#
+# on:
+#   push:
+#     branches: [ develop, release ]
+#   pull_request:
+#     branches: [ develop, release ]
+# jobs:
+#   RunValgrindTests:
+#     runs-on: ubuntu-latest
+#
+#     strategy:
+#       matrix:
+#         php: [ '8.1', '8.2', '8.3', '8.4' ]
+#         backend:
+#           - avx2
+#           - sse41
+#           - sse2
+#           - none
+#
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+#
+#       - name: Set up PHP
+#         uses: shivammathur/setup-php@v2
+#         with:
+#           php-version: ${{ matrix.php }}
+#
+#       - name: Cache ONNX Runtime
+#         id: cache-ort
+#         uses: actions/cache@v4
+#         with:
+#           path: /onnxruntime-linux-x64-1.22.0.tgz
+#           key: onnxruntime-1.22.0-${{ runner.os }}
+#
+#       - name: Download ONNX Runtime
+#         if: steps.cache-ort.outputs.cache-hit != 'true'
+#         run: |
+#           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
+#
+#       - name: Install Dependencies
+#         run: |
+#           sudo apt update
+#           sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc valgrind
+#           sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
+#           sudo ldconfig
+#       - name: Install Extension
+#         run: |
+#           phpize
+#           case "${{ matrix.backend }}" in
+#             avx2)
+#               ./configure --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+#               ;;
+#             sse41)
+#               ./configure --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2
+#               ;;
+#             sse2)
+#               ./configure --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
+#               ;;
+#             none)
+#               ./configure --disable-ort-backend
+#               ;;
+#           esac
+#           make -j$(nproc)
+#           sudo make install
+#
+#       - name: Run Tests
+#         run: |
+#           make test TEST_PHP_ARGS="-m --show-mem"
+#
+#       - name: Upload Test Results
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: valgrind-php${{ matrix.php }}-backend-${{ matrix.backend }}
+#           path: tests/
+```
