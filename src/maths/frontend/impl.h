@@ -73,7 +73,7 @@ ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_SQRT_OP_DECL)
 /* {{{ Frontend Forward Declarations of Ceiling Operations */
 #define ORT_MATH_FRONTEND_CEIL_OP_DECL(type, unused) \
         ORT_MATH_FRONTEND_UNARY_OP_DECL(ceil, type);
-ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_CEIL_OP_DECL)
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_CEIL_OP_DECL)
 #undef ORT_MATH_FRONTEND_CEIL_OP_DECL /* }}} */
 
 /* {{{ Frontend Forward Declarations of Floor Operations */
@@ -97,7 +97,7 @@ ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_TRUNC_OP_DECL)
 /* {{{ Frontend Forward Declarations of Absolute Operations */
 #define ORT_MATH_FRONTEND_ABS_OP_DECL(type, unused) \
         ORT_MATH_FRONTEND_UNARY_OP_DECL(abs, type);
-ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_ABS_OP_DECL)
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_ABS_OP_DECL)
 #undef ORT_MATH_FRONTEND_ABS_OP_DECL /* }}} */
 
 /* {{{ Frontend Forward Declarations of Negation Operations */

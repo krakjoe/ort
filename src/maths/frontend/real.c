@@ -78,8 +78,36 @@ ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(log2, log2f, log2)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(log10, log10f, log10)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(cbrt, cbrtf, cbrt)
 
-ORT_MATH_REAL_EXPORT_WITH_DISPATCH(abs, fabsf, fabs)
-ORT_MATH_REAL_EXPORT_WITH_DISPATCH(ceil, ceilf, ceil)
+/* {{{ */
+#define ORT_MATH_REAL_EXPORT_ABS_FOR_INTEGERS(c_type, unused)       \
+ORT_MATH_FRONTEND_UNARY_OP_DECL(abs, c_type) {                      \
+    c_type* res = (c_type*)result;                                  \
+    const c_type* va = (const c_type*)a;                            \
+    for (size_t i = 0; i < count; i++) {                            \
+        res[i] = va[i] < 0 ? -va[i] : va[i];                        \
+    }                                                               \
+}
+
+ORT_MATH_FOREACH_INTEGER_TYPE(
+    ORT_MATH_REAL_EXPORT_ABS_FOR_INTEGERS)
+
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(abs, fabsf, fabs) /* }}} */
+
+/* {{{ */
+#define ORT_MATH_REAL_EXPORT_CEIL_FOR_INTEGERS(c_type, unused)      \
+ORT_MATH_FRONTEND_UNARY_OP_DECL(ceil, c_type) {                     \
+    c_type* res = (c_type*)result;                                  \
+    const c_type* va = (const c_type*)a;                            \
+    for (size_t i = 0; i < count; i++) {                            \
+        res[i] = va[i];                                             \
+    }                                                               \
+}
+
+ORT_MATH_FOREACH_INTEGER_TYPE(
+    ORT_MATH_REAL_EXPORT_CEIL_FOR_INTEGERS)
+
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(ceil, ceilf, ceil) /* }}} */
+
 ORT_MATH_REAL_EXPORT_WITH_DISPATCH(floor, floorf, floor)
 ORT_MATH_REAL_EXPORT_WITH_DISPATCH(round, roundf, round)
 ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc)
