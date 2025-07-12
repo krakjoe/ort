@@ -50,6 +50,12 @@ ort_math_type_promotion_t ort_math_type_promote_schema_unary(
     ort_tensor_t* tensor
 );
 
+ort_math_type_promotion_t ort_math_type_promote_schema_scalar(
+    const ort_math_type_promotion_schema_t* schema,
+    ort_tensor_t* tensor,
+    zval* scalar
+);
+
 ort_math_type_promotion_t ort_math_type_promote(
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b

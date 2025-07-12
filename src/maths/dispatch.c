@@ -25,6 +25,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
         .add_func        = ort_math_frontend_add_float,
+        .add_scalar_func = ort_math_frontend_add_scalar_float,
+
         .sub_func        = ort_math_frontend_sub_float,
         .mul_func        = ort_math_frontend_mul_float,
         .div_func        = ort_math_frontend_div_float,
@@ -59,6 +61,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
         .add_func        = ort_math_frontend_add_double,
+        .add_scalar_func = ort_math_frontend_add_scalar_double,
+
         .sub_func        = ort_math_frontend_sub_double,
         .mul_func        = ort_math_frontend_mul_double,
         .div_func        = ort_math_frontend_div_double,
@@ -93,6 +97,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
         .add_func        = ort_math_frontend_add_int8_t,
+        .add_scalar_func = ort_math_frontend_add_scalar_int8_t,
+
         .sub_func        = ort_math_frontend_sub_int8_t,
         .mul_func        = ort_math_frontend_mul_int8_t,
         .div_func        = ort_math_frontend_div_int8_t,
@@ -127,6 +133,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
         .add_func        = ort_math_frontend_add_int16_t,
+        .add_scalar_func = ort_math_frontend_add_scalar_int16_t,
+
         .sub_func        = ort_math_frontend_sub_int16_t,
         .mul_func        = ort_math_frontend_mul_int16_t,
         .div_func        = ort_math_frontend_div_int16_t,
@@ -161,6 +169,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
         .add_func        = ort_math_frontend_add_int32_t,
+        .add_scalar_func = ort_math_frontend_add_scalar_int32_t,
+
         .sub_func        = ort_math_frontend_sub_int32_t,
         .mul_func        = ort_math_frontend_mul_int32_t,
         .div_func        = ort_math_frontend_div_int32_t,
@@ -195,6 +205,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,
         .add_func        = ort_math_frontend_add_int64_t,
+        .add_scalar_func = ort_math_frontend_add_scalar_int64_t,
+
         .sub_func        = ort_math_frontend_sub_int64_t,
         .mul_func        = ort_math_frontend_mul_int64_t,
         .div_func        = ort_math_frontend_div_int64_t,
@@ -229,6 +241,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,
         .add_func        = ort_math_frontend_add_uint8_t,
+        .add_scalar_func = ort_math_frontend_add_scalar_uint8_t,
+
         .sub_func        = ort_math_frontend_sub_uint8_t,
         .mul_func        = ort_math_frontend_mul_uint8_t,
         .div_func        = ort_math_frontend_div_uint8_t,
@@ -264,6 +278,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,
         .add_func        = ort_math_frontend_add_uint16_t,
+        .add_scalar_func = ort_math_frontend_add_scalar_uint16_t,
+
         .sub_func        = ort_math_frontend_sub_uint16_t,
         .mul_func        = ort_math_frontend_mul_uint16_t,
         .div_func        = ort_math_frontend_div_uint16_t,
@@ -298,6 +314,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,
         .add_func        = ort_math_frontend_add_uint32_t,
+        .add_scalar_func = ort_math_frontend_add_scalar_uint32_t,
+
         .sub_func        = ort_math_frontend_sub_uint32_t,
         .mul_func        = ort_math_frontend_mul_uint32_t,
         .div_func        = ort_math_frontend_div_uint32_t,
@@ -331,16 +349,18 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     /* BOOL */
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
-        .add_func        = ort_math_frontend_add_zend_bool,   // Logical OR (or addition)
-        .sub_func        = ort_math_frontend_sub_zend_bool,   // Logical XOR (or subtraction)
-        .mul_func        = ort_math_frontend_mul_zend_bool,   // Logical AND (or multiplication)
-        .div_func        = ort_math_frontend_div_zend_bool,   // Logical division (A && B)
+        .add_func        = ort_math_frontend_add_zend_bool,          // Logical OR (or addition)
+        .add_scalar_func = ort_math_frontend_add_scalar_zend_bool,   // Logical OR (or addition)
+
+        .sub_func        = ort_math_frontend_sub_zend_bool,          // Logical XOR (or subtraction)
+        .mul_func        = ort_math_frontend_mul_zend_bool,          // Logical AND (or multiplication)
+        .div_func        = ort_math_frontend_div_zend_bool,          // Logical division (A && B)
         .ceil_func       = NULL,                         // Not meaningful for bool
         .floor_func      = NULL,                         // Not meaningful for bool
         .round_func      = NULL,                         // Not meaningful for bool
         .abs_func        = NULL,                         // Identity for bool
         .sqrt_func       = NULL,                         // Not meaningful for bool
-        .neg_func        = ort_math_frontend_neg_zend_bool,   // Logical NOT
+        .neg_func        = ort_math_frontend_neg_zend_bool,         // Logical NOT
         .recip_func      = NULL,                         // Not meaningful for bool
         .sign_func       = NULL,                         // Identity for bool
         .trunc_func      = NULL,                         // Not meaningful for bool

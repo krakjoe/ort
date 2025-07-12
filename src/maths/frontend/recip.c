@@ -27,48 +27,7 @@
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
-
-/* =============================================================================
- * RECIP PROMOTION SCHEMA
- * =============================================================================
- */
-
-/* {{{ 
-@extract python3 tests/fixtures/extract.py -c 'lambda x: 1.0 / x' -n recip -u
-/* }}} */
-static const ONNXTensorElementDataType ort_math_promotion_schema_table_recip[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int8 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint8 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // bool -> float64
-};
-
-static const ONNXTensorElementDataType ort_math_promotion_schema_indices_recip[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
-};
-
-static const ort_math_type_promotion_schema_t ort_math_promotion_schema_recip = {
-    .table   = ort_math_promotion_schema_table_recip,
-    .indices = ort_math_promotion_schema_indices_recip,
-    .size    = 11
-};
+#include "maths/schema/recip.h"
 
 /* =============================================================================
  * RECIP OPERATIONS

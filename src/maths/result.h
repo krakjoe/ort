@@ -25,6 +25,7 @@
 
 /* Element-wise binary operation */
 ort_tensor_t* ort_math_result_element_wise_binary(
+    ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
     ort_math_element_op_func_t operation,
@@ -33,6 +34,7 @@ ort_tensor_t* ort_math_result_element_wise_binary(
 
 /* Element-wise scalar operation */
 ort_tensor_t* ort_math_result_element_wise_scalar(
+    ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor,
     zval* scalar,
     ort_math_scalar_op_func_t operation,

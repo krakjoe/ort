@@ -27,48 +27,7 @@
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
-
-/* =============================================================================
- * SQRT PROMOTION SCHEMA
- * =============================================================================
- */
-
-/* {{{ 
-@extract python3 tests/fixtures/extract.py -f sqrt -n sqrt -u
-/* }}} */
-static const ONNXTensorElementDataType ort_math_promotion_schema_table_sqrt[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // int8 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // int16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // uint8 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // uint16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // bool -> float16
-};
-
-static const ONNXTensorElementDataType ort_math_promotion_schema_indices_sqrt[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
-};
-
-static const ort_math_type_promotion_schema_t ort_math_promotion_schema_sqrt = {
-    .table   = ort_math_promotion_schema_table_sqrt,
-    .indices = ort_math_promotion_schema_indices_sqrt,
-    .size    = 11
-};
+#include "maths/schema/sqrt.h"
 
 /* =============================================================================
  * SQRT OPERATIONS

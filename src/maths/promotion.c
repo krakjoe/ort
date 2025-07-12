@@ -105,6 +105,98 @@ static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_sche
     return schema->table[i];
 }
 
+// Improved: Map PHP scalar to tensor dtype for int/float/bool, else fallback
+static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_zend(ONNXTensorElementDataType tensor_type, zend_long zend_type) {
+    switch (zend_type) {
+        case IS_TRUE:
+        case IS_FALSE:
+            // Only allow BOOL if tensor is BOOL
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL) {
+                return ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL;
+            }
+            // Otherwise, treat as int (NumPy: bool+int -> int)
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32) {
+                return tensor_type;
+            }
+            // Otherwise, treat as float
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+                return tensor_type;
+            }
+            return ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL;
+        case IS_LONG:
+            // If tensor is BOOL, cast to BOOL (NumPy: int + bool -> bool)
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL) {
+                return ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL;
+            }
+            // Use tensor's dtype if it's an integer type
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32) {
+                return tensor_type;
+            }
+            // If tensor is float, treat as float
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+                return tensor_type;
+            }
+            // Fallback
+            return ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64;
+        case IS_DOUBLE:
+            // Use tensor's dtype if it's a float type
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+                return tensor_type;
+            }
+            // If tensor is integer, promote to float
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32) {
+                // Use float if available, else double
+                if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
+                    return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
+                return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
+            }
+            return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
+        default:
+            return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED;
+    }
+}
+
+// Get scalar promotion type from schema
+static zend_always_inline ONNXTensorElementDataType 
+    ort_math_type_promotion_schema_resolve_scalar(
+    const ort_math_type_promotion_schema_t* schema,
+    ONNXTensorElementDataType onnx_type,
+    zend_long zend_type
+) {
+    int i = ort_math_type_promotion_schema_lookup(
+        schema->indices, schema->size, onnx_type);
+    int j = ort_math_type_promotion_schema_lookup(
+        schema->indices, schema->size,
+            ort_math_type_promotion_schema_resolve_zend(
+                onnx_type, zend_type));
+    
+    if (i < 0 || j < 0)
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED;
+
+    return schema->table[i * schema->size + j];
+}
+
 ort_math_type_promotion_t ort_math_type_promote_schema_binary(
     const ort_math_type_promotion_schema_t* schema,
     ort_tensor_t* tensor_a,
@@ -161,6 +253,40 @@ ort_math_type_promotion_t ort_math_type_promote_schema_unary(
 
     ONNXTensorElementDataType resolved =
         ort_math_type_promotion_schema_resolve_unary(schema, tensor->type);
+
+    if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
+        promotion.result_type = resolved;
+        promotion.is_valid = 1;
+
+        if (tensor->type != promotion.result_type) {
+            promotion.upcast.inputs[0] = tensor;
+            promotion.upcast.count++;
+        }
+    }
+
+    return promotion;
+}
+
+ort_math_type_promotion_t ort_math_type_promote_schema_scalar(
+    const ort_math_type_promotion_schema_t* schema,
+    ort_tensor_t* tensor,
+    zval* scalar
+) {
+    ort_math_type_promotion_t promotion = {
+        .result_type =
+            ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
+        .is_valid = 0,
+        .upcast = {
+            .inputs = { 
+                NULL, NULL
+            },
+            .count = 0
+        }
+    };
+
+    ONNXTensorElementDataType resolved =
+        ort_math_type_promotion_schema_resolve_scalar(
+            schema, tensor->type, Z_TYPE_P(scalar));
 
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
         promotion.result_type = resolved;

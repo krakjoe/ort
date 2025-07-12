@@ -22,49 +22,7 @@
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
-
-
-/* =============================================================================
- * SIGN PROMOTION SCHEMA
- * =============================================================================
- */
-
-/* {{{ 
-@extract python3 tests/fixtures/extract.py -f sign -n sign -u
-/* }}} */
-static const ONNXTensorElementDataType ort_math_promotion_schema_table_sign[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,         // int8 -> int8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // int16 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int32 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,        // uint8 -> uint8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,       // uint16 -> uint16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // uint32 -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,    // bool -> UNDEFINED
-};
-
-static const ONNXTensorElementDataType ort_math_promotion_schema_indices_sign[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
-};
-
-static const ort_math_type_promotion_schema_t ort_math_promotion_schema_sign = {
-    .table   = ort_math_promotion_schema_table_sign,
-    .indices = ort_math_promotion_schema_indices_sign,
-    .size    = 11
-};
+#include "maths/schema/sign.h"
 
 /* =============================================================================
  * SIGN OPERATIONS

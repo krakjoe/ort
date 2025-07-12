@@ -66,6 +66,7 @@ static zend_always_inline ort_tensor_t*
 
 /* Element-wise operation helpers implementation */
 ort_tensor_t* ort_math_result_element_wise_binary(
+    ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
     ort_math_element_op_func_t operation,
@@ -93,38 +94,25 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         operation_name
     );
 
-    ort_math_type_promotion_t promotion = ort_math_type_promote(tensor_a, tensor_b);
-
-    php_ort_status_flow(
-        !promotion.is_valid,
-        {
-            ort_math_broadcast_free(binfo);
-            return NULL;
-        },
-        php_ort_status_math_invalidtype_ce,
-        "%s: incompatible tensor types",
-        operation_name
-    );
-
     /* Create result tensor */
     ort_tensor_t* result = ort_math_result_tensor(
         binfo->result_shape, binfo->result_dimensions,
-        promotion.result_type, operation_name);
+        promotion->result_type, operation_name);
 
     /* Upcast and broadcast both inputs to result buffer */
     void* a_buf = ort_alloc(
-        php_ort_type_sizeof(promotion.result_type),
+        php_ort_type_sizeof(promotion->result_type),
         result->elements);
     void* b_buf = ort_alloc(
-        php_ort_type_sizeof(promotion.result_type),
+        php_ort_type_sizeof(promotion->result_type),
         result->elements);
     ort_math_operation_broadcast(
         result,
-        &promotion,
+        promotion,
         tensor_a, a_buf);
     ort_math_operation_broadcast(
         result,
-        &promotion,
+        promotion,
         tensor_b, b_buf);
 
     /* Use fast worker for the upcasted, broadcasted buffers */
@@ -134,7 +122,7 @@ ort_tensor_t* ort_math_result_element_wise_binary(
 
     ort_pool_binary_ctx_t ctx = {
         .layout = {
-            .element = php_ort_type_sizeof(promotion.result_type),
+            .element = php_ort_type_sizeof(promotion->result_type),
             .total = result->elements,
             .chunk = chunk
         },
@@ -153,28 +141,25 @@ ort_tensor_t* ort_math_result_element_wise_binary(
 }
 
 ort_tensor_t* ort_math_result_element_wise_scalar(
+    ort_math_type_promotion_t* promotion,
     ort_tensor_t* tensor,
     zval* scalar,
     ort_math_scalar_op_func_t operation,
     const char* operation_name
 ) {
-    /* Promote type if needed */
-    ort_math_type_promotion_t promotion = ort_math_operation_promote(tensor->type, 1, tensor);
-    ONNXTensorElementDataType result_type = promotion.result_type;
-
     /* Create result tensor with same shape and promoted type as input */
     ort_tensor_t* result = ort_math_result_tensor(
         tensor->shape,
         tensor->dimensions,
-        result_type, operation_name);
+        promotion ? promotion->result_type : tensor->type, operation_name);
 
     /* Upcast input if needed */
-    void* a_buf = ort_math_operation_upcast(result, &promotion, tensor->data);
+    void* a_buf = ort_math_operation_upcast(result, promotion, tensor->data);
 
     /* Convert scalar to promoted type */
     uint8_t scalar_buffer[16];
     void* scalar_data = scalar_buffer;
-    switch (result_type) {
+    switch (result->type) {
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
             *(float*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ? (float)Z_DVAL_P(scalar) : (float)Z_LVAL_P(scalar);
             break;
@@ -217,7 +202,7 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
 
     /* Parallelize scalar operation */
     size_t elements = tensor->elements;
-    size_t element_size = php_ort_type_sizeof(result_type);
+    size_t element_size = php_ort_type_sizeof(result->type);
     size_t pool_size = ort_pool_cores();
     size_t chunk = (elements + pool_size - 1) / pool_size;
     size_t num_chunks = (elements + chunk - 1) / chunk;

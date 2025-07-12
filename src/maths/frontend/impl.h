@@ -42,9 +42,15 @@
 
 /* {{{ Frontend Forward Declarations of Addition Operations */
 #define ORT_MATH_FRONTEND_ADD_OP_DECL(type, unused) \
-        ORT_MATH_FRONTEND_BINARY_OP_DECL(add, type);
-ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_ADD_OP_DECL)
+        ORT_MATH_FRONTEND_BINARY_OP_DECL(add, type); 
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_ADD_OP_DECL);
 #undef ORT_MATH_FRONTEND_ADD_OP_DECL /* }}} */
+
+/* {{{ Frontend Forward Declarations of Scalar Addition Operations */
+#define ORT_MATH_FRONTEND_ADD_SCALAR_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_SCALAR_OP_DECL(add, type); 
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_ADD_SCALAR_OP_DECL);
+#undef ORT_MATH_FRONTEND_ADD_SCALAR_OP_DECL /* }}} */
 
 /* {{{ Frontend Forward Declarations of Subtraction Operations */
 #define ORT_MATH_FRONTEND_SUB_OP_DECL(type, unused) \
