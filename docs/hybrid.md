@@ -34,7 +34,7 @@ Where tensors are large enough for vectorization, the call to `ONNX\Math\add` wi
 
 This describes a perfect-world scenario, where are there is no contention for resources or other bottlenecks. Threads are not magic sauce, in practice you may need to tune the number of threads available to achieve optimal performance.
 
-The world isn't perfect ... the point of this architecture is not to make sure that 192 additions per cycle is achieved, but rather to ensure than the CPU may be maximally utilized by all means possible.
+The world isn't perfect ... the point of this architecture is not to make sure that 192 additions per cycle is achieved, but rather to ensure that the CPU may be maximally utilized by all means possible.
 
 ## [1] Interpreters
 
