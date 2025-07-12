@@ -94,23 +94,38 @@ ORT_MATH_FOREACH_INTEGER_TYPE(
 ORT_MATH_REAL_EXPORT_WITH_DISPATCH(abs, fabsf, fabs) /* }}} */
 
 /* {{{ */
-#define ORT_MATH_REAL_EXPORT_CEIL_FOR_INTEGERS(c_type, unused)      \
-ORT_MATH_FRONTEND_UNARY_OP_DECL(ceil, c_type) {                     \
+#define ORT_MATH_REAL_EXPORT_DUMMY_FOR_INTEGERS(c_type, unused, name)      \
+ORT_MATH_FRONTEND_UNARY_OP_DECL(name, c_type) {                     \
     c_type* res = (c_type*)result;                                  \
     const c_type* va = (const c_type*)a;                            \
     for (size_t i = 0; i < count; i++) {                            \
         res[i] = va[i];                                             \
     }                                                               \
-}
+} /* }}} */
 
-ORT_MATH_FOREACH_INTEGER_TYPE(
-    ORT_MATH_REAL_EXPORT_CEIL_FOR_INTEGERS)
+/* {{{ */
+ORT_MATH_FOREACH_INTEGER_TYPE_EX(
+    ORT_MATH_REAL_EXPORT_DUMMY_FOR_INTEGERS, ceil)
 
 ORT_MATH_REAL_EXPORT_WITH_DISPATCH(ceil, ceilf, ceil) /* }}} */
 
-ORT_MATH_REAL_EXPORT_WITH_DISPATCH(floor, floorf, floor)
-ORT_MATH_REAL_EXPORT_WITH_DISPATCH(round, roundf, round)
-ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc)
+/* {{{ */
+ORT_MATH_FOREACH_INTEGER_TYPE_EX(
+    ORT_MATH_REAL_EXPORT_DUMMY_FOR_INTEGERS, floor)
+
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(floor, floorf, floor) /* }}} */
+
+/* {{{ */
+ORT_MATH_FOREACH_INTEGER_TYPE_EX(
+    ORT_MATH_REAL_EXPORT_DUMMY_FOR_INTEGERS, round)
+
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(round, roundf, round) /* }}} */
+
+/* {{{  */
+ORT_MATH_FOREACH_INTEGER_TYPE_EX(
+    ORT_MATH_REAL_EXPORT_DUMMY_FOR_INTEGERS, trunc)
+
+ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc) /* }}} */
 
 /* =============================================================================
  * PUBLIC INTERFACE FUNCTIONS FOR UNARY MATHEMATICAL OPERATIONS

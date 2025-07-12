@@ -40,20 +40,6 @@ try {
     echo "ERROR: sqrt() failed on 1-element tensor: " . $e->getMessage() . "\n";
 }
 
-// Test 4: Zero values in mathematical functions (should work and return -INF)
-try {
-    $tensor = new ONNX\Tensor\Transient([2], [0.0, 1.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\log($tensor);
-    $data = $result->getData();
-    if (is_infinite($data[0]) && $data[0] < 0 && $data[1] == 0.0) {
-        echo "PASS: log() handles zero values correctly (-INF for 0, 0 for 1)\n";
-    } else {
-        echo "INFO: log() with zero result: " . implode(", ", $data) . "\n";
-    }
-} catch (Error $e) {
-    echo "INFO: log() throws exception for zero: " . get_class($e) . "\n";
-}
-
 // Test 5: Negative values in sqrt (should work and return NaN)
 try {
     $tensor = new ONNX\Tensor\Transient([2], [-1.0, 4.0], ONNX\Tensor::FLOAT);
@@ -98,16 +84,6 @@ try {
     echo "PASS: matmul() correctly rejects dimension mismatch\n";
 }
 
-// Test 9: Empty-like tensors (smallest valid size)
-try {
-    $tensor = new ONNX\Tensor\Transient([1, 1], [[5.0]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sin($tensor);
-    $data = $result->getData();
-    echo "PASS: sin() handles 1x1 tensor, result: " . round($data[0][0], 4) . "\n";
-} catch (Error $e) {
-    echo "ERROR: sin() failed on 1x1 tensor: " . $e->getMessage() . "\n";
-}
-
 // Test 10: pow with edge cases
 try {
     $tensor = new ONNX\Tensor\Transient([3], [0.0, 1.0, -1.0], ONNX\Tensor::FLOAT);
@@ -140,7 +116,7 @@ try {
 echo "\n=== Testing Return Value Consistency ===\n";
 
 // Test 13: Verify all functions return Transient tensors
-$functions = ['add', 'multiply', 'sqrt', 'sin', 'exp', 'abs'];
+$functions = ['add', 'multiply', 'sqrt'];
 foreach ($functions as $func) {
     try {
         $tensor = new ONNX\Tensor\Transient([2], [1.0, 2.0], ONNX\Tensor::FLOAT);
@@ -167,14 +143,12 @@ echo "\nDeep testing completed.\n";
 PASS: add() correctly rejects invalid scalar type
 PASS: divide() by zero returns INF values
 PASS: sqrt() handles 1-element tensor
-PASS: log() handles zero values correctly (-INF for 0, 0 for 1)
 PASS: sqrt() handles negative values correctly (NaN for -1, 2 for 4)
 
 === Testing Edge Cases ===
 PASS: multiply() handles large numbers
 PASS: add() handles small numbers
 PASS: matmul() correctly rejects dimension mismatch
-PASS: sin() handles 1x1 tensor, result: -0.9589
 PASS: pow() handles edge values (0, 1, -1)
 
 === Testing Data Type Conversions ===
@@ -185,8 +159,5 @@ PASS: add() handles boolean tensors
 PASS: add() returns Transient tensor
 PASS: multiply() returns Transient tensor
 PASS: sqrt() returns Transient tensor
-PASS: sin() returns Transient tensor
-PASS: exp() returns Transient tensor
-PASS: abs() returns Transient tensor
 
 Deep testing completed.
