@@ -33,6 +33,9 @@
  * =============================================================================
  */
 
+/* {{{ 
+@extract python3 tests/fixtures/extract.py -f sqrt -n sqrt -u
+/* }}} */
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_sqrt[11] = {
     ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 -> float16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 -> float32

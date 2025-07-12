@@ -2,6 +2,7 @@
 import numpy as np
 import argparse
 import sys
+import shlex
 
 TYPES = [
     np.float16,
@@ -56,7 +57,8 @@ def emit_schema_struct(name, size):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--function', required=True, help='Function name (e.g. add, multiply)')
+    parser.add_argument('-f', '--function', required=False, help='Function name (e.g. add, multiply)')
+    parser.add_argument('-c', '--code',     required=False, help='Code (lambda) to use instead of function')
     parser.add_argument('-b', '--binary',   action='store_true', help='Generate binary promotion schema')
     parser.add_argument('-u', '--unary',    action='store_true', help='Generate unary promotion schema')
     parser.add_argument('-n', '--name',     default='onnx', help='Schema name suffix')
@@ -66,9 +68,33 @@ def main():
         print("Error: Cannot generate both unary and binary promotion schemas at the same time.", file=sys.stderr)
         sys.exit(1)
 
-    func       = get_func(args.function)
+    if not args.unary and not args.binary:
+        print("Error: Must specify either --unary or --binary.", file=sys.stderr)
+        sys.exit(1)
+
+    if args.function and args.code:
+        print("Error: Cannot specify both function and code.", file=sys.stderr)
+        sys.exit(1)
+
+    if not args.function and not args.code:
+        print("Error: Must specify either --function or --code.", file=sys.stderr)
+        sys.exit(1)
+
+    if args.code:
+        try:
+            func = eval(args.code, {"np": np})
+        except Exception as e:
+            print(f"Error evaluating code: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        func = get_func(args.function)
+
     size       = len(TYPES)
     type_names = [type_name(t) for t in TYPES]
+
+    print("/* {{{ ")
+    print(f"@extract python3 {' '.join(shlex.quote(arg) for arg in sys.argv)}")
+    print("/* }}} */");
 
     if args.binary:
         print(f"static const ONNXTensorElementDataType ort_math_promotion_schema_table_{args.name}[{size}*{size}] = {{")
@@ -101,7 +127,6 @@ def main():
         print("};\n")
         emit_schema_indices(args.name, size, type_names)
         emit_schema_struct(args.name, size)
-
 
 if __name__ == '__main__':
     main()
