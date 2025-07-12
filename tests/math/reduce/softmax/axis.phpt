@@ -6,23 +6,12 @@ ort
 <?php
 use ONNX\Tensor;
 
-$types = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
-];
-
-function print_result($result) {
-    if ($result instanceof Tensor) {
-        echo 'RESULT: ' . json_encode($result->getData()) . "\n";
-        echo 'TYPE: ' . $result->getType() . "\n";
-        echo 'SHAPE: [' . implode(',', $result->getShape()) . "]\n";
-    } else {
-        echo "NOTENSOR\n";
-    }
-}
+include sprintf(
+    "%s/../../../fixtures/math.php",
+    dirname(__FILE__));
 
 // 1. Axis=0, keepdims=0
-foreach ($types as $name => $type) {
+foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
         $result = ONNX\Math\reduce\axis\softmax($a, 0, false);
@@ -34,7 +23,7 @@ foreach ($types as $name => $type) {
 }
 
 // 2. Axis=1, keepdims=0
-foreach ($types as $name => $type) {
+foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
         $result = ONNX\Math\reduce\axis\softmax($a, 1, false);
@@ -46,7 +35,7 @@ foreach ($types as $name => $type) {
 }
 
 // 3. Axis=0, keepdims=1
-foreach ($types as $name => $type) {
+foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
         $result = ONNX\Math\reduce\axis\softmax($a, 0, true);
@@ -58,7 +47,7 @@ foreach ($types as $name => $type) {
 }
 
 // 4. Axis=1, keepdims=1
-foreach ($types as $name => $type) {
+foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
         $result = ONNX\Math\reduce\axis\softmax($a, 1, true);
@@ -70,7 +59,7 @@ foreach ($types as $name => $type) {
 }
 
 // 5. Axis=-1 (last axis), keepdims=0
-foreach ($types as $name => $type) {
+foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
         $result = ONNX\Math\reduce\axis\softmax($a, -1, false);
@@ -111,43 +100,43 @@ try {
 --EXPECTF--
 PASS: FLOAT softmax axis=0
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [3]
 PASS: DOUBLE softmax axis=0
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [3]
 PASS: FLOAT softmax axis=1
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [2]
 PASS: DOUBLE softmax axis=1
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2]
 PASS: FLOAT softmax axis=0 keepdims
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [1,3]
 PASS: DOUBLE softmax axis=0 keepdims
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [1,3]
 PASS: FLOAT softmax axis=1 keepdims
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [2,1]
 PASS: DOUBLE softmax axis=1 keepdims
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2,1]
 PASS: FLOAT softmax axis=-1
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [2]
 PASS: DOUBLE softmax axis=-1
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2]
 PASS: Error on invalid axis: softmax: axis 2 is out of bounds for tensor with 2 dimensions
 PASS: Error on integer input: softmax: unsupported data type for mathematical function

@@ -89,6 +89,15 @@ ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc)
  * =============================================================================
  */
 
+static zend_always_inline ONNXTensorElementDataType ort_math_frontend_real_get_promotion_schema(ONNXTensorElementDataType type) {
+    if (type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
+        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+        return type;
+    }
+
+    return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
+}
+
 ORT_MATH_UNARY_RESULT_IMPL(sin, ort_math_frontend_get_sin_func)
 ORT_MATH_UNARY_RESULT_IMPL(cos, ort_math_frontend_get_cos_func)
 ORT_MATH_UNARY_RESULT_IMPL(tan, ort_math_frontend_get_tan_func)
@@ -100,7 +109,7 @@ ORT_MATH_UNARY_RESULT_IMPL(cosh, ort_math_frontend_get_cosh_func)
 ORT_MATH_UNARY_RESULT_IMPL(tanh, ort_math_frontend_get_tanh_func)
 ORT_MATH_UNARY_RESULT_IMPL(exp, ort_math_frontend_get_exp_func)
 ORT_MATH_UNARY_RESULT_IMPL(exp2, ort_math_frontend_get_exp2_func)
-ORT_MATH_UNARY_RESULT_IMPL(log, ort_math_frontend_get_log_func)
+ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(log, ort_math_frontend_get_log_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_RESULT_IMPL(log2, ort_math_frontend_get_log2_func)
 ORT_MATH_UNARY_RESULT_IMPL(log10, ort_math_frontend_get_log10_func)
 ORT_MATH_UNARY_RESULT_IMPL(ceil, ort_math_frontend_get_ceil_func)

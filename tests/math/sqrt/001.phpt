@@ -6,62 +6,9 @@ ort
 <?php
 use ONNX\Tensor;
 
-
-$types = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
-    'INT8'    => ONNX\Tensor::INT8,
-    'INT16'   => ONNX\Tensor::INT16,
-    'INT32'   => ONNX\Tensor::INT32,
-    'INT64'   => ONNX\Tensor::INT64,
-    'UINT8'   => ONNX\Tensor::UINT8,
-    'UINT16'  => ONNX\Tensor::UINT16,
-    'UINT32'  => ONNX\Tensor::UINT32,
-];
-
-$signed_types = [
-    'INT8'    => ONNX\Tensor::INT8,
-    'INT16'   => ONNX\Tensor::INT16,
-    'INT32'   => ONNX\Tensor::INT32,
-    'INT64'   => ONNX\Tensor::INT64,
-];
-$unsigned_types = [
-    'UINT8'   => ONNX\Tensor::UINT8,
-    'UINT16'  => ONNX\Tensor::UINT16,
-    'UINT32'  => ONNX\Tensor::UINT32,
-];
-
-$real = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
-];
-
-function flatten_data($data) {
-    if (is_array($data)) {
-        return '[' . implode(',', array_map('flatten_data', $data)) . ']';
-    }
-    if (is_float($data)) {
-        if (is_nan($data)) return 'NAN';
-        if ($data === INF) return 'INF';
-        if ($data === -INF) return '-INF';
-        if ($data == 0.0) return '0';
-        // Print floats with max precision
-        return rtrim(rtrim(sprintf('%.17g', $data), '0'), '.');
-    }
-    if (is_bool($data)) return $data ? '1' : '0';
-    return (string)$data;
-}
-
-function print_result($result) {
-    if ($result instanceof Tensor) {
-        echo 'RESULT: ' . flatten_data($result->getData()) . "\n";
-        echo 'TYPE: ' . $result->getType() . "\n";
-        echo 'SHAPE: [' . implode(',', $result->getShape()) . "]\n";
-    } else {
-        echo "NOTENSOR\n";
-    }
-}
-
+include sprintf(
+    "%s/../../fixtures/math.php",
+    dirname(__FILE__));
 
 // 1. Sqrt for signed/real types: negatives, zero, positives
 foreach (array_merge($real, $signed_types) as $name => $type) {
@@ -81,6 +28,10 @@ foreach ($unsigned_types as $name => $type) {
 
 // 2. Sqrt of zeros and ones (valid for all types)
 foreach ($types as $name => $type) {
+    if ($type == \ONNX\Tensor::BOOL) {
+        /* meaningless */
+        continue;
+    }
     $a = new ONNX\Tensor\Transient([6], [0,1,0,1,0,1], $type);
     $result = ONNX\Math\sqrt($a);
     echo "PASS: $name sqrt zeros/ones\n";
@@ -123,90 +74,90 @@ try {
 --EXPECTF--
 PASS: FLOAT sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [5]
 PASS: DOUBLE sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [5]
 PASS: INT8 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [5]
 PASS: INT16 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [5]
 PASS: INT32 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [5]
 PASS: INT64 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [5]
 PASS: UINT8 sqrt [0,4,9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [3]
 PASS: UINT16 sqrt [0,4,9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [3]
 PASS: UINT32 sqrt [0,4,9]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [3]
 PASS: FLOAT sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [6]
 PASS: DOUBLE sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: INT8 sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: INT16 sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: INT32 sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: INT64 sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: UINT8 sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: UINT16 sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: UINT32 sqrt zeros/ones
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [6]
 PASS: INT8 sqrt 2D [[12,16],[24,-128]]
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2,2]
 PASS: BOOL sqrt [bool 2x2] (numpy semantics)
 RESULT: [[1,0],[0,1]]
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2,2]
 PASS: FLOAT sqrt extremes
 RESULT: %s
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [4]
 PASS: DOUBLE sqrt extremes
 RESULT: %s
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [4]
 PASS: Error on empty tensor: %s

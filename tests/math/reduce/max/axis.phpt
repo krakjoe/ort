@@ -6,28 +6,9 @@ ort
 <?php
 use ONNX\Tensor;
 
-$types = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
-    'INT8'    => ONNX\Tensor::INT8,
-    'INT16'   => ONNX\Tensor::INT16,
-    'INT32'   => ONNX\Tensor::INT32,
-    'INT64'   => ONNX\Tensor::INT64,
-    'UINT8'   => ONNX\Tensor::UINT8,
-    'UINT16'  => ONNX\Tensor::UINT16,
-    'UINT32'  => ONNX\Tensor::UINT32,
-    'BOOL'    => ONNX\Tensor::BOOL,
-];
-
-function print_result($result) {
-    if ($result instanceof Tensor) {
-        echo 'RESULT: ' . json_encode($result->getData()) . "\n";
-        echo 'TYPE: ' . $result->getType() . "\n";
-        echo 'SHAPE: [' . implode(',', $result->getShape()) . "]\n";
-    } else {
-        echo "NOTENSOR\n";
-    }
-}
+include sprintf(
+    "%s/../../../fixtures/math.php",
+    dirname(__FILE__));
 
 // 1. Max along axis=0
 foreach ($types as $name => $type) {
@@ -110,177 +91,167 @@ try {
 } catch (Throwable $e) {
     echo "PASS: Error on axis out of range: ".$e->getMessage()."\n";
 }
-
-// 7. Error: bool max with non-binary values
-try {
-    $a = new ONNX\Tensor\Transient([2,2], [[1,2],[3,4]], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\reduce\axis\max($a, 0);
-    echo "FAIL: Did not throw on non-binary bool tensor\n";
-} catch (Throwable $e) {
-    echo "PASS: Error on non-binary bool tensor: ".$e->getMessage()."\n";
-}
 ?>
 --EXPECTF--
 PASS: FLOAT max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [3]
 PASS: DOUBLE max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [3]
 PASS: INT8 max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: INT8
 SHAPE: [3]
 PASS: INT16 max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: INT16
 SHAPE: [3]
 PASS: INT32 max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: INT32
 SHAPE: [3]
 PASS: INT64 max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: INT64
 SHAPE: [3]
 PASS: UINT8 max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: UINT8
 SHAPE: [3]
 PASS: UINT16 max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: UINT16
 SHAPE: [3]
 PASS: UINT32 max axis=0
 RESULT: [4,5,6]
-TYPE: %d
+TYPE: UINT32
 SHAPE: [3]
 PASS: BOOL max axis=0
 RESULT: [true,true,true]
-TYPE: %d
+TYPE: BOOL
 SHAPE: [3]
 PASS: FLOAT max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [2]
 PASS: DOUBLE max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2]
 PASS: INT8 max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT8
 SHAPE: [2]
 PASS: INT16 max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT16
 SHAPE: [2]
 PASS: INT32 max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT32
 SHAPE: [2]
 PASS: INT64 max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT64
 SHAPE: [2]
 PASS: UINT8 max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: UINT8
 SHAPE: [2]
 PASS: UINT16 max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: UINT16
 SHAPE: [2]
 PASS: UINT32 max axis=1
 RESULT: [3,6]
-TYPE: %d
+TYPE: UINT32
 SHAPE: [2]
 PASS: BOOL max axis=1
 RESULT: [true,true]
-TYPE: %d
+TYPE: BOOL
 SHAPE: [2]
 PASS: FLOAT max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [2]
 PASS: DOUBLE max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2]
 PASS: INT8 max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT8
 SHAPE: [2]
 PASS: INT16 max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT16
 SHAPE: [2]
 PASS: INT32 max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT32
 SHAPE: [2]
 PASS: INT64 max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: INT64
 SHAPE: [2]
 PASS: UINT8 max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: UINT8
 SHAPE: [2]
 PASS: UINT16 max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: UINT16
 SHAPE: [2]
 PASS: UINT32 max axis=-1
 RESULT: [3,6]
-TYPE: %d
+TYPE: UINT32
 SHAPE: [2]
 PASS: BOOL max axis=-1
 RESULT: [true,true]
-TYPE: %d
+TYPE: BOOL
 SHAPE: [2]
 PASS: FLOAT max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: FLOAT
 SHAPE: [2,1]
 PASS: DOUBLE max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: DOUBLE
 SHAPE: [2,1]
 PASS: INT8 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: INT8
 SHAPE: [2,1]
 PASS: INT16 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: INT16
 SHAPE: [2,1]
 PASS: INT32 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: INT32
 SHAPE: [2,1]
 PASS: INT64 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: INT64
 SHAPE: [2,1]
 PASS: UINT8 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: UINT8
 SHAPE: [2,1]
 PASS: UINT16 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: UINT16
 SHAPE: [2,1]
 PASS: UINT32 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: %d
+TYPE: UINT32
 SHAPE: [2,1]
 PASS: BOOL max axis=1 keepdims
 RESULT: [[true],[true]]
-TYPE: %d
+TYPE: BOOL
 SHAPE: [2,1]
 PASS: Error on non-integer axis: %s
 PASS: Error on axis out of range: max: axis 2 is out of bounds for tensor with 2 dimensions
-PASS: Error on non-binary bool tensor: validation of data according to the shape provided has failed

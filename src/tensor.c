@@ -770,6 +770,20 @@ PHP_METHOD(ONNX_Tensor, getType)
     RETURN_LONG(ort->object->type);
 }
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_tensor_getTypeName_arginfo, 0, 0, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Tensor, getTypeName)
+{
+    php_ort_tensor_t* ort =
+        php_ort_tensor_fetch(Z_OBJ(EX(This)));
+
+    ZEND_PARSE_PARAMETERS_NONE();
+
+    /* @todo(krakjoe) this performs terribly ... */
+    RETURN_STRING(php_ort_type_name(ort->object->type));
+}
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_tensor_getShape_arginfo, 0, 0, IS_ARRAY, 0)
 ZEND_END_ARG_INFO()
 
@@ -1436,6 +1450,7 @@ zend_function_entry php_ort_tensor_interface_methods[] = {
     PHP_ABSTRACT_ME(ONNX_Tensor, isPersistent, php_ort_tensor_isPersistent_arginfo)
     PHP_ABSTRACT_ME(ONNX_Tensor, getName,      php_ort_tensor_getName_arginfo)
     PHP_ABSTRACT_ME(ONNX_Tensor, getType,      php_ort_tensor_getType_arginfo)
+    PHP_ABSTRACT_ME(ONNX_Tensor, getTypeName,  php_ort_tensor_getTypeName_arginfo)
     PHP_ABSTRACT_ME(ONNX_Tensor, getShape,     php_ort_tensor_getShape_arginfo)
     PHP_ABSTRACT_ME(ONNX_Tensor, getSlice,     php_ort_tensor_getSlice_arginfo)
     PHP_ABSTRACT_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo)
@@ -1448,6 +1463,7 @@ zend_function_entry php_ort_tensor_persistent_methods[] = {
     PHP_ME(ONNX_Tensor, isPersistent, php_ort_tensor_isPersistent_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getName,      php_ort_tensor_getName_arginfo,      ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getType,      php_ort_tensor_getType_arginfo,      ZEND_ACC_PUBLIC)
+    PHP_ME(ONNX_Tensor, getTypeName,  php_ort_tensor_getTypeName_arginfo,  ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getShape,     php_ort_tensor_getShape_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getSlice,     php_ort_tensor_getSlice_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo,      ZEND_ACC_PUBLIC)
@@ -1461,6 +1477,7 @@ zend_function_entry php_ort_tensor_transient_methods[] = {
     PHP_ME(ONNX_Tensor, isPersistent, php_ort_tensor_isPersistent_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getName,      php_ort_tensor_getName_arginfo,      ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getType,      php_ort_tensor_getType_arginfo,      ZEND_ACC_PUBLIC)
+    PHP_ME(ONNX_Tensor, getTypeName,  php_ort_tensor_getTypeName_arginfo,  ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getShape,     php_ort_tensor_getShape_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getSlice,     php_ort_tensor_getSlice_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo,      ZEND_ACC_PUBLIC)
@@ -1500,7 +1517,7 @@ static HashTable* php_ort_tensor_debug(zend_object *zo, int *temp) {
         &persistent);
 
     zval type;
-
+    
     ZVAL_LONG(&type, ort->object->type);
     zend_hash_add(debug,
         ZSTR_KNOWN(ZEND_STR_TYPE), &type);
