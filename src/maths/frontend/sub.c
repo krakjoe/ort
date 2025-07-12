@@ -16,9 +16,14 @@
   +----------------------------------------------------------------------+
  */
 
- #include <math.h>
+/*
+ @brief Implements frontend max operations for tensors
+ @test tests/math/sub
+*/
 
- #include "status.h"
+#include <math.h>
+
+#include "status.h"
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
