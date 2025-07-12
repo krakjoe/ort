@@ -1,14 +1,16 @@
 --TEST--
-ONNX\Math\cosh: line-by-line, all types, shape, error handling, numpy semantics
+ONNX\Math\log: line-by-line, all types, shape, error handling, numpy semantics
+--EXTENSIONS--
+ort
 --FILE--
 <?php
 use ONNX\Tensor;
 
 include sprintf(
-    "%s/../../fixtures/math.php",
+    "%s/../../../fixtures/math.php",
     dirname(__FILE__));
 
-// 1. Cosh for signed/real types: negatives, zero, positives (large enough for vectorization)
+// 1. Log for signed/real types: negatives, zero, positives (large enough for vectorization)
 $large_signed = array_merge(
     range(-16, -1),
     [0],
@@ -16,20 +18,20 @@ $large_signed = array_merge(
 );
 foreach (array_merge($real, $signed_types) as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_signed)], $large_signed, $type);
-    $result = ONNX\Math\cosh($a);
-    echo "PASS: $name cosh large signed [-16..-1,0,1..16]\n";
-    print_result($result, $name);
+    $result = ONNX\Math\log($a);
+    echo "PASS: $name log large signed [-16..-1,0,1..16]\n";
+    print_result($result);
 }
-// 1b. Cosh for unsigned types: only non-negative values (large enough for vectorization)
+// 1b. Log for unsigned types: only non-negative values (large enough for vectorization)
 $large_unsigned = range(0, 31);
 foreach ($unsigned_types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
-    $result = ONNX\Math\cosh($a);
-    echo "PASS: $name cosh large unsigned [0..31]\n";
-    print_result($result, $name);
+    $result = ONNX\Math\log($a);
+    echo "PASS: $name log large unsigned [0..31]\n";
+    print_result($result);
 }
 
-// 2. Cosh of ones and zeros (valid for all types, large set)
+// 2. Log of ones and zeros (valid for all types, large set)
 $zeros_ones = array_fill(0, 32, 0);
 for ($i = 0; $i < 32; $i += 2) $zeros_ones[$i] = 1;
 foreach ($types as $name => $type) {
@@ -38,12 +40,12 @@ foreach ($types as $name => $type) {
         continue;
     }
     $a = new ONNX\Tensor\Transient([count($zeros_ones)], $zeros_ones, $type);
-    $result = ONNX\Math\cosh($a);
-    echo "PASS: $name cosh large zeros/ones\n";
-    print_result($result, $name);
+    $result = ONNX\Math\log($a);
+    echo "PASS: $name log large zeros/ones\n";
+    print_result($result);
 }
 
-// 3. Cosh of 2D tensor for INT8 (with negative and positive values, large enough)
+// 3. Log of 2D tensor for INT8 (with negative and positive values, large enough)
 $int8_2d = [];
 for ($i = 0; $i < 8; $i++) {
     $row = [];
@@ -53,11 +55,11 @@ for ($i = 0; $i < 8; $i++) {
     $int8_2d[] = $row;
 }
 $a = new ONNX\Tensor\Transient([8,8], $int8_2d, ONNX\Tensor::INT8);
-$result = ONNX\Math\cosh($a);
-echo "PASS: INT8 cosh 2D 8x8 alt sign\n";
-print_result($result, 'DOUBLE');
+$result = ONNX\Math\log($a);
+echo "PASS: INT8 log 2D 8x8 alt sign\n";
+print_result($result);
 
-// 4. Cosh of bool tensor (large enough)
+// 4. Log of bool tensor (large enough)
 $bool_2d = [];
 for ($i = 0; $i < 8; $i++) {
     $row = [];
@@ -67,106 +69,107 @@ for ($i = 0; $i < 8; $i++) {
     $bool_2d[] = $row;
 }
 $a = new ONNX\Tensor\Transient([8,8], $bool_2d, ONNX\Tensor::BOOL);
-$result = ONNX\Math\cosh($a);
-echo "PASS: BOOL cosh [bool 8x8] (numpy semantics)\n";
-print_result($result, 'DOUBLE');
+$result = ONNX\Math\log($a);
+echo "PASS: BOOL log [bool 8x8] (numpy semantics)\n";
+print_result($result);
 
-// 5. Cosh of large and small values (real types only, large set)
+// 5. Log of large and small values (real types only, large set)
 $extremes = array_merge([
     1e10, 1e-10, 0, 1
 ], range(2, 33));
 foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($extremes)], $extremes, $type);
-    $result = ONNX\Math\cosh($a);
-    echo "PASS: $name cosh extremes large\n";
-    print_result($result, $name);
+    $result = ONNX\Math\log($a);
+    echo "PASS: $name log extremes large\n";
+    print_result($result);
 }
+?>
 --EXPECTF--
-PASS: FLOAT cosh large signed [-16..-1,0,1..16]
+PASS: FLOAT log large signed [-16..-1,0,1..16]
 RESULT: %s
 TYPE: FLOAT
 SHAPE: [33]
-PASS: DOUBLE cosh large signed [-16..-1,0,1..16]
+PASS: DOUBLE log large signed [-16..-1,0,1..16]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [33]
-PASS: INT8 cosh large signed [-16..-1,0,1..16]
+PASS: INT8 log large signed [-16..-1,0,1..16]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [33]
-PASS: INT16 cosh large signed [-16..-1,0,1..16]
+PASS: INT16 log large signed [-16..-1,0,1..16]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [33]
-PASS: INT32 cosh large signed [-16..-1,0,1..16]
+PASS: INT32 log large signed [-16..-1,0,1..16]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [33]
-PASS: INT64 cosh large signed [-16..-1,0,1..16]
+PASS: INT64 log large signed [-16..-1,0,1..16]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [33]
-PASS: UINT8 cosh large unsigned [0..31]
+PASS: UINT8 log large unsigned [0..31]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: UINT16 cosh large unsigned [0..31]
+PASS: UINT16 log large unsigned [0..31]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: UINT32 cosh large unsigned [0..31]
+PASS: UINT32 log large unsigned [0..31]
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: FLOAT cosh large zeros/ones
+PASS: FLOAT log large zeros/ones
 RESULT: %s
 TYPE: FLOAT
 SHAPE: [32]
-PASS: DOUBLE cosh large zeros/ones
+PASS: DOUBLE log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: INT8 cosh large zeros/ones
+PASS: INT8 log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: INT16 cosh large zeros/ones
+PASS: INT16 log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: INT32 cosh large zeros/ones
+PASS: INT32 log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: INT64 cosh large zeros/ones
+PASS: INT64 log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: UINT8 cosh large zeros/ones
+PASS: UINT8 log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: UINT16 cosh large zeros/ones
+PASS: UINT16 log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: UINT32 cosh large zeros/ones
+PASS: UINT32 log large zeros/ones
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [32]
-PASS: INT8 cosh 2D 8x8 alt sign
+PASS: INT8 log 2D 8x8 alt sign
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [8,8]
-PASS: BOOL cosh [bool 8x8] (numpy semantics)
+PASS: BOOL log [bool 8x8] (numpy semantics)
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [8,8]
-PASS: FLOAT cosh extremes large
+PASS: FLOAT log extremes large
 RESULT: %s
 TYPE: FLOAT
 SHAPE: [36]
-PASS: DOUBLE cosh extremes large
+PASS: DOUBLE log extremes large
 RESULT: %s
 TYPE: DOUBLE
 SHAPE: [36]

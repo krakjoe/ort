@@ -7,7 +7,7 @@ ort
 use ONNX\Tensor;
 
 include sprintf(
-    "%s/../../fixtures/math.php",
+    "%s/../../../fixtures/math.php",
     dirname(__FILE__));
 
 // 1. Cbrt for signed/real types: negatives, zero, positives (large enough for vectorization)
