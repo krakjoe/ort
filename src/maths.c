@@ -36,6 +36,7 @@
 #include "maths/schema/exp2.h"
 #include "maths/schema/log.h"
 #include "maths/schema/log2.h"
+#include "maths/schema/log10.h"
 #include "maths/schema/matmul.h"
 #include "maths/schema/max.h"
 #include "maths/schema/mean.h"
@@ -452,6 +453,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_log;
     } else if (zend_string_equals_literal_ci(symbol, "log2")) {
         ort->schema = &ort_math_promotion_schema_log2;
+    } else if (zend_string_equals_literal_ci(symbol, "log10")) {
+        ort->schema = &ort_math_promotion_schema_log10;
     } else if (zend_string_equals_literal_ci(symbol, "matmul")) {
         ort->schema = &ort_math_promotion_schema_matmul;
     } else if (zend_string_equals_literal_ci(symbol, "max")) {
