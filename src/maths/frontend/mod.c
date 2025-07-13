@@ -26,12 +26,7 @@
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
-
-/* =============================================================================
- * MODULO OPERATIONS
- * =============================================================================
- */
-
+#include "maths/schema/mod.h"
 
 #define ORT_MATH_MOD_IMPL_FOR_TYPE(c_type, unused)               \
     static zend_always_inline c_type ort_math_mod_impl_##c_type( \
@@ -94,5 +89,5 @@ static ort_math_scalar_op_func_t ort_math_frontend_get_mod_scalar_func(ONNXTenso
     return dispatch->mod_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(mod, ort_math_frontend_get_mod_func)
-ORT_MATH_SCALAR_RESULT_IMPL(mod, ort_math_frontend_get_mod_scalar_func)
+ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(mod, ort_math_frontend_get_mod_func, &ort_math_promotion_schema_mod)
+ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(mod, ort_math_frontend_get_mod_scalar_func, &ort_math_promotion_schema_mod)
