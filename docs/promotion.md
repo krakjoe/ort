@@ -1,0 +1,31 @@
+# Type Promotions
+
+Type promotions in `php-ort` are context dependent: This means that coercion will occur depending on the call rather than the data. The schema for promotion is extracted from numpy's runtime and exported to C in `src/maths/schema`. This allows `php-ort` to rigidly conform to `numpy` behaviour in a uniform way across all operators and types.
+
+# Extracting Promotion Schema
+
+  - Script: `tests/fixtures/extract.py`
+  - Arguments:
+    - `-f`/`--function`: The name of the function you want to extract the schema for.
+    - `-c`/`--code`:     Code to execute instead of `function` [1]
+    - `-u`/`--unary`:    The function must be invoked as a unary function.
+    - `-b`/`--binary`:   The function must be invoked as a binary function.
+    - `-n`/`--name`:     The suffix of the name of the struct (should usually be function name).
+  - Exclusivity:
+    - `f`/`c`: Only one of `function` or `code` may be used.
+    - `u`/`b`: Only one of `unary` or `binary` may be used.
+
+## Example:
+
+`python3 tests/fixtures/extract.py -f sqrt -n sqrt -u`
+
+Will extract the promotion schema for `np.sqrt` (which is a unary function). The script will output the C code for the schema, which should be copy/pasted into the appropriate schema header in `src/maths/schema` and included from the applicable frontend unit (in this case `sqrt.c`).
+
+### Notes
+
+[1] `code` should be used in cases where function and operator behavior are not consistent in `numpy`. This is only true in some edge cases (like `recip`). In these cases, `php-ort` should prefer the operator behavior over the function behavior and so provide a lambda implementing the expression.
+
+#### Technical Notes
+
+  - Promotion schemas drive both coercion behavior and kernel selection.
+  - The inclusion of `UNDEFINED` in the output is not an error, but indicates that the operation is not mathmatically defined in `numpy` and so should not be supported by `php-ort` (ie, don't hand edit schemas with `UNDEFINED`).
