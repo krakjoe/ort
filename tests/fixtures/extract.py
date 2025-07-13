@@ -49,7 +49,7 @@ def emit_schema_indices(name, size, indices):
         print("};\n")
 
 def emit_schema_struct(name, size, kind):
-    print(f"static const ort_math_type_promotion_schema_t ort_math_promotion_schema_{name} = {{")
+    print(f"static const ort_math_promotion_schema_t ort_math_promotion_schema_{name} = {{")
     print(f"    .kind    = {kind},")
     print(f"    .table   = ort_math_promotion_schema_table_{name},")
     print(f"    .indices = ort_math_promotion_schema_indices_{name},")
