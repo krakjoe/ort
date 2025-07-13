@@ -1,5 +1,4 @@
 --TEST--
-<?php
 ONNX\Math\multiply: tensor + tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
 --EXTENSIONS--
 ort

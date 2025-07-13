@@ -18,7 +18,7 @@ foreach (array_merge($real, $signed_types) as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_signed)], $large_signed, $type);
     $result = ONNX\Math\atan($a);
     echo "PASS: $name atan large signed [-16..-1,0,1..16]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 1b. Atan for unsigned types: only non-negative values (large enough for vectorization)
 $large_unsigned = range(0, 31);
@@ -26,7 +26,7 @@ foreach ($unsigned_types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
     $result = ONNX\Math\atan($a);
     echo "PASS: $name atan large unsigned [0..31]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 2. Atan of ones and zeros (valid for all types, large set)
@@ -40,7 +40,7 @@ foreach ($types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($zeros_ones)], $zeros_ones, $type);
     $result = ONNX\Math\atan($a);
     echo "PASS: $name atan large zeros/ones\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 3. Atan of 2D tensor for INT8 (with negative and positive values, large enough)
@@ -55,7 +55,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $int8_2d, ONNX\Tensor::INT8);
 $result = ONNX\Math\atan($a);
 echo "PASS: INT8 atan 2D 8x8 alt sign\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 4. Atan of bool tensor (large enough)
 $bool_2d = [];
@@ -69,7 +69,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $bool_2d, ONNX\Tensor::BOOL);
 $result = ONNX\Math\atan($a);
 echo "PASS: BOOL atan [bool 8x8] (numpy semantics)\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 5. Atan of large and small values (real types only, large set)
 $extremes = array_merge([
@@ -79,8 +79,9 @@ foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($extremes)], $extremes, $type);
     $result = ONNX\Math\atan($a);
     echo "PASS: $name atan extremes large\n";
-    print_result($result, $name);
+    print_result($result);
 }
+?>
 --EXPECTF--
 PASS: FLOAT atan large signed [-16..-1,0,1..16]
 RESULT: %s

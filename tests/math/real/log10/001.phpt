@@ -20,7 +20,7 @@ foreach (array_merge($real, $signed_types) as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_signed)], $large_signed, $type);
     $result = ONNX\Math\log10($a);
     echo "PASS: $name log10 large signed [-16..-1,0,1..16]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 1b. Log10 for unsigned types: only non-negative values (large enough for vectorization)
 $large_unsigned = range(0, 31);
@@ -28,7 +28,7 @@ foreach ($unsigned_types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
     $result = ONNX\Math\log10($a);
     echo "PASS: $name log10 large unsigned [0..31]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 2. Log10 of ones and zeros (valid for all types, large set)
@@ -42,7 +42,7 @@ foreach ($types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($zeros_ones)], $zeros_ones, $type);
     $result = ONNX\Math\log10($a);
     echo "PASS: $name log10 large zeros/ones\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 3. Log10 of 2D tensor for INT8 (with negative and positive values, large enough)
@@ -57,7 +57,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $int8_2d, ONNX\Tensor::INT8);
 $result = ONNX\Math\log10($a);
 echo "PASS: INT8 log10 2D 8x8 alt sign\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 4. Log10 of bool tensor (large enough)
 $bool_2d = [];
@@ -71,7 +71,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $bool_2d, ONNX\Tensor::BOOL);
 $result = ONNX\Math\log10($a);
 echo "PASS: BOOL log10 [bool 8x8] (numpy semantics)\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 5. Log10 of large and small values (real types only, large set)
 $extremes = array_merge([
@@ -81,7 +81,7 @@ foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($extremes)], $extremes, $type);
     $result = ONNX\Math\log10($a);
     echo "PASS: $name log10 extremes large\n";
-    print_result($result, $name);
+    print_result($result);
 }
 ?>
 --EXPECTF--

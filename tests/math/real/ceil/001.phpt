@@ -14,7 +14,7 @@ foreach (array_merge($real, $signed_types) as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $result = ONNX\Math\ceil($a);
     echo "PASS: $name ceil signed [-16..-1,0,1..16]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 1b. Ceil for unsigned types: only non-negative values
 $values_unsigned = range(0, 31);
@@ -22,7 +22,7 @@ foreach ($unsigned_types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($values_unsigned)], $values_unsigned, $type);
     $result = ONNX\Math\ceil($a);
     echo "PASS: $name ceil unsigned [0..31]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 2. Ceil of 2D tensor for INT8 (with negative and positive values)
 $int8_2d = [];
@@ -46,7 +46,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = ONNX\Tensor\Transient::from($a, ONNX\Tensor::INT8);
 $result = ONNX\Math\ceil($a);
 echo "PASS: INT8 ceil 2D 8x8\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 ?>
 --EXPECTF--
 PASS: FLOAT ceil signed [-16..-1,0,1..16]

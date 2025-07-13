@@ -81,6 +81,7 @@ foreach ($real as $name => $type) {
     echo "PASS: $name tanh extremes large\n";
     print_result($result, $name);
 }
+?>
 --EXPECTF--
 PASS: FLOAT tanh large signed [-16..-1,0,1..16]
 RESULT: %s

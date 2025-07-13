@@ -14,7 +14,7 @@ foreach (array_merge($real, $signed_types) as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $result = ONNX\Math\floor($a);
     echo "PASS: $name floor signed [-16..-1,0,1..16]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 1b. Floor for unsigned types: only non-negative values, and negative values to test wraparound
 $values_unsigned = array_merge(range(-3, -1), range(0, 31));
@@ -22,7 +22,7 @@ foreach ($unsigned_types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($values_unsigned)], $values_unsigned, $type);
     $result = ONNX\Math\floor($a);
     echo "PASS: $name floor unsigned [-3..-1,0..31] (wraparound)\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 2. Floor of 2D tensor for INT8 (with negative and positive values)
 $int8_2d = [];
@@ -36,7 +36,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = ONNX\Tensor\Transient::from($int8_2d, \ONNX\Tensor::INT8);
 $result = ONNX\Math\floor($a);
 echo "PASS: INT8 floor 2D 8x8\n";
-print_result($result, 'int8');
+print_result($result);
 ?>
 --EXPECTF--
 PASS: FLOAT floor signed [-16..-1,0,1..16]

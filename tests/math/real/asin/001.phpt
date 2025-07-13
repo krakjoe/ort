@@ -18,7 +18,7 @@ foreach (array_merge($real, $signed_types) as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_signed)], $large_signed, $type);
     $result = ONNX\Math\asin($a);
     echo "PASS: $name asin large signed [-16..-1,0,1..16]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 1b. Asin for unsigned types: only non-negative values (large enough for vectorization)
 $large_unsigned = range(0, 31);
@@ -26,7 +26,7 @@ foreach ($unsigned_types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
     $result = ONNX\Math\asin($a);
     echo "PASS: $name asin large unsigned [0..31]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 2. Asin of ones and zeros (valid for all types, large set)
@@ -40,7 +40,7 @@ foreach ($types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($zeros_ones)], $zeros_ones, $type);
     $result = ONNX\Math\asin($a);
     echo "PASS: $name asin large zeros/ones\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 3. Asin of 2D tensor for INT8 (with negative and positive values, large enough)
@@ -55,7 +55,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $int8_2d, ONNX\Tensor::INT8);
 $result = ONNX\Math\asin($a);
 echo "PASS: INT8 asin 2D 8x8 alt sign\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 4. Asin of bool tensor (large enough)
 $bool_2d = [];
@@ -79,8 +79,9 @@ foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($extremes)], $extremes, $type);
     $result = ONNX\Math\asin($a);
     echo "PASS: $name asin extremes large\n";
-    print_result($result, $name);
+    print_result($result);
 }
+?>
 --EXPECTF--
 PASS: FLOAT asin large signed [-16..-1,0,1..16]
 RESULT: %s
@@ -92,11 +93,11 @@ TYPE: DOUBLE
 SHAPE: [33]
 PASS: INT8 asin large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [33]
 PASS: INT16 asin large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [33]
 PASS: INT32 asin large signed [-16..-1,0,1..16]
 RESULT: %s
@@ -108,11 +109,11 @@ TYPE: DOUBLE
 SHAPE: [33]
 PASS: UINT8 asin large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT16 asin large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT32 asin large unsigned [0..31]
 RESULT: %s
@@ -128,11 +129,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: INT8 asin large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: INT16 asin large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: INT32 asin large zeros/ones
 RESULT: %s
@@ -144,11 +145,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: UINT8 asin large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT16 asin large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT32 asin large zeros/ones
 RESULT: %s
@@ -156,11 +157,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: INT8 asin 2D 8x8 alt sign
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [8,8]
 PASS: BOOL asin [bool 8x8] (numpy semantics)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [8,8]
 PASS: FLOAT asin extremes large
 RESULT: %s

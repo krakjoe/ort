@@ -18,7 +18,7 @@ foreach (array_merge($real, $signed_types) as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_signed)], $large_signed, $type);
     $result = ONNX\Math\acos($a);
     echo "PASS: $name acos large signed [-16..-1,0,1..16]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 1b. Acos for unsigned types: only non-negative values (large enough for vectorization)
 $large_unsigned = range(0, 31);
@@ -26,7 +26,7 @@ foreach ($unsigned_types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
     $result = ONNX\Math\acos($a);
     echo "PASS: $name acos large unsigned [0..31]\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 2. Acos of ones and zeros (valid for all types, large set)
@@ -40,7 +40,7 @@ foreach ($types as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($zeros_ones)], $zeros_ones, $type);
     $result = ONNX\Math\acos($a);
     echo "PASS: $name acos large zeros/ones\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // 3. Acos of 2D tensor for INT8 (with negative and positive values, large enough)
@@ -79,8 +79,9 @@ foreach ($real as $name => $type) {
     $a = new ONNX\Tensor\Transient([count($extremes)], $extremes, $type);
     $result = ONNX\Math\acos($a);
     echo "PASS: $name acos extremes large\n";
-    print_result($result, $name);
+    print_result($result);
 }
+?>
 --EXPECTF--
 PASS: FLOAT acos large signed [-16..-1,0,1..16]
 RESULT: %s

@@ -6,6 +6,7 @@ use ONNX\Math;
 
 foreach ([
     "add",
+    "asin",
     "cos",
     "div",
     "dot",
@@ -24,6 +25,7 @@ foreach ([
     "sqrt",
     "sub",
     "sum",
+    "tan",
 ] as $name)
     new Math\Schema($name);
 

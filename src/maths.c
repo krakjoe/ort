@@ -25,6 +25,7 @@
 #include "maths/promotion.h"
 
 #include "maths/schema/add.h"
+#include "maths/schema/asin.h"
 #include "maths/schema/cos.h"
 #include "maths/schema/div.h"
 #include "maths/schema/dot.h"
@@ -43,6 +44,7 @@
 #include "maths/schema/sqrt.h"
 #include "maths/schema/sub.h"
 #include "maths/schema/sum.h"
+#include "maths/schema/tan.h"
 
 typedef struct _php_ort_math_schema_t {
     const ort_math_type_promotion_schema_t* schema;
@@ -419,6 +421,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
 
     if (zend_string_equals_literal_ci(symbol, "add")) {
         ort->schema = &ort_math_promotion_schema_add;
+    } else if (zend_string_equals_literal_ci(symbol, "asin")) {
+        ort->schema = &ort_math_promotion_schema_asin;
     } else if (zend_string_equals_literal_ci(symbol, "cos")) {
         ort->schema = &ort_math_promotion_schema_cos;
     } else if (zend_string_equals_literal_ci(symbol, "div")) {
@@ -455,6 +459,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_sub;
     } else if (zend_string_equals_literal_ci(symbol, "sum")) {
         ort->schema = &ort_math_promotion_schema_sum;
+    } else if (zend_string_equals_literal_ci(symbol, "tan")) {
+        ort->schema = &ort_math_promotion_schema_tan;
     } else {
         /* throw */
         return;
