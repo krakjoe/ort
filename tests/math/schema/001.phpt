@@ -30,6 +30,7 @@ foreach ([
     "sub",
     "sum",
     "tan",
+    "tanh",
 ] as $name)
     new Math\Schema($name);
 
