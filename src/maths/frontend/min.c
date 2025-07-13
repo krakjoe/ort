@@ -28,6 +28,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 #include "maths/result.h"
+#include "maths/schema/min.h"
 
 #define ORT_MATH_MIN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(min, c_type) { \
@@ -93,9 +94,10 @@ static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_min(ONNXTens
     return dispatch->min_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(min,
+ORT_MATH_REDUCE_TENSOR_RESULT_WITH_SCHEMA_IMPL(min,
     ort_math_frontend_get_reduce_tensor_min,
-    ort_math_validate_input)
+    ort_math_validate_input,
+    &ort_math_promotion_schema_min)
 
 static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_min(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
@@ -103,8 +105,9 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_min(ONNXTe
     return dispatch->min_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_IMPL(min,
+ORT_MATH_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(min,
     ort_math_frontend_get_reduce_axis_min,
     ort_math_validate_input,
     ort_math_validate_axis,
-    ort_math_result_reduce)
+    ort_math_result_reduce,
+    &ort_math_promotion_schema_min);

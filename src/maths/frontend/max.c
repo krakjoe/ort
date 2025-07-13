@@ -28,6 +28,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 #include "maths/result.h"
+#include "maths/schema/max.h"
 
 #define ORT_MATH_MAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, c_type) { \
@@ -92,9 +93,10 @@ static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_max(ONNXTens
     return dispatch->max_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(max,
+ORT_MATH_REDUCE_TENSOR_RESULT_WITH_SCHEMA_IMPL(max,
     ort_math_frontend_get_reduce_tensor_max,
-    ort_math_validate_input)
+    ort_math_validate_input,
+    &ort_math_promotion_schema_max);
 
 static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_max(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
@@ -102,8 +104,9 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_max(ONNXTe
     return dispatch->max_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_IMPL(max,
+ORT_MATH_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(max,
     ort_math_frontend_get_reduce_axis_max,
     ort_math_validate_input,
     ort_math_validate_axis,
-    ort_math_result_reduce)
+    ort_math_result_reduce,
+    &ort_math_promotion_schema_max)

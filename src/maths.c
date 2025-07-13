@@ -28,6 +28,8 @@
 #include "maths/schema/div.h"
 #include "maths/schema/dot.h"
 #include "maths/schema/matmul.h"
+#include "maths/schema/max.h"
+#include "maths/schema/min.h"
 #include "maths/schema/mod.h"
 #include "maths/schema/mul.h"
 #include "maths/schema/neg.h"
@@ -417,6 +419,10 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_dot;
     } else if (zend_string_equals_literal_ci(symbol, "matmul")) {
         ort->schema = &ort_math_promotion_schema_matmul;
+    } else if (zend_string_equals_literal_ci(symbol, "max")) {
+        ort->schema = &ort_math_promotion_schema_max;
+    } else if (zend_string_equals_literal_ci(symbol, "min")) {
+        ort->schema = &ort_math_promotion_schema_min;
     } else if (zend_string_equals_literal_ci(symbol, "mod")) {
         ort->schema = &ort_math_promotion_schema_mod;
     } else if (zend_string_equals_literal_ci(symbol, "mul")) {
