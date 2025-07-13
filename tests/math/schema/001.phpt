@@ -31,6 +31,7 @@ foreach ([
     "neg",
     "pow",
     "recip",
+    "round",
     "sign",
     "sin",
     "sinh",

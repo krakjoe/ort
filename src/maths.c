@@ -50,6 +50,7 @@
 #include "maths/schema/neg.h"
 #include "maths/schema/pow.h"
 #include "maths/schema/recip.h"
+#include "maths/schema/round.h"
 #include "maths/schema/sign.h"
 #include "maths/schema/sin.h"
 #include "maths/schema/sinh.h"
@@ -485,6 +486,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_pow;
     } else if (zend_string_equals_literal_ci(symbol, "recip")) {
         ort->schema = &ort_math_promotion_schema_recip;
+    } else if (zend_string_equals_literal_ci(symbol, "round")) {
+        ort->schema = &ort_math_promotion_schema_round;
     } else if (zend_string_equals_literal_ci(symbol, "sign")) {
         ort->schema = &ort_math_promotion_schema_sign;
     } else if (zend_string_equals_literal_ci(symbol, "sin")) {
