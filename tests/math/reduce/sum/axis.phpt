@@ -13,9 +13,13 @@ $types = [
     'INT16'   => ONNX\Tensor::INT16,
     'INT32'   => ONNX\Tensor::INT32,
     'INT64'   => ONNX\Tensor::INT64,
+    /* compliance, sum(unsigned) -> uint64
+        we don't support uint64, so cannot
+        support these operations with numpy semantics
     'UINT8'   => ONNX\Tensor::UINT8,
     'UINT16'  => ONNX\Tensor::UINT16,
     'UINT32'  => ONNX\Tensor::UINT32,
+    */
     'BOOL'    => ONNX\Tensor::BOOL,
 ];
 
@@ -143,18 +147,6 @@ PASS: INT64 sum axis=0
 RESULT: [5,7,9]
 TYPE: %d
 SHAPE: [3]
-PASS: UINT8 sum axis=0
-RESULT: [5,7,9]
-TYPE: %d
-SHAPE: [3]
-PASS: UINT16 sum axis=0
-RESULT: [5,7,9]
-TYPE: %d
-SHAPE: [3]
-PASS: UINT32 sum axis=0
-RESULT: [5,7,9]
-TYPE: %d
-SHAPE: [3]
 PASS: BOOL sum axis=0
 RESULT: [1,1,1]
 TYPE: %d
@@ -180,18 +172,6 @@ RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]
 PASS: INT64 sum axis=1
-RESULT: [6,15]
-TYPE: %d
-SHAPE: [2]
-PASS: UINT8 sum axis=1
-RESULT: [6,15]
-TYPE: %d
-SHAPE: [2]
-PASS: UINT16 sum axis=1
-RESULT: [6,15]
-TYPE: %d
-SHAPE: [2]
-PASS: UINT32 sum axis=1
 RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]
@@ -223,18 +203,6 @@ PASS: INT64 sum axis=0 keepdims
 RESULT: [[5,7,9]]
 TYPE: %d
 SHAPE: [1,3]
-PASS: UINT8 sum axis=0 keepdims
-RESULT: [[5,7,9]]
-TYPE: %d
-SHAPE: [1,3]
-PASS: UINT16 sum axis=0 keepdims
-RESULT: [[5,7,9]]
-TYPE: %d
-SHAPE: [1,3]
-PASS: UINT32 sum axis=0 keepdims
-RESULT: [[5,7,9]]
-TYPE: %d
-SHAPE: [1,3]
 PASS: BOOL sum axis=0 keepdims
 RESULT: [[1,1,1]]
 TYPE: %d
@@ -263,18 +231,6 @@ PASS: INT64 sum axis=1 keepdims
 RESULT: [[6],[15]]
 TYPE: %d
 SHAPE: [2,1]
-PASS: UINT8 sum axis=1 keepdims
-RESULT: [[6],[15]]
-TYPE: %d
-SHAPE: [2,1]
-PASS: UINT16 sum axis=1 keepdims
-RESULT: [[6],[15]]
-TYPE: %d
-SHAPE: [2,1]
-PASS: UINT32 sum axis=1 keepdims
-RESULT: [[6],[15]]
-TYPE: %d
-SHAPE: [2,1]
 PASS: BOOL sum axis=1 keepdims
 RESULT: [[2],[1]]
 TYPE: %d
@@ -300,18 +256,6 @@ RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]
 PASS: INT64 sum axis=-1
-RESULT: [6,15]
-TYPE: %d
-SHAPE: [2]
-PASS: UINT8 sum axis=-1
-RESULT: [6,15]
-TYPE: %d
-SHAPE: [2]
-PASS: UINT16 sum axis=-1
-RESULT: [6,15]
-TYPE: %d
-SHAPE: [2]
-PASS: UINT32 sum axis=-1
 RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]

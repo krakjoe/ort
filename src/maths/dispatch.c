@@ -438,13 +438,21 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     }
 };
 
+__thread ort_math_dispatch_t __ort_math_dispatch_error;
+
 ort_math_dispatch_t* ort_math_dispatch_table(void) {
     return __ort_math_dispatch_table;
 }
 
 const ort_math_dispatch_t* ort_math_dispatch_type(
     ONNXTensorElementDataType type) {
-    return &__ort_math_dispatch_table[
-        ort_math_dispatch_indexof(type)
-    ];
+    int16_t index = ort_math_dispatch_indexof(type);
+
+    if (index == FAILURE) {
+        memset(&__ort_math_dispatch_error,
+            0, sizeof(ort_math_dispatch_t));
+        return &__ort_math_dispatch_error;
+    }
+
+    return &__ort_math_dispatch_table[index];
 }

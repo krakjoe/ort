@@ -29,6 +29,7 @@
 #include "maths/schema/dot.h"
 #include "maths/schema/matmul.h"
 #include "maths/schema/max.h"
+#include "maths/schema/mean.h"
 #include "maths/schema/min.h"
 #include "maths/schema/mod.h"
 #include "maths/schema/mul.h"
@@ -37,6 +38,7 @@
 #include "maths/schema/sign.h"
 #include "maths/schema/sqrt.h"
 #include "maths/schema/sub.h"
+#include "maths/schema/sum.h"
 
 typedef struct _php_ort_math_schema_t {
     const ort_math_type_promotion_schema_t* schema;
@@ -421,6 +423,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_matmul;
     } else if (zend_string_equals_literal_ci(symbol, "max")) {
         ort->schema = &ort_math_promotion_schema_max;
+    } else if (zend_string_equals_literal_ci(symbol, "mean")) {
+        ort->schema = &ort_math_promotion_schema_mean;
     } else if (zend_string_equals_literal_ci(symbol, "min")) {
         ort->schema = &ort_math_promotion_schema_min;
     } else if (zend_string_equals_literal_ci(symbol, "mod")) {
@@ -437,6 +441,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_sqrt;
     } else if (zend_string_equals_literal_ci(symbol, "sub")) {
         ort->schema = &ort_math_promotion_schema_sub;
+    } else if (zend_string_equals_literal_ci(symbol, "sum")) {
+        ort->schema = &ort_math_promotion_schema_sum;
     } else {
         /* throw */
         return;
@@ -445,7 +451,7 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
     ort->symbol = zend_string_copy(symbol);
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_schema_getSymbol_arginfo, 0, 0, IS_STRING, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(php_ort_math_schema_getSymbol_arginfo, 0, 0, MAY_BE_STRING|MAY_BE_NULL)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(ONNX_Math_Schema, getSymbol)

@@ -9,13 +9,17 @@ foreach ([
     "div",
     "dot",
     "matmul",
+    "max",
+    "mean",
+    "min",
     "mod",
     "mul",
     "neg",
     "recip",
     "sign",
     "sqrt",
-    "sub"
+    "sub",
+    "sum",
 ] as $name)
     new Math\Schema($name);
 

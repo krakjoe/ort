@@ -13,9 +13,13 @@ $types = [
     'INT16'   => ONNX\Tensor::INT16,
     'INT32'   => ONNX\Tensor::INT32,
     'INT64'   => ONNX\Tensor::INT64,
+    /* compliance, sum(unsigned) -> uint64
+        we don't support uint64, so cannot
+        support these operations with numpy semantics
     'UINT8'   => ONNX\Tensor::UINT8,
     'UINT16'  => ONNX\Tensor::UINT16,
     'UINT32'  => ONNX\Tensor::UINT32,
+    */
     'BOOL'    => ONNX\Tensor::BOOL,
 ];
 
@@ -85,18 +89,6 @@ RESULT: [21]
 TYPE: %d
 SHAPE: []
 PASS: INT64 sum
-RESULT: [21]
-TYPE: %d
-SHAPE: []
-PASS: UINT8 sum
-RESULT: [21]
-TYPE: %d
-SHAPE: []
-PASS: UINT16 sum
-RESULT: [21]
-TYPE: %d
-SHAPE: []
-PASS: UINT32 sum
 RESULT: [21]
 TYPE: %d
 SHAPE: []
