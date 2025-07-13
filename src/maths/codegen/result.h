@@ -38,8 +38,8 @@ ort_tensor_t* ort_math_result_##func_name(                              \
         return NULL;                                                    \
     }                                                                   \
                                                                         \
-    ort_math_type_promotion_t promotion =                               \
-        ort_math_type_promote_schema_binary(schema, tensor_a, tensor_b); \
+    ort_math_promotion_t promotion =                               \
+        ort_math_promotion_perform_binary(schema, tensor_a, tensor_b); \
     if (!promotion.is_valid) {                                          \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,        \
             #func_name ": incompatible types for operation");           \
@@ -64,8 +64,8 @@ ort_tensor_t* ort_math_result_##func_name##_scalar(                     \
     if (!ort_math_validate_input(tensor, #func_name)) {                 \
         return NULL;                                                    \
     }                                                                   \
-    ort_math_type_promotion_t promotion =                               \
-        ort_math_type_promote_schema_scalar(schema, tensor, scalar);    \
+    ort_math_promotion_t promotion =                               \
+        ort_math_promotion_perform_scalar(schema, tensor, scalar);    \
     if (!promotion.is_valid) {                                          \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,        \
             #func_name ": incompatible types for operation");           \
@@ -88,8 +88,8 @@ ort_tensor_t* ort_math_result_##func_name(                                   \
     if (!ort_math_validate_input(tensor, #func_name)) {                      \
         return NULL;                                                         \
     }                                                                        \
-    ort_math_type_promotion_t promotion =                                    \
-        ort_math_type_promote_schema_unary(schema, tensor);                  \
+    ort_math_promotion_t promotion =                                    \
+        ort_math_promotion_perform_unary(schema, tensor);                  \
     ort_math_unary_op_func_t op_func = getter_func(promotion.result_type);   \
     if (!op_func) {                                                          \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,             \
@@ -106,8 +106,8 @@ ort_tensor_t* ort_math_result_reduce_tensor_##func_name(                       \
     if (!validate_tensor_func(tensor, #func_name)) {                           \
         return NULL;                                                           \
     }                                                                          \
-    ort_math_type_promotion_t promotion =                                      \
-        ort_math_type_promote_schema_unary(schema, tensor);                    \
+    ort_math_promotion_t promotion =                                      \
+        ort_math_promotion_perform_unary(schema, tensor);                    \
     ort_math_unary_op_func_t op_func = getter_func(promotion.result_type);     \
     if (!op_func) {                                                            \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,               \
@@ -128,8 +128,8 @@ ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
     if (!validate_axis_func(tensor, &axis, #func_name)) {                      \
         return NULL;                                                           \
     }                                                                          \
-    ort_math_type_promotion_t promotion =                                      \
-        ort_math_type_promote_schema_unary(schema, tensor);                    \
+    ort_math_promotion_t promotion =                                      \
+        ort_math_promotion_perform_unary(schema, tensor);                    \
     ort_math_reduction_op_func_t op_func = getter_func(promotion.result_type); \
     if (!op_func) {                                                            \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,               \
@@ -152,8 +152,8 @@ ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
     if (!validate_axis_func(tensor, &axis, #func_name)) {                      \
         return NULL;                                                           \
     }                                                                          \
-    ort_math_type_promotion_t promotion =                                      \
-        ort_math_type_promote_schema_unary(schema, tensor);                    \
+    ort_math_promotion_t promotion =                                      \
+        ort_math_promotion_perform_unary(schema, tensor);                    \
     ort_math_reduction_op_func_t op_func = getter_func(promotion.result_type); \
     if (!op_func) {                                                            \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,               \

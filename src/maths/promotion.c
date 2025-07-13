@@ -22,7 +22,7 @@
 #include "maths/result.h"
 #include "maths/validate.h"
 
-static zend_always_inline int ort_math_type_promotion_schema_lookup(const ONNXTensorElementDataType* list, int size, ONNXTensorElementDataType type) {
+static zend_always_inline int ort_math_promotion_schema_lookup(const ONNXTensorElementDataType* list, int size, ONNXTensorElementDataType type) {
     for (int i = 0; i < size; ++i) {
         if (list[i] == type) {
             return i;
@@ -33,14 +33,14 @@ static zend_always_inline int ort_math_type_promotion_schema_lookup(const ONNXTe
 }
 
 // Get binary promotion type from schema
-ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_binary(
-    const ort_math_type_promotion_schema_t* schema,
+ONNXTensorElementDataType ort_math_promotion_resolve_binary(
+    const ort_math_promotion_schema_t* schema,
     ONNXTensorElementDataType a_type,
     ONNXTensorElementDataType b_type
 ) {
-    int i = ort_math_type_promotion_schema_lookup(
+    int i = ort_math_promotion_schema_lookup(
         schema->indices, schema->size, a_type);
-    int j = ort_math_type_promotion_schema_lookup(
+    int j = ort_math_promotion_schema_lookup(
         schema->indices, schema->size, b_type);
     
     if (i < 0 || j < 0)
@@ -50,11 +50,11 @@ ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_binary(
 }
 
 // Get unary promotion type from schema
-ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_unary(
-    const ort_math_type_promotion_schema_t* schema,
+ONNXTensorElementDataType ort_math_promotion_resolve_unary(
+    const ort_math_promotion_schema_t* schema,
     ONNXTensorElementDataType t_type
 ) {
-    int i = ort_math_type_promotion_schema_lookup(
+    int i = ort_math_promotion_schema_lookup(
         schema->indices, schema->size, t_type);
     
     if (i < 0)
@@ -63,7 +63,7 @@ ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_unary(
     return schema->table[i];
 }
 
-static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_zend(ONNXTensorElementDataType tensor_type, zend_long zend_type) {
+static zend_always_inline ONNXTensorElementDataType ort_math_promotion_schema_resolve_zend(ONNXTensorElementDataType tensor_type, zend_long zend_type) {
     switch (zend_type) {
         case IS_TRUE:
         case IS_FALSE:
@@ -136,16 +136,16 @@ static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_sche
 
 // Get scalar promotion type from schema
 static zend_always_inline ONNXTensorElementDataType 
-    ort_math_type_promotion_schema_resolve_scalar(
-    const ort_math_type_promotion_schema_t* schema,
+    ort_math_promotion_schema_resolve_scalar(
+    const ort_math_promotion_schema_t* schema,
     ONNXTensorElementDataType onnx_type,
     zend_long zend_type
 ) {
-    int i = ort_math_type_promotion_schema_lookup(
+    int i = ort_math_promotion_schema_lookup(
         schema->indices, schema->size, onnx_type);
-    int j = ort_math_type_promotion_schema_lookup(
+    int j = ort_math_promotion_schema_lookup(
         schema->indices, schema->size,
-            ort_math_type_promotion_schema_resolve_zend(
+            ort_math_promotion_schema_resolve_zend(
                 onnx_type, zend_type));
     
     if (i < 0 || j < 0)
@@ -154,12 +154,12 @@ static zend_always_inline ONNXTensorElementDataType
     return schema->table[i * schema->size + j];
 }
 
-ort_math_type_promotion_t ort_math_type_promote_schema_binary(
-    const ort_math_type_promotion_schema_t* schema,
+ort_math_promotion_t ort_math_promotion_perform_binary(
+    const ort_math_promotion_schema_t* schema,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b
 ) {
-    ort_math_type_promotion_t promotion = {
+    ort_math_promotion_t promotion = {
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
         .is_valid = 0,
@@ -172,7 +172,7 @@ ort_math_type_promotion_t ort_math_type_promote_schema_binary(
     };
 
     ONNXTensorElementDataType resolved =
-        ort_math_type_promotion_schema_resolve_binary(
+        ort_math_promotion_resolve_binary(
             schema, tensor_a->type, tensor_b->type);
 
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
@@ -192,11 +192,11 @@ ort_math_type_promotion_t ort_math_type_promote_schema_binary(
     return promotion;
 }
 
-ort_math_type_promotion_t ort_math_type_promote_schema_unary(
-    const ort_math_type_promotion_schema_t* schema,
+ort_math_promotion_t ort_math_promotion_perform_unary(
+    const ort_math_promotion_schema_t* schema,
     ort_tensor_t* tensor
 ) {
-    ort_math_type_promotion_t promotion = {
+    ort_math_promotion_t promotion = {
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
         .is_valid = 0,
@@ -209,7 +209,7 @@ ort_math_type_promotion_t ort_math_type_promote_schema_unary(
     };
 
     ONNXTensorElementDataType resolved =
-        ort_math_type_promotion_schema_resolve_unary(schema, tensor->type);
+        ort_math_promotion_resolve_unary(schema, tensor->type);
 
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
         promotion.result_type = resolved;
@@ -224,12 +224,12 @@ ort_math_type_promotion_t ort_math_type_promote_schema_unary(
     return promotion;
 }
 
-ort_math_type_promotion_t ort_math_type_promote_schema_scalar(
-    const ort_math_type_promotion_schema_t* schema,
+ort_math_promotion_t ort_math_promotion_perform_scalar(
+    const ort_math_promotion_schema_t* schema,
     ort_tensor_t* tensor,
     zval* scalar
 ) {
-    ort_math_type_promotion_t promotion = {
+    ort_math_promotion_t promotion = {
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
         .is_valid = 0,
@@ -242,7 +242,7 @@ ort_math_type_promotion_t ort_math_type_promote_schema_scalar(
     };
 
     ONNXTensorElementDataType resolved =
-        ort_math_type_promotion_schema_resolve_scalar(
+        ort_math_promotion_schema_resolve_scalar(
             schema, tensor->type, Z_TYPE_P(scalar));
 
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
@@ -258,40 +258,9 @@ ort_math_type_promotion_t ort_math_type_promote_schema_scalar(
     return promotion;
 }
 
-#define ORT_MATH_RESULT_STACK_DIMENSIONS 8
-
-// Centralized upcast + broadcast routine for elementwise ops
-void* ort_math_operation_broadcast(
-    const ort_tensor_t* result,
-    const ort_math_type_promotion_t* promotion,
-    const ort_tensor_t* input,
-    void* out_buf
-) {
-    // Broadcast input to result shape and upcast to result type
-    int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-    int64_t in_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-    size_t in_offset = result->dimensions - input->dimensions;
-    size_t in_type_size = php_ort_type_sizeof(input->type);
-    size_t out_type_size = php_ort_type_sizeof(promotion->result_type);
-    for (size_t i = 0; i < result->elements; ++i) {
-        ort_math_result_multi(i, result->shape, result->dimensions, out_indices);
-        for (size_t d = 0; d < result->dimensions; ++d) {
-            in_indices[d] = (d < in_offset) ? 0 :
-                (input->shape[d - in_offset] == 1 ? 0 : out_indices[d]);
-        }
-        zend_long in_flat = ort_math_result_flat(
-            in_indices + in_offset,
-            input->shape, input->dimensions);
-        void* src_ptr = (char*)input->data + in_flat * in_type_size;
-        void* dst_ptr = (char*)out_buf + i * out_type_size;
-        ort_math_cast_element(src_ptr, dst_ptr, input->type, promotion->result_type);
-    }
-    return out_buf;
-}
-
 void* ort_math_operation_upcast(
     const ort_tensor_t* result,
-    const ort_math_type_promotion_t* promotion,
+    const ort_math_promotion_t* promotion,
     void* data
 ) {
     /* Short circuit if no upcasting required */

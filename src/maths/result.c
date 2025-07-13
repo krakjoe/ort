@@ -30,7 +30,7 @@
 
 static zend_always_inline ort_tensor_t* 
     ort_math_result_element_wise_binary_fast(
-    ort_math_type_promotion_t* promotion,
+    ort_math_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
     ort_math_element_op_func_t operation,
@@ -81,7 +81,7 @@ static zend_always_inline ort_tensor_t*
 
 /* Element-wise operation helpers implementation */
 ort_tensor_t* ort_math_result_element_wise_binary(
-    ort_math_type_promotion_t* promotion,
+    ort_math_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
     ort_math_element_op_func_t operation,
@@ -121,13 +121,11 @@ ort_tensor_t* ort_math_result_element_wise_binary(
     void* b_buf = ort_alloc(
         php_ort_type_sizeof(promotion->result_type),
         result->elements);
-    ort_math_operation_broadcast(
+    ort_math_broadcast_perform(
         result,
-        promotion,
         tensor_a, a_buf);
-    ort_math_operation_broadcast(
+    ort_math_broadcast_perform(
         result,
-        promotion,
         tensor_b, b_buf);
 
     /* Use fast worker for the upcasted, broadcasted buffers */
@@ -156,7 +154,7 @@ ort_tensor_t* ort_math_result_element_wise_binary(
 }
 
 ort_tensor_t* ort_math_result_element_wise_scalar(
-    ort_math_type_promotion_t* promotion,
+    ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     zval* scalar,
     ort_math_scalar_op_func_t operation,
@@ -241,7 +239,7 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
 }
 
 ort_tensor_t* ort_math_result_element_wise_unary(
-    ort_math_type_promotion_t* promotion,
+    ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     ort_math_unary_op_func_t operation,
     const char* operation_name
@@ -284,7 +282,7 @@ ort_tensor_t* ort_math_result_element_wise_unary(
 }
 
 ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
-    ort_math_type_promotion_t *promotion,
+    ort_math_promotion_t *promotion,
     ort_tensor_t* tensor,
     void (*operation)(void *result, const void *a, size_t n),
     const char* operation_name
@@ -314,7 +312,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
 }
 
 ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
-    ort_math_type_promotion_t *promotion,
+    ort_math_promotion_t *promotion,
     ort_tensor_t* tensor,
     void (*operation)(void *result, const void *a, size_t n),
     const char* operation_name
@@ -359,7 +357,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
 }
 
 ort_tensor_t* ort_math_result_element_wise_reduce_axis(
-    ort_math_type_promotion_t* promotion,
+    ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     size_t axis,
     zend_bool keepdims,
@@ -424,7 +422,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
 }
 
 ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
-    ort_math_type_promotion_t* promotion,
+    ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     size_t axis,
     zend_bool keepdims,

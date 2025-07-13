@@ -51,7 +51,7 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_indices_atan[11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
 };
 
-static const ort_math_type_promotion_schema_t ort_math_promotion_schema_atan = {
+static const ort_math_promotion_schema_t ort_math_promotion_schema_atan = {
     .kind    = ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY,
     .table   = ort_math_promotion_schema_table_atan,
     .indices = ort_math_promotion_schema_indices_atan,

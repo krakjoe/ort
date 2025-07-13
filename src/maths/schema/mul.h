@@ -172,7 +172,7 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_indices_mul[11]
     ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
 };
 
-static const ort_math_type_promotion_schema_t ort_math_promotion_schema_mul = {
+static const ort_math_promotion_schema_t ort_math_promotion_schema_mul = {
     .kind    = ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY,
     .table   = ort_math_promotion_schema_table_mul,
     .indices = ort_math_promotion_schema_indices_mul,

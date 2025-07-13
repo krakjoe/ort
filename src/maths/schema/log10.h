@@ -51,7 +51,7 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_indices_log10[1
     ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,
 };
 
-static const ort_math_type_promotion_schema_t ort_math_promotion_schema_log10 = {
+static const ort_math_promotion_schema_t ort_math_promotion_schema_log10 = {
     .kind    = ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY,
     .table   = ort_math_promotion_schema_table_log10,
     .indices = ort_math_promotion_schema_indices_log10,

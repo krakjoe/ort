@@ -63,7 +63,7 @@
 #include "maths/schema/trunc.h"
 
 typedef struct _php_ort_math_schema_t {
-    const ort_math_type_promotion_schema_t* schema;
+    const ort_math_promotion_schema_t* schema;
     zend_string*                            symbol;
     zend_object std;
 } php_ort_math_schema_t;
@@ -575,7 +575,7 @@ PHP_METHOD(ONNX_Math_Schema, resolve)
         }
 
         ONNXTensorElementDataType result =
-            ort_math_type_promotion_schema_resolve_binary(
+            ort_math_promotion_resolve_binary(
                 ort->schema,
                 (ONNXTensorElementDataType) Z_LVAL(types[0]),
                 (ONNXTensorElementDataType) Z_LVAL(types[1]));
@@ -591,7 +591,7 @@ PHP_METHOD(ONNX_Math_Schema, resolve)
         }
 
         ONNXTensorElementDataType result =
-            ort_math_type_promotion_schema_resolve_unary(
+            ort_math_promotion_resolve_unary(
                 ort->schema,
                 (ONNXTensorElementDataType) Z_LVAL(types[0]));
         RETURN_LONG(result);

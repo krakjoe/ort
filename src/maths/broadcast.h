@@ -21,6 +21,8 @@
 
 #include <php.h>
 
+#include "tensor.h"
+
 /* Broadcasting information */
 typedef struct _ort_math_broadcast_info_t {
     size_t result_dimensions;
@@ -34,6 +36,12 @@ typedef struct _ort_math_broadcast_info_t {
 ort_math_broadcast_info_t* ort_math_broadcast_calculate(
     const int64_t* shape_a, size_t dims_a,
     const int64_t* shape_b, size_t dims_b
+);
+
+void* ort_math_broadcast_perform(
+    const ort_tensor_t* result,
+    const ort_tensor_t* input,
+    void* out_buf
 );
 
 void ort_math_broadcast_free(ort_math_broadcast_info_t* info);
