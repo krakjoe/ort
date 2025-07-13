@@ -18,6 +18,7 @@ foreach ([
     "pow",
     "recip",
     "sign",
+    "softmax",
     "sqrt",
     "sub",
     "sum",

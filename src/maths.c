@@ -37,6 +37,7 @@
 #include "maths/schema/pow.h"
 #include "maths/schema/recip.h"
 #include "maths/schema/sign.h"
+#include "maths/schema/softmax.h"
 #include "maths/schema/sqrt.h"
 #include "maths/schema/sub.h"
 #include "maths/schema/sum.h"
@@ -440,6 +441,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_recip;
     } else if (zend_string_equals_literal_ci(symbol, "sign")) {
         ort->schema = &ort_math_promotion_schema_sign;
+    } else if (zend_string_equals_literal_ci(symbol, "softmax")) {
+        ort->schema = &ort_math_promotion_schema_softmax;
     } else if (zend_string_equals_literal_ci(symbol, "sqrt")) {
         ort->schema = &ort_math_promotion_schema_sqrt;
     } else if (zend_string_equals_literal_ci(symbol, "sub")) {
