@@ -71,7 +71,9 @@
             result = ort_math_result_##fname(                   \
                 tensor_a_ort->object, tensor_b_ort->object);    \
         } else if (Z_TYPE_P(tensor_b_or_scalar) == IS_LONG ||   \
-                   Z_TYPE_P(tensor_b_or_scalar) == IS_DOUBLE) { \
+                   Z_TYPE_P(tensor_b_or_scalar) == IS_DOUBLE || \
+                   (Z_TYPE_P(tensor_b_or_scalar) == IS_TRUE ||  \
+                    Z_TYPE_P(tensor_b_or_scalar) == IS_FALSE)) { \
             result = ort_math_result_##fname##_scalar(          \
                 tensor_a_ort->object, tensor_b_or_scalar);      \
         } else {                                                \

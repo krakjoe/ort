@@ -27,12 +27,11 @@
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
+#include "maths/schema/sub.h"
 
 #define ORT_MATH_SUB_IMPL(c_type, onnx_type) \
     ORT_MATH_BINARY_OP_IMPL(sub, c_type, onnx_type, -)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUB_IMPL)
-ORT_MATH_BINARY_OP_IMPL(sub, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, && !)
 
 static ort_math_element_op_func_t 
     ort_math_frontend_get_sub_func(ONNXTensorElementDataType type) {
@@ -44,19 +43,13 @@ static ort_math_element_op_func_t
 #define ORT_MATH_SUB_SCALAR_IMPL(c_type, onnx_type) \
     ORT_MATH_SCALAR_OP_IMPL(sub, c_type, onnx_type, -)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUB_SCALAR_IMPL)
-ORT_MATH_SCALAR_OP_IMPL(sub, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, && !)
 
 static ort_math_scalar_op_func_t 
     ort_math_frontend_get_sub_scalar_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_SUB_SCALAR_CASE(c_type, onnx_type) \
-    ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, sub)
-        ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_SUB_SCALAR_CASE)
-#undef ORT_MATH_SUB_SCALAR_CASE
-        default: return NULL;
-    }
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
+    return dispatch->sub_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(subtract, ort_math_frontend_get_sub_func)
-ORT_MATH_SCALAR_RESULT_IMPL(subtract, ort_math_frontend_get_sub_scalar_func)
+ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(subtract, ort_math_frontend_get_sub_func, &ort_math_promotion_schema_sub)
+ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(subtract, ort_math_frontend_get_sub_scalar_func, &ort_math_promotion_schema_sub)

@@ -17,7 +17,7 @@
  */
 
 /*
- @brief Implements frontend max operations for tensors
+ @brief Implements frontend add operations for tensors
  @test tests/math/add
 */
 

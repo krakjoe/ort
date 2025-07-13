@@ -23,22 +23,6 @@ try {
     echo "FAIL: Boolean addition failed: " . $e->getMessage() . "\n";
 }
 
-// Test 2: Boolean tensor subtraction (AND NOT)
-try {
-    $tensor_a = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $tensor_b = new ONNX\Tensor\Transient([2], [false, true], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\subtract($tensor_a, $tensor_b);
-    $data = $result->getData();
-    // AND NOT: [true && !false, false && !true] = [true, false]
-    if ($data[0] === true && $data[1] === false) {
-        echo "PASS: Boolean subtraction (AND NOT) works correctly\n";
-    } else {
-        echo "FAIL: Boolean subtraction result: " . json_encode($data) . "\n";
-    }
-} catch (Error $e) {
-    echo "FAIL: Boolean subtraction failed: " . $e->getMessage() . "\n";
-}
-
 // Test 3: Boolean tensor multiplication (logical AND)
 try {
     $tensor_a = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
@@ -68,21 +52,6 @@ try {
     }
 } catch (Error $e) {
     echo "FAIL: Boolean scalar addition failed: " . $e->getMessage() . "\n";
-}
-
-// Test 6: Boolean scalar subtraction
-try {
-    $tensor = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\subtract($tensor, 0); // 0 = false
-    $data = $result->getData();
-    // AND NOT: [true && !false, false && !false] = [true, false]
-    if ($data[0] === true && $data[1] === false) {
-        echo "PASS: Boolean scalar subtraction works correctly\n";
-    } else {
-        echo "FAIL: Boolean scalar subtraction result: " . json_encode($data) . "\n";
-    }
-} catch (Error $e) {
-    echo "FAIL: Boolean scalar subtraction failed: " . $e->getMessage() . "\n";
 }
 
 // Test 7: Boolean scalar multiplication
@@ -120,10 +89,8 @@ echo "Boolean tensor operation tests completed!\n";
 --EXPECT--
 === Testing Boolean Tensor Operations ===
 PASS: Boolean addition (OR) works correctly
-PASS: Boolean subtraction (AND NOT) works correctly
 PASS: Boolean multiplication (AND) works correctly
 PASS: Boolean scalar addition works correctly
-PASS: Boolean scalar subtraction works correctly
 PASS: Boolean scalar multiplication works correctly
 PASS: Boolean negation (NOT) works correctly
 Boolean tensor operation tests completed!
