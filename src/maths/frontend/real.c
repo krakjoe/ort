@@ -28,6 +28,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 
+#include "maths/schema/acos.h"
 #include "maths/schema/asin.h"
 #include "maths/schema/sin.h"
 #include "maths/schema/tan.h"
@@ -155,7 +156,7 @@ ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(sin, ort_math_frontend_get_sin_func, &ort
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(cos, ort_math_frontend_get_cos_func, &ort_math_promotion_schema_cos)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(tan, ort_math_frontend_get_tan_func, &ort_math_promotion_schema_tan)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(asin, ort_math_frontend_get_asin_func, &ort_math_promotion_schema_asin)
-ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(acos, ort_math_frontend_get_acos_func, ort_math_frontend_real_get_promotion_schema)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(acos, ort_math_frontend_get_acos_func, &ort_math_promotion_schema_acos)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(atan, ort_math_frontend_get_atan_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(sinh, ort_math_frontend_get_sinh_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(cosh, ort_math_frontend_get_cosh_func, ort_math_frontend_real_get_promotion_schema)
