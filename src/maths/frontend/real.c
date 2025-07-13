@@ -38,6 +38,8 @@
 #include "maths/schema/cos.h"
 #include "maths/schema/cosh.h"
 #include "maths/schema/exp.h"
+#include "maths/schema/exp2.h"
+
 
 /* =============================================================================
  * REAL MATHEMATICAL FUNCTIONS
@@ -167,7 +169,7 @@ ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(sinh, ort_math_frontend_get_sinh_func, &o
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(cosh, ort_math_frontend_get_cosh_func, &ort_math_promotion_schema_cosh)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(tanh, ort_math_frontend_get_tanh_func, &ort_math_promotion_schema_tanh)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(exp, ort_math_frontend_get_exp_func, &ort_math_promotion_schema_exp)
-ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(exp2, ort_math_frontend_get_exp2_func, ort_math_frontend_real_get_promotion_schema)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(exp2, ort_math_frontend_get_exp2_func, &ort_math_promotion_schema_exp2)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(log, ort_math_frontend_get_log_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(log2, ort_math_frontend_get_log2_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(log10, ort_math_frontend_get_log10_func, ort_math_frontend_real_get_promotion_schema)

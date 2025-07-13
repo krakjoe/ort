@@ -33,6 +33,7 @@
 #include "maths/schema/div.h"
 #include "maths/schema/dot.h"
 #include "maths/schema/exp.h"
+#include "maths/schema/exp2.h"
 #include "maths/schema/matmul.h"
 #include "maths/schema/max.h"
 #include "maths/schema/mean.h"
@@ -443,6 +444,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_dot;
     } else if (zend_string_equals_literal_ci(symbol, "exp")) {
         ort->schema = &ort_math_promotion_schema_exp;
+    } else if (zend_string_equals_literal_ci(symbol, "exp2")) {
+        ort->schema = &ort_math_promotion_schema_exp2;
     } else if (zend_string_equals_literal_ci(symbol, "matmul")) {
         ort->schema = &ort_math_promotion_schema_matmul;
     } else if (zend_string_equals_literal_ci(symbol, "max")) {
