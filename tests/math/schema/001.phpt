@@ -13,6 +13,7 @@ foreach ([
     "cosh",
     "div",
     "dot",
+    "exp",
     "matmul",
     "max",
     "mean",
