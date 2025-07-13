@@ -28,6 +28,7 @@
 #include "maths/schema/atan.h"
 #include "maths/schema/add.h"
 #include "maths/schema/asin.h"
+#include "maths/schema/cbrt.h"
 #include "maths/schema/cos.h"
 #include "maths/schema/cosh.h"
 #include "maths/schema/div.h"
@@ -439,6 +440,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_atan;
     } else if (zend_string_equals_literal_ci(symbol, "cos")) {
         ort->schema = &ort_math_promotion_schema_cos;
+    } else if (zend_string_equals_literal_ci(symbol, "cbrt")) {
+        ort->schema = &ort_math_promotion_schema_cbrt;
     } else if (zend_string_equals_literal_ci(symbol, "cosh")) {
         ort->schema = &ort_math_promotion_schema_cosh;
     } else if (zend_string_equals_literal_ci(symbol, "div")) {

@@ -9,6 +9,7 @@ foreach ([
     "add",
     "asin",
     "atan",
+    "cbrt",
     "cos",
     "cosh",
     "div",

@@ -31,6 +31,7 @@
 #include "maths/schema/acos.h"
 #include "maths/schema/asin.h"
 #include "maths/schema/atan.h"
+#include "maths/schema/cbrt.h"
 #include "maths/schema/log.h"
 #include "maths/schema/log2.h"
 #include "maths/schema/log10.h"
@@ -176,7 +177,7 @@ ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(exp2, ort_math_frontend_get_exp2_func, &o
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(log, ort_math_frontend_get_log_func, &ort_math_promotion_schema_log)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(log2, ort_math_frontend_get_log2_func, &ort_math_promotion_schema_log2)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(log10, ort_math_frontend_get_log10_func, &ort_math_promotion_schema_log10)
-ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(cbrt, ort_math_frontend_get_cbrt_func, ort_math_frontend_real_get_promotion_schema)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(cbrt, ort_math_frontend_get_cbrt_func, &ort_math_promotion_schema_cbrt)
 
 ORT_MATH_UNARY_RESULT_IMPL(abs, ort_math_frontend_get_abs_func)
 ORT_MATH_UNARY_RESULT_IMPL(ceil, ort_math_frontend_get_ceil_func)
