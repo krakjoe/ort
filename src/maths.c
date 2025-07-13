@@ -24,6 +24,7 @@
 #include "maths/result.h"
 #include "maths/promotion.h"
 
+#include "maths/schema/abs.h"
 #include "maths/schema/acos.h"
 #include "maths/schema/atan.h"
 #include "maths/schema/add.h"
@@ -430,7 +431,9 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         Z_PARAM_STR(symbol)
     ZEND_PARSE_PARAMETERS_END();
 
-    if (zend_string_equals_literal_ci(symbol, "acos")) {
+    if (zend_string_equals_literal_ci(symbol, "abs")) {
+        ort->schema = &ort_math_promotion_schema_abs;
+    } else if (zend_string_equals_literal_ci(symbol, "acos")) {
         ort->schema = &ort_math_promotion_schema_acos;
     } else if (zend_string_equals_literal_ci(symbol, "add")) {
         ort->schema = &ort_math_promotion_schema_add;

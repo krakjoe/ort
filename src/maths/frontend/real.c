@@ -28,6 +28,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 
+#include "maths/schema/abs.h"
 #include "maths/schema/acos.h"
 #include "maths/schema/asin.h"
 #include "maths/schema/atan.h"
@@ -154,15 +155,6 @@ ORT_MATH_REAL_EXPORT_WITH_DISPATCH(trunc, truncf, trunc) /* }}} */
  * =============================================================================
  */
 
-static zend_always_inline ONNXTensorElementDataType ort_math_frontend_real_get_promotion_schema(ONNXTensorElementDataType type) {
-    if (type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
-        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
-        return type;
-    }
-
-    return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
-}
-
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(sin, ort_math_frontend_get_sin_func, &ort_math_promotion_schema_sin)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(cos, ort_math_frontend_get_cos_func, &ort_math_promotion_schema_cos)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(tan, ort_math_frontend_get_tan_func, &ort_math_promotion_schema_tan)
@@ -179,7 +171,7 @@ ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(log2, ort_math_frontend_get_log2_func, &o
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(log10, ort_math_frontend_get_log10_func, &ort_math_promotion_schema_log10)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(cbrt, ort_math_frontend_get_cbrt_func, &ort_math_promotion_schema_cbrt)
 
-ORT_MATH_UNARY_RESULT_IMPL(abs, ort_math_frontend_get_abs_func)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(abs, ort_math_frontend_get_abs_func, &ort_math_promotion_schema_abs)
 ORT_MATH_UNARY_RESULT_IMPL(ceil, ort_math_frontend_get_ceil_func)
 ORT_MATH_UNARY_RESULT_IMPL(floor, ort_math_frontend_get_floor_func)
 ORT_MATH_UNARY_RESULT_IMPL(round, ort_math_frontend_get_round_func)

@@ -5,6 +5,7 @@ ONNX\Math\Schema: test constructor
 use ONNX\Math;
 
 foreach ([
+    "abs",
     "acos",
     "add",
     "asin",
