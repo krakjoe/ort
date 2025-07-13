@@ -30,7 +30,7 @@
 #include "maths/schema/sub.h"
 
 #define ORT_MATH_SUB_IMPL(c_type, onnx_type) \
-    ORT_MATH_BINARY_OP_IMPL(sub, c_type, onnx_type, -)
+    ORT_MATH_FRONTEND_BINARY_OP_IMPL(sub, c_type, onnx_type, -)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUB_IMPL)
 
 static ort_math_element_op_func_t 
@@ -41,7 +41,7 @@ static ort_math_element_op_func_t
 }
 
 #define ORT_MATH_SUB_SCALAR_IMPL(c_type, onnx_type) \
-    ORT_MATH_SCALAR_OP_IMPL(sub, c_type, onnx_type, -)
+    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(sub, c_type, onnx_type, -)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUB_SCALAR_IMPL)
 
 static ort_math_scalar_op_func_t 

@@ -438,7 +438,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     }
 };
 
-__thread ort_math_dispatch_t __ort_math_dispatch_error;
+ZEND_TLS ort_math_dispatch_t __ort_math_dispatch_error;
 
 ort_math_dispatch_t* ort_math_dispatch_table(void) {
     return __ort_math_dispatch_table;

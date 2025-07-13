@@ -30,9 +30,9 @@
 #include "maths/schema/mul.h"
 
 #define ORT_MATH_MUL_IMPL(c_type, onnx_type) \
-    ORT_MATH_BINARY_OP_IMPL(mul, c_type, onnx_type, *)
+    ORT_MATH_FRONTEND_BINARY_OP_IMPL(mul, c_type, onnx_type, *)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MUL_IMPL)
-ORT_MATH_BINARY_OP_IMPL(mul, \
+ORT_MATH_FRONTEND_BINARY_OP_IMPL(mul, \
     zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, &&)
 
 static ort_math_element_op_func_t 
@@ -43,9 +43,9 @@ static ort_math_element_op_func_t
 }
 
 #define ORT_MATH_MUL_SCALAR_IMPL(c_type, onnx_type) \
-    ORT_MATH_SCALAR_OP_IMPL(mul, c_type, onnx_type, *)
+    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, c_type, onnx_type, *)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MUL_SCALAR_IMPL)
-ORT_MATH_SCALAR_OP_IMPL(mul, \
+ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, \
     zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, &&)
 
 static ort_math_scalar_op_func_t 
