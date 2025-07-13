@@ -30,7 +30,7 @@
 
 #include "maths/codegen/common.h"
 
-#define ORT_MATH_BINARY_RESULT_IMPL(func_name, getter_func, schema) \
+#define ORT_MATH_RESULT_BINARY_IMPL(func_name, getter_func, schema) \
 ort_tensor_t* ort_math_result_##func_name(                              \
         ort_tensor_t* tensor_a, ort_tensor_t* tensor_b) {               \
     if (!ort_math_validate_input(tensor_a, #func_name) ||               \
@@ -58,7 +58,7 @@ ort_tensor_t* ort_math_result_##func_name(                              \
         &promotion, tensor_a, tensor_b, op_func, #func_name);           \
 }
 
-#define ORT_MATH_SCALAR_RESULT_IMPL(func_name, getter_func, schema) \
+#define ORT_MATH_RESULT_SCALAR_IMPL(func_name, getter_func, schema) \
 ort_tensor_t* ort_math_result_##func_name##_scalar(                     \
     ort_tensor_t* tensor, zval* scalar) {                               \
     if (!ort_math_validate_input(tensor, #func_name)) {                 \
@@ -82,7 +82,7 @@ ort_tensor_t* ort_math_result_##func_name##_scalar(                     \
         &promotion, tensor, scalar, op_func, #func_name);               \
 }
 
-#define ORT_MATH_UNARY_RESULT_IMPL(func_name, getter_func, schema) \
+#define ORT_MATH_RESULT_UNARY_IMPL(func_name, getter_func, schema)           \
 ort_tensor_t* ort_math_result_##func_name(                                   \
     ort_tensor_t* tensor) {                                                  \
     if (!ort_math_validate_input(tensor, #func_name)) {                      \
@@ -99,7 +99,7 @@ ort_tensor_t* ort_math_result_##func_name(                                   \
     return ort_math_result_element_wise_unary(&promotion, tensor, op_func, #func_name);  \
 }
 
-#define ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(                        \
+#define ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(                                    \
     func_name, getter_func, validate_tensor_func, schema)                      \
 ort_tensor_t* ort_math_result_reduce_tensor_##func_name(                       \
     ort_tensor_t* tensor) {                                                    \
@@ -118,7 +118,7 @@ ort_tensor_t* ort_math_result_reduce_tensor_##func_name(                       \
         &promotion, tensor, op_func, #func_name);                              \
 }
 
-#define ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_IMPL(                   \
+#define ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(                   \
     func_name, getter_func, validate_tensor_func,validate_axis_func, shape_func, schema) \
 ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
     ort_tensor_t* tensor, zend_long axis, zend_bool keepdims) {                \
@@ -142,7 +142,7 @@ ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
         op_func, #func_name, shape_func);                                      \
 }
 
-#define ORT_MATH_REDUCE_AXIS_RESULT_IMPL(                          \
+#define ORT_MATH_RESULT_REDUCE_AXIS_IMPL(                          \
     func_name, getter_func, validate_tensor_func,validate_axis_func, shape_func, schema) \
 ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
     ort_tensor_t* tensor, zend_long axis, zend_bool keepdims) {                \

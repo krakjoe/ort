@@ -88,24 +88,28 @@ ORT_MATH_FRONTEND_REDUCTION_OP_DECL(min, zend_bool) {
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MIN_AXIS_IMPL_FOR_TYPE)
 ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MIN_IMPL_FOR_TYPE)
 
-static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_min(ONNXTensorElementDataType type) {
+static ort_math_unary_op_func_t
+    ort_math_frontend_get_reduce_tensor_min(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->min_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(min,
+ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(min,
     ort_math_frontend_get_reduce_tensor_min,
     ort_math_validate_input,
     &ort_math_promotion_schema_min)
 
-static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_min(ONNXTensorElementDataType type) {
+static ort_math_reduction_op_func_t
+    ort_math_frontend_get_reduce_axis_min(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->min_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_IMPL(min,
+ORT_MATH_RESULT_REDUCE_AXIS_IMPL(min,
     ort_math_frontend_get_reduce_axis_min,
     ort_math_validate_input,
     ort_math_validate_axis,

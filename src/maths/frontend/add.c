@@ -29,31 +29,35 @@
 #include "maths/dispatch.h"
 #include "maths/schema/add.h"
 
-#define ORT_MATH_ADD_IMPL(c_type, onnx_type) \
-    ORT_MATH_FRONTEND_BINARY_OP_IMPL(add, c_type, onnx_type, +)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_ADD_IMPL)
-ORT_MATH_FRONTEND_BINARY_OP_IMPL(add, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, ||)
+#define ORT_MATH_FRONTEND_ADD_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_BINARY_OP_IMPL(add, c_type, +)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_ADD_IMPL)
+#undef ORT_MATH_FRONTEND_ADD_IMPL
+ORT_MATH_FRONTEND_BINARY_OP_IMPL(add, zend_bool, ||)
 
 static ort_math_element_op_func_t 
-    ort_math_frontend_get_add_func(ONNXTensorElementDataType type) {
+    ort_math_frontend_get_add_func(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->add_func;
 }
 
-#define ORT_MATH_ADD_SCALAR_IMPL(c_type, onnx_type) \
-    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(add, c_type, onnx_type, +)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_ADD_SCALAR_IMPL)
-ORT_MATH_FRONTEND_SCALAR_OP_IMPL(add, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, ||)
+#define ORT_MATH_FRONTEND_ADD_SCALAR_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(add, c_type, +)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_ADD_SCALAR_IMPL)
+#undef ORT_MATH_FRONTEND_ADD_SCALAR_IMPL
+ORT_MATH_FRONTEND_SCALAR_OP_IMPL(add, zend_bool, ||)
 
 static ort_math_scalar_op_func_t 
-    ort_math_frontend_get_add_scalar_func(ONNXTensorElementDataType type) {
+    ort_math_frontend_get_add_scalar_func(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->add_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(add, ort_math_frontend_get_add_func, &ort_math_promotion_schema_add)
-ORT_MATH_SCALAR_RESULT_IMPL(add, ort_math_frontend_get_add_scalar_func, &ort_math_promotion_schema_add)
+ORT_MATH_RESULT_BINARY_IMPL(add, ort_math_frontend_get_add_func, &ort_math_promotion_schema_add)
+ORT_MATH_RESULT_SCALAR_IMPL(add, ort_math_frontend_get_add_scalar_func, &ort_math_promotion_schema_add)

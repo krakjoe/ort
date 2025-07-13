@@ -29,26 +29,8 @@
 #include "maths/dispatch.h"
 #include "maths/schema/recip.h"
 
-/* =============================================================================
- * RECIP OPERATIONS
- * =============================================================================
- */
-
-ORT_MATH_FRONTEND_UNARY_OP_DECL(recip, float) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = 1.0f / va[i];
-    }
-}
-
-ORT_MATH_FRONTEND_UNARY_OP_DECL(recip, double) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = 1.0 / va[i];
-    }
-}
+ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, float, 1.0f /)
+ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, double, 1.0 /)
 
 static ort_math_unary_op_func_t
     ort_math_frontend_get_recip_func(ONNXTensorElementDataType type) {
@@ -57,4 +39,4 @@ static ort_math_unary_op_func_t
     return dispatch->recip_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(recip, ort_math_frontend_get_recip_func, &ort_math_promotion_schema_recip)
+ORT_MATH_RESULT_UNARY_IMPL(recip, ort_math_frontend_get_recip_func, &ort_math_promotion_schema_recip)

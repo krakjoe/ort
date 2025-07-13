@@ -30,7 +30,7 @@
 #include "maths/result.h"
 #include "maths/schema/softmax.h"
 
-#define ORT_MATH_SOFTMAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
+#define ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(softmax, c_type) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
@@ -65,7 +65,9 @@
         } \
     }
 
-ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SOFTMAX_AXIS_IMPL_FOR_TYPE)
+ORT_MATH_FOREACH_REAL_TYPE(
+    ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE)
+#undef ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE
 
 static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_softmax(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
@@ -73,7 +75,7 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_softmax(ON
     return dispatch->softmax_axis_func;
 }
 
-ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_IMPL(softmax,
+ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(softmax,
     ort_math_frontend_get_reduce_axis_softmax,
     ort_math_validate_input,
     ort_math_validate_axis,

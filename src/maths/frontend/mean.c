@@ -30,7 +30,7 @@
 #include "maths/result.h"
 #include "maths/schema/mean.h"
 
-#define ORT_MATH_MEAN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
+#define ORT_MATH_FRONTEND_MEAN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(mean, c_type) { \
         c_type* va = (c_type*)a;                             \
         c_type* res = (c_type*)result;                       \
@@ -47,7 +47,11 @@
         }                                                    \
     }
 
-#define ORT_MATH_MEAN_IMPL_FOR_TYPE(c_type, unused) \
+ORT_MATH_FOREACH_REAL_TYPE(
+    ORT_MATH_FRONTEND_MEAN_AXIS_IMPL_FOR_TYPE)
+#undef ORT_MATH_FRONTEND_MEAN_AXIS_IMPL_FOR_TYPE
+
+#define ORT_MATH_FRONTEND_MEAN_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_UNARY_OP_DECL(mean, c_type) { \
         c_type* va = (c_type*)a;                    \
         c_type* res = (c_type*)result;              \
@@ -58,27 +62,32 @@
         res[0] = sum / (c_type)count;               \
     }
 
-ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_MEAN_AXIS_IMPL_FOR_TYPE)
-ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_MEAN_IMPL_FOR_TYPE)
+ORT_MATH_FOREACH_REAL_TYPE(
+    ORT_MATH_FRONTEND_MEAN_IMPL_FOR_TYPE)
+#undef ORT_MATH_FRONTEND_MEAN_IMPL_FOR_TYPE
 
-static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_mean(ONNXTensorElementDataType type) {
+static ort_math_unary_op_func_t
+    ort_math_frontend_get_reduce_tensor_mean(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->mean_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(mean,
+ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(mean,
     ort_math_frontend_get_reduce_tensor_mean,
     ort_math_validate_input,
     &ort_math_promotion_schema_mean);
 
-static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_mean(ONNXTensorElementDataType type) {
+static ort_math_reduction_op_func_t
+    ort_math_frontend_get_reduce_axis_mean(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->mean_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_IMPL(mean,
+ORT_MATH_RESULT_REDUCE_AXIS_IMPL(mean,
     ort_math_frontend_get_reduce_axis_mean,
     ort_math_validate_input,
     ort_math_validate_axis,

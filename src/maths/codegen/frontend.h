@@ -52,8 +52,7 @@
         void* result, const void* a,                                  \
         size_t outer, size_t axis, size_t inner)
 
-#define ORT_MATH_FRONTEND_BINARY_OP_IMPL(                             \
-            op_name, c_type, onnx_type, operator)                     \
+#define ORT_MATH_FRONTEND_BINARY_OP_IMPL(op_name, c_type, operator)   \
     ORT_MATH_FRONTEND_BINARY_OP_DECL(op_name, c_type) {               \
     c_type* res = (c_type*)result;                                    \
     const c_type* va = (const c_type*)a;                              \
@@ -63,8 +62,16 @@
     }                                                                 \
 }
 
-#define ORT_MATH_FRONTEND_SCALAR_OP_IMPL(                             \
-            op_name, c_type, onnx_type, operator)                     \
+#define ORT_MATH_FRONTEND_UNARY_OP_IMPL(op_name, c_type, operator)    \
+    ORT_MATH_FRONTEND_UNARY_OP_DECL(op_name, c_type) {                \
+    c_type* res = (c_type*)result;                                    \
+    const c_type* va = (const c_type*)a;                              \
+    for (size_t i = 0; i < count; i++) {                              \
+        res[i] = operator va[i];                                      \
+    }                                                                 \
+}
+
+#define ORT_MATH_FRONTEND_SCALAR_OP_IMPL(op_name, c_type, operator)   \
     ORT_MATH_FRONTEND_BINARY_OP_DECL(op_name##_scalar, c_type) {      \
     c_type* res = (c_type*)result;                                    \
     const c_type* va = (const c_type*)a;                              \

@@ -18,7 +18,7 @@
 
 #include "maths/dispatch.h"
 #include "maths/frontend/impl.h"
-
+ 
 /* Complete dispatch table */
 static ort_math_dispatch_t __ort_math_dispatch_table[] = {
     /* FLOAT */

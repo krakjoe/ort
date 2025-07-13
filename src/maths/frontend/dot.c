@@ -32,7 +32,7 @@
 #include "maths/result.h"
 #include "maths/schema/dot.h"
 
-#define ORT_MATH_DOT_IMPL_FOR_TYPE(c_type, unused) \
+#define ORT_MATH_FRONTEND_DOT_IMPL_FOR_TYPE(c_type, unused) \
     static zend_always_inline c_type ort_math_dot_impl_##c_type( \
         const c_type* va, const c_type* vb, size_t count) { \
         c_type sum = 0; \
@@ -42,19 +42,25 @@
         return sum; \
     }
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL_FOR_TYPE)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_DOT_IMPL_FOR_TYPE)
+#undef ORT_MATH_FRONTEND_DOT_IMPL_FOR_TYPE
 
-#define ORT_MATH_DOT_IMPL(c_type, onnx_type)        \
-    ORT_MATH_FRONTEND_BINARY_OP_DECL(dot, c_type) { \
-        c_type* res = (c_type*)result;              \
-        const c_type* va = (const c_type*)a;        \
-        const c_type* vb = (const c_type*)b;        \
+#define ORT_MATH_FRONTEND_DOT_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_BINARY_OP_DECL(dot, c_type) {   \
+        c_type* res = (c_type*)result;                \
+        const c_type* va = (const c_type*)a;          \
+        const c_type* vb = (const c_type*)b;          \
         res[0] = ort_math_dot_impl_##c_type(va, vb, count); \
     }
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_DOT_IMPL)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_DOT_IMPL)
+#undef ORT_MATH_FRONTEND_DOT_IMPL
 
-static ort_math_element_op_func_t ort_math_frontend_get_dot_func(ONNXTensorElementDataType type) {
+static ort_math_element_op_func_t
+    ort_math_frontend_get_dot_func(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->dot_func;

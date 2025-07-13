@@ -30,7 +30,7 @@
 #include "maths/result.h"
 #include "maths/schema/max.h"
 
-#define ORT_MATH_MAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
+#define ORT_MATH_FRONTEND_MAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, c_type) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
@@ -46,6 +46,10 @@
             } \
         } \
     }
+
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_MAX_AXIS_IMPL_FOR_TYPE)
+#undef ORT_MATH_FRONTEND_MAX_AXIS_IMPL_FOR_TYPE
 
 ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, zend_bool) {
     zend_bool* va = (zend_bool*)a;
@@ -63,7 +67,7 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, zend_bool) {
     }
 }
 
-#define ORT_MATH_MAX_IMPL_FOR_TYPE(c_type, unused) \
+#define ORT_MATH_FRONTEND_MAX_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_UNARY_OP_DECL(max, c_type) { \
         c_type* va = (c_type*)a;                   \
         c_type* res = (c_type*)result;             \
@@ -73,6 +77,10 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, zend_bool) {
         }                                          \
         res[0] = max;                              \
     }
+
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_MAX_IMPL_FOR_TYPE)
+#undef ORT_MATH_FRONTEND_MAX_IMPL_FOR_TYPE
 
 ORT_MATH_FRONTEND_UNARY_OP_DECL(max, zend_bool) {
     zend_bool* va = (zend_bool*)a;
@@ -84,27 +92,28 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(max, zend_bool) {
     res[0] = max;
 }
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MAX_AXIS_IMPL_FOR_TYPE)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MAX_IMPL_FOR_TYPE)
-
-static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_max(ONNXTensorElementDataType type) {
+static ort_math_unary_op_func_t
+    ort_math_frontend_get_reduce_tensor_max(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->max_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(max,
+ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(max,
     ort_math_frontend_get_reduce_tensor_max,
     ort_math_validate_input,
     &ort_math_promotion_schema_max);
 
-static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_max(ONNXTensorElementDataType type) {
+static ort_math_reduction_op_func_t
+    ort_math_frontend_get_reduce_axis_max(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->max_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_IMPL(max,
+ORT_MATH_RESULT_REDUCE_AXIS_IMPL(max,
     ort_math_frontend_get_reduce_axis_max,
     ort_math_validate_input,
     ort_math_validate_axis,

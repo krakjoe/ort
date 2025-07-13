@@ -30,7 +30,7 @@
 #include "maths/result.h"
 #include "maths/schema/sum.h"
 
-#define ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(c_type)             \
+#define ORT_MATH_FRONTEND_SUM_AXIS_IMPL_FOR_TYPE(c_type)    \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(sum, c_type) { \
         c_type* va = (c_type*)a;                            \
         c_type* res = (c_type*)result;                      \
@@ -47,7 +47,12 @@
         }                                                   \
     }
 
-#define ORT_MATH_SUM_IMPL_FOR_TYPE(c_type)             \
+ORT_MATH_FRONTEND_SUM_AXIS_IMPL_FOR_TYPE(float)
+ORT_MATH_FRONTEND_SUM_AXIS_IMPL_FOR_TYPE(double)
+ORT_MATH_FRONTEND_SUM_AXIS_IMPL_FOR_TYPE(int64_t)
+#undef ORT_MATH_FRONTEND_SUM_AXIS_IMPL_FOR_TYPE
+
+#define ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE(c_type)    \
     ORT_MATH_FRONTEND_REDUCTION_OP_DECL(sum, c_type) { \
         c_type* va = (c_type*)a;                       \
         c_type* res = (c_type*)result;                 \
@@ -58,13 +63,10 @@
         res[0] = sum;                                  \
     }
 
-ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(float)
-ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(double)
-ORT_MATH_SUM_AXIS_IMPL_FOR_TYPE(int64_t)
-
-ORT_MATH_SUM_IMPL_FOR_TYPE(float)
-ORT_MATH_SUM_IMPL_FOR_TYPE(double)
-ORT_MATH_SUM_IMPL_FOR_TYPE(int64_t)
+ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE(float)
+ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE(double)
+ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE(int64_t)
+#undef ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE
 
 static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_sum(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
@@ -72,7 +74,7 @@ static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_sum(ONNXTens
     return dispatch->sum_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(sum,
+ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(sum,
     ort_math_frontend_get_reduce_tensor_sum,
     ort_math_validate_input,
     &ort_math_promotion_schema_sum);
@@ -83,7 +85,7 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_sum(ONNXTe
     return dispatch->sum_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_IMPL(sum,
+ORT_MATH_RESULT_REDUCE_AXIS_IMPL(sum,
     ort_math_frontend_get_reduce_axis_sum,
     ort_math_validate_input,
     ort_math_validate_axis,

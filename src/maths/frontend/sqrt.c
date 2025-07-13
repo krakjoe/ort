@@ -29,7 +29,7 @@
 #include "maths/dispatch.h"
 #include "maths/schema/sqrt.h"
 
-#define ORT_MATH_SQRT_IMPL(c_type, onnx_type)     \
+#define ORT_MATH_FRONTEND_SQRT_IMPL(c_type, onnx_type)     \
 ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {   \
     c_type* res = (c_type*)result;                \
     const c_type* va = (const c_type*)a;          \
@@ -38,7 +38,9 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {   \
     }                                             \
 }
 
-ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SQRT_IMPL)
+ORT_MATH_FOREACH_REAL_TYPE(
+    ORT_MATH_FRONTEND_SQRT_IMPL)
+#undef ORT_MATH_FRONTEND_SQRT_IMPL
 
 static zend_always_inline ort_math_unary_op_func_t
     ort_math_frontend_get_sqrt_func(ONNXTensorElementDataType type) {
@@ -47,4 +49,4 @@ static zend_always_inline ort_math_unary_op_func_t
     return dispatch->sqrt_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(sqrt, ort_math_frontend_get_sqrt_func, &ort_math_promotion_schema_sqrt)
+ORT_MATH_RESULT_UNARY_IMPL(sqrt, ort_math_frontend_get_sqrt_func, &ort_math_promotion_schema_sqrt)

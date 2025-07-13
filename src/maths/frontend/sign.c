@@ -52,6 +52,9 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, double) {
                 1 :  (va[idx] < 0) ? -1 : 0;           \
         }                                              \
     }
+ORT_MATH_FOREACH_SIGNED_TYPE(
+    ORT_MATH_SIGN_IMPL_FOR_SIGNED)
+#undef ORT_MATH_SIGN_IMPL_FOR_SIGNED
 
 #define ORT_MATH_SIGN_IMPL_FOR_UNSIGNED(c_type, unused) \
     ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, c_type) {     \
@@ -63,8 +66,9 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, double) {
         }                                               \
     }
 
-ORT_MATH_FOREACH_SIGNED_TYPE(ORT_MATH_SIGN_IMPL_FOR_SIGNED)
-ORT_MATH_FOREACH_UNSIGNED_TYPE(ORT_MATH_SIGN_IMPL_FOR_UNSIGNED)
+ORT_MATH_FOREACH_UNSIGNED_TYPE(
+    ORT_MATH_SIGN_IMPL_FOR_UNSIGNED)
+#undef ORT_MATH_SIGN_IMPL_FOR_UNSIGNED
 
 static ort_math_unary_op_func_t ort_math_frontend_get_sign_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
@@ -72,4 +76,4 @@ static ort_math_unary_op_func_t ort_math_frontend_get_sign_func(ONNXTensorElemen
     return dispatch->sign_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(sign, ort_math_frontend_get_sign_func, &ort_math_promotion_schema_sign)
+ORT_MATH_RESULT_UNARY_IMPL(sign, ort_math_frontend_get_sign_func, &ort_math_promotion_schema_sign)

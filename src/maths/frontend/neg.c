@@ -29,24 +29,13 @@
 #include "maths/dispatch.h"
 #include "maths/schema/neg.h"
 
-#define ORT_MATH_NEG_IMPL(c_type, onnx_type)   \
-ORT_MATH_FRONTEND_UNARY_OP_DECL(neg, c_type) { \
-    c_type* res = (c_type*)result;             \
-    const c_type* va = (const c_type*)a;       \
-    for (size_t i = 0; i < count; i++) {       \
-        res[i] = -va[i];                       \
-    }                                          \
-}
+#define ORT_MATH_FRONTEND_NEG_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_UNARY_OP_IMPL(neg, c_type, -)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_NEG_IMPL)
+#undef ORT_MATH_FRONTEND_NEG_IMPL
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_NEG_IMPL)
-
-ORT_MATH_FRONTEND_UNARY_OP_DECL(neg, zend_bool) {
-    zend_bool* res = (zend_bool*)result;
-    const zend_bool* va = (const zend_bool*)a;
-    for (size_t i = 0; i < count; i++) {
-        res[i] = !va[i];
-    }
-}
+ORT_MATH_FRONTEND_UNARY_OP_IMPL(neg, zend_bool, !)
 
 static ort_math_unary_op_func_t ort_math_frontend_get_neg_func(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
@@ -54,4 +43,4 @@ static ort_math_unary_op_func_t ort_math_frontend_get_neg_func(ONNXTensorElement
     return dispatch->neg_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(neg, ort_math_frontend_get_neg_func, &ort_math_promotion_schema_neg)
+ORT_MATH_RESULT_UNARY_IMPL(neg, ort_math_frontend_get_neg_func, &ort_math_promotion_schema_neg)

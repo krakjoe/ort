@@ -29,11 +29,12 @@
 #include "maths/dispatch.h"
 #include "maths/schema/mul.h"
 
-#define ORT_MATH_MUL_IMPL(c_type, onnx_type) \
-    ORT_MATH_FRONTEND_BINARY_OP_IMPL(mul, c_type, onnx_type, *)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MUL_IMPL)
-ORT_MATH_FRONTEND_BINARY_OP_IMPL(mul, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, &&)
+#define ORT_MATH_FRONTEND_MUL_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_BINARY_OP_IMPL(mul, c_type, *)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_MUL_IMPL)
+#undef ORT_MATH_FRONTEND_MUL_IMPL
+ORT_MATH_FRONTEND_BINARY_OP_IMPL(mul, zend_bool, &&)
 
 static ort_math_element_op_func_t 
     ort_math_frontend_get_mul_func(ONNXTensorElementDataType type) {
@@ -42,11 +43,12 @@ static ort_math_element_op_func_t
     return dispatch->mul_func;
 }
 
-#define ORT_MATH_MUL_SCALAR_IMPL(c_type, onnx_type) \
-    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, c_type, onnx_type, *)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MUL_SCALAR_IMPL)
-ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, \
-    zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, &&)
+#define ORT_MATH_FRONTEND_MUL_SCALAR_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, c_type, *)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_MUL_SCALAR_IMPL)
+#undef ORT_MATH_FRONTEND_MUL_SCALAR_IMPL
+ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, zend_bool, &&)
 
 static ort_math_scalar_op_func_t 
     ort_math_frontend_get_mul_scalar_func(ONNXTensorElementDataType type) {
@@ -55,5 +57,5 @@ static ort_math_scalar_op_func_t
     return dispatch->mul_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(multiply, ort_math_frontend_get_mul_func, &ort_math_promotion_schema_mul)
-ORT_MATH_SCALAR_RESULT_IMPL(multiply, ort_math_frontend_get_mul_scalar_func, &ort_math_promotion_schema_mul)
+ORT_MATH_RESULT_BINARY_IMPL(multiply, ort_math_frontend_get_mul_func, &ort_math_promotion_schema_mul)
+ORT_MATH_RESULT_SCALAR_IMPL(multiply, ort_math_frontend_get_mul_scalar_func, &ort_math_promotion_schema_mul)

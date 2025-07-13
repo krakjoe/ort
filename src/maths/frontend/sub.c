@@ -29,9 +29,11 @@
 #include "maths/dispatch.h"
 #include "maths/schema/sub.h"
 
-#define ORT_MATH_SUB_IMPL(c_type, onnx_type) \
-    ORT_MATH_FRONTEND_BINARY_OP_IMPL(sub, c_type, onnx_type, -)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUB_IMPL)
+#define ORT_MATH_FRONTEND_SUB_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_BINARY_OP_IMPL(sub, c_type, -)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_SUB_IMPL)
+#undef ORT_MATH_FRONTEND_SUB_IMPL
 
 static ort_math_element_op_func_t 
     ort_math_frontend_get_sub_func(ONNXTensorElementDataType type) {
@@ -40,9 +42,11 @@ static ort_math_element_op_func_t
     return dispatch->sub_func;
 }
 
-#define ORT_MATH_SUB_SCALAR_IMPL(c_type, onnx_type) \
-    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(sub, c_type, onnx_type, -)
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_SUB_SCALAR_IMPL)
+#define ORT_MATH_FRONTEND_SUB_SCALAR_IMPL(c_type, onnx_type) \
+    ORT_MATH_FRONTEND_SCALAR_OP_IMPL(sub, c_type, -)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_SUB_SCALAR_IMPL)
+#undef ORT_MATH_FRONTEND_SUB_SCALAR_IMPL
 
 static ort_math_scalar_op_func_t 
     ort_math_frontend_get_sub_scalar_func(ONNXTensorElementDataType type) {
@@ -51,5 +55,5 @@ static ort_math_scalar_op_func_t
     return dispatch->sub_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(subtract, ort_math_frontend_get_sub_func, &ort_math_promotion_schema_sub)
-ORT_MATH_SCALAR_RESULT_IMPL(subtract, ort_math_frontend_get_sub_scalar_func, &ort_math_promotion_schema_sub)
+ORT_MATH_RESULT_BINARY_IMPL(subtract, ort_math_frontend_get_sub_func, &ort_math_promotion_schema_sub)
+ORT_MATH_RESULT_SCALAR_IMPL(subtract, ort_math_frontend_get_sub_scalar_func, &ort_math_promotion_schema_sub)

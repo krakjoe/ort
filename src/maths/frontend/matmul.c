@@ -68,9 +68,13 @@
         }                                                                  \
     }
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_MATMUL_IMPL_FOR_TYPE)
+ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_MATMUL_IMPL_FOR_TYPE)
+#undef ORT_MATH_MATMUL_IMPL_FOR_TYPE
 
-static ort_math_element_op_func_t ort_math_frontend_get_matmul_func(ONNXTensorElementDataType type) {
+static ort_math_element_op_func_t
+    ort_math_frontend_get_matmul_func(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return (void*) dispatch->matmul_func;
