@@ -75,17 +75,6 @@ ort_math_type_promotion_t ort_math_type_promote_schema_scalar(
     zval* scalar
 );
 
-ort_math_type_promotion_t ort_math_type_promote(
-    ort_tensor_t* tensor_a,
-    ort_tensor_t* tensor_b
-);
-
-ort_math_type_promotion_t ort_math_operation_promote(
-    ONNXTensorElementDataType type,
-    size_t inputs,
-    ... /* ort_tensor_t* inputs[] */
-);
-
 void* ort_math_operation_upcast(
     const ort_tensor_t* result,
     const ort_math_type_promotion_t* promotion,
