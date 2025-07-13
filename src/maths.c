@@ -60,6 +60,7 @@
 #include "maths/schema/sum.h"
 #include "maths/schema/tan.h"
 #include "maths/schema/tanh.h"
+#include "maths/schema/trunc.h"
 
 typedef struct _php_ort_math_schema_t {
     const ort_math_type_promotion_schema_t* schema;
@@ -506,6 +507,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_tan;
     } else if (zend_string_equals_literal_ci(symbol, "tanh")) {
         ort->schema = &ort_math_promotion_schema_tanh;
+    } else if (zend_string_equals_literal_ci(symbol, "trunc")) {
+        ort->schema = &ort_math_promotion_schema_trunc;
     } else {
         /* throw */
         return;

@@ -41,6 +41,7 @@ foreach ([
     "sum",
     "tan",
     "tanh",
+    "trunc",
 ] as $name)
     new Math\Schema($name);
 
