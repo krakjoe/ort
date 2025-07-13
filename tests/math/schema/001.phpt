@@ -11,6 +11,7 @@ foreach ([
     "asin",
     "atan",
     "cbrt",
+    "ceil",
     "cos",
     "cosh",
     "div",
