@@ -29,11 +29,6 @@
 #include "maths/dispatch.h"
 #include "maths/schema/sqrt.h"
 
-/* =============================================================================
- * SQRT OPERATIONS
- * =============================================================================
- */
-
 #define ORT_MATH_SQRT_IMPL(c_type, onnx_type)     \
 ORT_MATH_FRONTEND_UNARY_OP_DECL(sqrt, c_type) {   \
     c_type* res = (c_type*)result;                \

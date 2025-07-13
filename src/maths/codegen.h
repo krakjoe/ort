@@ -404,9 +404,9 @@ ort_tensor_t* ort_math_result_reduce_tensor_##func_name(                     \
         &promotion, tensor, op_func, #func_name);                            \
 }
 
-#define ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_IMPL(                                      \
+#define ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_IMPL(                               \
     func_name, getter_func, validate_tensor_func,validate_axis_func, shape_func) \
-ort_tensor_t* ort_math_result_serial_reduce_axis_##func_name(                         \
+ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
     ort_tensor_t* tensor, zend_long axis, zend_bool keepdims) {                \
     if (!validate_tensor_func(tensor, #func_name)) {                           \
         return NULL;                                                           \
@@ -420,14 +420,14 @@ ort_tensor_t* ort_math_result_serial_reduce_axis_##func_name(                   
             #func_name ": unsupported data type for mathematical function");   \
         return NULL;                                                           \
     }                                                                          \
-    return ort_math_result_serial_element_wise_reduce_axis(NULL,                      \
+    return ort_math_result_serial_element_wise_reduce_axis(NULL,               \
         tensor, axis, keepdims,                                                \
         op_func, #func_name, shape_func);                                      \
 }
 
 #define ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(                   \
     func_name, getter_func, validate_tensor_func,validate_axis_func, shape_func, schema) \
-ort_tensor_t* ort_math_result_serial_reduce_axis_##func_name(                  \
+ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
     ort_tensor_t* tensor, zend_long axis, zend_bool keepdims) {                \
     if (!validate_tensor_func(tensor, #func_name)) {                           \
         return NULL;                                                           \
@@ -515,7 +515,7 @@ ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
             #func_name ": unsupported data type for mathematical function");   \
         return NULL;                                                           \
     }                                                                          \
-    return ort_math_result_serial_element_wise_reduce_axis(&promotion,                \
+    return ort_math_result_serial_element_wise_reduce_axis(&promotion,         \
         tensor, axis, keepdims,                                                \
         op_func, #func_name, shape_func);                                      \
 }

@@ -28,6 +28,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 #include "maths/result.h"
+#include "maths/schema/softmax.h"
 
 #define ORT_MATH_SOFTMAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(softmax, c_type) { \
@@ -66,27 +67,15 @@
 
 ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_SOFTMAX_AXIS_IMPL_FOR_TYPE)
 
-static zend_always_inline ONNXTensorElementDataType ort_math_frontend_softmax_get_promotion_schema(ONNXTensorElementDataType type) {
-    if (type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
-        type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
-        return type;
-    }
-    return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED; // or trigger error upstream
-}
-
 static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_softmax(ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
-    if (!dispatch) {
-        return NULL;
-    }
-    
     return dispatch->softmax_axis_func;
 }
 
-ORT_MATH_SERIAL_REDUCE_AXIS_PROMOTE_RESULT_IMPL(softmax,
+ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(softmax,
     ort_math_frontend_get_reduce_axis_softmax,
     ort_math_validate_input,
     ort_math_validate_axis,
     ort_math_result_reduce,
-    ort_math_frontend_softmax_get_promotion_schema)
+    &ort_math_promotion_schema_softmax)

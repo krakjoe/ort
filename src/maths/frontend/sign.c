@@ -24,11 +24,6 @@
 #include "maths/dispatch.h"
 #include "maths/schema/sign.h"
 
-/* =============================================================================
- * SIGN OPERATIONS
- * =============================================================================
- */
-
 ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, float) {
     float* res = (float*)result;
     const float* va = (const float*)a;
