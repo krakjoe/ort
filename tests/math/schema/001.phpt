@@ -16,6 +16,7 @@ foreach ([
     "exp",
     "exp2",
     "log",
+    "log2",
     "matmul",
     "max",
     "mean",
