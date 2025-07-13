@@ -15,11 +15,39 @@ Type promotions in `php-ort` are context dependent: This means that coercion wil
     - `f`/`c`: Only one of `function` or `code` may be used.
     - `u`/`b`: Only one of `unary` or `binary` may be used.
 
-## Example:
+## Example
 
 `python3 tests/fixtures/extract.py -f sqrt -n sqrt -u`
 
 Will extract the promotion schema for `np.sqrt` (which is a unary function). The script will output the C code for the schema, which should be copy/pasted into the appropriate schema header in `src/maths/schema` and included from the applicable frontend unit (in this case `sqrt.c`).
+
+## Introspection
+
+Introspection of promotion schemas can be performed using the `ONNX\Math\Schema` API:
+
+  - `ONNX\Math\Schema::__construct(string symbol)`
+  - `ONNX\Math\Schema::resolve(int ... types)`
+
+Example:
+
+```php
+$schema = new ONNX\Math\Schema('add');
+
+var_dump($schema->resolve(
+    ONNX\Tensor::FLOAT,
+    ONNX\Tensor::DOUBLE) ==
+        ONNX\Tensor::DOUBLE);
+```
+
+Will yield:
+
+```text
+bool(true)
+```
+
+Because adding `Tensor::FLOAT` and `Tensor::DOUBLE` results in `Tensor::DOUBLE`.
+
+Errors: `resolve` will return `-1` upon encountering error conditions (adjust your API usage).
 
 ### Notes
 
@@ -29,3 +57,4 @@ Will extract the promotion schema for `np.sqrt` (which is a unary function). The
 
   - Promotion schemas drive both coercion behavior and kernel selection.
   - The inclusion of `UNDEFINED` in the output is not an error, but indicates that the operation is not mathmatically defined in `numpy` and so should not be supported by `php-ort` (ie, don't hand edit schemas with `UNDEFINED`).
+  - Remember to edit `src/maths.c` for new schemas; introspection requires manual edits to this file.
