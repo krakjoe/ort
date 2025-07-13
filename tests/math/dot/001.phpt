@@ -28,7 +28,7 @@ foreach ($types as $name => [$type, $values]) {
     $b = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $result = ONNX\Math\dot($a, $b);
     echo "PASS: $name dot tensor • tensor\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // Large tensor case for vectorization
@@ -38,7 +38,7 @@ foreach ($types as $name => [$type, $values]) {
     $b = new ONNX\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
     $result = ONNX\Math\dot($a, $b);
     echo "PASS: $name dot large tensor • large tensor (vectorized)\n";
-    print_result($result, $name);
+    print_result($result);
 }
 ?>
 --EXPECTF--

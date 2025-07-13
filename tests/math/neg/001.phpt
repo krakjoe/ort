@@ -27,7 +27,7 @@ foreach ($types as $name => [$type, $values]) {
     $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $result = ONNX\Math\neg($a);
     echo "PASS: $name neg tensor\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // Large tensor case for vectorization (only supported types)

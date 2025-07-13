@@ -29,7 +29,7 @@ foreach ($types as $name => [$type, $values]) {
     try {
         $result = ONNX\Math\divide($a, $b);
         echo "PASS: $name divide tensor + tensor\n";
-        print_result($result, $name);
+        print_result($result);
     } catch (Throwable $e) {
         echo "FAIL: $name divide tensor + tensor: ".$e->getMessage()."\n";
     }

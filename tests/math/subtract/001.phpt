@@ -28,7 +28,7 @@ foreach ($types as $name => [$type, $values]) {
     $b = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $result = ONNX\Math\subtract($a, $b);
     echo "PASS: $name sub tensor - tensor\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // Large tensor case for vectorization

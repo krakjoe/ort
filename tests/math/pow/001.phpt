@@ -17,7 +17,7 @@ foreach (array_merge($real, $signed_types, $unsigned_types) as $name => $type) {
     $b = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $result = ONNX\Math\pow($a, $b);
     echo "PASS: $name pow tensor ** tensor\n";
-    print_result($result, $name);
+    print_result($result);
 }
 ?>
 --EXPECTF--

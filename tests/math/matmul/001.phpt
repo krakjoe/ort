@@ -31,7 +31,7 @@ foreach ($types as $name => [$type, $values]) {
     $b = new ONNX\Tensor\Transient([2, count($values)], $b_data, $type);
     $result = ONNX\Math\matmul($a, $b);
     echo "PASS: $name matmul matrix x matrix\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // Large matrix case for vectorization
@@ -72,7 +72,7 @@ $a = new ONNX\Tensor\Transient([2,2,2], $a_data, $real['FLOAT']);
 $b = new ONNX\Tensor\Transient([2,2,2], $b_data, $real['FLOAT']);
 $result = ONNX\Math\matmul($a, $b);
 echo "PASS: FLOAT matmul batched 3D\n";
-print_result($result, 'FLOAT');
+print_result($result);
 ?>
 --EXPECTF--
 PASS: FLOAT matmul matrix x matrix

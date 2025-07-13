@@ -36,7 +36,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = ONNX\Tensor\Transient::from($int8_2d, \ONNX\Tensor::INT8);
 $result = ONNX\Math\abs($a);
 echo "PASS: INT8 abs 2D 8x8\n";
-print_result($result, 'int8');
+print_result($result);
 ?>
 --EXPECTF--
 PASS: FLOAT abs signed [-16..-1,0,1..16]

@@ -30,7 +30,7 @@ foreach ($types as $name => [$type, $values]) {
         $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
         $result = ONNX\Math\add($a, $scalar);
         echo "PASS: $name add tensor + scalar ($scalar)\n";
-        print_result($result, $name);
+        print_result($result);
     }
 }
 ?>

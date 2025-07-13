@@ -69,7 +69,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $bool_2d, ONNX\Tensor::BOOL);
 $result = ONNX\Math\asin($a);
 echo "PASS: BOOL asin [bool 8x8] (numpy semantics)\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 5. Asin of large and small values (real types only, large set)
 $extremes = array_merge([

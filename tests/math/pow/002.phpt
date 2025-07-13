@@ -29,7 +29,7 @@ foreach ($types as $name => [$type, $values]) {
         $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
         $result = ONNX\Math\pow($a, $scalar);
         echo "PASS: $name pow tensor ** scalar ($scalar)\n";
-        print_result($result, $name);
+        print_result($result);
     }
 }
 ?>

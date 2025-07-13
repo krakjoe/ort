@@ -28,7 +28,7 @@ foreach ($types as $name => [$type, $values]) {
     $b = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $result = ONNX\Math\add($a, $b);
     echo "PASS: $name add tensor + tensor\n";
-    print_result($result, $name);
+    print_result($result);
 }
 
 // Large tensor case for vectorization

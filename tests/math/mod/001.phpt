@@ -17,7 +17,7 @@ foreach (array_merge($real, $signed_types) as $name => $type) {
     $b = new ONNX\Tensor\Transient([count($values)], array_reverse($values), $type);
     $result = ONNX\Math\mod($a, $b);
     echo "PASS: $name mod signed [-16..-1,0,1..16] % reversed\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 1b. Mod for unsigned types: only non-negative values, and negative values to test wraparound
 $values_unsigned = array_merge(range(-3, -1), range(0, 31));
@@ -26,7 +26,7 @@ foreach ($unsigned_types as $name => $type) {
     $b = new ONNX\Tensor\Transient([count($values_unsigned)], array_reverse($values_unsigned), $type);
     $result = ONNX\Math\mod($a, $b);
     echo "PASS: $name mod unsigned [-3..-1,0..31] % reversed (wraparound)\n";
-    print_result($result, $name);
+    print_result($result);
 }
 // 2. Mod of 2D tensor for INT8 (with negative and positive values)
 $int8_2d = [];
@@ -41,7 +41,7 @@ $a = ONNX\Tensor\Transient::from($int8_2d, \ONNX\Tensor::INT8);
 $b = ONNX\Tensor\Transient::from($int8_2d, \ONNX\Tensor::INT8);
 $result = ONNX\Math\mod($a, $b);
 echo "PASS: INT8 mod 2D 8x8\n";
-print_result($result, 'int8');
+print_result($result);
 ?>
 --EXPECTF--
 PASS: FLOAT mod signed [-16..-1,0,1..16] % reversed

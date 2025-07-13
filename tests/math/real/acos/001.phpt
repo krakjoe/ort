@@ -55,7 +55,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $int8_2d, ONNX\Tensor::INT8);
 $result = ONNX\Math\acos($a);
 echo "PASS: INT8 acos 2D 8x8 alt sign\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 4. Acos of bool tensor (large enough)
 $bool_2d = [];
@@ -69,7 +69,7 @@ for ($i = 0; $i < 8; $i++) {
 $a = new ONNX\Tensor\Transient([8,8], $bool_2d, ONNX\Tensor::BOOL);
 $result = ONNX\Math\acos($a);
 echo "PASS: BOOL acos [bool 8x8] (numpy semantics)\n";
-print_result($result, 'DOUBLE');
+print_result($result);
 
 // 5. Acos of large and small values (real types only, large set)
 $extremes = array_merge([

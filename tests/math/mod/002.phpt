@@ -18,7 +18,7 @@ foreach (array_merge($real, $signed_types, $unsigned_types) as $name => $type) {
     foreach ($scalars as $scalar) {
         $result = ONNX\Math\mod($a, $scalar);
         echo "PASS: $name mod tensor % scalar ($scalar)\n";
-        print_result($result, $name);
+        print_result($result);
     }
 }
 ?>
