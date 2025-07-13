@@ -61,11 +61,6 @@ ort_math_type_promotion_t ort_math_type_promote(
     ort_tensor_t* tensor_b
 );
 
-ort_math_type_promotion_t ort_math_type_promote_strict(
-    ort_tensor_t* tensor_a,
-    ort_tensor_t* tensor_b
-);
-
 ort_math_type_promotion_t ort_math_operation_promote(
     ONNXTensorElementDataType type,
     size_t inputs,

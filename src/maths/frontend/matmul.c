@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend matmul operations for tensors
+ @test tests/math/matmul
+*/
+
 #include <math.h>
 
 #include "status.h"
@@ -24,6 +29,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 #include "maths/result.h"
+#include "maths/schema/matmul.h"
 
 // Matrix multiplication for a single batch (C = A x B)
 #define ORT_MATH_MATMUL_IMPL_FOR_TYPE(c_type, unused)  \
@@ -118,7 +124,7 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     }
 
     // Strict ONNX/NumPy-style type promotion for matmul (use struct for richer info)
-    ort_math_type_promotion_t promotion = ort_math_type_promote_strict(matrix_a, matrix_b);
+    ort_math_type_promotion_t promotion = ort_math_type_promote_schema_binary(&ort_math_promotion_schema_matmul, matrix_a, matrix_b);
     if (!promotion.is_valid) {
         php_ort_status_throw(php_ort_status_math_error_ce,
             "matmul: unsupported type promotion (%s x %s)",
