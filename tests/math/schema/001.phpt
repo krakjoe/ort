@@ -8,6 +8,7 @@ foreach ([
     "acos",
     "add",
     "asin",
+    "atan",
     "cos",
     "div",
     "dot",
