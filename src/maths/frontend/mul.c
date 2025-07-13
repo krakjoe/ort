@@ -16,6 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend mul operations for tensors
+ @test tests/math/mul
+*/
+
 #include <math.h>
 
 #include "status.h"
