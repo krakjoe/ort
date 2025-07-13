@@ -31,6 +31,7 @@
 #include "maths/schema/acos.h"
 #include "maths/schema/asin.h"
 #include "maths/schema/atan.h"
+#include "maths/schema/log.h"
 #include "maths/schema/sin.h"
 #include "maths/schema/sinh.h"
 #include "maths/schema/tan.h"
@@ -170,7 +171,7 @@ ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(cosh, ort_math_frontend_get_cosh_func, &o
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(tanh, ort_math_frontend_get_tanh_func, &ort_math_promotion_schema_tanh)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(exp, ort_math_frontend_get_exp_func, &ort_math_promotion_schema_exp)
 ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(exp2, ort_math_frontend_get_exp2_func, &ort_math_promotion_schema_exp2)
-ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(log, ort_math_frontend_get_log_func, ort_math_frontend_real_get_promotion_schema)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(log, ort_math_frontend_get_log_func, &ort_math_promotion_schema_log)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(log2, ort_math_frontend_get_log2_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(log10, ort_math_frontend_get_log10_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(cbrt, ort_math_frontend_get_cbrt_func, ort_math_frontend_real_get_promotion_schema)
