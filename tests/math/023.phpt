@@ -69,21 +69,6 @@ try {
     echo "FAIL: Boolean scalar multiplication failed: " . $e->getMessage() . "\n";
 }
 
-// Test 9: Boolean negation (logical NOT)
-try {
-    $tensor = new ONNX\Tensor\Transient([4], [true, false, true, false], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\neg($tensor);
-    $data = $result->getData();
-    // NOT: [!true, !false, !true, !false] = [false, true, false, true]
-    if ($data[0] === false && $data[1] === true && $data[2] === false && $data[3] === true) {
-        echo "PASS: Boolean negation (NOT) works correctly\n";
-    } else {
-        echo "FAIL: Boolean negation result: " . json_encode($data) . "\n";
-    }
-} catch (Error $e) {
-    echo "FAIL: Boolean negation failed: " . $e->getMessage() . "\n";
-}
-
 echo "Boolean tensor operation tests completed!\n";
 ?>
 --EXPECT--
@@ -92,5 +77,4 @@ PASS: Boolean addition (OR) works correctly
 PASS: Boolean multiplication (AND) works correctly
 PASS: Boolean scalar addition works correctly
 PASS: Boolean scalar multiplication works correctly
-PASS: Boolean negation (NOT) works correctly
 Boolean tensor operation tests completed!

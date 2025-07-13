@@ -4,7 +4,7 @@
 .libs/
 .deps/
 Makefile
-Makefile.frag
+Makefile.fragments
 Makefile.objects
 aclocal.m4
 autom4te.cache/
@@ -13,11 +13,14 @@ config.cache
 config.guess
 config.h
 config.h.in
+config.h.in~
 config.log
 config.nice
 config.status
 config.sub
 configure
+configure.ac
+configure~
 depcomp
 install-sh
 libtool
@@ -25,7 +28,8 @@ ltmain.sh
 missing
 mkinstalldirs
 modules/
-run-tests.php
+*.php
+*.py
 tests/*.diff
 tests/*.exp
 tests/*.log

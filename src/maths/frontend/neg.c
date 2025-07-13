@@ -16,12 +16,18 @@
   +----------------------------------------------------------------------+
  */
 
+/*
+ @brief Implements frontend negation operations for tensors
+ @test tests/math/neg
+*/
+
 #include <math.h>
 
 #include "status.h"
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
+#include "maths/schema/neg.h"
 
 #define ORT_MATH_NEG_IMPL(c_type, onnx_type)   \
 ORT_MATH_FRONTEND_UNARY_OP_DECL(neg, c_type) { \
@@ -48,4 +54,4 @@ static ort_math_unary_op_func_t ort_math_frontend_get_neg_func(ONNXTensorElement
     return dispatch->neg_func;
 }
 
-ORT_MATH_UNARY_RESULT_IMPL(neg, ort_math_frontend_get_neg_func)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(neg, ort_math_frontend_get_neg_func, &ort_math_promotion_schema_neg)

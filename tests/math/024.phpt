@@ -18,9 +18,6 @@ try {
     
     $result = ONNX\Math\multiply($tensor_a, $tensor_b);
     echo "PASS: INT64 multiplication works\n";
-    
-    $result = ONNX\Math\neg($tensor_a);
-    echo "PASS: INT64 negation works\n";
 } catch (Error $e) {
     echo "FAIL: INT64 operations failed: " . $e->getMessage() . "\n";
 }
@@ -53,9 +50,6 @@ try {
     
     $result = ONNX\Math\multiply($tensor_a, $tensor_b);
     echo "PASS: INT16 multiplication works\n";
-    
-    $result = ONNX\Math\neg($tensor_a);
-    echo "PASS: INT16 negation works\n";
 } catch (Error $e) {
     echo "FAIL: INT16 operations failed: " . $e->getMessage() . "\n";
 }
@@ -72,9 +66,6 @@ try {
     
     $result = ONNX\Math\multiply($tensor_a, $tensor_b);
     echo "PASS: INT8 multiplication works\n";
-    
-    $result = ONNX\Math\neg($tensor_a);
-    echo "PASS: INT8 negation works\n";
 } catch (Error $e) {
     echo "FAIL: INT8 operations failed: " . $e->getMessage() . "\n";
 }
@@ -149,18 +140,15 @@ echo "Integer tensor operation tests completed!\n";
 PASS: INT64 addition works
 PASS: INT64 subtraction works
 PASS: INT64 multiplication works
-PASS: INT64 negation works
 PASS: UINT16 addition works
 PASS: UINT16 subtraction works
 PASS: UINT16 multiplication works
 PASS: INT16 addition works
 PASS: INT16 subtraction works
 PASS: INT16 multiplication works
-PASS: INT16 negation works
 PASS: INT8 addition works
 PASS: INT8 subtraction works
 PASS: INT8 multiplication works
-PASS: INT8 negation works
 PASS: UINT8 addition works
 PASS: UINT8 subtraction works
 PASS: UINT8 multiplication works
