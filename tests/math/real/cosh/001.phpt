@@ -93,11 +93,11 @@ TYPE: DOUBLE
 SHAPE: [33]
 PASS: INT8 cosh large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [33]
 PASS: INT16 cosh large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [33]
 PASS: INT32 cosh large signed [-16..-1,0,1..16]
 RESULT: %s
@@ -109,11 +109,11 @@ TYPE: DOUBLE
 SHAPE: [33]
 PASS: UINT8 cosh large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT16 cosh large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT32 cosh large unsigned [0..31]
 RESULT: %s
@@ -129,11 +129,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: INT8 cosh large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: INT16 cosh large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: INT32 cosh large zeros/ones
 RESULT: %s
@@ -145,11 +145,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: UINT8 cosh large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT16 cosh large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT32 cosh large zeros/ones
 RESULT: %s
@@ -157,11 +157,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: INT8 cosh 2D 8x8 alt sign
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [8,8]
 PASS: BOOL cosh [bool 8x8] (numpy semantics)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [8,8]
 PASS: FLOAT cosh extremes large
 RESULT: %s
