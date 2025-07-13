@@ -25,6 +25,7 @@
 #include "maths/promotion.h"
 
 #include "maths/schema/add.h"
+#include "maths/schema/cos.h"
 #include "maths/schema/div.h"
 #include "maths/schema/dot.h"
 #include "maths/schema/matmul.h"
@@ -37,6 +38,7 @@
 #include "maths/schema/pow.h"
 #include "maths/schema/recip.h"
 #include "maths/schema/sign.h"
+#include "maths/schema/sin.h"
 #include "maths/schema/softmax.h"
 #include "maths/schema/sqrt.h"
 #include "maths/schema/sub.h"
@@ -417,6 +419,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
 
     if (zend_string_equals_literal_ci(symbol, "add")) {
         ort->schema = &ort_math_promotion_schema_add;
+    } else if (zend_string_equals_literal_ci(symbol, "cos")) {
+        ort->schema = &ort_math_promotion_schema_cos;
     } else if (zend_string_equals_literal_ci(symbol, "div")) {
         ort->schema = &ort_math_promotion_schema_div;
     } else if (zend_string_equals_literal_ci(symbol, "dot")) {
@@ -441,6 +445,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_recip;
     } else if (zend_string_equals_literal_ci(symbol, "sign")) {
         ort->schema = &ort_math_promotion_schema_sign;
+    } else if (zend_string_equals_literal_ci(symbol, "sin")) {
+        ort->schema = &ort_math_promotion_schema_sin;
     } else if (zend_string_equals_literal_ci(symbol, "softmax")) {
         ort->schema = &ort_math_promotion_schema_softmax;
     } else if (zend_string_equals_literal_ci(symbol, "sqrt")) {

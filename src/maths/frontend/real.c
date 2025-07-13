@@ -28,6 +28,9 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 
+#include "maths/schema/sin.h"
+#include "maths/schema/cos.h"
+
 /* =============================================================================
  * REAL MATHEMATICAL FUNCTIONS
  * =============================================================================
@@ -146,8 +149,8 @@ static zend_always_inline ONNXTensorElementDataType ort_math_frontend_real_get_p
     return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
 }
 
-ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(sin, ort_math_frontend_get_sin_func, ort_math_frontend_real_get_promotion_schema)
-ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(cos, ort_math_frontend_get_cos_func, ort_math_frontend_real_get_promotion_schema)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(sin, ort_math_frontend_get_sin_func, &ort_math_promotion_schema_sin)
+ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(cos, ort_math_frontend_get_cos_func, &ort_math_promotion_schema_cos)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(tan, ort_math_frontend_get_tan_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(asin, ort_math_frontend_get_asin_func, ort_math_frontend_real_get_promotion_schema)
 ORT_MATH_UNARY_PROMOTE_RESULT_IMPL(acos, ort_math_frontend_get_acos_func, ort_math_frontend_real_get_promotion_schema)

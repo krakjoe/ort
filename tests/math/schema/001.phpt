@@ -6,6 +6,7 @@ use ONNX\Math;
 
 foreach ([
     "add",
+    "cos",
     "div",
     "dot",
     "matmul",
@@ -18,6 +19,7 @@ foreach ([
     "pow",
     "recip",
     "sign",
+    "sin",
     "softmax",
     "sqrt",
     "sub",

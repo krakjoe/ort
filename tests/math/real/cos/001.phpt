@@ -81,6 +81,7 @@ foreach ($real as $name => $type) {
     echo "PASS: $name cos extremes large\n";
     print_result($result, $name);
 }
+?>
 --EXPECTF--
 PASS: FLOAT cos large signed [-16..-1,0,1..16]
 RESULT: %s
@@ -92,11 +93,11 @@ TYPE: DOUBLE
 SHAPE: [33]
 PASS: INT8 cos large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [33]
 PASS: INT16 cos large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [33]
 PASS: INT32 cos large signed [-16..-1,0,1..16]
 RESULT: %s
@@ -108,11 +109,11 @@ TYPE: DOUBLE
 SHAPE: [33]
 PASS: UINT8 cos large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT16 cos large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT32 cos large unsigned [0..31]
 RESULT: %s
@@ -128,11 +129,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: INT8 cos large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: INT16 cos large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: INT32 cos large zeros/ones
 RESULT: %s
@@ -144,11 +145,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: UINT8 cos large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT16 cos large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [32]
 PASS: UINT32 cos large zeros/ones
 RESULT: %s
@@ -156,11 +157,11 @@ TYPE: DOUBLE
 SHAPE: [32]
 PASS: INT8 cos 2D 8x8 alt sign
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [8,8]
 PASS: BOOL cos [bool 8x8] (numpy semantics)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT
 SHAPE: [8,8]
 PASS: FLOAT cos extremes large
 RESULT: %s
