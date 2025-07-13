@@ -52,6 +52,7 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_indices_sqrt[11
 };
 
 static const ort_math_type_promotion_schema_t ort_math_promotion_schema_sqrt = {
+    .kind    = ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY,
     .table   = ort_math_promotion_schema_table_sqrt,
     .indices = ort_math_promotion_schema_indices_sqrt,
     .size    = 11

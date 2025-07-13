@@ -48,8 +48,9 @@ def emit_schema_indices(name, size, indices):
             print(f"    {C_ENUM[t]},")
         print("};\n")
 
-def emit_schema_struct(name, size):
+def emit_schema_struct(name, size, kind):
     print(f"static const ort_math_type_promotion_schema_t ort_math_promotion_schema_{name} = {{")
+    print(f"    .kind    = {kind},")
     print(f"    .table   = ort_math_promotion_schema_table_{name},")
     print(f"    .indices = ort_math_promotion_schema_indices_{name},")
     print(f"    .size    = {size}")
@@ -112,7 +113,7 @@ def main():
             print("" + "".join(row))
         print("};\n")
         emit_schema_indices(args.name, size, type_names)
-        emit_schema_struct(args.name, size)
+        emit_schema_struct(args.name, size, 'ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY')
 
     if args.unary:
         print(f"static const ONNXTensorElementDataType ort_math_promotion_schema_table_{args.name}[{size}] = {{")
@@ -126,7 +127,7 @@ def main():
             print(f"    {C_ENUM.get(res_type, 'ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED')},\t// {type_names[i]} -> {res_type}")
         print("};\n")
         emit_schema_indices(args.name, size, type_names)
-        emit_schema_struct(args.name, size)
+        emit_schema_struct(args.name, size, 'ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY')
 
 if __name__ == '__main__':
     main()

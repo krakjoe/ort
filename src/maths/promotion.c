@@ -75,7 +75,7 @@ static zend_always_inline int ort_math_type_promotion_schema_lookup(const ONNXTe
 }
 
 // Get binary promotion type from schema
-static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_binary(
+ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_binary(
     const ort_math_type_promotion_schema_t* schema,
     ONNXTensorElementDataType a_type,
     ONNXTensorElementDataType b_type
@@ -92,7 +92,7 @@ static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_sche
 }
 
 // Get unary promotion type from schema
-static zend_always_inline ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_unary(
+ONNXTensorElementDataType ort_math_type_promotion_schema_resolve_unary(
     const ort_math_type_promotion_schema_t* schema,
     ONNXTensorElementDataType t_type
 ) {

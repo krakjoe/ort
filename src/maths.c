@@ -22,6 +22,76 @@
 #include "maths.h"
 #include "maths/api.h"
 #include "maths/result.h"
+#include "maths/promotion.h"
+
+#include "maths/schema/add.h"
+#include "maths/schema/div.h"
+#include "maths/schema/dot.h"
+#include "maths/schema/matmul.h"
+#include "maths/schema/mod.h"
+#include "maths/schema/mul.h"
+#include "maths/schema/neg.h"
+#include "maths/schema/recip.h"
+#include "maths/schema/sign.h"
+#include "maths/schema/sqrt.h"
+#include "maths/schema/sub.h"
+
+typedef struct _php_ort_math_schema_t {
+    const ort_math_type_promotion_schema_t* schema;
+    zend_string*                            symbol;
+    zend_object std;
+} php_ort_math_schema_t;
+
+zend_class_entry *php_ort_math_schema_ce;
+zend_object_handlers php_ort_math_schema_handlers;
+
+static zend_always_inline php_ort_math_schema_t* php_ort_math_schema_fetch(zend_object *o) {
+    return (php_ort_math_schema_t*) (((char*) o) - XtOffsetOf(php_ort_math_schema_t, std));
+}
+
+static zend_object* php_ort_math_schema_create(zend_class_entry *ce) {
+    php_ort_math_schema_t *ort = 
+        zend_object_alloc(sizeof(php_ort_math_schema_t), ce);
+        
+    zend_object_std_init(&ort->std, ce);
+    object_properties_init(&ort->std, ce);
+
+    ort->std.handlers = &php_ort_math_schema_handlers;
+    return &ort->std;
+}
+
+static HashTable* php_ort_math_schema_debug(zend_object *zo, int *temp) {
+    php_ort_math_schema_t *ort = php_ort_math_schema_fetch(zo);
+    HashTable *debug;
+
+    ALLOC_HASHTABLE(debug);
+    zend_hash_init(debug, 3, NULL, ZVAL_PTR_DTOR, 0);
+
+    if (ort->symbol) {
+        zval symbol;
+
+        ZVAL_STR_COPY(&symbol, ort->symbol);
+
+        zend_hash_str_update(debug,
+            "symbol", sizeof("symbol") - 1,
+            &symbol);
+    }
+
+__php_ort_tensor_debug_return:
+    *temp = 1;
+
+    return debug;
+}
+
+void php_ort_math_schema_free(zend_object *zo) {
+    php_ort_math_schema_t* ort = php_ort_math_schema_fetch(zo);
+
+    if (ort->symbol) {
+        zend_string_release(ort->symbol);
+    }
+
+    zend_object_std_dtor(zo);
+}
 
 #define ORT_MATH_UNARY_FUNCTION_IMPL(fname)                    \
     ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                    \
@@ -325,9 +395,168 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_FE_END
 };
 
+/* {{{ */
+ZEND_BEGIN_ARG_INFO_EX(php_ort_math_schema___construct_arginfo, 0, 0, 1)
+    ZEND_ARG_TYPE_INFO(0, symbol, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Math_Schema, __construct)
+{
+    php_ort_math_schema_t *ort = php_ort_math_schema_fetch(Z_OBJ_P(getThis()));
+    zend_string *symbol;
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_STR(symbol)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if (zend_string_equals_literal_ci(symbol, "add")) {
+        ort->schema = &ort_math_promotion_schema_add;
+    } else if (zend_string_equals_literal_ci(symbol, "div")) {
+        ort->schema = &ort_math_promotion_schema_div;
+    } else if (zend_string_equals_literal_ci(symbol, "dot")) {
+        ort->schema = &ort_math_promotion_schema_dot;
+    } else if (zend_string_equals_literal_ci(symbol, "matmul")) {
+        ort->schema = &ort_math_promotion_schema_matmul;
+    } else if (zend_string_equals_literal_ci(symbol, "mod")) {
+        ort->schema = &ort_math_promotion_schema_mod;
+    } else if (zend_string_equals_literal_ci(symbol, "mul")) {
+        ort->schema = &ort_math_promotion_schema_mul;
+    } else if (zend_string_equals_literal_ci(symbol, "neg")) {
+        ort->schema = &ort_math_promotion_schema_neg;
+    } else if (zend_string_equals_literal_ci(symbol, "recip")) {
+        ort->schema = &ort_math_promotion_schema_recip;
+    } else if (zend_string_equals_literal_ci(symbol, "sign")) {
+        ort->schema = &ort_math_promotion_schema_sign;
+    } else if (zend_string_equals_literal_ci(symbol, "sqrt")) {
+        ort->schema = &ort_math_promotion_schema_sqrt;
+    } else if (zend_string_equals_literal_ci(symbol, "sub")) {
+        ort->schema = &ort_math_promotion_schema_sub;
+    } else {
+        /* throw */
+        return;
+    }
+
+    ort->symbol = zend_string_copy(symbol);
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_schema_getSymbol_arginfo, 0, 0, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Math_Schema, getSymbol)
+{
+    php_ort_math_schema_t *ort = php_ort_math_schema_fetch(Z_OBJ_P(getThis()));
+
+    if (!ort->symbol) {
+        return;
+    }
+
+    RETURN_STR_COPY(ort->symbol);
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_schema_getKind_arginfo, 0, 0, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Math_Schema, getKind)
+{
+    php_ort_math_schema_t *ort =
+        php_ort_math_schema_fetch(Z_OBJ_P(getThis()));
+
+    ZEND_PARSE_PARAMETERS_NONE();
+
+    RETURN_LONG(ort->schema->kind);
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_schema_resolve_arginfo, 0, 1, IS_LONG, 0)
+    ZEND_ARG_VARIADIC_INFO(0, types)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Math_Schema, resolve)
+{
+    php_ort_math_schema_t *ort = php_ort_math_schema_fetch(Z_OBJ_P(getThis()));
+    zval *types;
+    size_t count;
+
+    ZEND_PARSE_PARAMETERS_START(1, -1)
+        Z_PARAM_VARIADIC('+', types, count)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if (count == 0) {
+        /* throw */
+        RETURN_LONG(-1);
+    }
+
+    if (ort->schema->kind == ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY) {
+        if (count != 2) {
+            /* throw */
+            RETURN_LONG(-1);
+        }
+
+        if (Z_TYPE(types[0]) != IS_LONG || Z_TYPE(types[1]) != IS_LONG) {
+            /* throw */
+            RETURN_LONG(-1);
+        }
+
+        ONNXTensorElementDataType result =
+            ort_math_type_promotion_schema_resolve_binary(
+                ort->schema,
+                (ONNXTensorElementDataType) Z_LVAL(types[0]),
+                (ONNXTensorElementDataType) Z_LVAL(types[1]));
+        RETURN_LONG(result);
+    } else if (ort->schema->kind == ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY) {
+        if (count != 1) {
+            RETURN_LONG(-1);
+        }
+
+        if (Z_TYPE(types[0]) != IS_LONG) {
+            /* throw */
+            RETURN_LONG(-1);
+        }
+
+        ONNXTensorElementDataType result =
+            ort_math_type_promotion_schema_resolve_unary(
+                ort->schema,
+                (ONNXTensorElementDataType) Z_LVAL(types[0]));
+        RETURN_LONG(result);
+    } else {
+        /* throw */
+        RETURN_LONG(-1);
+    }
+}
+
+static const zend_function_entry php_ort_math_schema_methods[] = {
+    PHP_ME(ONNX_Math_Schema, __construct, php_ort_math_schema___construct_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(ONNX_Math_Schema, getSymbol,   php_ort_math_schema_getSymbol_arginfo,   ZEND_ACC_PUBLIC)
+    PHP_ME(ONNX_Math_Schema, getKind,     php_ort_math_schema_getKind_arginfo,     ZEND_ACC_PUBLIC)
+    PHP_ME(ONNX_Math_Schema, resolve,     php_ort_math_schema_resolve_arginfo,     ZEND_ACC_PUBLIC)
+    PHP_FE_END
+}; /* }}} */
+
 PHP_MINIT_FUNCTION(ORT_MATH)
 {
     ort_math_startup();
+
+    zend_class_entry ce;
+
+    INIT_NS_CLASS_ENTRY(ce, "ONNX\\Math", "Schema", php_ort_math_schema_methods);
+    php_ort_math_schema_ce = zend_register_internal_class(&ce);
+    php_ort_math_schema_ce->create_object = php_ort_math_schema_create;
+    php_ort_math_schema_ce->ce_flags |= ZEND_ACC_FINAL;
+
+    zend_declare_class_constant_long(
+        php_ort_math_schema_ce,
+        ZEND_STRL("BINARY"),
+        ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY);
+    zend_declare_class_constant_long(
+        php_ort_math_schema_ce,
+        ZEND_STRL("UNARY"),
+        ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY);
+
+    memcpy(&php_ort_math_schema_handlers,
+        zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    php_ort_math_schema_handlers.offset = XtOffsetOf(php_ort_math_schema_t, std);
+    php_ort_math_schema_handlers.free_obj = php_ort_math_schema_free;
+    php_ort_math_schema_handlers.get_debug_info = php_ort_math_schema_debug;
+    php_ort_math_schema_handlers.clone_obj = NULL; // No cloning support
 
     zend_register_functions(NULL,
         php_ort_math_functions, NULL, MODULE_PERSISTENT);

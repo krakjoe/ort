@@ -155,6 +155,7 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_add[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,       // bool add uint16 -> uint16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // bool add uint32 -> uint32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,         // bool add bool -> bool
+
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_add[11] = {
@@ -172,6 +173,7 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_indices_add[11]
 };
 
 static const ort_math_type_promotion_schema_t ort_math_promotion_schema_add = {
+    .kind    = ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY,
     .table   = ort_math_promotion_schema_table_add,
     .indices = ort_math_promotion_schema_indices_add,
     .size    = 11

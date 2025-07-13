@@ -52,6 +52,7 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_indices_sign[11
 };
 
 static const ort_math_type_promotion_schema_t ort_math_promotion_schema_sign = {
+    .kind    = ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY,
     .table   = ort_math_promotion_schema_table_sign,
     .indices = ort_math_promotion_schema_indices_sign,
     .size    = 11
