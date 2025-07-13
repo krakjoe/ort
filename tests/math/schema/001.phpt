@@ -18,6 +18,7 @@ foreach ([
     "dot",
     "exp",
     "exp2",
+    "floor",
     "log",
     "log2",
     "log10",

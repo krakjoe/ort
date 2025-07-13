@@ -37,6 +37,7 @@
 #include "maths/schema/dot.h"
 #include "maths/schema/exp.h"
 #include "maths/schema/exp2.h"
+#include "maths/schema/floor.h"
 #include "maths/schema/log.h"
 #include "maths/schema/log2.h"
 #include "maths/schema/log10.h"
@@ -458,6 +459,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_exp;
     } else if (zend_string_equals_literal_ci(symbol, "exp2")) {
         ort->schema = &ort_math_promotion_schema_exp2;
+    } else if (zend_string_equals_literal_ci(symbol, "floor")) {
+        ort->schema = &ort_math_promotion_schema_floor;
     } else if (zend_string_equals_literal_ci(symbol, "log")) {
         ort->schema = &ort_math_promotion_schema_log;
     } else if (zend_string_equals_literal_ci(symbol, "log2")) {
