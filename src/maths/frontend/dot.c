@@ -15,6 +15,12 @@
   | Author: krakjoe                                                      |
   +----------------------------------------------------------------------+
  */
+
+/*
+ @brief Implements frontend dot operations for tensors
+ @test tests/math/dot
+*/
+
 #include <math.h>
 
 #include "status.h"
@@ -24,11 +30,7 @@
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
 #include "maths/result.h"
-
-/* =============================================================================
- * DOT OPERATIONS
- * =============================================================================
- */
+#include "maths/schema/dot.h"
 
 #define ORT_MATH_DOT_IMPL_FOR_TYPE(c_type, unused) \
     static zend_always_inline c_type ort_math_dot_impl_##c_type( \
@@ -75,7 +77,7 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         return NULL;
     }
 
-    ort_math_type_promotion_t promotion = ort_math_type_promote_strict(a, b);
+    ort_math_type_promotion_t promotion = ort_math_type_promote_schema_binary(&ort_math_promotion_schema_dot, a, b);
     if (!promotion.is_valid) {
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,
             "dot: incompatible types for operation");
