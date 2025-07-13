@@ -70,6 +70,12 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_FRONTEND_SUB_SCALAR_OP_DECL)
 ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_MUL_OP_DECL)
 #undef ORT_MATH_FRONTEND_MUL_OP_DECL /* }}} */
 
+/* {{{ Frontend Forward Declarations of Scalar Multiplication Operations */
+#define ORT_MATH_FRONTEND_MUL_SCALAR_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_SCALAR_OP_DECL(mul, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_MUL_SCALAR_OP_DECL)
+#undef ORT_MATH_FRONTEND_MUL_OP_DECL /* }}} */
+
 /* {{{ Frontend Forward Declarations of Division Operations */
 #define ORT_MATH_FRONTEND_DIV_OP_DECL(type, unused) \
         ORT_MATH_FRONTEND_BINARY_OP_DECL(div, type);

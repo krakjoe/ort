@@ -22,6 +22,7 @@
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
+#include "maths/schema/mul.h"
 
 #define ORT_MATH_MUL_IMPL(c_type, onnx_type) \
     ORT_MATH_BINARY_OP_IMPL(mul, c_type, onnx_type, *)
@@ -44,14 +45,10 @@ ORT_MATH_SCALAR_OP_IMPL(mul, \
 
 static ort_math_scalar_op_func_t 
     ort_math_frontend_get_mul_scalar_func(ONNXTensorElementDataType type) {
-    switch (type) {
-#define ORT_MATH_MUL_SCALAR_CASE(c_type, onnx_type) \
-    ORT_MATH_SCALAR_FUNC_GETTER_CASE(c_type, onnx_type, mul)
-        ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_MUL_SCALAR_CASE)
-#undef ORT_MATH_MUL_SCALAR_CASE
-        default: return NULL;
-    }
+    const ort_math_dispatch_t* dispatch =
+        ort_math_dispatch_type(type);
+    return dispatch->mul_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(multiply, ort_math_frontend_get_mul_func)
-ORT_MATH_SCALAR_RESULT_IMPL(multiply, ort_math_frontend_get_mul_scalar_func)
+ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(multiply, ort_math_frontend_get_mul_func, &ort_math_promotion_schema_mul)
+ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(multiply, ort_math_frontend_get_mul_scalar_func, &ort_math_promotion_schema_mul)

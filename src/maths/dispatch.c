@@ -34,6 +34,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_float,
 
         .mul_func        = ort_math_frontend_mul_float,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_float,
 
         .ceil_func       = ort_math_frontend_ceil_float,
         .floor_func      = ort_math_frontend_floor_float,
@@ -75,6 +76,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_double,
 
         .mul_func        = ort_math_frontend_mul_double,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_double,
+
         .ceil_func       = ort_math_frontend_ceil_double,
         .floor_func      = ort_math_frontend_floor_double,
         .round_func      = ort_math_frontend_round_double,
@@ -115,6 +118,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_int8_t,
 
         .mul_func        = ort_math_frontend_mul_int8_t,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_int8_t,
+
         .ceil_func       = ort_math_frontend_ceil_int8_t,
         .floor_func      = ort_math_frontend_floor_int8_t,
         .round_func      = ort_math_frontend_round_int8_t,
@@ -155,6 +160,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_int16_t,
     
         .mul_func        = ort_math_frontend_mul_int16_t,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_int16_t,
 
         .ceil_func       = ort_math_frontend_ceil_int16_t,
         .floor_func      = ort_math_frontend_floor_int16_t,
@@ -188,12 +194,15 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
         .add_func        = ort_math_frontend_add_int32_t,
         .add_scalar_func = ort_math_frontend_add_scalar_int32_t,
+
         .div_func        = NULL,
         .div_scalar_func = NULL,
+
         .sub_func        = ort_math_frontend_sub_int32_t,
         .sub_scalar_func = ort_math_frontend_sub_scalar_int32_t,
 
         .mul_func        = ort_math_frontend_mul_int32_t,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_int32_t,
 
         .ceil_func       = ort_math_frontend_ceil_int32_t,
         .floor_func      = ort_math_frontend_floor_int32_t,
@@ -232,6 +241,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_int64_t,
 
         .mul_func        = ort_math_frontend_mul_int64_t,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_int64_t,
+    
         .div_func        = NULL,
         .div_scalar_func = NULL,
         .ceil_func       = ort_math_frontend_ceil_int64_t,
@@ -271,6 +282,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_uint8_t,
     
         .mul_func        = ort_math_frontend_mul_uint8_t,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_uint8_t,
+    
         .div_func        = NULL,
         .div_scalar_func = NULL,
         .pow_func        = ort_math_frontend_pow_uint8_t,
@@ -311,6 +324,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_uint16_t,
 
         .mul_func        = ort_math_frontend_mul_uint16_t,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_uint16_t,
+
         .div_func        = NULL,
         .div_scalar_func = NULL,
         .ceil_func       = ort_math_frontend_ceil_uint16_t,
@@ -350,6 +365,8 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_scalar_func = ort_math_frontend_sub_scalar_uint32_t,
 
         .mul_func        = ort_math_frontend_mul_uint32_t,
+        .mul_scalar_func = ort_math_frontend_mul_scalar_uint32_t,
+
         .div_func        = NULL,
         .div_scalar_func = NULL,
         .ceil_func       = ort_math_frontend_ceil_uint32_t,
@@ -391,6 +408,7 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .sub_func        = NULL,                         // Logical XOR (or subtraction)
         .sub_scalar_func = NULL,                         // Logical XOR (or subtraction)
         .mul_func        = ort_math_frontend_mul_zend_bool,          // Logical AND (or multiplication)
+        .mul_scalar_func = ort_math_frontend_mul_scalar_zend_bool,   // Logical AND (or multiplication)
         .ceil_func       = NULL,                         // Not meaningful for bool
         .floor_func      = NULL,                         // Not meaningful for bool
         .round_func      = NULL,                         // Not meaningful for bool
