@@ -15,6 +15,7 @@ foreach ([
     "mod",
     "mul",
     "neg",
+    "pow",
     "recip",
     "sign",
     "sqrt",

@@ -34,6 +34,7 @@
 #include "maths/schema/mod.h"
 #include "maths/schema/mul.h"
 #include "maths/schema/neg.h"
+#include "maths/schema/pow.h"
 #include "maths/schema/recip.h"
 #include "maths/schema/sign.h"
 #include "maths/schema/sqrt.h"
@@ -433,6 +434,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_mul;
     } else if (zend_string_equals_literal_ci(symbol, "neg")) {
         ort->schema = &ort_math_promotion_schema_neg;
+    } else if (zend_string_equals_literal_ci(symbol, "pow")) {
+        ort->schema = &ort_math_promotion_schema_pow;
     } else if (zend_string_equals_literal_ci(symbol, "recip")) {
         ort->schema = &ort_math_promotion_schema_recip;
     } else if (zend_string_equals_literal_ci(symbol, "sign")) {

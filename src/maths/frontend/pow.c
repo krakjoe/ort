@@ -26,11 +26,7 @@
 
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
-
-/* =============================================================================
- * POWER OPERATIONS
- * =============================================================================
- */
+#include "maths/schema/pow.h"
 
 #define ORT_MATH_POW_IMPL_FOR_TYPE(c_type, unused)               \
     static zend_always_inline c_type ort_math_pow_impl_##c_type( \
@@ -123,5 +119,5 @@ static ort_math_scalar_op_func_t ort_math_frontend_get_pow_scalar_func(ONNXTenso
     return dispatch->pow_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_IMPL(pow, ort_math_frontend_get_pow_func)
-ORT_MATH_SCALAR_RESULT_IMPL(pow, ort_math_frontend_get_pow_scalar_func)
+ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(pow, ort_math_frontend_get_pow_func, &ort_math_promotion_schema_pow)
+ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(pow, ort_math_frontend_get_pow_scalar_func, &ort_math_promotion_schema_pow)
