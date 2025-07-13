@@ -93,7 +93,7 @@ static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_max(ONNXTens
     return dispatch->max_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_WITH_SCHEMA_IMPL(max,
+ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(max,
     ort_math_frontend_get_reduce_tensor_max,
     ort_math_validate_input,
     &ort_math_promotion_schema_max);
@@ -104,7 +104,7 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_max(ONNXTe
     return dispatch->max_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(max,
+ORT_MATH_REDUCE_AXIS_RESULT_IMPL(max,
     ort_math_frontend_get_reduce_axis_max,
     ort_math_validate_input,
     ort_math_validate_axis,

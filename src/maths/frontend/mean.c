@@ -67,7 +67,7 @@ static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_mean(ONNXTen
     return dispatch->mean_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_WITH_SCHEMA_IMPL(mean,
+ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(mean,
     ort_math_frontend_get_reduce_tensor_mean,
     ort_math_validate_input,
     &ort_math_promotion_schema_mean);
@@ -78,7 +78,7 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_mean(ONNXT
     return dispatch->mean_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(mean,
+ORT_MATH_REDUCE_AXIS_RESULT_IMPL(mean,
     ort_math_frontend_get_reduce_axis_mean,
     ort_math_validate_input,
     ort_math_validate_axis,

@@ -119,5 +119,5 @@ static ort_math_scalar_op_func_t ort_math_frontend_get_pow_scalar_func(ONNXTenso
     return dispatch->pow_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(pow, ort_math_frontend_get_pow_func, &ort_math_promotion_schema_pow)
-ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(pow, ort_math_frontend_get_pow_scalar_func, &ort_math_promotion_schema_pow)
+ORT_MATH_BINARY_RESULT_IMPL(pow, ort_math_frontend_get_pow_func, &ort_math_promotion_schema_pow)
+ORT_MATH_SCALAR_RESULT_IMPL(pow, ort_math_frontend_get_pow_scalar_func, &ort_math_promotion_schema_pow)

@@ -73,7 +73,7 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_softmax(ON
     return dispatch->softmax_axis_func;
 }
 
-ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(softmax,
+ORT_MATH_SERIAL_REDUCE_AXIS_RESULT_IMPL(softmax,
     ort_math_frontend_get_reduce_axis_softmax,
     ort_math_validate_input,
     ort_math_validate_axis,

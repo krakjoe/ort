@@ -55,5 +55,5 @@ static ort_math_scalar_op_func_t
     return dispatch->add_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(add, ort_math_frontend_get_add_func, &ort_math_promotion_schema_add)
-ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(add, ort_math_frontend_get_add_scalar_func, &ort_math_promotion_schema_add)
+ORT_MATH_BINARY_RESULT_IMPL(add, ort_math_frontend_get_add_func, &ort_math_promotion_schema_add)
+ORT_MATH_SCALAR_RESULT_IMPL(add, ort_math_frontend_get_add_scalar_func, &ort_math_promotion_schema_add)

@@ -72,7 +72,7 @@ static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_sum(ONNXTens
     return dispatch->sum_func;
 }
 
-ORT_MATH_REDUCE_TENSOR_RESULT_WITH_SCHEMA_IMPL(sum,
+ORT_MATH_REDUCE_TENSOR_RESULT_IMPL(sum,
     ort_math_frontend_get_reduce_tensor_sum,
     ort_math_validate_input,
     &ort_math_promotion_schema_sum);
@@ -83,7 +83,7 @@ static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_sum(ONNXTe
     return dispatch->sum_axis_func;
 }
 
-ORT_MATH_REDUCE_AXIS_RESULT_WITH_SCHEMA_IMPL(sum,
+ORT_MATH_REDUCE_AXIS_RESULT_IMPL(sum,
     ort_math_frontend_get_reduce_axis_sum,
     ort_math_validate_input,
     ort_math_validate_axis,

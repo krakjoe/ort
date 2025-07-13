@@ -51,5 +51,5 @@ static ort_math_scalar_op_func_t
     return dispatch->sub_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(subtract, ort_math_frontend_get_sub_func, &ort_math_promotion_schema_sub)
-ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(subtract, ort_math_frontend_get_sub_scalar_func, &ort_math_promotion_schema_sub)
+ORT_MATH_BINARY_RESULT_IMPL(subtract, ort_math_frontend_get_sub_func, &ort_math_promotion_schema_sub)
+ORT_MATH_SCALAR_RESULT_IMPL(subtract, ort_math_frontend_get_sub_scalar_func, &ort_math_promotion_schema_sub)

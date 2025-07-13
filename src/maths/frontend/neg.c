@@ -54,4 +54,4 @@ static ort_math_unary_op_func_t ort_math_frontend_get_neg_func(ONNXTensorElement
     return dispatch->neg_func;
 }
 
-ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(neg, ort_math_frontend_get_neg_func, &ort_math_promotion_schema_neg)
+ORT_MATH_UNARY_RESULT_IMPL(neg, ort_math_frontend_get_neg_func, &ort_math_promotion_schema_neg)

@@ -47,4 +47,4 @@ static zend_always_inline ort_math_unary_op_func_t
     return dispatch->sqrt_func;
 }
 
-ORT_MATH_UNARY_RESULT_WITH_SCHEMA_IMPL(sqrt, ort_math_frontend_get_sqrt_func, &ort_math_promotion_schema_sqrt)
+ORT_MATH_UNARY_RESULT_IMPL(sqrt, ort_math_frontend_get_sqrt_func, &ort_math_promotion_schema_sqrt)

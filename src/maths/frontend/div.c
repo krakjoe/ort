@@ -51,5 +51,5 @@ static ort_math_scalar_op_func_t
     return dispatch->div_scalar_func;
 }
 
-ORT_MATH_BINARY_RESULT_WITH_SCHEMA_IMPL(divide,   ort_math_frontend_get_div_func, &ort_math_promotion_schema_div)
-ORT_MATH_SCALAR_RESULT_WITH_SCHEMA_IMPL(divide,   ort_math_frontend_get_div_scalar_func, &ort_math_promotion_schema_div)
+ORT_MATH_BINARY_RESULT_IMPL(divide,   ort_math_frontend_get_div_func, &ort_math_promotion_schema_div)
+ORT_MATH_SCALAR_RESULT_IMPL(divide,   ort_math_frontend_get_div_scalar_func, &ort_math_promotion_schema_div)
