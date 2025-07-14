@@ -25,9 +25,11 @@
 
 #include "status.h"
 
+#include "alloc.h"
 #include "maths/cast.h"
 #include "maths/codegen.h"
 #include "maths/dispatch.h"
+#include "maths/pool.h"
 #include "maths/result.h"
 #include "maths/schema/matmul.h"
 
@@ -127,7 +129,6 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         batch_size *= matrix_a->shape[i];
     }
 
-    // Strict ONNX/NumPy-style type promotion for matmul (use struct for richer info)
     ort_math_promotion_t promotion = ort_math_promotion_perform_binary(&ort_math_promotion_schema_matmul, matrix_a, matrix_b);
     if (!promotion.is_valid) {
         php_ort_status_throw(php_ort_status_math_error_ce,
@@ -158,53 +159,81 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         (ort_math_matmul_op_func_t)
             ort_math_frontend_get_matmul_func(promoted_type);
 
-    // Prepare pointers for each batch, with type casting if needed
+    // Prepare pointers for each batch, with type casting if needed (cast all batches up front)
     size_t matrix_size_a = a_rows * a_cols;
     size_t matrix_size_b = b_rows * b_cols;
     size_t matrix_size_result = a_rows * b_cols;
-
-    void* tmp_a = NULL;
-    void* tmp_b = NULL;
+    size_t type_size = php_ort_type_sizeof(promoted_type);
     int need_cast_a = (matrix_a->type != promoted_type);
     int need_cast_b = (matrix_b->type != promoted_type);
-    size_t type_size = php_ort_type_sizeof(promoted_type);
 
-    for (size_t batch = 0; batch < batch_size; batch++) {
-        const void* batch_a =
-            (const char*)matrix_a->data + 
-                batch * matrix_size_a * php_ort_type_sizeof(matrix_a->type);
-        const void* batch_b =
-            (const char*)matrix_b->data +
-                batch * matrix_size_b * php_ort_type_sizeof(matrix_b->type);
-        void* batch_result =
-            (char*)result->data +
-                batch * matrix_size_result * type_size;
+    void* a_buf = (void*)matrix_a->data;
+    void* b_buf = (void*)matrix_b->data;
+    void* tmp_a = NULL;
+    void* tmp_b = NULL;
 
-        // Cast A if needed
-        if (need_cast_a) {
-            if (!tmp_a) tmp_a = emalloc(matrix_size_a * type_size);
+    if (need_cast_a) {
+        tmp_a = ort_alloc(batch_size, matrix_size_a * type_size);
+        for (size_t batch = 0; batch < batch_size; ++batch) {
+            const void* src =
+                (const char*)matrix_a->data +
+                    batch * matrix_size_a * php_ort_type_sizeof(matrix_a->type);
+            void* dst =
+                (char*)tmp_a +
+                    batch * matrix_size_a * type_size;
+
             ort_math_cast_buffer(
-                batch_a, tmp_a, 
+                src, dst, 
                 matrix_a->type, promoted_type, matrix_size_a);
-            batch_a = tmp_a;
         }
-        // Cast B if needed
-        if (need_cast_b) {
-            if (!tmp_b) tmp_b = emalloc(matrix_size_b * type_size);
-            ort_math_cast_buffer(
-                batch_b, tmp_b,
-                matrix_b->type, promoted_type, matrix_size_b);
-            batch_b = tmp_b;
-        }
+        a_buf = tmp_a;
+    }
 
-        operation(batch_result, batch_a, batch_b, a_rows, a_cols, b_cols);
+    if (need_cast_b) {
+        tmp_b = ort_alloc(batch_size, matrix_size_b * type_size);
+        for (size_t batch = 0; batch < batch_size; ++batch) {
+            const void* src = 
+                (const char*)matrix_b->data +
+                    batch * matrix_size_b * php_ort_type_sizeof(matrix_b->type);
+            void* dst =
+                (char*)tmp_b +
+                    batch * matrix_size_b * type_size;
+            ort_math_cast_buffer(
+                src, dst, 
+                matrix_b->type, promoted_type, matrix_size_b);
+        }
+        b_buf = tmp_b;
     }
-    if (tmp_a) {
-        efree(tmp_a);
-    }
-    if (tmp_b) {
-        efree(tmp_b);
-    }
+
+    size_t pool_size = ort_pool_cores();
+    size_t chunk = (batch_size + pool_size - 1) / pool_size;
+    size_t num_chunks = (batch_size + chunk - 1) / chunk;
+
+    ort_pool_matmul_ctx_t ctx = {
+        .layout = {
+            .element = type_size,
+            .total = batch_size,
+            .chunk = chunk
+        },
+        .result = result->data,
+        .a = a_buf,
+        .b = b_buf,
+        .a_rows = a_rows,
+        .a_cols = a_cols,
+        .b_cols = b_cols,
+        .type_size = type_size,
+        .matrix_size_a = matrix_size_a,
+        .matrix_size_b = matrix_size_b,
+        .matrix_size_result = matrix_size_result,
+        .op = operation
+    };
+
+    ort_pool_submit(ort_pool_matmul_worker, &ctx, num_chunks);
+
+    if (tmp_a)
+        ort_free(tmp_a);
+    if (tmp_b)
+        ort_free(tmp_b);
 
     return result;
 }

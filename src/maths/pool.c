@@ -91,7 +91,8 @@ typedef struct _ort_pool_t {
     int stop;
 } ort_pool_t;
 
-ORT_POOL_LOCAL ort_pool_t ort_maths_pool;
+ORT_POOL_LOCAL ort_pool_t __ort_pool;
+ORT_POOL_LOCAL size_t     __ort_pool_cores = 0;
 
 void ort_pool_binary_worker(void *arg, size_t index, size_t count) {
     ort_pool_binary_ctx_t *ctx =
@@ -213,6 +214,29 @@ void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count) {
     }
 }
 
+void ort_pool_matmul_worker(void *arg, size_t index, size_t count) {
+    ort_pool_matmul_ctx_t *ctx =
+        (ort_pool_matmul_ctx_t *)arg;
+    size_t chunk = ctx->layout.chunk;
+    size_t start = index * chunk;
+    size_t end = start + chunk;
+
+    if (end > ctx->layout.total)
+        end = ctx->layout.total;
+    
+        for (size_t batch = start; batch < end; ++batch) {
+        void *result_ptr =
+            (char*)ctx->result +
+                batch * ctx->matrix_size_result * ctx->type_size;
+        const void *a_ptr =
+            (const char*)ctx->a + batch * ctx->matrix_size_a * ctx->type_size;
+        const void *b_ptr =
+            (const char*)ctx->b + batch * ctx->matrix_size_b * ctx->type_size;
+        
+        ctx->op(result_ptr, a_ptr, b_ptr, ctx->a_rows, ctx->a_cols, ctx->b_cols);
+    }
+}
+
 static void *ort_pool_worker(void *arg) {
     ort_pool_t *pool = (ort_pool_t *)arg;
     while (1) {
@@ -284,80 +308,105 @@ static inline size_t ort_pool_cores_env() {
     return 0; // No valid environment variable set
 }
 
-#if defined(_WIN32)
+size_t ort_pool_max(void) {
+    return __ort_pool.size;
+}
+
 size_t ort_pool_cores(void) {
-    size_t env = ort_pool_cores_env();
-    if (env > 0) {
-        return env;
+    if (__ort_pool_cores > 0) {
+        return __ort_pool_cores;
+    }
+
+#if defined(_WIN32)
+    __ort_pool_cores = ort_pool_cores_env();
+    if (__ort_pool_cores > 0) {
+        return __ort_pool_cores;
     }
 
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
 
-    return (size_t)sysinfo.dwNumberOfProcessors;
-}
+    __ort_pool_cores =
+        (size_t)sysinfo.dwNumberOfProcessors;
 #else
-size_t ort_pool_cores(void) {
-    size_t env = ort_pool_cores_env();
-    if (env > 0) {
-        return env;
+    __ort_pool_cores = ort_pool_cores_env();
+    if (__ort_pool_cores > 0) {
+        return __ort_pool_cores;
     }
 
     long n = sysconf(
         _SC_NPROCESSORS_ONLN);
-    return (n > 0) ? (size_t)n : 1;
-}
+
+    __ort_pool_cores =
+        (n > 0) ? (size_t)n : 1;
 #endif
+    return __ort_pool_cores;
+}
+
+size_t ort_pool_scale(size_t cores) {
+    if (cores > ort_pool_max()) {
+        /** 
+         We cannot scale beyond the limit of the numbers of cores 
+        **/
+        return 0;
+    }
+
+    size_t restore =
+        __ort_pool_cores;
+    __ort_pool_cores = cores;
+
+    return restore;
+}
 
 int ort_pool_init(size_t size) {
-    memset(&ort_maths_pool, 0, sizeof(ort_maths_pool));
+    memset(&__ort_pool, 0, sizeof(__ort_pool));
     if (size == 0)
         size = ort_pool_cores();
-    ort_maths_pool.size = size;
-    ort_maths_pool.threads =
+    __ort_pool.size = size;
+    __ort_pool.threads =
         (ort_thread_t*)calloc(size, sizeof(ort_thread_t));
-    if (!ort_maths_pool.threads) {
-        ort_maths_pool.size = 0;
+    if (!__ort_pool.threads) {
+        __ort_pool.size = 0;
         return FAILURE;
     }
-    ort_pool_mutex_init(&ort_maths_pool.mutex);
-    ort_pool_cond_init(&ort_maths_pool.cond);
-    ort_maths_pool.stop = 0;
+    ort_pool_mutex_init(&__ort_pool.mutex);
+    ort_pool_cond_init(&__ort_pool.cond);
+    __ort_pool.stop = 0;
     for (size_t i = 0; i < size; ++i) {
 #if defined(_WIN32)
-        ort_maths_pool.threads[i] = CreateThread(
+        __ort_pool.threads[i] = CreateThread(
             NULL, 0, 
             ort_pool_worker, 
-            &ort_maths_pool, 0, NULL);
+            &__ort_pool, 0, NULL);
 #else
         pthread_create(
-            &ort_maths_pool.threads[i], 
+            &__ort_pool.threads[i], 
             NULL, 
             ort_pool_worker, 
-            &ort_maths_pool);
+            &__ort_pool);
 #endif
     }
     return SUCCESS;
 }
 
 void ort_pool_destroy() {
-    ort_pool_mutex_lock(&ort_maths_pool.mutex);
-    ort_maths_pool.stop = 1;
-    ort_pool_cond_broadcast(&ort_maths_pool.cond);
-    ort_pool_mutex_unlock(&ort_maths_pool.mutex);
+    ort_pool_mutex_lock(&__ort_pool.mutex);
+    __ort_pool.stop = 1;
+    ort_pool_cond_broadcast(&__ort_pool.cond);
+    ort_pool_mutex_unlock(&__ort_pool.mutex);
 
-    for (size_t i = 0; i < ort_maths_pool.size; ++i) {
+    for (size_t i = 0; i < __ort_pool.size; ++i) {
 #if defined(_WIN32)
-        WaitForSingleObject(ort_maths_pool.threads[i], INFINITE);
-        CloseHandle(ort_maths_pool.threads[i]);
+        WaitForSingleObject(__ort_pool.threads[i], INFINITE);
+        CloseHandle(__ort_pool.threads[i]);
 #else
-        pthread_join(ort_maths_pool.threads[i], NULL);
+        pthread_join(__ort_pool.threads[i], NULL);
 #endif
     }
 
-    ort_pool_mutex_destroy(&ort_maths_pool.mutex);
-    ort_pool_cond_destroy(&ort_maths_pool.cond);
-    free(ort_maths_pool.threads);
+    ort_pool_mutex_destroy(&__ort_pool.mutex);
+    ort_pool_cond_destroy(&__ort_pool.cond);
+    free(__ort_pool.threads);
 }
 
 void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
@@ -370,12 +419,12 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
     task->next = 0;
     task->completed = 0;
     task->done = 0;
-    task->refcount = 1 + ort_maths_pool.size; // main thread + all workers
+    task->refcount = 1 + __ort_pool.size; // main thread + all workers
 
-    ort_pool_mutex_lock(&ort_maths_pool.mutex);
-    ort_maths_pool.task = task;
-    ort_pool_cond_broadcast(&ort_maths_pool.cond);
-    ort_pool_mutex_unlock(&ort_maths_pool.mutex);
+    ort_pool_mutex_lock(&__ort_pool.mutex);
+    __ort_pool.task = task;
+    ort_pool_cond_broadcast(&__ort_pool.cond);
+    ort_pool_mutex_unlock(&__ort_pool.mutex);
 
     ort_pool_mutex_lock(&task->mutex);
     while (task->completed < task->count) {
@@ -398,7 +447,7 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
 #endif
     }
 
-    ort_pool_mutex_lock(&ort_maths_pool.mutex);
-    ort_maths_pool.task = NULL;
-    ort_pool_mutex_unlock(&ort_maths_pool.mutex);
+    ort_pool_mutex_lock(&__ort_pool.mutex);
+    __ort_pool.task = NULL;
+    ort_pool_mutex_unlock(&__ort_pool.mutex);
 }

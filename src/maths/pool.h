@@ -77,7 +77,20 @@ typedef struct _ort_pool_reduce_axis_ctx_t {
     void (*op)(void *result, const void *a, size_t outer, size_t axis, size_t inner); // reduction kernel
 } ort_pool_reduce_axis_ctx_t;
 
-size_t ort_pool_cores(void);
+typedef struct _ort_pool_matmul_ctx_t {
+    ort_pool_ctx_layout_t layout; // chunking info: total = batch_size, chunk = batches per thread
+    void *result;                 // pointer to result buffer (all batches)
+    const void *a;                // pointer to input A buffer (all batches)
+    const void *b;                // pointer to input B buffer (all batches)
+    size_t a_rows;                // rows in A (per batch)
+    size_t a_cols;                // cols in A (per batch)
+    size_t b_cols;                // cols in B (per batch)
+    size_t type_size;             // size of one element in bytes
+    size_t matrix_size_a;         // elements in one A matrix
+    size_t matrix_size_b;         // elements in one B matrix
+    size_t matrix_size_result;    // elements in one result matrix
+    void (*op)(void *result, const void *a, const void *b, size_t a_rows, size_t a_cols, size_t b_cols); // matmul kernel
+} ort_pool_matmul_ctx_t;
 
 int ort_pool_init(size_t size);
 void ort_pool_submit(
@@ -90,4 +103,25 @@ void ort_pool_scalar_worker(void *arg, size_t index, size_t count);
 
 void ort_pool_reduce_tensor_worker(void *arg, size_t index, size_t count);
 void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count);
+
+void ort_pool_matmul_worker(void *arg, size_t index, size_t count);
+
+/**
+ * Sets the scale (number of threads) to use for scheduling
+ * @returns the scale (number of threads) at call time, or zero on error
+ * @note the caller must restore the scale
+ */
+size_t ort_pool_scale(size_t cores);
+
+/**
+ * Get the scale (number of threads) to use for scheduling
+ * @returns the number of threads available to the pool (currently)
+ */
+size_t ort_pool_cores(void);
+
+/**
+ * Get the maximum number of threads supported by the pool
+ * @returns the maximum number of threads supported by the pool
+ */
+size_t ort_pool_max(void);
 #endif
