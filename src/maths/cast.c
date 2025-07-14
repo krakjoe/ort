@@ -108,3 +108,48 @@ void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType
             break;
     }
 }
+
+void ort_math_cast_buffer(
+    const void* src, void* dst,
+    ONNXTensorElementDataType src_type,
+    ONNXTensorElementDataType dst_type, size_t count) 
+{
+    /* Fast path for same type */
+    if (src_type == dst_type) {
+        size_t size = count * php_ort_type_sizeof(dst_type);
+        memcpy(dst, src, size);
+        return;
+    }
+
+    /* Parallel path for large buffers on machines with many cores */
+    size_t cores = ort_pool_cores();
+    if (cores > 1 && count >= 256 * cores) {
+        ort_pool_cast_ctx_t ctx = {
+            .src      = src,
+            .dst      = dst,
+            .src_type = src_type,
+            .dst_type = dst_type,
+            .count    = count,
+            .op       = ort_math_cast_element
+        };
+
+        size_t chunk =
+            (count + cores - 1) / cores;
+        size_t num_chunks =
+            (count + chunk - 1) / chunk;
+
+        ort_pool_submit(
+            ort_pool_cast_worker, &ctx, num_chunks);
+        return;
+    }
+
+    /* Serial slow path for small buffers */
+    for (size_t i = 0; i < count; i++) {
+        ort_math_cast_element(
+            (const char*)src +
+                i * php_ort_type_sizeof(src_type),
+            (char*)dst +
+                i * php_ort_type_sizeof(dst_type),
+            src_type, dst_type);
+    }
+}

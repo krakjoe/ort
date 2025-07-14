@@ -1,0 +1,38 @@
+--TEST--
+ONNX\Math\cast: basic test
+--EXTENSIONS--
+ort
+--ENV--
+ORT_POOL_CORES=12
+--FILE--
+<?php
+use ONNX\Tensor;
+use ONNX\Math;
+
+include sprintf(
+    "%s/../../fixtures/math.php",
+    dirname(__FILE__));
+
+$tensor = Tensor\Transient::from(
+    array_fill(0, 4096, 1.0), Tensor::FLOAT);
+
+$casted = Math\cast(Tensor::INT8, $tensor);
+echo "PASS: Casted float tensor to INT8\n";
+print_result($casted);
+
+$tensor = Tensor\Transient::from(
+    array_fill(0, (Math\cores() * 256)*2, 1.0), Tensor::FLOAT);
+
+$casted = Math\cast(Tensor::UINT8, $tensor);
+echo "PASS: Casted float tensor to UINT8 in parallel\n";
+print_result($casted);
+?>
+--EXPECTF--
+PASS: Casted float tensor to INT8
+RESULT: %s
+TYPE: INT8
+SHAPE: [4096]
+PASS: Casted float tensor to UINT8 in parallel
+RESULT: %s
+TYPE: UINT8
+SHAPE: [%d]

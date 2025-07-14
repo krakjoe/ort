@@ -21,6 +21,7 @@
 
 #include "maths.h"
 #include "maths/api.h"
+#include "maths/cast.h"
 #include "maths/result.h"
 #include "maths/promotion.h"
 
@@ -421,6 +422,45 @@ PHP_FUNCTION(scale)
     ort_pool_scale(scale);
 }
 
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_cast_arginfo, 0, 2, ONNX\\Tensor, 0)
+    ZEND_ARG_TYPE_INFO(0, type, IS_LONG, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)
+ZEND_END_ARG_INFO()
+
+PHP_FUNCTION(cast)
+{
+    zend_long type;
+    zval *tensor;
+    zend_long count = 0;
+
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_LONG(type)
+        Z_PARAM_OBJECT_OF_CLASS(tensor, php_ort_tensor_interface_ce)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_ort_tensor_t* iv = php_ort_tensor_fetch(Z_OBJ_P(tensor));
+
+    object_init_ex(return_value,
+        php_ort_tensor_transient_ce);
+
+    php_ort_tensor_t* rv =
+        php_ort_tensor_fetch(Z_OBJ_P(return_value));
+    
+    rv->object =
+        ort_math_result_tensor(
+            iv->object->shape,
+            iv->object->dimensions, 
+            (ONNXTensorElementDataType) type,
+            "cast");
+    
+    ort_math_cast_buffer(
+        iv->object->data,
+        rv->object->data,
+        iv->object->type,
+        type,
+        iv->object->elements);
+}
+
 /* Function table for ONNX\Math namespace */
 static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", add, php_ort_math_add_arginfo)
@@ -471,7 +511,7 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", backend, php_ort_math_backend_arginfo)
     ZEND_NS_FE("ONNX\\Math", cores,   php_ort_math_cores_arginfo)
     ZEND_NS_FE("ONNX\\Math", scale,   php_ort_math_scale_arginfo)
-
+    ZEND_NS_FE("ONNX\\Math", cast,    php_ort_math_cast_arginfo)
     ZEND_FE_END
 };
 

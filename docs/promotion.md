@@ -49,6 +49,14 @@ Because adding `Tensor::FLOAT` and `Tensor::DOUBLE` results in `Tensor::DOUBLE`.
 
 Errors: `resolve` will return `-1` upon encountering error conditions (adjust your API usage).
 
+## Casting
+
+Casting between types is handled implicitly according to the promotion schema. For example, if we have two tensors of type `float` and `double`, then they will automatically be coerced to `double` before being passed to the kernel. This happens transparently and just in time, however it's sometimes preferable to coerce explicitly (which we call casting), because this makes code easier to reason about, and possibly more efficient.
+
+`ONNX\Tensor ONNX\Math\cast(int $type, ONNX\Tensor $tensor)` shall cast `$tensor` to `$type` and return the resulting `Tensor`.
+
+**Whether explicit or implicit, `php-ort` parallelizes large casting operations automatically.**
+
 ### Notes
 
 [1] `code` should be used in cases where function and operator behavior are not consistent in `numpy`. This is only true in some edge cases (like `recip`). In these cases, `php-ort` should prefer the operator behavior over the function behavior and so provide a lambda implementing the expression.

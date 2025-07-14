@@ -92,10 +92,21 @@ typedef struct _ort_pool_matmul_ctx_t {
     void (*op)(void *result, const void *a, const void *b, size_t a_rows, size_t a_cols, size_t b_cols); // matmul kernel
 } ort_pool_matmul_ctx_t;
 
+typedef struct _ort_pool_cast_ctx_t {
+    const void* src;
+    void* dst;
+    ONNXTensorElementDataType src_type;
+    ONNXTensorElementDataType dst_type;
+    size_t count;
+    void (*op)(const void* src, void* dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type);
+} ort_pool_cast_ctx_t;
+
 int ort_pool_init(size_t size);
 void ort_pool_submit(
     ort_task_func_t func, void *arg, size_t count);
 void ort_pool_destroy(void);
+
+void ort_pool_cast_worker(void *arg, size_t index, size_t count);
 
 void ort_pool_binary_worker(void *arg, size_t index, size_t count);
 void ort_pool_unary_worker(void *arg, size_t index, size_t count);

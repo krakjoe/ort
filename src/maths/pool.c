@@ -237,6 +237,37 @@ void ort_pool_matmul_worker(void *arg, size_t index, size_t count) {
     }
 }
 
+void ort_pool_cast_worker(void *arg, size_t index, size_t count) {
+    ort_pool_cast_ctx_t *ctx =
+        (ort_pool_cast_ctx_t *)arg;
+
+    size_t chunk = (ctx->count + count - 1) / count;
+    size_t start = index * chunk;
+    size_t end = start + chunk;
+
+    if (end > ctx->count)
+        end = ctx->count;
+
+    size_t src_elem_size = php_ort_type_sizeof(ctx->src_type);
+    size_t dst_elem_size = php_ort_type_sizeof(ctx->dst_type);
+
+    const char *src =
+        (const char *)ctx->src +
+            start * src_elem_size;
+    char *dst =
+        (char *)ctx->dst +
+            start * dst_elem_size;
+
+    for (size_t i = 0; i < end - start; ++i) {
+        ctx->op(
+            src + i * src_elem_size,
+            dst + i * dst_elem_size,
+            ctx->src_type,
+            ctx->dst_type
+        );
+    }
+}
+
 static void *ort_pool_worker(void *arg) {
     ort_pool_t *pool = (ort_pool_t *)arg;
     while (1) {
