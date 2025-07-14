@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
  */
 
+#include "alloc.h"
 #include "maths/cast.h"
 
 #define ORT_MATH_CAST_SOURCE_CASE(SRC_TYPE, C_TYPE)             \
@@ -49,7 +50,7 @@
 void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType src_type, ONNXTensorElementDataType dst_type) {
     /* Fast path for same type */
     if (src_type == dst_type) {
-        memcpy(dst, src,
+        ort_memcpy(dst, src,
             php_ort_type_sizeof(src_type));
         return;
     }
@@ -116,8 +117,10 @@ void ort_math_cast_buffer(
 {
     /* Fast path for same type */
     if (src_type == dst_type) {
-        size_t size = count * php_ort_type_sizeof(dst_type);
-        memcpy(dst, src, size);
+        size_t size =
+            count *
+                php_ort_type_sizeof(dst_type);
+        ort_memcpy(dst, src, size);
         return;
     }
 

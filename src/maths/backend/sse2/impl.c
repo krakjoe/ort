@@ -18,6 +18,37 @@
 
 #include "maths/backend/impl.h"
 
+#include <emmintrin.h> /* SSE2 */
+
+static ort_memcpy_func_t ort_memcpy_fallback = NULL;
+
+static void* ort_math_memcpy_sse2(void *dest, const void *src, size_t n) {
+    uint8_t *d = (uint8_t*)dest;
+    const uint8_t *s =
+      (const uint8_t*)src;
+
+    if (n == 0) {
+        goto __ort_math_memcpy_sse2_yield;
+    }
+
+    size_t i = 0;
+
+    for (; i + 16 <= n; i += 16) {
+        __m128i chunk =
+            _mm_loadu_si128(
+            (const __m128i*)(s + i));
+
+        _mm_storeu_si128(
+            (__m128i*)(d + i), chunk);
+    }
+
+    ort_memcpy_fallback(
+      d + i, s + i, n - i);
+
+__ort_math_memcpy_sse2_yield:
+    return dest;
+}
+
 void ort_math_backend_install(ort_math_dispatch_t* table) {
     /* abs.c */
     ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   abs, ort_math_backend_abs_float);
@@ -79,4 +110,9 @@ void ort_math_backend_install(ort_math_dispatch_t* table) {
 
     /* set allocation alignment to SSE2 vector length */
     ort_alloc_align(16);
+
+    /* insert memcpy implementation */
+    ort_memcpy_fallback =
+        ort_alloc_memcpy(
+            ort_math_memcpy_sse2);
   }

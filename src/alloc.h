@@ -26,10 +26,12 @@ typedef void (*ort_alloc_startup_func_t)(ort_alloc_t* allocator);
 typedef void (*ort_alloc_shutdown_func_t)(ort_alloc_t* allocator);
 
 typedef void* (*ort_alloc_func_t)(size_t size, size_t count, size_t alignment);
+typedef void* (*ort_memcpy_func_t)(void *dest, const void *src, size_t n);
 typedef void (*ort_free_func_t)(void *ptr);
 
 struct _ort_alloc_t {
     ort_alloc_func_t alloc;
+    ort_memcpy_func_t memcpy;
     ort_free_func_t free;
 
     ort_alloc_startup_func_t startup;
@@ -39,9 +41,11 @@ struct _ort_alloc_t {
 };
 
 void* ort_alloc(size_t size, size_t count);
+void* ort_memcpy(void *dest, const void *src, size_t n);
 void ort_free(void* ptr);
 
 void ort_alloc_startup(ort_alloc_t* allocator);
 void ort_alloc_align(size_t alignment);
+ort_memcpy_func_t ort_alloc_memcpy(ort_memcpy_func_t memcpy);
 void ort_alloc_shutdown(void);
 #endif

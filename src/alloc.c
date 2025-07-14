@@ -20,8 +20,9 @@
 
 static ort_alloc_t __ort_allocator = {
     .alloc    = NULL,
+    .memcpy   = NULL,
     .free     = NULL,
-
+    
     .startup  = NULL,
     .shutdown = NULL,
 
@@ -36,9 +37,23 @@ void ort_alloc_align(size_t alignment) {
     __ort_allocator.alignment = alignment;
 }
 
+ort_memcpy_func_t ort_alloc_memcpy(ort_memcpy_func_t memcpy) {
+    ort_memcpy_func_t fallback = __ort_allocator.memcpy;
+
+    if (memcpy) {
+        __ort_allocator.memcpy = memcpy;
+    }
+
+    return fallback;
+}
+
 void* ort_alloc(size_t size, size_t count) {
     return __ort_allocator.alloc(size, count,
         __ort_allocator.alignment);
+}
+
+void* ort_memcpy(void *dest, const void *src, size_t n) {
+    return __ort_allocator.memcpy(dest, src, n);
 }
 
 void ort_free(void* ptr) {

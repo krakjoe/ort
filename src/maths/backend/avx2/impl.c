@@ -18,6 +18,37 @@
 
 #include "maths/backend/impl.h"
 
+#include <immintrin.h>  /* AVX/AVX2 */
+
+static ort_memcpy_func_t ort_memcpy_fallback = NULL;
+
+static void* ort_math_memcpy_avx2(void *dest, const void *src, size_t n) {
+    uint8_t *d = (uint8_t*)dest;
+    const uint8_t *s =
+      (const uint8_t*)src;
+
+    if (n == 0) {
+        goto __ort_math_memcpy_avx2_yield;
+    }
+
+    size_t i = 0;
+
+    for (; i + 32 <= n; i += 32) {
+        __m256i chunk =
+            _mm256_loadu_si256(
+            (const __m256i*)(s + i));
+        
+        _mm256_storeu_si256(
+            (__m256i*)(d + i), chunk);
+    }
+
+    ort_memcpy_fallback(
+      d + i, s + i, n - i);
+
+__ort_math_memcpy_avx2_yield:
+    return dest;
+}
+
 void ort_math_backend_install(ort_math_dispatch_t* table) {
     /* abs.c */
     ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   abs, ort_math_backend_abs_float);
@@ -101,4 +132,9 @@ void ort_math_backend_install(ort_math_dispatch_t* table) {
 
     /* set allocation alignment to AVX2 vector length */
     ort_alloc_align(32);
+
+    /* insert memcpy implementation */
+    ort_memcpy_fallback =
+        ort_alloc_memcpy(
+            ort_math_memcpy_avx2);
 }

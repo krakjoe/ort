@@ -823,7 +823,7 @@ static zend_always_inline ort_tensor_t* php_ort_tensor_transpose(ort_tensor_t* i
         result->elements = 1;
         result->shape = NULL;
         result->data = ort_alloc(type_size, 1);
-        memcpy(result->data, input->data, type_size);
+        ort_memcpy(result->data, input->data, type_size);
         goto __php_ort_tensor_transpose_done;
     }
 
@@ -943,9 +943,10 @@ static zend_always_inline ort_tensor_t* php_ort_tensor_transpose(ort_tensor_t* i
             out_idx += out_coords[i] * out_strides[i];
         }
         // Copy element
-        memcpy((char*)result->data + out_idx * type_size,
-               (char*)input->data + idx * type_size,
-               type_size);
+        ort_memcpy(
+            (char*)result->data + out_idx * type_size,
+            (char*)input->data + idx * type_size,
+            type_size);
     }
     efree(in_coords);
     efree(out_coords);

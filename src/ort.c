@@ -30,9 +30,7 @@
 
 const OrtApi* api;
 
-static void __ort_alloc_default_startup(ort_alloc_t* allocator) {
-    /* nothing to do */
-}
+static void __ort_alloc_default_startup(ort_alloc_t* allocator) {}
 
 static void* __ort_alloc_default_alloc(size_t size, size_t count, size_t alignment) {
     assert(
@@ -57,6 +55,13 @@ static void* __ort_alloc_default_alloc(size_t size, size_t count, size_t alignme
     return (void*)start;
 }
 
+static void* __ort_alloc_default_memcpy(void *dest, const void *src, size_t n) {
+    if (n == 0) {
+        return dest;
+    }
+    return memcpy(dest, src, n);
+}
+
 static void __ort_alloc_default_free(void* ptr) {
     if (ptr) {
         void *raw =
@@ -65,12 +70,11 @@ static void __ort_alloc_default_free(void* ptr) {
     }
 }
 
-static void __ort_alloc_default_shutdown(ort_alloc_t* allocator) {
-    /* nothing to do */
-}
+static void __ort_alloc_default_shutdown(ort_alloc_t* allocator) { }
 
 ort_alloc_t php_ort_allocator = {
     .alloc    = __ort_alloc_default_alloc,
+    .memcpy   = __ort_alloc_default_memcpy,
     .free     = __ort_alloc_default_free,
 
     .startup  = __ort_alloc_default_startup,
