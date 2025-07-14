@@ -69,7 +69,9 @@ ORT_MATH_FOREACH_REAL_TYPE(
     ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE)
 #undef ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE
 
-static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_softmax(ONNXTensorElementDataType type) {
+static ort_math_reduction_op_func_t
+    ort_math_frontend_get_reduce_axis_softmax(
+        ONNXTensorElementDataType type) {
     const ort_math_dispatch_t* dispatch =
         ort_math_dispatch_type(type);
     return dispatch->softmax_axis_func;

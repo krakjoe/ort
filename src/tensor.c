@@ -801,6 +801,207 @@ PHP_METHOD(ONNX_Tensor, getShape)
     }
 }
 
+static zend_always_inline ort_tensor_t* php_ort_tensor_transpose(ort_tensor_t* input, zval *axis, zval* return_value) {
+    int64_t ndim = input->dimensions;
+    int64_t* perm = NULL;
+    int64_t* inv_perm = NULL;
+    int64_t* out_shape = NULL;
+    int64_t* in_strides = NULL;
+    int64_t* out_strides = NULL;
+    size_t type_size = php_ort_tensor_sizeof(input);
+    size_t numel = input->elements;
+    ort_tensor_t* result = NULL;
+
+    // Argument validation and axes parsing
+    if (ndim == 0) {
+        // Scalar: transpose is a no-op, just return a copy
+        result = pecalloc(1, sizeof(ort_tensor_t), 0);
+        result->refcount = 1;
+        result->owner = PHP_ORT_OWN_ZEND;
+        result->type = input->type;
+        result->dimensions = 0;
+        result->elements = 1;
+        result->shape = NULL;
+        result->data = ort_alloc(type_size, 1);
+        memcpy(result->data, input->data, type_size);
+        goto __php_ort_tensor_transpose_done;
+    }
+
+    perm = ecalloc(ndim, sizeof(int64_t));
+    out_shape = ecalloc(ndim, sizeof(int64_t));
+    in_strides = ecalloc(ndim, sizeof(int64_t));
+    out_strides = ecalloc(ndim, sizeof(int64_t));
+    inv_perm = ecalloc(ndim, sizeof(int64_t));
+
+    // Parse axes argument
+    if (axis) {
+        php_ort_status_flow(
+            (zend_hash_num_elements(Z_ARRVAL_P(axis)) != ndim),
+            {
+                goto __php_ort_tensor_transpose_failed;
+            },
+            php_ort_status_tensor_invalidshape_ce,
+            "axes array must be an array of length %zd", ndim);
+
+        // Fill perm from user axes, handle negatives, check for duplicates
+        zend_bool* seen = ecalloc(ndim, sizeof(zend_bool));
+        int64_t i = 0;
+        zval* zv;
+        ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(axis), zv) {
+            php_ort_status_flow(
+                (Z_TYPE_P(zv) != IS_LONG),
+                {
+                    efree(seen);
+                    goto __php_ort_tensor_transpose_failed;
+                },
+                php_ort_status_tensor_invalidshape_ce,
+                "axes array must contain only integers");
+            
+            int64_t ax = Z_LVAL_P(zv);
+            if (ax < 0)
+                ax += ndim;
+            
+            php_ort_status_flow(
+                (ax < 0 || ax >= ndim),
+                {
+                    efree(seen);
+                    goto __php_ort_tensor_transpose_failed;
+                },
+                php_ort_status_tensor_invalidshape_ce,
+                "axis value %zd out of range [0, %zd)", ax, ndim);
+
+            php_ort_status_flow(
+                (seen[ax]),
+                {
+                    efree(seen);
+                    goto __php_ort_tensor_transpose_failed;
+                },
+                php_ort_status_tensor_invalidshape_ce,
+                "duplicate axis value %zd in axes", ax);
+
+            seen[ax] = 1;
+            perm[i++] = ax;
+        } ZEND_HASH_FOREACH_END();
+        efree(seen);
+    } else {
+        // Default: reverse axes
+        for (int64_t i = 0; i < ndim; i++) {
+            perm[i] = ndim - 1 - i;
+        }
+    }
+
+    // Compute output shape and strides
+    for (int64_t i = 0; i < ndim; i++) {
+        out_shape[i] = input->shape[perm[i]];
+    }
+    // Input strides
+    in_strides[ndim-1] = 1;
+    for (int64_t i = ndim-2; i >= 0; i--) {
+        in_strides[i] = in_strides[i+1] * input->shape[i+1];
+    }
+    // Output strides
+    out_strides[ndim-1] = 1;
+    for (int64_t i = ndim-2; i >= 0; i--) {
+        out_strides[i] = out_strides[i+1] * out_shape[i+1];
+    }
+    // Inverse permutation: inv_perm[perm[i]] = i
+    for (int64_t i = 0; i < ndim; i++) {
+        inv_perm[perm[i]] = i;
+    }
+
+    // Allocate result tensor
+    result = pecalloc(1, sizeof(ort_tensor_t), 0);
+    result->refcount = 1;
+    result->owner = PHP_ORT_OWN_ZEND;
+    result->type = input->type;
+    result->dimensions = ndim;
+    result->elements = numel;
+    result->shape = pecalloc(ndim, sizeof(int64_t), 0);
+    memcpy(result->shape,
+        out_shape, ndim * sizeof(int64_t));
+    result->data = ort_alloc(type_size, numel);
+
+    // Main permutation loop
+    int64_t* in_coords =
+        ecalloc(ndim, sizeof(int64_t));
+    int64_t* out_coords =
+        ecalloc(ndim, sizeof(int64_t));
+    for (size_t idx = 0; idx < numel; idx++) {
+        // Compute input coordinates from flat idx
+        size_t rem = idx;
+        for (int64_t i = 0; i < ndim; i++) {
+            in_coords[i] = rem / in_strides[i];
+            rem = rem % in_strides[i];
+        }
+        // Permute coordinates
+        for (int64_t i = 0; i < ndim; i++) {
+            out_coords[i] = in_coords[perm[i]];
+        }
+        // Compute output flat index
+        size_t out_idx = 0;
+        for (int64_t i = 0; i < ndim; i++) {
+            out_idx += out_coords[i] * out_strides[i];
+        }
+        // Copy element
+        memcpy((char*)result->data + out_idx * type_size,
+               (char*)input->data + idx * type_size,
+               type_size);
+    }
+    efree(in_coords);
+    efree(out_coords);
+
+__php_ort_tensor_transpose_done:
+    object_init_ex(return_value,
+        php_ort_tensor_transient_ce);
+    php_ort_tensor_t* rv =
+        php_ort_tensor_fetch(
+            Z_OBJ_P(return_value));
+    rv->object = result;
+
+    if (perm)
+        efree(perm);
+    if (out_shape)
+        efree(out_shape);
+    if (in_strides)
+        efree(in_strides);
+    if (out_strides)
+        efree(out_strides);
+    if (inv_perm)
+        efree(inv_perm);
+    return result;
+
+__php_ort_tensor_transpose_failed:
+    if (perm)
+        efree(perm);
+    if (out_shape)
+        efree(out_shape);
+    if (in_strides)
+        efree(in_strides);
+    if (out_strides)
+        efree(out_strides);
+    if (inv_perm)
+        efree(inv_perm);
+    return NULL;
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_transpose_arginfo, 0, 0, ONNX\\Tensor, 0)
+    ZEND_ARG_TYPE_INFO(0, axis, IS_ARRAY, 1)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Tensor, transpose)
+{
+    php_ort_tensor_t* ort =
+        php_ort_tensor_fetch(Z_OBJ(EX(This)));
+    zval* axis = NULL;
+
+    ZEND_PARSE_PARAMETERS_START(0, 1);
+        Z_PARAM_OPTIONAL
+        Z_PARAM_ZVAL(axis)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_ort_tensor_transpose(ort->object, axis, return_value);
+}
+
 static zend_always_inline ort_tensor_t* php_ort_tensor_slice(ort_tensor_t* input, zval* start, zval* end, zval* axis, zval* return_value) {
     // Handle axis parameter - if provided, validate it
     zend_bool has_axis = (axis != NULL);
@@ -1200,14 +1401,12 @@ PHP_METHOD(ONNX_Tensor, getData)
     // Special case for scalar tensors (0 dimensions)
     if (ort->object->dimensions == 0) {
         // For scalar tensors, check if depth parameter was provided
-        if (ZEND_NUM_ARGS() > 1 && depth != 0) {
-            php_ort_status_flow(
-                !SUCCESS,
-                return,
-                php_ort_status_tensor_invalidshape_ce,
-                "depth parameter cannot be used with scalar tensors");
-        }
-        
+        php_ort_status_flow(
+            (ZEND_NUM_ARGS() > 1 && depth != 0),
+            return,
+            php_ort_status_tensor_invalidshape_ce,
+            "depth parameter cannot be used with scalar tensors");
+
         // Handle offset parameter - for scalar tensors, offset 0 returns the value, any other offset returns empty array
         if (offset > 0) {
             array_init(return_value);
@@ -1307,19 +1506,20 @@ static zend_bool php_ort_infer_shape(zval *data, size_t *shape, size_t max, size
     size_t dimension = 0;
     zval *level = data;
     while (Z_TYPE_P(level) == IS_ARRAY) {
-        if (dimension >= max) {
-            php_ort_status_throw(php_ort_status_tensor_invaliddata_ce,
-                "shape exceeds maximum allowed dimensions (%zd)", max);
-            return 0;
-        }
+        php_ort_status_flow(
+            (dimension >= max),
+            return 0,
+            php_ort_status_tensor_invaliddata_ce,
+            "shape exceeds maximum allowed dimensions (%zd)", max);
 
         size_t len = zend_hash_num_elements(Z_ARRVAL_P(level));
-        if (len == 0) {
-            php_ort_status_throw(php_ort_status_tensor_invaliddata_ce,
-                "empty array encountered at dimension %zd (ragged or empty tensor)",
-                dimension);
-            return 0;
-        }
+
+        php_ort_status_flow(
+            len == 0,
+            return 0,
+            php_ort_status_tensor_invaliddata_ce,
+            "empty array encountered at dimension %zd (ragged or empty tensor)",
+            dimension);
 
         shape[dimension] = len;
 
@@ -1340,35 +1540,36 @@ static zend_bool php_ort_infer_shape(zval *data, size_t *shape, size_t max, size
         ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(level), zval *sub) {
             if (Z_TYPE_P(sub) == IS_ARRAY) {
                 found_array = 1;
-                if (zend_hash_num_elements(Z_ARRVAL_P(sub)) != zend_hash_num_elements(Z_ARRVAL_P(first))) {
-                    php_ort_status_throw(php_ort_status_tensor_invaliddata_ce,
-                        "ragged array: sub-array at dimension %zd has length %zd, expected %zd",
-                        dimension+1,
-                        zend_hash_num_elements(Z_ARRVAL_P(sub)),
-                        zend_hash_num_elements(Z_ARRVAL_P(first)));
-                    return 0;
-                }
+                php_ort_status_flow(
+                    (zend_hash_num_elements(Z_ARRVAL_P(sub)) !=
+                        zend_hash_num_elements(Z_ARRVAL_P(first))),
+                    return 0,
+                    php_ort_status_tensor_invaliddata_ce,
+                    "ragged array: sub-array at dimension %zd has length %zd, expected %zd",
+                    dimension+1,
+                    zend_hash_num_elements(Z_ARRVAL_P(sub)),
+                    zend_hash_num_elements(Z_ARRVAL_P(first)));
             } else {
                 found_scalar = 1;
             }
 
-            if (Z_TYPE_P(sub) != IS_ARRAY &&
+            php_ort_status_flow(
+                (Z_TYPE_P(sub) != IS_ARRAY &&
                 Z_TYPE_P(sub) != IS_LONG &&
                 Z_TYPE_P(sub) != IS_DOUBLE &&
-                !(Z_TYPE_P(sub) == IS_TRUE || Z_TYPE_P(sub) == IS_FALSE)) {
-                php_ort_status_throw(php_ort_status_tensor_invaliddata_ce,
-                    "unsupported type at dimension %zd: %s",
-                    dimension+1,
-                    zend_zval_type_name(sub));
-                return 0;
-            }
+                !(Z_TYPE_P(sub) == IS_TRUE || Z_TYPE_P(sub) == IS_FALSE)),
+                return 0,
+                php_ort_status_tensor_invaliddata_ce,
+                "unsupported type at dimension %zd: %s",
+                dimension+1,
+                zend_zval_type_name(sub));
 
-            if (found_array && found_scalar) {
-                php_ort_status_throw(php_ort_status_tensor_invaliddata_ce,
-                    "mixed array/scalar types at dimension %zd (ragged tensor)",
-                    dimension+1);
-                return 0;
-            }
+            php_ort_status_flow(
+                (found_array && found_scalar),
+                return 0,
+                php_ort_status_tensor_invaliddata_ce,
+                "mixed array/scalar types at dimension %zd (ragged tensor)",
+                dimension+1);
         } ZEND_HASH_FOREACH_END();
         if (found_array) {
             // Go one level deeper
@@ -1405,11 +1606,11 @@ PHP_METHOD(ONNX_Tensor, from)
         return;
     }
 
-    if (dimensions == 0) {
-        php_ort_status_throw(php_ort_status_tensor_invaliddata_ce,
-            "empty tensor data provided (no dimensions inferred)");
-        return;
-    }
+    php_ort_status_flow(
+        (dimensions == 0),
+        return,
+        php_ort_status_tensor_invaliddata_ce,
+        "empty tensor data provided (no dimensions inferred)");
 
     zval param;
     array_init_size(&param, dimensions);
@@ -1454,6 +1655,8 @@ zend_function_entry php_ort_tensor_interface_methods[] = {
     PHP_ABSTRACT_ME(ONNX_Tensor, getShape,     php_ort_tensor_getShape_arginfo)
     PHP_ABSTRACT_ME(ONNX_Tensor, getSlice,     php_ort_tensor_getSlice_arginfo)
     PHP_ABSTRACT_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo)
+
+    PHP_ABSTRACT_ME(ONNX_Tensor, transpose,    php_ort_tensor_transpose_arginfo)
     PHP_FE_END
 };
 
@@ -1467,6 +1670,8 @@ zend_function_entry php_ort_tensor_persistent_methods[] = {
     PHP_ME(ONNX_Tensor, getShape,     php_ort_tensor_getShape_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getSlice,     php_ort_tensor_getSlice_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo,      ZEND_ACC_PUBLIC)
+    PHP_ME(ONNX_Tensor, transpose,    php_ort_tensor_transpose_arginfo,    ZEND_ACC_PUBLIC)
+
     PHP_ME(ONNX_Tensor, from,         php_ort_tensor_from_arginfo,         ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
     PHP_FE_END
 };
@@ -1481,6 +1686,8 @@ zend_function_entry php_ort_tensor_transient_methods[] = {
     PHP_ME(ONNX_Tensor, getShape,     php_ort_tensor_getShape_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getSlice,     php_ort_tensor_getSlice_arginfo,     ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo,      ZEND_ACC_PUBLIC)
+    PHP_ME(ONNX_Tensor, transpose,    php_ort_tensor_transpose_arginfo,    ZEND_ACC_PUBLIC)
+
     PHP_ME(ONNX_Tensor, from,         php_ort_tensor_from_arginfo,         ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
     PHP_FE_END
 };
