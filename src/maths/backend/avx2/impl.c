@@ -35,10 +35,10 @@ static void* ort_math_memcpy_avx2(void *dest, const void *src, size_t n) {
 
     for (; i + 32 <= n; i += 32) {
         __m256i chunk =
-            _mm256_loadu_si256(
+            _mm256_load_si256(
             (const __m256i*)(s + i));
         
-        _mm256_storeu_si256(
+        _mm256_store_si256(
             (__m256i*)(d + i), chunk);
     }
 

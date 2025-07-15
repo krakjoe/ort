@@ -33,10 +33,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(div, float) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
-        __m128 mb = _mm_loadu_ps(&vb[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
+        __m128 mb = _mm_load_ps(&vb[i]);
         __m128 mr = _mm_div_ps(ma, mb);
-        _mm_storeu_ps(&res[i], mr);
+        _mm_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_div_float_fallback:
@@ -62,10 +62,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(div, double) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
-        __m128d mb = _mm_loadu_pd(&vb[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
+        __m128d mb = _mm_load_pd(&vb[i]);
         __m128d mr = _mm_div_pd(ma, mb);
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_div_double_fallback:

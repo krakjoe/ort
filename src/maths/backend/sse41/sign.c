@@ -34,14 +34,14 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, float) {
     __m128 mone = _mm_set1_ps(-1.0f);
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
         __m128 gt = _mm_cmpgt_ps(ma, zero);
         __m128 lt = _mm_cmplt_ps(ma, zero);
         __m128 vr = _mm_or_ps(
             _mm_and_ps(gt, one), 
             _mm_and_ps(lt, mone));
 
-        _mm_storeu_ps(&res[i], vr);
+        _mm_store_ps(&res[i], vr);
     }
 
 __ort_math_backend_sign_float_fallback:
@@ -69,13 +69,13 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, double) {
     __m128d mone = _mm_set1_pd(-1.0);
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
         __m128d gt = _mm_cmpgt_pd(ma, zero);
         __m128d lt = _mm_cmplt_pd(ma, zero);
         __m128d mr = _mm_or_pd(
             _mm_and_pd(gt, one),
             _mm_and_pd(lt, mone));
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_sign_double_fallback:

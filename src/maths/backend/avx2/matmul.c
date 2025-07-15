@@ -32,7 +32,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                ma = _mm256_loadu_ps(&va[i * a_cols + k]);
+                ma = _mm256_load_ps(&va[i * a_cols + k]);
                 mb = _mm256_set_ps(
                     vb[(k+7) * b_cols + j], vb[(k+6) * b_cols + j],
                     vb[(k+5) * b_cols + j], vb[(k+4) * b_cols + j],
@@ -40,7 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 mr = _mm256_mul_ps(ma, mb);
                 float tmp[8];
-                _mm256_storeu_ps(tmp, mr);
+                _mm256_store_ps(tmp, mr);
                 for (int s = 0; s < 8; ++s) sum += tmp[s];
             }
             /* Fallback for leftovers */
@@ -64,13 +64,13 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                ma = _mm256_loadu_pd(&va[i * a_cols + k]);
+                ma = _mm256_load_pd(&va[i * a_cols + k]);
                 mb = _mm256_set_pd(
                     vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 mr = _mm256_mul_pd(ma, mb);
                 double tmp[4];
-                _mm256_storeu_pd(tmp, mr);
+                _mm256_store_pd(tmp, mr);
                 for (int s = 0; s < 4; ++s) sum += tmp[s];
             }
             for (; k < a_cols; k++) {
@@ -93,7 +93,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                ma = _mm256_loadu_si256((const __m256i *)&va[i * a_cols + k]);
+                ma = _mm256_load_si256((const __m256i *)&va[i * a_cols + k]);
                 mb = _mm256_set_epi32(
                     vb[(k+7) * b_cols + j], vb[(k+6) * b_cols + j],
                     vb[(k+5) * b_cols + j], vb[(k+4) * b_cols + j],
@@ -101,7 +101,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 mr = _mm256_mullo_epi32(ma, mb);
                 int32_t tmp[8];
-                _mm256_storeu_si256((__m256i *)tmp, mr);
+                _mm256_store_si256((__m256i *)tmp, mr);
                 for (int s = 0; s < 8; ++s) sum += tmp[s];
             }
             for (; k < a_cols; k++) {
@@ -124,7 +124,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                ma = _mm256_loadu_si256((const __m256i *)&va[i * a_cols + k]);
+                ma = _mm256_load_si256((const __m256i *)&va[i * a_cols + k]);
                 mb = _mm256_set_epi32(
                     vb[(k+7) * b_cols + j], vb[(k+6) * b_cols + j],
                     vb[(k+5) * b_cols + j], vb[(k+4) * b_cols + j],
@@ -132,7 +132,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 mr = _mm256_mullo_epi32(ma, mb);
                 uint32_t tmp[8];
-                _mm256_storeu_si256((__m256i *)tmp, mr);
+                _mm256_store_si256((__m256i *)tmp, mr);
                 for (int s = 0; s < 8; ++s) sum += tmp[s];
             }
             for (; k < a_cols; k++) {
@@ -154,7 +154,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                __m256i ma = _mm256_loadu_si256((const __m256i *)&va[i * a_cols + k]);
+                __m256i ma = _mm256_load_si256((const __m256i *)&va[i * a_cols + k]);
                 __m256i mb = _mm256_set_epi16(
                     vb[(k+15) * b_cols + j], vb[(k+14) * b_cols + j],
                     vb[(k+13) * b_cols + j], vb[(k+12) * b_cols + j],
@@ -167,7 +167,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                 // Multiply and horizontally add pairs to 32-bit
                 __m256i prod = _mm256_madd_epi16(ma, mb);
                 int32_t tmp[8];
-                _mm256_storeu_si256((__m256i *)tmp, prod);
+                _mm256_store_si256((__m256i *)tmp, prod);
                 for (int s = 0; s < 8; ++s) sum += tmp[s];
             }
             for (; k < a_cols; k++) {
@@ -196,7 +196,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                __m256i ma = _mm256_loadu_si256((const __m256i *)&va[i * a_cols + k]);
+                __m256i ma = _mm256_load_si256((const __m256i *)&va[i * a_cols + k]);
                 __m256i mb = _mm256_set_epi16(
                     vb[(k+15) * b_cols + j], vb[(k+14) * b_cols + j],
                     vb[(k+13) * b_cols + j], vb[(k+12) * b_cols + j],
@@ -209,7 +209,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                 // Multiply and horizontally add pairs to 32-bit
                 __m256i prod = _mm256_madd_epi16(ma, mb);
                 uint32_t tmp[8];
-                _mm256_storeu_si256((__m256i *)tmp, prod);
+                _mm256_store_si256((__m256i *)tmp, prod);
                 for (int s = 0; s < 8; ++s) sum += tmp[s];
             }
             for (; k < a_cols; k++) {
@@ -236,7 +236,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                __m256i ma = _mm256_loadu_si256((const __m256i *)&va[i * a_cols + k]);
+                __m256i ma = _mm256_load_si256((const __m256i *)&va[i * a_cols + k]);
                 __m256i mb = _mm256_set_epi8(
                     vb[(k+31) * b_cols + j], vb[(k+30) * b_cols + j],
                     vb[(k+29) * b_cols + j], vb[(k+28) * b_cols + j],
@@ -259,7 +259,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
                 // Now horizontally add pairs to 32-bit
                 __m256i prod32 = _mm256_madd_epi16(prod, _mm256_set1_epi16(1));
                 int32_t tmp[8];
-                _mm256_storeu_si256((__m256i *)tmp, prod32);
+                _mm256_store_si256((__m256i *)tmp, prod32);
                 for (int s = 0; s < 8; ++s) sum += tmp[s];
             }
             for (; k < a_cols; k++) {
@@ -289,7 +289,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
             size_t mc = ort_math_backend_optimal_count(a_cols, mw);
             size_t k = 0;
             for (; k < mc; k += mw) {
-                __m256i ma = _mm256_loadu_si256((const __m256i *)&va[i * a_cols + k]);
+                __m256i ma = _mm256_load_si256((const __m256i *)&va[i * a_cols + k]);
                 __m256i mb = _mm256_set_epi8(
                     vb[(k+31) * b_cols + j], vb[(k+30) * b_cols + j],
                     vb[(k+29) * b_cols + j], vb[(k+28) * b_cols + j],
@@ -312,7 +312,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
                 // Now horizontally add pairs to 32-bit
                 __m256i prod32 = _mm256_madd_epi16(prod, _mm256_set1_epi16(1));
                 uint32_t tmp[8];
-                _mm256_storeu_si256((__m256i *)tmp, prod32);
+                _mm256_store_si256((__m256i *)tmp, prod32);
                 for (int s = 0; s < 8; ++s) sum += tmp[s];
             }
             for (; k < a_cols; k++) {

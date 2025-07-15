@@ -43,7 +43,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, float) {
 
     /* Vectorized loop - process 4 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
         __m128 pos_mask = _mm_cmpgt_ps(ma, zero);
         __m128 neg_mask = _mm_cmplt_ps(ma, zero);
         __m128 mr = _mm_andnot_ps(
@@ -54,7 +54,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, float) {
         mr = _mm_or_ps(
             mr, _mm_and_ps(neg_mask, neg_one));
 
-        _mm_storeu_ps(&res[i], mr);
+        _mm_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_sign_float_fallback:
@@ -85,7 +85,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, double) {
 
     /* Vectorized loop - process 2 doubles at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
         __m128d pos_mask = _mm_cmpgt_pd(ma, zero);
         __m128d neg_mask = _mm_cmplt_pd(ma, zero);
         __m128d mr = _mm_andnot_pd(
@@ -94,7 +94,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, double) {
             _mm_and_pd(pos_mask, one));
         mr = _mm_or_pd(mr, 
             _mm_and_pd(neg_mask, neg_one));
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_sign_double_fallback:

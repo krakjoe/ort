@@ -33,7 +33,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
             size_t k = 0;
             if (mc > 0) {
                 for (; k < mc; k += mw) {
-                    ma = _mm_loadu_ps(&va[i * a_cols + k]);
+                    ma = _mm_load_ps(&va[i * a_cols + k]);
                     mb = _mm_set_ps(
                         vb[(k+3) * b_cols + j],
                         vb[(k+2) * b_cols + j],
@@ -41,7 +41,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                         vb[k * b_cols + j]);
                     mr = _mm_mul_ps(ma, mb);
                     float tmp[4];
-                    _mm_storeu_ps(tmp, mr);
+                    _mm_store_ps(tmp, mr);
                     for (int s = 0; s < 4; ++s) sum += tmp[s];
                 }
             }
@@ -69,13 +69,13 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
             size_t k = 0;
             if (mc > 0) {
                 for (; k < mc; k += mw) {
-                    ma = _mm_loadu_pd(&va[i * a_cols + k]);
+                    ma = _mm_load_pd(&va[i * a_cols + k]);
                     mb = _mm_set_pd(
                         vb[(k+1) * b_cols + j],
                         vb[k * b_cols + j]);
                     mr = _mm_mul_pd(ma, mb);
                     double tmp[2];
-                    _mm_storeu_pd(tmp, mr);
+                    _mm_store_pd(tmp, mr);
                     for (int s = 0; s < 2; ++s) sum += tmp[s];
                 }
             }
@@ -101,7 +101,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
             size_t k = 0;
             if (mc > 0) {
                 for (; k < mc; k += mw) {
-                    __m128i ma = _mm_loadu_si128((const __m128i *)&va[i * a_cols + k]);
+                    __m128i ma = _mm_load_si128((const __m128i *)&va[i * a_cols + k]);
                     __m128i mb = _mm_set_epi16(
                         vb[(k+7) * b_cols + j], vb[(k+6) * b_cols + j],
                         vb[(k+5) * b_cols + j], vb[(k+4) * b_cols + j],
@@ -110,7 +110,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                     // Multiply and horizontally add pairs to 32-bit
                     __m128i prod = _mm_madd_epi16(ma, mb);
                     int32_t tmp[4];
-                    _mm_storeu_si128((__m128i *)tmp, prod);
+                    _mm_store_si128((__m128i *)tmp, prod);
                     for (int s = 0; s < 4; ++s) sum += tmp[s];
                 }
             }
@@ -143,7 +143,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
             size_t k = 0;
             if (mc > 0) {
                 for (; k < mc; k += mw) {
-                    __m128i ma = _mm_loadu_si128((const __m128i *)&va[i * a_cols + k]);
+                    __m128i ma = _mm_load_si128((const __m128i *)&va[i * a_cols + k]);
                     __m128i mb = _mm_set_epi16(
                         vb[(k+7) * b_cols + j], vb[(k+6) * b_cols + j],
                         vb[(k+5) * b_cols + j], vb[(k+4) * b_cols + j],
@@ -152,7 +152,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                     // Multiply and horizontally add pairs to 32-bit
                     __m128i prod = _mm_madd_epi16(ma, mb);
                     uint32_t tmp[4];
-                    _mm_storeu_si128((__m128i *)tmp, prod);
+                    _mm_store_si128((__m128i *)tmp, prod);
                     for (int s = 0; s < 4; ++s) sum += tmp[s];
                 }
             }
@@ -185,7 +185,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
             size_t k = 0;
             if (mc > 0) {
                 for (; k < mc; k += mw) {
-                    ma = _mm_loadu_si128((const __m128i *)&va[i * a_cols + k]);
+                    ma = _mm_load_si128((const __m128i *)&va[i * a_cols + k]);
                     mb = _mm_set_epi32(
                         vb[(k+3) * b_cols + j],
                         vb[(k+2) * b_cols + j],
@@ -193,7 +193,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                         vb[k * b_cols + j]);
                     mr = _mm_mullo_epi32(ma, mb);
                     int32_t tmp[4];
-                    _mm_storeu_si128((__m128i *)tmp, mr);
+                    _mm_store_si128((__m128i *)tmp, mr);
                     for (int s = 0; s < 4; ++s) sum += tmp[s];
                 }
             }
@@ -220,7 +220,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
             size_t k = 0;
             if (mc > 0) {
                 for (; k < mc; k += mw) {
-                    ma = _mm_loadu_si128((const __m128i *)&va[i * a_cols + k]);
+                    ma = _mm_load_si128((const __m128i *)&va[i * a_cols + k]);
                     mb = _mm_set_epi32(
                         vb[(k+3) * b_cols + j],
                         vb[(k+2) * b_cols + j],
@@ -228,7 +228,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                         vb[k * b_cols + j]);
                     mr = _mm_mullo_epi32(ma, mb);
                     uint32_t tmp[4];
-                    _mm_storeu_si128((__m128i *)tmp, mr);
+                    _mm_store_si128((__m128i *)tmp, mr);
                     for (int s = 0; s < 4; ++s) sum += tmp[s];
                 }
             }

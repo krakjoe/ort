@@ -38,7 +38,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, float) {
 
     /* Vectorized loop - process 8 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256 ma = _mm256_loadu_ps(&va[i]);
+        __m256 ma = _mm256_load_ps(&va[i]);
 
         /* Check for positive, negative, and zero */
         __m256 pos_mask = _mm256_cmp_ps(ma, zero, _CMP_GT_OQ);
@@ -48,7 +48,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, float) {
         __m256 mr = _mm256_blendv_ps(zero, one, pos_mask);
         mr = _mm256_blendv_ps(mr, neg_one, neg_mask);
 
-        _mm256_storeu_ps(&res[i], mr);
+        _mm256_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_sign_float_fallback:
@@ -78,7 +78,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, double) {
     const __m256d neg_one = _mm256_set1_pd(-1.0);
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m256d ma = _mm256_loadu_pd(&va[i]);
+        __m256d ma = _mm256_load_pd(&va[i]);
 
         /* Check for positive, negative, and zero */
         __m256d pos_mask = _mm256_cmp_pd(ma, zero, _CMP_GT_OQ);
@@ -88,7 +88,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sign, double) {
         __m256d mr = _mm256_blendv_pd(zero, one, pos_mask);
         mr = _mm256_blendv_pd(mr, neg_one, neg_mask);
 
-        _mm256_storeu_pd(&res[i], mr);
+        _mm256_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_sign_double_fallback:

@@ -41,10 +41,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, int8_t) {
 
     /* Vectorized loop - process 16 int8_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_add_epi8(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_add_int8_fallback:
@@ -70,10 +70,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, int16_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_add_epi16(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_add_int16_fallback:
@@ -99,10 +99,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, int32_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_add_epi32(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_add_int32_fallback:
@@ -128,10 +128,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint8_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_add_epi8(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_add_uint8_fallback:
@@ -157,10 +157,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint16_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_add_epi16(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_add_uint16_fallback:
@@ -186,10 +186,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint32_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_add_epi32(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_add_uint32_fallback:
@@ -215,10 +215,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, float) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
-        __m128 mb = _mm_loadu_ps(&vb[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
+        __m128 mb = _mm_load_ps(&vb[i]);
         __m128 mr = _mm_add_ps(ma, mb);
-        _mm_storeu_ps(&res[i], mr);
+        _mm_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_add_float_fallback:
@@ -244,10 +244,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, double) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
-        __m128d mb = _mm_loadu_pd(&vb[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
+        __m128d mb = _mm_load_pd(&vb[i]);
         __m128d mr = _mm_add_pd(ma, mb);
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_add_double_fallback:

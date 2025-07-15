@@ -33,9 +33,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(ceil, float) {
 
     /* Vectorized loop - process 8 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256 ma = _mm256_loadu_ps(&va[i]);
+        __m256 ma = _mm256_load_ps(&va[i]);
         __m256 mr = _mm256_ceil_ps(ma);
-        _mm256_storeu_ps(&res[i], mr);
+        _mm256_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_ceil_float_fallback:
@@ -62,9 +62,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(ceil, double)  {
 
     /* Vectorized loop - process 4 doubles at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256d ma = _mm256_loadu_pd(&va[i]);
+        __m256d ma = _mm256_load_pd(&va[i]);
         __m256d mr = _mm256_ceil_pd(ma);
-        _mm256_storeu_pd(&res[i], mr);
+        _mm256_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_ceil_double_fallback:

@@ -32,9 +32,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(recip, float) {
     __m128 one = _mm_set1_ps(1.0f);
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
         __m128 mr = _mm_div_ps(one, ma);
-        _mm_storeu_ps(&res[i], mr);
+        _mm_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_recip_float_fallback:
@@ -59,9 +59,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(recip, double) {
     __m128d one = _mm_set1_pd(1.0);
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
         __m128d mr = _mm_div_pd(one, ma);
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_recip_double_fallback:

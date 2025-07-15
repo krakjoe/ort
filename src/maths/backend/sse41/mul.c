@@ -33,10 +33,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(mul, int16_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_mullo_epi16(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_mul_int16_fallback:
@@ -62,10 +62,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(mul, int32_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_mullo_epi32(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_mul_int32_fallback:
@@ -91,10 +91,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(mul, uint16_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_mullo_epi16(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_mul_uint16_fallback:
@@ -120,10 +120,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(mul, uint32_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_loadu_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_loadu_si128((const __m128i*)&vb[i]);
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
         __m128i mr = _mm_mullo_epi32(ma, mb);
-        _mm_storeu_si128((__m128i*)&res[i], mr);
+        _mm_store_si128((__m128i*)&res[i], mr);
     }
 
 __ort_math_backend_mul_uint32_fallback:
@@ -149,10 +149,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(mul, float) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
-        __m128 mb = _mm_loadu_ps(&vb[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
+        __m128 mb = _mm_load_ps(&vb[i]);
         __m128 mr = _mm_mul_ps(ma, mb);
-        _mm_storeu_ps(&res[i], mr);
+        _mm_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_mul_float_fallback:
@@ -178,10 +178,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(mul, double) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
-        __m128d mb = _mm_loadu_pd(&vb[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
+        __m128d mb = _mm_load_pd(&vb[i]);
         __m128d mr = _mm_mul_pd(ma, mb);
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_mul_double_fallback:

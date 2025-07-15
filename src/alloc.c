@@ -78,7 +78,8 @@ static void __ort_alloc_default_startup(ort_alloc_t* allocator) {
     OrtStatus* status =
         api->RegisterAllocator(
             php_ort_environment(),
-            &__ort_alloc_default_for_onnx);
+            (OrtAllocator*)
+                &__ort_alloc_default_for_onnx);
     if (status) {
         fprintf(stderr,
             "ort: failed to register allocator: %s\n",

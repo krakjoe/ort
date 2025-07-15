@@ -34,10 +34,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, int8_t) {
 
     /* Vectorized loop - process 32 int8_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
-        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i ma = _mm256_load_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((const __m256i*)&vb[i]);
         __m256i mr = _mm256_add_epi8(ma, mb);
-        _mm256_storeu_si256((__m256i*)&res[i], mr);
+        _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_backend_add_int8_fallback:
@@ -64,10 +64,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, int16_t) {
 
     /* Vectorized loop - process 16 int16_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
-        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i ma = _mm256_load_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((const __m256i*)&vb[i]);
         __m256i mr = _mm256_add_epi16(ma, mb);
-        _mm256_storeu_si256((__m256i*)&res[i], mr);
+        _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_backend_add_int16_fallback:
@@ -94,10 +94,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, int32_t) {
 
     /* Vectorized loop - process 8 int32_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
-        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i ma = _mm256_load_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((const __m256i*)&vb[i]);
         __m256i mr = _mm256_add_epi32(ma, mb);
-        _mm256_storeu_si256((__m256i*)&res[i], mr);
+        _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_backend_add_int32_fallback:
@@ -123,10 +123,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, int64_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
-        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i ma = _mm256_load_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((const __m256i*)&vb[i]);
         __m256i mr = _mm256_add_epi64(ma, mb);
-        _mm256_storeu_si256((__m256i*)&res[i], mr);
+        _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_backend_add_int64_fallback:
@@ -153,10 +153,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint8_t) {
 
     /* Vectorized loop - process 32 uint8_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
-        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i ma = _mm256_load_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((const __m256i*)&vb[i]);
         __m256i mr = _mm256_add_epi8(ma, mb);
-        _mm256_storeu_si256((__m256i*)&res[i], mr);
+        _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_backend_add_uint8_fallback:
@@ -182,10 +182,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint16_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
-        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i ma = _mm256_load_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((const __m256i*)&vb[i]);
         __m256i mr = _mm256_add_epi16(ma, mb);
-        _mm256_storeu_si256((__m256i*)&res[i], mr);
+        _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_backend_add_uint16_fallback:
@@ -211,10 +211,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, uint32_t) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
-        __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
+        __m256i ma = _mm256_load_si256((const __m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((const __m256i*)&vb[i]);
         __m256i mr = _mm256_add_epi32(ma, mb);
-        _mm256_storeu_si256((__m256i*)&res[i], mr);
+        _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
 __ort_math_backend_add_uint32_fallback:
@@ -242,10 +242,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, float) {
 
     /* Vectorized loop - process 8 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256 ma = _mm256_loadu_ps(&va[i]);
-        __m256 mb = _mm256_loadu_ps(&vb[i]);
+        __m256 ma = _mm256_load_ps(&va[i]);
+        __m256 mb = _mm256_load_ps(&vb[i]);
         __m256 mr = _mm256_add_ps(ma, mb);
-        _mm256_storeu_ps(&res[i], mr);
+        _mm256_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_add_float_fallback:
@@ -272,10 +272,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(add, double)  {
 
     /* Vectorized loop - process 4 doubles at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256d ma = _mm256_loadu_pd(&va[i]);
-        __m256d mb = _mm256_loadu_pd(&vb[i]);
+        __m256d ma = _mm256_load_pd(&va[i]);
+        __m256d mb = _mm256_load_pd(&vb[i]);
         __m256d mr = _mm256_add_pd(ma, mb);
-        _mm256_storeu_pd(&res[i], mr);
+        _mm256_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_add_double_fallback:

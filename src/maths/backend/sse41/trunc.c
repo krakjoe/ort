@@ -32,10 +32,10 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(trunc, float) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
         __m128 mr = _mm_round_ps(ma,
             _MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC);
-        _mm_storeu_ps(&res[i], mr);
+        _mm_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_trunc_float_fallback:
@@ -58,10 +58,10 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(trunc, double) {
     }
 
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
         __m128d mr = _mm_round_pd(ma,
             _MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC);
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_trunc_double_fallback:

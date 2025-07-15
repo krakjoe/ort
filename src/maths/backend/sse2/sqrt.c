@@ -38,9 +38,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sqrt, float) {
 
     /* Vectorized loop - process 4 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_loadu_ps(&va[i]);
+        __m128 ma = _mm_load_ps(&va[i]);
         __m128 mr = _mm_sqrt_ps(ma);
-        _mm_storeu_ps(&res[i], mr);
+        _mm_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_sqrt_float_fallback:
@@ -67,9 +67,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sqrt, double) {
 
     /* Vectorized loop - process 2 doubles at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_loadu_pd(&va[i]);
+        __m128d ma = _mm_load_pd(&va[i]);
         __m128d mr = _mm_sqrt_pd(ma);
-        _mm_storeu_pd(&res[i], mr);
+        _mm_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_sqrt_double_fallback:

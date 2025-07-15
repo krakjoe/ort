@@ -35,10 +35,10 @@ static void* ort_math_memcpy_sse41(void *dest, const void *src, size_t n) {
 
     for (; i + 16 <= n; i += 16) {
         __m128i chunk =
-            _mm_loadu_si128(
+            _mm_load_si128(
             (const __m128i*)(s + i));
 
-        _mm_storeu_si128(
+        _mm_store_si128(
             (__m128i*)(d + i), chunk);
     }
 

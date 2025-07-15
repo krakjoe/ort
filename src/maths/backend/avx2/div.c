@@ -41,10 +41,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(div, float) {
 
     /* Vectorized loop - process 8 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256 ma = _mm256_loadu_ps(&va[i]);
-        __m256 mb = _mm256_loadu_ps(&vb[i]);
+        __m256 ma = _mm256_load_ps(&va[i]);
+        __m256 mb = _mm256_load_ps(&vb[i]);
         __m256 mr = _mm256_div_ps(ma, mb);
-        _mm256_storeu_ps(&res[i], mr);
+        _mm256_store_ps(&res[i], mr);
     }
 
 __ort_math_backend_div_float_fallback:
@@ -72,10 +72,10 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(div, double) {
 
     /* Vectorized loop - process 4 doubles at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256d ma = _mm256_loadu_pd(&va[i]);
-        __m256d mb = _mm256_loadu_pd(&vb[i]);
+        __m256d ma = _mm256_load_pd(&va[i]);
+        __m256d mb = _mm256_load_pd(&vb[i]);
         __m256d mr = _mm256_div_pd(ma, mb);
-        _mm256_storeu_pd(&res[i], mr);
+        _mm256_store_pd(&res[i], mr);
     }
 
 __ort_math_backend_div_double_fallback:
