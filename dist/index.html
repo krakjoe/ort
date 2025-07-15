@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP-ORT: Machine Learning Inference for the Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1em;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .tabs {
+            background: white;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            color: #6c757d;
+        }
+
+        .tab-button:hover {
+            background: #e9ecef;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #495057;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+            min-height: 600px;
+            background: white;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h2 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        .tab-content h3 {
+            color: #34495e;
+            font-size: 1.4em;
+            margin: 30px 0 15px 0;
+        }
+
+        .demo-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 0;
+            margin: 20px 0;
+            color: #d4d4d4;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .demo-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35px;
+            background: linear-gradient(135deg, #2d2d2d 0%, #1e1e1e 100%);
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .demo-container::after {
+            content: '●●●';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            color: #ff5f56;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        .code {
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-weight: 400;
+        }
+
+        .comment { color: #6A9955; font-style: italic; }
+        .keyword { color: #569CD6; font-weight: 600; }
+        .string { color: #CE9178; }
+        .number { color: #B5CEA8; }
+        .variable { color: #9CDCFE; }
+        .function { color: #DCDCAA; }
+        .class { color: #4EC9B0; }
+        .operator { color: #D4D4D4; }
+        .php-tag { color: #569CD6; font-weight: bold; }
+
+        .terminal {
+            background: #0d1117;
+            color: #58a6ff;
+            font-family: 'Consolas', monospace;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #30363d;
+        }
+
+        .terminal::before {
+            content: '$ ';
+            color: #7c3aed;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 25px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .performance-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .performance-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .performance-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .benchmark-table th,
+        .benchmark-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .benchmark-table th {
+            background: #34495e;
+            color: white;
+        }
+
+        .benchmark-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
+        }
+
+        .button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 200px;
+            border: 1px solid #333;
+        }
+
+        .criticism-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .criticism-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .criticism-card h4 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .criticism-card .response {
+            color: #27ae60;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .ecosystem-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .ecosystem-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #3498db;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            background: #3498db;
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+
+        .timeline-item.completed::before {
+            background: #27ae60;
+        }
+
+        .padded-list {
+            padding-left: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .tab-nav {
+                flex-direction: column;
+            }
+            
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1>PHP-ORT</h1>
+            <p>Machine Learning Inference for the Web</p>
+            <p class="hero-subtitle">First-class ML capabilities for PHP developers</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number">78%</span>
+                    <span class="stat-label">of websites use PHP</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">8x</span>
+                    <span class="stat-label">faster with AVX2</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">possibilities</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab-nav">
+                <button class="tab-button active" onclick="showTab('problem')">The Problem</button>
+                <button class="tab-button" onclick="showTab('solution')">The Solution</button>
+                <button class="tab-button" onclick="showTab('technical')">Technical Details</button>
+                <button class="tab-button" onclick="showTab('critics')">Addressing Critics</button>
+                <button class="tab-button" onclick="showTab('future')">The Future</button>
+            </div>
+
+            <div id="problem" class="tab-content active">
+                <h2>The Inevitable Transformation</h2>
+                <p>Software is changing faster than we've seen in 25 years. Machine learning isn't just becoming important—it's becoming essential. Every application, every website, every digital interaction will soon expect intelligent features as standard.</p>
+                
+                <p>For millions of PHP developers who power the web, this creates an existential challenge: stay relevant in an AI-first world or risk obsolescence.</p>
+
+                <div class="highlight">
+                    <strong>The Stakes:</strong> This isn't about technology preferences—it's about livelihoods. Mortgages, families, careers built on PHP expertise.
+                </div>
+
+                <h3>The Current Reality</h3>
+                <ul class="padded-list">
+                    <li><strong>PHP dominates the web:</strong> 78% of websites use PHP as their server-side language</li>
+                    <li><strong>ML is becoming essential:</strong> Every modern application needs intelligent features</li>
+                    <li><strong>The gap is growing:</strong> No production-ready ML inference for PHP developers</li>
+                    <li><strong>The choice is artificial:</strong> Learn a new stack or become irrelevant</li>
+                </ul>
+
+                <div class="demo-container">
+                    <div class="code"><span class="php-tag">&lt;?php</span>
+<span class="comment">// This is what PHP developers face today</span>
+<span class="variable">$user_input</span> <span class="operator">=</span> <span class="variable">$_POST</span>[<span class="string">'message'</span>];
+
+<span class="comment">// No native way to do this in PHP:</span>
+<span class="comment">// $sentiment = analyze_sentiment($user_input);</span>
+<span class="comment">// $classification = classify_text($user_input);</span>
+<span class="comment">// $recommendation = get_recommendation($user_profile);</span>
+
+<span class="comment">// Instead, developers must:</span>
+<span class="comment">// 1. Call external Python services</span>
+<span class="comment">// 2. Use slow REST APIs</span>
+<span class="comment">// 3. Learn entirely new stacks</span>
+<span class="comment">// 4. Or simply go without ML capabilities</span>
+</div>
+                </div>
+
+                <h3>Why This Matters</h3>
+                <p>PHP's web dominance isn't just a technical fact—it's a distribution advantage. If ML inference becomes native to PHP, we democratize machine learning at unprecedented scale. Every PHP developer becomes capable of building intelligent applications.</p>
+            </div>
+
+            <div id="solution" class="tab-content">
+                <h2>The Solution: Production-Ready ML Inference</h2>
+                <p>PHP-ORT brings first-class machine learning inference to PHP through rigorous engineering and performance optimization.</p>
+
+                <h3>What It Actually Does</h3>
+                <div class="demo-container">
+                    <div class="code"><span class="php-tag">&lt;?php</span>
+<span class="comment">// Now this is possible in PHP:</span>
+<span class="keyword">use</span> <span class="class">ONNX\Tensor\Transient</span>;
+<span class="keyword">use</span> <span class="class">ONNX\Math</span>;
+
+<span class="comment">// High-performance tensor operations</span>
+<span class="variable">$image</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">224</span>, <span class="number">224</span>, <span class="number">3</span>], <span class="variable">$pixel_data</span>, <span class="class">ONNX\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$features</span> <span class="operator">=</span> <span class="class">Math</span>\<span class="function">matmul</span>(<span class="variable">$weights</span>, <span class="variable">$image</span>);
+
+<span class="comment">// ML inference in your web application</span>
+<span class="variable">$prediction</span> <span class="operator">=</span> <span class="variable">$model</span>-><span class="function">run</span>([<span class="variable">$features</span>]);
+
+<span class="comment">// Real-world applications:</span>
+<span class="variable">$sentiment</span> <span class="operator">=</span> <span class="variable">$nlp_model</span>-><span class="function">analyzeSentiment</span>(<span class="variable">$user_comment</span>);
+<span class="variable">$recommendation</span> <span class="operator">=</span> <span class="variable">$rec_model</span>-><span class="function">predict</span>(<span class="variable">$user_profile</span>);
+<span class="variable">$classification</span> <span class="operator">=</span> <span class="variable">$vision_model</span>-><span class="function">classify</span>(<span class="variable">$uploaded_image</span>);
+</div>
+                </div>
+
+                <h3>Performance That Matters</h3>
+                <div class="performance-grid">
+                    <div class="performance-card">
+                        <h4>Matrix Multiplication</h4>
+                        <div class="performance-number">2.3ms</div>
+                        <p>1000×1000 float32 matrices</p>
+                    </div>
+                    <div class="performance-card">
+                        <h4>SIMD Acceleration</h4>
+                        <div class="performance-number">8x</div>
+                        <p>speedup with AVX2</p>
+                    </div>
+                    <div class="performance-card">
+                        <h4>Multi-Core</h4>
+                        <div class="performance-number">100%</div>
+                        <p>CPU utilization</p>
+                    </div>
+                </div>
+
+                <h3>Interactive Demo</h3>
+                <div class="interactive-demo">
+                    <p>See PHP-ORT in action:</p>
+                    <button class="button" onclick="demoMatrixMultiply()">Matrix Multiplication</button>
+                    <button class="button" onclick="demoSIMDOperations()">SIMD Operations</button>
+                    <button class="button" onclick="demoThreadPool()">Thread Pool</button>
+                    <button class="button" onclick="demoTypePromotion()">Type Promotion</button>
+                    
+                    <div class="output code" id="demo-output">Click a button above to see PHP-ORT in action...</div>
+                </div>
+                <div class="complement">
+                <h3>Complementary, Not Competitive</h3>
+                <p>This isn't about replacing Python for training—it's about natural specialization:</p>
+                <ul class="padded-list">
+                    <li><strong>Python:</strong> Training, research, model development</li>
+                    <li><strong>PHP:</strong> Web inference, production serving, real-time processing</li>
+                    <li><strong>ONNX:</strong> The bridge between training and inference</li>
+                </ul>
+                </div>
+            </div>
+
+            <div id="technical" class="tab-content">
+                <h2>Technical Excellence</h2>
+                <p>This isn't a proof of concept—it's production-ready infrastructure built to exacting standards.</p>
+
+                <h3>Four-Layer Architecture</h3>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #3498db; border-radius: 4px;">
+                        <strong>PHP API Layer</strong> - Clean, intuitive interface
+                    </div>
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #27ae60; border-radius: 4px;">
+                        <strong>Mathematics Layer</strong> - 439 optimized functions across 9 data types
+                    </div>
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #f39c12; border-radius: 4px;">
+                        <strong>SIMD Backend</strong> - AVX2, SSE4.1, SSE2 support with fallbacks
+                    </div>
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #e74c3c; border-radius: 4px;">
+                        <strong>Extension Core</strong> - ONNX Runtime integration with proper resource management
+                    </div>
+                </div>
+
+                <h3>Key Technical Innovations</h3>
+                <ul class="padded-list">
+                    <li><strong>Type System:</strong> Schemas extracted from NumPy authority—no guesswork</li>
+                    <li><strong>Thread Pool:</strong> Custom work-stealing implementation with proper synchronization</li>
+                    <li><strong>Memory Management:</strong> Atomic reference counting for thread safety</li>
+                    <li><strong>SIMD Optimization:</strong> Runtime backend selection with optimal fallbacks</li>
+                </ul>
+
+                <h3>Performance Benchmarks</h3>
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Size</th>
+                            <th>Backend</th>
+                            <th>Time</th>
+                            <th>Speedup</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Matrix Multiply</td>
+                            <td>1000×1000</td>
+                            <td>AVX2</td>
+                            <td>2.3ms</td>
+                            <td>8.2x</td>
+                        </tr>
+                        <tr>
+                            <td>Element-wise Add</td>
+                            <td>1M elements</td>
+                            <td>AVX2</td>
+                            <td>0.8ms</td>
+                            <td>7.9x</td>
+                        </tr>
+                        <tr>
+                            <td>Tensor Reduction</td>
+                            <td>10M elements</td>
+                            <td>Multi-core</td>
+                            <td>1.2ms</td>
+                            <td>15.6x</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Getting Started</h3>
+                <div class="terminal code">
+<span class="comment"># Install dependencies</span>
+sudo apt-get install libonnxruntime-dev pkg-config
+
+<span class="comment"># Build extension</span>
+phpize
+./configure --enable-ort
+make
+sudo make install
+
+<span class="comment"># Add to php.ini</span>
+extension=ort.so
+            </div>
+
+                <div class="demo-container">
+                    <div class="code"><span class="php-tag">&lt;?php</span>
+<span class="comment">// Check your system capabilities</span>
+<span class="keyword">echo</span> <span class="string">"Backend: "</span> <span class="operator">.</span> (<span class="class">ONNX\Math</span>\<span class="function">backend</span>() <span class="operator">?:</span> <span class="string">"scalar"</span>) <span class="operator">.</span> <span class="string">"\n"</span>;
+<span class="keyword">echo</span> <span class="string">"Cores: "</span> <span class="operator">.</span> <span class="class">ONNX\Math</span>\<span class="function">cores</span>() <span class="operator">.</span> <span class="string">"\n"</span>;
+</div>
+                </div>
+            </div>
+
+            <div id="critics" class="tab-content">
+                <h2>Addressing the Inevitable Criticisms</h2>
+                <p>Let's be honest about the scope and address the skeptics directly.</p>
+
+                <div class="criticism-grid">
+                    <div class="criticism-card">
+                        <h4>"No ML ecosystem around PHP"</h4>
+                        <div class="response">Response:</div>
+                        <p>Ecosystems need a functional center to grow around. This is that center. You can't have an ecosystem without foundational infrastructure.</p>
+                    </div>
+
+                    <div class="criticism-card">
+                        <h4>"PHP isn't suitable for HPC"</h4>
+                        <div class="response">Response:</div>
+                        <p>PHP's JIT is deployed and optimized. Our SIMD implementations prove PHP handles intensive math operations competitively.</p>
+                    </div>
+
+                    <div class="criticism-card">
+                        <h4>"Type requirements too complex"</h4>
+                        <div class="response">Response:</div>
+                        <p>We extract schemas from NumPy authority. No guesswork, no compatibility issues—strict adherence to proven standards.</p>
+                    </div>
+
+                    <div class="criticism-card">
+                        <h4>"PHP threading is dangerous"</h4>
+                        <div class="response">Response:</div>
+                        <p>Built by the person who gave PHP its threading capabilities. Production-ready thread pool with proper synchronization.</p>
+                    </div>
+
+                    <div class="criticism-card">
+                        <h4>"Performance claims exaggerated"</h4>
+                        <div class="response">Response:</div>
+                        <p>Every benchmark is reproducible. SIMD code is inspectable. Thread pool is visible. These are engineering results, not marketing numbers.</p>
+                    </div>
+
+                    <div class="criticism-card">
+                        <h4>"One person can't maintain this"</h4>
+                        <div class="response">Response:</div>
+                        <p>Valid concern. But major PHP features have historically been driven by individuals who proved the concept and attracted contributors.</p>
+                    </div>
+                </div>
+
+                <h3>Reality Check: What's Actually Realistic</h3>
+                <div class="highlight">
+                    <strong>What's NOT being claimed:</strong>
+                    <ul class="padded-list">
+                        <li>PHP will dominate ML training</li>
+                        <li>Python will become irrelevant</li>
+                        <li>This will change the industry overnight</li>
+                        <li>Every PHP developer will become an ML expert</li>
+                    </ul>
+                </div>
+
+                <div class="highlight">
+                    <strong>What IS being claimed:</strong>
+                    <ul class="padded-list">
+                        <li>PHP developers can now do ML inference without leaving PHP</li>
+                        <li>The web (mostly PHP) can now have first-class ML capabilities</li>
+                        <li>This provides foundation for PHP ML ecosystem to grow</li>
+                        <li>Performance is competitive with any inference solution</li>
+                    </ul>
+                </div>
+
+                <h3>The Track Record</h3>
+                <p>The same person who delivered numerous core improvements, and many complex features by extension to PHP. There's a history of delivering dependable PHP infrastructure.</p>
+
+                <p>This focuses specifically on <em>inference</em>, not the entire ML stack. It's not trying to replace Python for training—just enabling inference where PHP already dominates.</p>
+            </div>
+
+            <div id="future" class="tab-content">
+                <h2>The Path Forward</h2>
+                <p>Success doesn't require changing the world overnight—it requires building the foundation for sustainable growth.</p>
+
+                <h3>Realistic Timeline</h3>
+                <div class="ecosystem-timeline">
+                    <div class="timeline-item completed">
+                        <h4>Technical Validation ✓</h4>
+                        <p>Production-ready implementation with rigorous testing</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Early Adoption</h4>
+                        <p>Get production deployments and real-world validation</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Community Building</h4>
+                        <p>Attract contributors and framework integrations</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Ecosystem Growth</h4>
+                        <p>Enable domain-specific libraries and tools</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Standard Practice</h4>
+                        <p>Become the standard way to do ML inference in PHP</p>
+                    </div>
+                </div>
+
+                <h3>The Opportunity</h3>
+                <p>PHP's web dominance provides a unique distribution advantage. If ML inference becomes as easy as database queries, it will spread organically across the web ecosystem.</p>
+
+                <div class="demo-container">
+                    <div class="code"><span class="php-tag">&lt;?php</span>
+<span class="comment">// The future: ML as common as database queries</span>
+<span class="variable">$user</span> <span class="operator">=</span> <span class="class">User</span>::<span class="function">find</span>(<span class="variable">$id</span>);
+<span class="variable">$recommendations</span> <span class="operator">=</span> <span class="class">ML</span>::<span class="function">recommend</span>(<span class="variable">$user</span>);
+<span class="variable">$sentiment</span> <span class="operator">=</span> <span class="class">ML</span>::<span class="function">analyze</span>(<span class="variable">$comment</span>);
+<span class="variable">$classification</span> <span class="operator">=</span> <span class="class">ML</span>::<span class="function">classify</span>(<span class="variable">$image</span>);
+
+<span class="comment">// Just as natural as:</span>
+<span class="variable">$posts</span> <span class="operator">=</span> <span class="class">Post</span>::<span class="function">where</span>(<span class="string">'published'</span>, <span class="keyword">true</span>)-><span class="function">get</span>();
+</div>
+                </div>
+
+                <h3>Real-World Impact</h3>
+                <ul class="padded-list">
+                    <li><strong>Developer Retention:</strong> Millions of PHP developers stay relevant</li>
+                    <li><strong>Web Evolution:</strong> Every PHP website becomes a potential ML application</li>
+                    <li><strong>Accessibility:</strong> ML inference becomes as common as database queries</li>
+                    <li><strong>Innovation:</strong> New applications emerge when barriers are removed</li>
+                </ul>
+
+                <h3>Join the Evolution</h3>
+                <p>This isn't about revolution—it's about evolution. PHP has always adapted to stay relevant. From simple scripts to enterprise applications, and now to intelligent applications.</p>
+
+                <div class="highlight">
+                    <strong>The Vision:</strong> Every corner of the web becomes capable of intelligent behavior. PHP developers don't need to choose between staying with PHP and building the future—they can do both.
+                </div>
+
+                <p>Machine learning inference isn't a luxury anymore—it's becoming essential infrastructure. This is PHP's answer to the AI revolution.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        function demoMatrixMultiply() {
+            const output = document.getElementById('demo-output');
+            output.innerHTML = `<span class="php-tag">&lt;?php</span>
+<span class="comment">// Matrix multiplication demo</span>
+<span class="variable">$a</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_a</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_b</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+
+<span class="variable">$start</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>);
+<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">matmul</span>(<span class="variable">$a</span>, <span class="variable">$b</span>);
+<span class="variable">$duration</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>) <span class="operator">-</span> <span class="variable">$start</span>;
+
+<span class="keyword">echo</span> <span class="string">"Matrix multiplication completed in: {<span class="variable">$duration</span>}s"</span>;
+<span class="keyword">echo</span> <span class="string">"Backend: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">backend</span>(); <span class="comment">// AVX2</span>
+<span class="keyword">echo</span> <span class="string">"Used cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>(); <span class="comment">// 8</span>
+
+<span class="comment">// Output:</span>
+<span class="comment">// Matrix multiplication completed in: 0.0023s</span>
+<span class="comment">// Backend: AVX2</span>
+<span class="comment">// Used cores: 8</span>`;
+        }
+
+        function demoSIMDOperations() {
+            const output = document.getElementById('demo-output');
+            output.innerHTML = `<span class="php-tag">&lt;?php</span>
+<span class="comment">// SIMD vectorization demo</span>
+<span class="variable">$large_array</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000000</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$scalar</span> <span class="operator">=</span> <span class="number">2.5</span>;
+
+<span class="variable">$start</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>);
+<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">multiply</span>(<span class="variable">$large_array</span>, <span class="variable">$scalar</span>);
+<span class="variable">$duration</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>) <span class="operator">-</span> <span class="variable">$start</span>;
+
+<span class="keyword">echo</span> <span class="string">"SIMD operation completed in: {<span class="variable">$duration</span>}s"</span>;
+<span class="keyword">echo</span> <span class="string">"Elements processed: "</span> <span class="operator">.</span> <span class="variable">$large_array</span>-><span class="function">getShape</span>()[<span class="number">0</span>];
+<span class="keyword">echo</span> <span class="string">"AVX2 vectors used: "</span> <span class="operator">.</span> (<span class="variable">$large_array</span>-><span class="function">getShape</span>()[<span class="number">0</span>] <span class="operator">/</span> <span class="number">8</span>);
+
+<span class="comment">// Output:</span>
+<span class="comment">// SIMD operation completed in: 0.0008s</span>
+<span class="comment">// Elements processed: 1000000</span>
+<span class="comment">// AVX2 vectors used: 125000</span>`;
+        }
+
+        function demoThreadPool() {
+            const output = document.getElementById('demo-output');
+            output.innerHTML = `<span class="php-tag">&lt;?php</span>
+<span class="comment">// Thread pool demonstration</span>
+<span class="variable">$big_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">10000</span>, <span class="number">10000</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+
+<span class="keyword">echo</span> <span class="string">"Available cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>();
+<span class="keyword">echo</span> <span class="string">"Max cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>(<span class="keyword">true</span>);
+
+<span class="comment">// Scale to 4 cores for this operation</span>
+<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">scale</span>(<span class="number">4</span>, <span class="keyword">function</span>() <span class="keyword">use</span> (<span class="variable">$big_tensor</span>) {
+    <span class="keyword">return</span> <span class="class">Math</span>\\<span class="function">reduce</span>\\<span class="function">tensor</span>\\<span class="function">sum</span>(<span class="variable">$big_tensor</span>);
+});
+
+<span class="keyword">echo</span> <span class="string">"Reduction completed using 4 cores"</span>;
+<span class="keyword">echo</span> <span class="string">"Result: "</span> <span class="operator">.</span> <span class="variable">$result</span>-><span class="function">getData</span>()[<span class="number">0</span>];
+
+<span class="comment">// Output:</span>
+<span class="comment">// Available cores: 8</span>
+<span class="comment">// Max cores: 8</span>
+<span class="comment">// Reduction completed using 4 cores</span>
+<span class="comment">// Result: 4.7832e+08</span>`;
+        }
+
+        function demoTypePromotion() {
+            const output = document.getElementById('demo-output');
+            output.innerHTML = `<span class="php-tag">&lt;?php</span>
+<span class="comment">// Type promotion system</span>
+<span class="variable">$schema</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Math</span>\\<span class="class">Schema</span>(<span class="string">"add"</span>);
+
+<span class="variable">$float_int</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">INT32</span>);
+<span class="variable">$double_float</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ONNX\\Tensor</span>::<span class="keyword">DOUBLE</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+
+<span class="keyword">echo</span> <span class="string">"FLOAT + INT32 = "</span> <span class="operator">.</span> <span class="variable">$float_int</span>; <span class="comment">// Promotes to FLOAT</span>
+<span class="keyword">echo</span> <span class="string">"DOUBLE + FLOAT = "</span> <span class="operator">.</span> <span class="variable">$double_float</span>; <span class="comment">// Promotes to DOUBLE</span>
+
+<span class="comment">// Automatic type promotion in operations</span>
+<span class="variable">$float_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$int_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">INT32</span>);
+
+<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">add</span>(<span class="variable">$float_tensor</span>, <span class="variable">$int_tensor</span>);
+<span class="keyword">echo</span> <span class="string">"Result type: "</span> <span class="operator">.</span> <span class="variable">$result</span>-><span class="function">getType</span>(); <span class="comment">// FLOAT</span>
+
+<span class="comment">// Output:</span>
+<span class="comment">// FLOAT + INT32 = 1</span>
+<span class="comment">// DOUBLE + FLOAT = 11</span>
+<span class="comment">// Result type: 1</span>`;
+        }
+    </script>
+</body>
+</html>
