@@ -66,7 +66,7 @@ static void* __ort_alloc_default_reserve_for_onnx(
     return ort_alloc(size, 1);
 }
 
-OrtAllocator __ort_alloc_default_for_onnx = (OrtAllocator) {
+static const OrtAllocator __ort_alloc_default_for_onnx = {
     .Alloc   = __ort_alloc_default_malloc_for_onnx,
     .Reserve = __ort_alloc_default_reserve_for_onnx,
     .Free    = __ort_alloc_default_free_for_onnx,

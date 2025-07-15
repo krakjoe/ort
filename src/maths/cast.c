@@ -18,6 +18,7 @@
 
 #include "alloc.h"
 #include "maths/cast.h"
+#include "maths/pool.h"
 
 #define ORT_MATH_CAST_SOURCE_CASE(SRC_TYPE, C_TYPE)             \
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE: {            \
