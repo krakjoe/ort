@@ -37,6 +37,10 @@ void ort_alloc_align(size_t alignment) {
     __ort_allocator.alignment = alignment;
 }
 
+size_t ort_alloc_alignment(void) {
+    return __ort_allocator.alignment;
+}
+
 ort_memcpy_func_t ort_alloc_memcpy(ort_memcpy_func_t memcpy) {
     ort_memcpy_func_t fallback = __ort_allocator.memcpy;
 

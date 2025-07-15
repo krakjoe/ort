@@ -48,6 +48,7 @@ void ort_alloc_align(size_t alignment);
 ort_memcpy_func_t
     ort_alloc_memcpy(
         ort_memcpy_func_t memcpy);
+size_t ort_alloc_alignment(void);
 
 zend_result ZEND_MODULE_STARTUP_N(ORT_ALLOC)(
     INIT_FUNC_ARGS, ort_alloc_t* allocator);
