@@ -158,4 +158,13 @@ ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_BACKEND_SUM_OP_DECL)
 
 /* {{{ Each backend must implement this function in its own impl.c */
 void ort_math_backend_install(ort_math_dispatch_t* table); /* }}} */
+
+/* {{{ 
+    Each backend must call this macro within their install routine 
+    to setup the dispatch table.
+    This must never be invoked outside of the backend install function. */
+#define ORT_MATH_BACKEND_INSTALL(table, onnx_type, func, c_type) \
+    table[ort_math_dispatch_indexof(                             \
+        ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type                \
+    )].func##_func = ORT_MATH_BACKEND_OP_SYMBOL(func, c_type);   /* }}} */
 #endif

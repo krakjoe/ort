@@ -103,11 +103,6 @@ static zend_always_inline int16_t ort_math_dispatch_indexof(ONNXTensorElementDat
     }
 }
 
-#define ORT_MATH_DISPATCH_INSTALL(table, onnx_type, func, c_type) \
-    table[ort_math_dispatch_indexof(                              \
-        ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type                 \
-    )].func##_func = ort_math_backend_##func##_##c_type;
-
 /* Function dispatch table access */
 ort_math_dispatch_t* ort_math_dispatch_table(void);
 
