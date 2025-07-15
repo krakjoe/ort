@@ -49,65 +49,8 @@ __ort_math_memcpy_sse2_yield:
     return dest;
 }
 
+
 void ort_math_backend_install(ort_math_dispatch_t* table) {
-    /* abs.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   abs, ort_math_backend_abs_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  abs, ort_math_backend_abs_double);
-
-    /* add.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   add, ort_math_backend_add_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  add, ort_math_backend_add_double);
-    ORT_MATH_DISPATCH_INSTALL(table, INT8,    add, ort_math_backend_add_int8_t);
-    ORT_MATH_DISPATCH_INSTALL(table, INT16,   add, ort_math_backend_add_int16_t);
-    ORT_MATH_DISPATCH_INSTALL(table, INT32,   add, ort_math_backend_add_int32_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT8,   add, ort_math_backend_add_uint8_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  add, ort_math_backend_add_uint16_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT32,  add, ort_math_backend_add_uint32_t);
-
-    /* div.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   div, ort_math_backend_div_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  div, ort_math_backend_div_double);
-
-    /* matmul.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   matmul, ort_math_backend_matmul_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  matmul, ort_math_backend_matmul_double);
-    ORT_MATH_DISPATCH_INSTALL(table, INT16,   matmul, ort_math_backend_matmul_int16_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  matmul, ort_math_backend_matmul_uint16_t);
-
-    /* mul.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   mul, ort_math_backend_mul_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  mul, ort_math_backend_mul_double);
-    ORT_MATH_DISPATCH_INSTALL(table, INT16,   mul, ort_math_backend_mul_int16_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  mul, ort_math_backend_mul_uint16_t);
-
-    /* neg.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   neg, ort_math_backend_neg_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  neg, ort_math_backend_neg_double);
-
-    /* recip.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   recip, ort_math_backend_recip_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  recip, ort_math_backend_recip_double);
-
-    /* sign.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   sign, ort_math_backend_sign_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  sign, ort_math_backend_sign_double);
-
-    /* sqrt.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   sqrt, ort_math_backend_sqrt_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  sqrt, ort_math_backend_sqrt_double);
-
-    /* sub.c */
-    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   sub, ort_math_backend_sub_float);
-    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  sub, ort_math_backend_sub_double);
-    ORT_MATH_DISPATCH_INSTALL(table, INT8,    sub, ort_math_backend_sub_int8_t);
-    ORT_MATH_DISPATCH_INSTALL(table, INT16,   sub, ort_math_backend_sub_int16_t);
-    ORT_MATH_DISPATCH_INSTALL(table, INT32,   sub, ort_math_backend_sub_int32_t);
-    ORT_MATH_DISPATCH_INSTALL(table, INT64,   sub, ort_math_backend_sub_int64_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT8,   sub, ort_math_backend_sub_uint8_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  sub, ort_math_backend_sub_uint16_t);
-    ORT_MATH_DISPATCH_INSTALL(table, UINT32,  sub, ort_math_backend_sub_uint32_t);
-
-
     /* set allocation alignment to SSE2 vector length */
     ort_alloc_align(16);
 
@@ -115,4 +58,61 @@ void ort_math_backend_install(ort_math_dispatch_t* table) {
     ort_memcpy_fallback =
         ort_alloc_memcpy(
             ort_math_memcpy_sse2);
+
+    /* abs.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   abs, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  abs, double)
+
+    /* add.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   add, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  add, double)
+    ORT_MATH_DISPATCH_INSTALL(table, INT8,    add, int8_t)
+    ORT_MATH_DISPATCH_INSTALL(table, INT16,   add, int16_t)
+    ORT_MATH_DISPATCH_INSTALL(table, INT32,   add, int32_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT8,   add, uint8_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  add, uint16_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT32,  add, uint32_t)
+
+    /* div.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   div, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  div, double)
+
+    /* matmul.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   matmul, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  matmul, double)
+    ORT_MATH_DISPATCH_INSTALL(table, INT16,   matmul, int16_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  matmul, uint16_t)
+
+    /* mul.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   mul, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  mul, double)
+    ORT_MATH_DISPATCH_INSTALL(table, INT16,   mul, int16_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  mul, uint16_t)
+
+    /* neg.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   neg, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  neg, double)
+
+    /* recip.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   recip, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  recip, double)
+
+    /* sign.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   sign, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  sign, double)
+
+    /* sqrt.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   sqrt, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  sqrt, double)
+
+    /* sub.c */
+    ORT_MATH_DISPATCH_INSTALL(table, FLOAT,   sub, float)
+    ORT_MATH_DISPATCH_INSTALL(table, DOUBLE,  sub, double)
+    ORT_MATH_DISPATCH_INSTALL(table, INT8,    sub, int8_t)
+    ORT_MATH_DISPATCH_INSTALL(table, INT16,   sub, int16_t)
+    ORT_MATH_DISPATCH_INSTALL(table, INT32,   sub, int32_t)
+    ORT_MATH_DISPATCH_INSTALL(table, INT64,   sub, int64_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT8,   sub, uint8_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT16,  sub, uint16_t)
+    ORT_MATH_DISPATCH_INSTALL(table, UINT32,  sub, uint32_t)
   }
