@@ -1,6 +1,6 @@
 # PHP-ORT
 
-A high-performance PHP extension providing tensor mathematics and ONNX Runtime integration and hybrid parallelism.
+A high-performance PHP extension providing tensor mathematics and ONNX Runtime (inference) integration with hybrid parallelism.
 
 ## Features
 
