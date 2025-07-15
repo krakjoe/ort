@@ -22,9 +22,7 @@
 #include "maths/backend/impl.h"
 #endif
 
-#ifndef _WIN32
 #include "maths/pool.h"
-#endif
 
 void ort_math_startup() {
 #ifdef ORT_BACKEND_ENABLED

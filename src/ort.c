@@ -30,7 +30,63 @@
 
 const OrtApi* api;
 
-static void __ort_alloc_default_startup(ort_alloc_t* allocator) {}
+OrtMemoryInfo* minfo;
+
+const OrtMemoryInfo* __ort_default_alloc_info_for_onnx(
+    const OrtAllocator* allocator) {
+    if (!minfo) {
+        OrtStatus* status =
+            api->CreateCpuMemoryInfo(
+                OrtDeviceAllocator, OrtMemTypeDefault, &minfo);
+        if (status) {
+            fprintf(stderr,
+                "ort: failed to create default memory info: %s\n",
+                api->GetErrorMessage(status));
+
+            api->ReleaseStatus(status);
+            exit(EXIT_FAILURE);
+        }
+    }
+    return minfo;
+}
+
+static void* __ort_default_alloc_malloc_for_onnx(
+    OrtAllocator* allocator, size_t size) {
+    return ort_alloc(size, 1);
+}
+
+static void __ort_default_alloc_free_for_onnx(
+    OrtAllocator* allocator, void* ptr) {
+    ort_free(ptr);
+}
+
+static void* __ort_default_alloc_reserve_for_onnx(
+    OrtAllocator* allocator, size_t size) {
+    return ort_alloc(size, 1);
+}
+
+OrtAllocator __ort_default_alloc_for_onnx = (OrtAllocator) {
+    .Alloc   = __ort_default_alloc_malloc_for_onnx,
+    .Reserve = __ort_default_alloc_reserve_for_onnx,
+    .Free    = __ort_default_alloc_free_for_onnx,
+    .Info    = __ort_default_alloc_info_for_onnx,
+    .version = ORT_API_VERSION,
+};
+
+static void __ort_alloc_default_startup(ort_alloc_t* allocator) {
+    OrtStatus* status =
+        api->RegisterAllocator(
+            php_ort_environment(),
+            &__ort_default_alloc_for_onnx);
+    if (status) {
+        fprintf(stderr,
+            "ort: failed to register allocator: %s\n",
+            api->GetErrorMessage(status));
+
+        api->ReleaseStatus(status);
+        exit(EXIT_FAILURE);
+    }
+}
 
 static void* __ort_alloc_default_alloc(size_t size, size_t count, size_t alignment) {
     assert(
@@ -38,18 +94,19 @@ static void* __ort_alloc_default_alloc(size_t size, size_t count, size_t alignme
         alignment >= sizeof(void*));          /* minimum alignment */
 
     void *raw = pemalloc(
-        (size * count) +
-        alignment - 1 + sizeof(void*), 1);
+        (size * count) + alignment - 1 + sizeof(void*), 1);
 
-    uintptr_t address =
-        (uintptr_t)raw + sizeof(void*);
-
-    uintptr_t aligned =
-        (address + (alignment - 1)) &
-            ~(uintptr_t)(alignment - 1);
+    uintptr_t address = (uintptr_t)raw + sizeof(void*);
+    
+    // Ensure we have space for the raw pointer before alignment
+    uintptr_t aligned = (address + alignment - 1) & ~(uintptr_t)(alignment - 1);
+    
+    // If there's not enough space before aligned address, move to next boundary
+    if (aligned - (uintptr_t)raw < sizeof(void*)) {
+        aligned += alignment;
+    }
 
     void **start = (void**)aligned;
-
     start[-1] = raw;
 
     return (void*)start;
@@ -70,7 +127,7 @@ static void __ort_alloc_default_free(void* ptr) {
     }
 }
 
-static void __ort_alloc_default_shutdown(ort_alloc_t* allocator) { }
+static void __ort_alloc_default_shutdown(ort_alloc_t* allocator) {}
 
 ort_alloc_t php_ort_allocator = {
     .alloc    = __ort_alloc_default_alloc,
@@ -85,13 +142,14 @@ ort_alloc_t php_ort_allocator = {
 
 PHP_MINIT_FUNCTION(ORT_CORE)
 {
-    ort_alloc_startup(
-        &php_ort_allocator);
-
     api = OrtGetApiBase()
-            ->GetApi(ORT_API_VERSION);;
+            ->GetApi(ORT_API_VERSION);
 
+    /* Environment module requires api */
     PHP_MINIT(ORT_ENV)(INIT_FUNC_ARGS_PASSTHRU);
+    /* Allocator requires environment*/
+    PHP_MINIT(ORT_ALLOC)(INIT_FUNC_ARGS_PASSTHRU,
+        &php_ort_allocator);
     PHP_MINIT(ORT_STATUS)(INIT_FUNC_ARGS_PASSTHRU);
     PHP_MINIT(ORT_TENSOR)(INIT_FUNC_ARGS_PASSTHRU);
     PHP_MINIT(ORT_MATH)(INIT_FUNC_ARGS_PASSTHRU);
@@ -113,8 +171,7 @@ PHP_MSHUTDOWN_FUNCTION(ORT_CORE)
     PHP_MSHUTDOWN(ORT_TENSOR)(INIT_FUNC_ARGS_PASSTHRU);
     PHP_MSHUTDOWN(ORT_STATUS)(INIT_FUNC_ARGS_PASSTHRU);
     PHP_MSHUTDOWN(ORT_ENV)(INIT_FUNC_ARGS_PASSTHRU);
-
-    ort_alloc_shutdown();
+    PHP_MSHUTDOWN(ORT_ALLOC)(INIT_FUNC_ARGS_PASSTHRU);
 
     return SUCCESS;
 }

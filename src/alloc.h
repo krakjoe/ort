@@ -44,8 +44,12 @@ void* ort_alloc(size_t size, size_t count);
 void* ort_memcpy(void *dest, const void *src, size_t n);
 void ort_free(void* ptr);
 
-void ort_alloc_startup(ort_alloc_t* allocator);
 void ort_alloc_align(size_t alignment);
-ort_memcpy_func_t ort_alloc_memcpy(ort_memcpy_func_t memcpy);
-void ort_alloc_shutdown(void);
+ort_memcpy_func_t
+    ort_alloc_memcpy(
+        ort_memcpy_func_t memcpy);
+
+zend_result ZEND_MODULE_STARTUP_N(ORT_ALLOC)(
+    INIT_FUNC_ARGS, ort_alloc_t* allocator);
+zend_result ZEND_MODULE_SHUTDOWN_N(ORT_ALLOC)(SHUTDOWN_FUNC_ARGS);
 #endif

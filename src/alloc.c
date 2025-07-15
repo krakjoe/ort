@@ -60,17 +60,21 @@ void ort_free(void* ptr) {
     __ort_allocator.free(ptr);
 }
 
-void ort_alloc_startup(ort_alloc_t* allocator) {
+zend_result ZEND_MODULE_STARTUP_N(ORT_ALLOC)(
+    INIT_FUNC_ARGS, ort_alloc_t* allocator) {
     __ort_allocator = *allocator;
 
     if (__ort_allocator.startup) {
         __ort_allocator.startup(&__ort_allocator);
     }
+
+    return SUCCESS;
 }
 
-void ort_alloc_shutdown(void)
-{
+zend_result ZEND_MODULE_SHUTDOWN_N(ORT_ALLOC)(SHUTDOWN_FUNC_ARGS) {
     if (__ort_allocator.shutdown) {
         __ort_allocator.shutdown(&__ort_allocator);
     }
+
+    return SUCCESS;
 }
