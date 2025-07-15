@@ -20,6 +20,7 @@
 #define ORT_MATHS_POOL
 
 #include "ort.h"
+#include "alloc.h"
 
 typedef void (*ort_task_func_t)(
     void *arg, size_t index, size_t count);
@@ -135,4 +136,44 @@ size_t ort_pool_cores(void);
  * @returns the maximum number of threads supported by the pool
  */
 size_t ort_pool_max(void);
+
+/*
+ * Compute chunk size and number of chunks for parallel work, ensuring
+ * each chunk start is aligned according to requirements of the allocator.
+ *
+ * @param total      Total number of elements to process
+ * @param size       Size of each element in bytes
+ * @param chunk      [out] Receives chunk size in elements
+ * @return           Number of chunks to use
+ */
+static zend_always_inline size_t ort_pool_chunk(
+    size_t total,
+    size_t size,
+    size_t *chunk
+) {
+    // Elements per alignment boundary
+    size_t elements = ort_alloc_alignment() / size;
+    if (elements == 0)
+        elements = 1;
+
+    // Start with a chunk size that divides the work among cores
+    size_t chunking =
+        (total + ort_pool_cores() - 1) 
+            / ort_pool_cores();
+
+    // Round up chunk size to next multiple of elements
+    chunking =
+        ((chunking + elements - 1) / elements)
+            * elements;
+
+    // Don't exceed total elements
+    if (chunking > total)
+        chunking = total;
+
+    if (chunk)
+        *chunk = chunking;
+
+    return (total + chunking - 1) / chunking;
+}
+
 #endif

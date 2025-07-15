@@ -205,9 +205,9 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         b_buf = tmp_b;
     }
 
-    size_t pool_size = ort_pool_cores();
-    size_t chunk = (batch_size + pool_size - 1) / pool_size;
-    size_t num_chunks = (batch_size + chunk - 1) / chunk;
+    size_t chunk;
+    size_t num_chunks = ort_pool_chunk(
+        batch_size, type_size, &chunk);
 
     ort_pool_matmul_ctx_t ctx = {
         .layout = {

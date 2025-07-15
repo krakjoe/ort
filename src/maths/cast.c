@@ -136,10 +136,10 @@ void ort_math_cast_buffer(
             .op       = ort_math_cast_element
         };
 
-        size_t chunk =
-            (count + cores - 1) / cores;
-        size_t num_chunks =
-            (count + chunk - 1) / chunk;
+        size_t chunk;
+        size_t num_chunks = ort_pool_chunk(
+            count,
+            php_ort_type_sizeof(dst_type), &chunk);
 
         ort_pool_submit(
             ort_pool_cast_worker, &ctx, num_chunks);

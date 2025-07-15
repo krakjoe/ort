@@ -44,16 +44,17 @@ static zend_always_inline ort_tensor_t*
             promotion->result_type :
                 tensor_a->type, operation_name);
 
-    size_t elements = tensor_a->elements;
-    size_t element_size = php_ort_type_sizeof(result->type);
-    size_t pool_size = ort_pool_cores();
-    size_t chunk = (elements + pool_size - 1) / pool_size;
-    size_t num_chunks = (elements + chunk - 1) / chunk;
+    /* Chunk work for pool */
+    size_t chunk;
+    size_t num_chunks = ort_pool_chunk(
+        tensor_a->elements,
+        php_ort_type_sizeof(
+            result->type), &chunk);
 
     ort_pool_binary_ctx_t ctx = {
         .layout = {
-            .element = element_size,
-            .total = elements,
+            .element = php_ort_type_sizeof(result->type),
+            .total = tensor_a->elements,
             .chunk = chunk
         },
         .result = result->data,
@@ -128,10 +129,13 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         result,
         tensor_b, b_buf);
 
-    /* Use fast worker for the upcasted, broadcasted buffers */
-    size_t pool_size = ort_pool_cores();
-    size_t chunk = (result->elements + pool_size - 1) / pool_size;
-    size_t num_chunks = (result->elements + chunk - 1) / chunk;
+
+    /* Chunk work for pool */
+    size_t chunk;
+    size_t num_chunks = ort_pool_chunk(
+        result->elements,
+        php_ort_type_sizeof(
+            promotion->result_type), &chunk);
 
     ort_pool_binary_ctx_t ctx = {
         .layout = {
@@ -213,17 +217,16 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
             return NULL;
     }
 
-    /* Parallelize scalar operation */
-    size_t elements = tensor->elements;
-    size_t element_size = php_ort_type_sizeof(result->type);
-    size_t pool_size = ort_pool_cores();
-    size_t chunk = (elements + pool_size - 1) / pool_size;
-    size_t num_chunks = (elements + chunk - 1) / chunk;
+    /* Chunk work for pool */
+    size_t chunk;
+    size_t num_chunks = ort_pool_chunk(
+        tensor->elements,
+        php_ort_type_sizeof(result->type), &chunk);
 
     ort_pool_scalar_ctx_t ctx = {
         .layout = {
-            .element = element_size,
-            .total = elements,
+            .element = php_ort_type_sizeof(result->type),
+            .total = tensor->elements,
             .chunk = chunk
         },
         .result = result->data,
@@ -257,16 +260,17 @@ ort_tensor_t* ort_math_result_element_wise_unary(
     /* Upcast input if needed */
     void* a_buf = ort_math_operation_upcast(result, promotion, tensor->data);
 
-    size_t elements = tensor->elements;
-    size_t element_size = php_ort_type_sizeof(result->type);
-    size_t pool_size = ort_pool_cores();
-    size_t chunk = (elements + pool_size - 1) / pool_size;
-    size_t num_chunks = (elements + chunk - 1) / chunk;
+    /* Chunk work for pool */
+    size_t chunk;
+    size_t num_chunks = ort_pool_chunk(
+        tensor->elements,
+        php_ort_type_sizeof(
+            result->type), &chunk);
 
     ort_pool_unary_ctx_t ctx = {
         .layout = {
-            .element = element_size,
-            .total = elements,
+            .element = php_ort_type_sizeof(result->type),
+            .total = tensor->elements,
             .chunk = chunk
         },
         .result = result->data,
@@ -327,21 +331,16 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
     if (!result) {
         return NULL;
     }
-    size_t elements = tensor->elements;
-    size_t element_size = php_ort_type_sizeof(
-        promotion ?
-            promotion->result_type :
-                tensor->type);
-    
+
     ort_pool_reduce_tensor_ctx_t ctx = {
         .layout = {
-            .element = element_size,
+            .element = php_ort_type_sizeof(result->type),
             .total   = 1, // Only one output (scalar)
             .chunk   = 1
         },
         .result   = result->data,
         .a        = ort_math_operation_upcast(result, promotion, tensor->data),
-        .elements = elements,
+        .elements = tensor->elements,
         .op       = operation
     };
 
@@ -390,20 +389,19 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
             inner *= tensor->shape[i];
     }
 
-    size_t axis_size    = tensor->shape[axis];
-    size_t total        = outer * inner;
-    size_t element_size = php_ort_type_sizeof(
-        promotion ? promotion->result_type : tensor->type);
-    size_t pool_size    = ort_pool_cores();
-    size_t chunk        = (total + pool_size - 1) / pool_size;
-    size_t num_chunks   = (total + chunk - 1) / chunk;
+    /* Chunk work for pool */
+    size_t chunk;
+    size_t num_chunks = ort_pool_chunk(
+        outer * inner,
+        php_ort_type_sizeof(
+            result->type), &chunk);
 
     ort_pool_reduce_axis_ctx_t ctx = {
         .layout = {
-            .element = element_size,
-            .total   = total,
+            .element = php_ort_type_sizeof(result->type),
+            .total   = outer * inner,
             .chunk   = chunk,
-            .axis_size = axis_size,
+            .axis_size = tensor->shape[axis],
             .outer = outer,
             .inner = inner
         },
