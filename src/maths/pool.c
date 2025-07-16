@@ -15,6 +15,14 @@
   | Author: krakjoe                                                      |
   +----------------------------------------------------------------------+
  */
+#if !defined(_WIN32)
+# define _GNU_SOURCE
+#endif
+
+#include "maths/cast.h"
+#include "maths/core.h"
+#include "maths/pool.h"
+#include "maths/result.h"
 
 #if defined(_WIN32)
 # include <windows.h>
@@ -39,7 +47,6 @@
     WakeAllConditionVariable(cond)
 #define ort_pool_cond_destroy(cond)
 #else
-# define _GNU_SOURCE
 # include <pthread.h>
 # include <sched.h>
 # include <unistd.h>
@@ -65,11 +72,6 @@
 #define ort_pool_cond_destroy(cond) \
     pthread_cond_destroy(cond)
 #endif
-
-#include "maths/cast.h"
-#include "maths/core.h"
-#include "maths/pool.h"
-#include "maths/result.h"
 
 typedef struct _ort_task_t {
     ort_task_func_t func;

@@ -171,6 +171,23 @@ void ort_math_backend_install(ort_math_dispatch_t* table); /* }}} */
     provide the guarantee that the thread will not migrate to a different core, and the fast
     paths it installs for that thread (in the allocator and dispatch table) remain coherent.
 */
+
+#ifdef _WIN32
+#include <intrin.h>
+#define __cpuid_count(leaf, level, eax, ebx, ecx, edx) do { \
+    int registers[4];   \
+    __cpuidex(          \
+        registers,      \
+        leaf, level);   \
+    eax = registers[0]; \
+    ebx = registers[1]; \
+    ecx = registers[2]; \
+    edx = registers[3]; \
+} while(0)
+#else
+#include <cpuid.h>
+#endif
+
 typedef enum {
     ORT_MATH_BACKEND_NONE = 0,
     ORT_MATH_BACKEND_AVX2,
@@ -178,70 +195,166 @@ typedef enum {
     ORT_MATH_BACKEND_SSE41,
 } ort_math_backend_type_t;
 
-/** {{{ Shall return true if the current core should be guarded from the given backend type }}} */
+#define __ORT_MATH_BACKEND_CPU_TOPOLOGY      0x1A
+#define __ORT_MATH_BACKEND_CPU_SHIFT         24
+#define __ORT_MATH_BACKEND_CPU_MASK          0xFF
+#define __ORT_MATH_BACKEND_CPU_GRACEMONT     0x20
+
+#define __ORT_MATH_BACKEND_CPU_BIT_SSE2      (1 << 26)
+#define __ORT_MATH_BACKEND_CPU_BIT_SSE41     (1 << 19)
+#define __ORT_MATH_BACKEND_CPU_BIT_AVX       (1 << 28)
+#define __ORT_MATH_BACKEND_CPU_BIT_AVX2      (1 << 5)
+#define __ORT_MATH_BACKEND_CPU_BIT_OSXSAVE   (1 << 27)
+
+#define __ORT_MATH_BACKEND_CPU_LEAF_BASIC    1
+#define __ORT_MATH_BACKEND_CPU_LEAF_EXTENDED 7
+
+#define __ORT_MATH_BACKEND_CPU_EXT           (0x6ULL)
+
+#define __ORT_MATH_BACKEND_CPU_BITS(reg, bits) \
+    ((reg) & (bits)) == (bits)
+#define __ORT_MATH_BACKEND_CPU_FEATURES(eax, edx, bits) \
+    ((((uint64_t)edx << 32) | eax) & (bits)) == (bits)
+
+static zend_always_inline zend_bool __ort_math_backend_ecore() {
+#if defined(__x86_64__) || defined(_M_X64)
+    unsigned int eax = 0,
+                 ebx = 0, 
+                 ecx = 0, 
+                 edx = 0;
+
+    __cpuid_count(0, 0, eax, ebx, ecx, edx);
+    if (eax < __ORT_MATH_BACKEND_CPU_TOPOLOGY)
+        // No hybrid topology present, safe to
+        // assume this isn't an ecore 
+        return 0;
+
+    // Read the CPU type
+    __cpuid_count(
+        __ORT_MATH_BACKEND_CPU_TOPOLOGY,
+        0, eax, ebx, ecx, edx);
+    unsigned int type =
+        (eax >> __ORT_MATH_BACKEND_CPU_SHIFT) &
+            __ORT_MATH_BACKEND_CPU_MASK;
+
+    // Known E-core types (may need updating for future CPUs)
+    return type == __ORT_MATH_BACKEND_CPU_GRACEMONT;
+#else
+    return 0;
+#endif
+}
+
+/** Shall return true if the current thread should be 
+ *      guarded from features provided by the given backend type */
 static zend_always_inline zend_bool
     __ort_math_backend_guard(
         ort_math_backend_type_t type) {
-    if (ORT_MATH_BACKEND_NONE == type) {
+    if (type == ORT_MATH_BACKEND_NONE) {
         return 1;
     }
 
-#ifndef _WIN32
-    switch (type) {
-        case ORT_MATH_BACKEND_AVX2:
-            return (zend_bool)!__builtin_cpu_supports("avx2");
-        case ORT_MATH_BACKEND_SSE2:
-            return (zend_bool)!__builtin_cpu_supports("sse2");
-        case ORT_MATH_BACKEND_SSE41:
-            return (zend_bool)!__builtin_cpu_supports("sse4.1");
+    if (type == ORT_MATH_BACKEND_AVX2 && __ort_math_backend_ecore()) {
+        return 1;
     }
+
+    /* use cpuid_count to check feature support on this core for the given type */
+    unsigned int eax = 0, 
+                 ebx = 0,
+                 ecx = 0, 
+                 edx = 0;
+    switch (type) {
+        case ORT_MATH_BACKEND_AVX2: {
+            // Check if CPUID supports extended features
+            __cpuid_count(0, 0,
+                eax, ebx, ecx, edx);
+            if (eax < __ORT_MATH_BACKEND_CPU_LEAF_EXTENDED) {
+                return 1;
+            }
+
+            __cpuid_count(
+                __ORT_MATH_BACKEND_CPU_LEAF_BASIC,
+                0, eax, ebx, ecx, edx);
+
+            // Check for OSXSAVE
+            if (!__ORT_MATH_BACKEND_CPU_BITS(ecx,
+                    __ORT_MATH_BACKEND_CPU_BIT_OSXSAVE)) {
+                return 1;
+            }
+
+            // Check for AVX
+            if (!__ORT_MATH_BACKEND_CPU_BITS(ecx,
+                    __ORT_MATH_BACKEND_CPU_BIT_AVX)) {
+                return 1;
+            }
+
+            // Check XMM/YMM state saving support
+#ifdef _WIN32
+            uint64_t xcr0 = _xgetbv(0);
+
+            if (!__ORT_MATH_BACKEND_CPU_BITS(xcr0,
+                    __ORT_MATH_BACKEND_CPU_EXT)) {
+                return 1;
+            }
 #else
-    int cpuInfo[4] = {0};
-    switch (type) {
-        case ORT_MATH_BACKEND_AVX2:
-            /* Check AVX2 support: CPUID leaf 7, EBX bit 5 */
-            __cpuid(cpuInfo, 0);
+            __asm__ volatile (
+                "xgetbv"
+                : "=a"(eax), "=d"(edx)
+                : "c" (0)
+            );
 
-            if (cpuInfo[0] < 7)
+            if (!__ORT_MATH_BACKEND_CPU_FEATURES(
+                    eax, edx,
+                    __ORT_MATH_BACKEND_CPU_EXT)) {
                 return 1;
-
-            __cpuid(cpuInfo, 1);
-
-            int osxsave =
-                (cpuInfo[2] & (1 << 27)) != 0;
-            int avx =
-                (cpuInfo[2] & (1 << 28)) != 0;
-            if (!osxsave || !avx)
-                return 1; /* OSXSAVE and AVX must be supported */
-            unsigned long long xcrFeatureMask = 0;
-            
-            xcrFeatureMask = _xgetbv(0);
-            if ((xcrFeatureMask & 0x6) != 0x6)
-                return 1;
-            
-            __cpuid(cpuInfo, 7);
-
-            if ((cpuInfo[1] & (1 << 5)) == 0)
-                return 1;
-
-            return 0;
-        case ORT_MATH_BACKEND_SSE2:
-            __cpuid(cpuInfo, 1);
-            
-            if ((cpuInfo[3] & (1 << 26)) == 0)
-                return 1; /* SSE2: EDX bit 26 */
-            return 0;
-        case ORT_MATH_BACKEND_SSE41:
-            __cpuid(cpuInfo, 1);
-
-            if ((cpuInfo[2] & (1 << 19)) == 0)
-                return 1; /* SSE4.1: ECX bit 19 */
-            return 0;
-    }
+            }
 #endif
+            // Check AVX2 support
+            __cpuid_count(
+                __ORT_MATH_BACKEND_CPU_LEAF_EXTENDED, 
+                0, eax, ebx, ecx, edx);
 
+            return !__ORT_MATH_BACKEND_CPU_BITS(ebx,
+                __ORT_MATH_BACKEND_CPU_BIT_AVX2);
+        }
+        case ORT_MATH_BACKEND_SSE41: {
+            __cpuid_count(
+                __ORT_MATH_BACKEND_CPU_LEAF_BASIC, 
+                0, eax, ebx, ecx, edx);
+
+            return !__ORT_MATH_BACKEND_CPU_BITS(ecx,
+                __ORT_MATH_BACKEND_CPU_BIT_SSE41);
+        }
+        case ORT_MATH_BACKEND_SSE2: {
+            __cpuid_count(
+                __ORT_MATH_BACKEND_CPU_LEAF_BASIC,
+                0, eax, ebx, ecx, edx);
+
+            return !__ORT_MATH_BACKEND_CPU_BITS(edx,
+                __ORT_MATH_BACKEND_CPU_BIT_SSE2);
+        }
+    }
+
+    /* safety: unknown backends should be guarded */
     return 1;
 }
+
+#undef __ORT_MATH_BACKEND_CPU_TOPOLOGY
+#undef __ORT_MATH_BACKEND_CPU_SHIFT
+#undef __ORT_MATH_BACKEND_CPU_MASK
+#undef __ORT_MATH_BACKEND_CPU_GRACEMONT
+
+#undef __ORT_MATH_BACKEND_CPU_BIT_SSE2
+#undef __ORT_MATH_BACKEND_CPU_BIT_SSE41
+#undef __ORT_MATH_BACKEND_CPU_BIT_AVX
+#undef __ORT_MATH_BACKEND_CPU_BIT_AVX2
+#undef __ORT_MATH_BACKEND_CPU_BIT_OSXSAVE
+
+#undef __ORT_MATH_BACKEND_CPU_LEAF_BASIC
+#undef __ORT_MATH_BACKEND_CPU_LEAF_EXTENDED
+
+#undef __ORT_MATH_BACKEND_CPU_EXT
+#undef __ORT_MATH_BACKEND_CPU_BITS
+#undef __ORT_MATH_BACKEND_CPU_FEATURES
 
 #define ORT_MATH_BACKEND_GUARD __ort_math_backend_guard /* }}} */
 
