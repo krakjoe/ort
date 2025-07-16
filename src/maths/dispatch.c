@@ -18,9 +18,12 @@
 
 #include "maths/dispatch.h"
 #include "maths/frontend/impl.h"
+
+/* Error dispatch */
+ORT_TLS ort_math_dispatch_t __ort_math_dispatch_error;
  
 /* Complete dispatch table */
-static ort_math_dispatch_t __ort_math_dispatch_table[] = {
+ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
     /* FLOAT */
     {
         .type = ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
@@ -437,8 +440,6 @@ static ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .pow_scalar_func = NULL,                         // Logical power (A ** B)  
     }
 };
-
-ZEND_TLS ort_math_dispatch_t __ort_math_dispatch_error;
 
 ort_math_dispatch_t* ort_math_dispatch_table(void) {
     return __ort_math_dispatch_table;

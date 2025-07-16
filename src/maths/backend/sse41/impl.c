@@ -20,7 +20,7 @@
 
 #include <smmintrin.h> /* SSE4.1 */
 
-static ort_memcpy_func_t ort_memcpy_fallback = NULL;
+ORT_TLS ort_memcpy_func_t ort_memcpy_fallback = NULL;
 
 static void* ort_math_memcpy_sse41(void *dest, const void *src, size_t n) {
     uint8_t *d = (uint8_t*)dest;
@@ -50,6 +50,12 @@ __ort_math_memcpy_sse41_yield:
 }
 
 void ort_math_backend_install(ort_math_dispatch_t* table) {
+    /* don't clobber the environment with 
+        features not supported on this core */
+    if (ORT_MATH_BACKEND_GUARD(ORT_MATH_BACKEND_SSE41)) {
+        return;
+    }
+
     /* set allocation alignment to SSE41 vector length */
     ort_alloc_align(16);
 

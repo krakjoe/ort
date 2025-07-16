@@ -36,6 +36,8 @@ This describes a perfect-world scenario, where there is no contention for resour
 
 The world isn't perfect ... the point of this architecture is not to make sure that 192 additions per cycle is achieved, but rather to ensure that the CPU may be maximally utilized by all means possible.
 
+Modern processors use a hybrid layout of performance and efficiency cores; often efficiency cores do not implement AVX2 (or others), and if they execute it, they are doing so via emulation which may be slower than compiler optimized (for release builds) scalar code.
+
 ## [1] Interpreters
 
 In a threaded environment, such as FrankenPHP, an interpreter is a thread.

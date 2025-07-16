@@ -131,7 +131,7 @@ static void __ort_alloc_default_free(void* ptr) {
 
 static void __ort_alloc_default_shutdown(ort_alloc_t* allocator) {}
 
-static ort_alloc_t __ort_allocator = {
+ORT_TLS ort_alloc_t __ort_allocator = {
     .alloc    = __ort_alloc_default_alloc,
     .memcpy   = __ort_alloc_default_memcpy,
     .free     = __ort_alloc_default_free,

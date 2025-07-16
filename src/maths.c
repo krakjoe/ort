@@ -23,6 +23,7 @@
 #include "maths/api.h"
 #include "maths/cast.h"
 #include "maths/result.h"
+#include "maths/pool.h"
 #include "maths/promotion.h"
 
 #include "maths/schema/abs.h"

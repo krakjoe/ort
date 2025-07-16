@@ -27,6 +27,12 @@
 # include "config.h"
 #endif
 
+#ifdef _WIN32
+# define ORT_TLS __declspec(thread)
+#else
+# define ORT_TLS __thread
+#endif
+
 typedef enum {
     PHP_ORT_OWN_ZEND = 0,
     PHP_ORT_OWN_HEAP = 1

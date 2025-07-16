@@ -159,6 +159,92 @@ ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_BACKEND_SUM_OP_DECL)
 /* {{{ Each backend must implement this function in its own impl.c */
 void ort_math_backend_install(ort_math_dispatch_t* table); /* }}} */
 
+/* {{{
+    On platforms with a hybrid layout of P and E cores, it's necessary to guard
+    against executing code that is not supported on the current core type.
+
+    The installation routine is called once for each thread where the backend may operate.
+        - The main thread
+        - Pool threads
+
+    In every case, where backend is called the thread will be pinned to that core, to
+    provide the guarantee that the thread will not migrate to a different core, and the fast
+    paths it installs for that thread (in the allocator and dispatch table) remain coherent.
+*/
+typedef enum {
+    ORT_MATH_BACKEND_NONE = 0,
+    ORT_MATH_BACKEND_AVX2,
+    ORT_MATH_BACKEND_SSE2,
+    ORT_MATH_BACKEND_SSE41,
+} ort_math_backend_type_t;
+
+/** {{{ Shall return true if the current core should be guarded from the given backend type }}} */
+static zend_always_inline zend_bool
+    __ort_math_backend_guard(
+        ort_math_backend_type_t type) {
+    if (ORT_MATH_BACKEND_NONE == type) {
+        return 1;
+    }
+
+#ifndef _WIN32
+    switch (type) {
+        case ORT_MATH_BACKEND_AVX2:
+            return (zend_bool)!__builtin_cpu_supports("avx2");
+        case ORT_MATH_BACKEND_SSE2:
+            return (zend_bool)!__builtin_cpu_supports("sse2");
+        case ORT_MATH_BACKEND_SSE41:
+            return (zend_bool)!__builtin_cpu_supports("sse4.1");
+    }
+#else
+    int cpuInfo[4] = {0};
+    switch (type) {
+        case ORT_MATH_BACKEND_AVX2:
+            /* Check AVX2 support: CPUID leaf 7, EBX bit 5 */
+            __cpuid(cpuInfo, 0);
+
+            if (cpuInfo[0] < 7)
+                return 1;
+
+            __cpuid(cpuInfo, 1);
+
+            int osxsave =
+                (cpuInfo[2] & (1 << 27)) != 0;
+            int avx =
+                (cpuInfo[2] & (1 << 28)) != 0;
+            if (!osxsave || !avx)
+                return 1; /* OSXSAVE and AVX must be supported */
+            unsigned long long xcrFeatureMask = 0;
+            
+            xcrFeatureMask = _xgetbv(0);
+            if ((xcrFeatureMask & 0x6) != 0x6)
+                return 1;
+            
+            __cpuid(cpuInfo, 7);
+
+            if ((cpuInfo[1] & (1 << 5)) == 0)
+                return 1;
+
+            return 0;
+        case ORT_MATH_BACKEND_SSE2:
+            __cpuid(cpuInfo, 1);
+            
+            if ((cpuInfo[3] & (1 << 26)) == 0)
+                return 1; /* SSE2: EDX bit 26 */
+            return 0;
+        case ORT_MATH_BACKEND_SSE41:
+            __cpuid(cpuInfo, 1);
+
+            if ((cpuInfo[2] & (1 << 19)) == 0)
+                return 1; /* SSE4.1: ECX bit 19 */
+            return 0;
+    }
+#endif
+
+    return 1;
+}
+
+#define ORT_MATH_BACKEND_GUARD __ort_math_backend_guard /* }}} */
+
 /* {{{ 
     Each backend must call this macro within their install routine 
     to setup the dispatch table.

@@ -27,10 +27,6 @@
  */
 #include "ort.h"
 
-#ifndef _WIN32
-#include "maths/pool.h"
-#endif
-
 /** {{{  Startup and shutdown, called from the PHP layer */
 void ort_math_startup(void);
 void ort_math_shutdown(void); /* }}} */

@@ -17,12 +17,12 @@
  */
 
 #include "maths/cast.h"
+#include "maths/core.h"
 #include "maths/pool.h"
 #include "maths/result.h"
 
 #if defined(_WIN32)
 # include <windows.h>
-# define ORT_POOL_LOCAL __declspec(thread)
   typedef HANDLE ort_thread_t;
   typedef CRITICAL_SECTION ort_mutex_t;
   typedef CONDITION_VARIABLE ort_cond_t;
@@ -45,8 +45,8 @@
 #define ort_pool_cond_destroy(cond)
 #else
 # include <pthread.h>
+# include <sched.h>
 # include <unistd.h>
-# define ORT_POOL_LOCAL __thread
   typedef pthread_t ort_thread_t;
   typedef pthread_mutex_t ort_mutex_t;
   typedef pthread_cond_t ort_cond_t;
@@ -91,8 +91,8 @@ typedef struct _ort_pool_t {
     int stop;
 } ort_pool_t;
 
-ORT_POOL_LOCAL ort_pool_t __ort_pool;
-ORT_POOL_LOCAL size_t     __ort_pool_cores = 0;
+ORT_TLS ort_pool_t __ort_pool;
+ORT_TLS size_t     __ort_pool_cores = 0;
 
 void ort_pool_binary_worker(void *arg, size_t index, size_t count) {
     ort_pool_binary_ctx_t *ctx =
@@ -268,8 +268,42 @@ void ort_pool_cast_worker(void *arg, size_t index, size_t count) {
     }
 }
 
+/*
+ * Pin the current thread to the core it is currently running on.
+ * This guarantees no migration, regardless of platform.
+ */
+static void ort_pool_pin(void) {
+#ifdef _WIN32
+    DWORD cpu =
+        GetCurrentProcessorNumber();
+    DWORD_PTR mask =
+        ((DWORD_PTR)1) << cpu;
+    SetThreadAffinityMask(
+        GetCurrentThread(), mask);
+#else
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    int cpu = sched_getcpu();
+    if (cpu >= 0) {
+        CPU_SET(cpu, &set);
+        pthread_setaffinity_np(
+            pthread_self(), sizeof(set), &set);
+    }
+#endif
+}
+
 static void *ort_pool_worker(void *arg) {
     ort_pool_t *pool = (ort_pool_t *)arg;
+
+    /* Pin this thread to the core it is currently running on */
+    ort_pool_pin();
+
+    /* Startup the allocator for this thread */
+    PHP_MINIT_FUNCTION(ORT_ALLOC);
+
+    /* Startup math library for this thread */
+    ort_math_startup();
+
     while (1) {
         ort_pool_mutex_lock(&pool->mutex);
         while (!pool->task && !pool->stop) {
@@ -320,6 +354,13 @@ static void *ort_pool_worker(void *arg) {
 #endif
         }
     }
+
+    /* Shutdown math library for this thread */
+    ort_math_shutdown();
+
+    /* Shutdown the allocator for this thread */
+    PHP_MSHUTDOWN_FUNCTION(ORT_ALLOC);
+
 #if defined(_WIN32)
     return 0;
 #else
@@ -403,17 +444,18 @@ int ort_pool_init(size_t size) {
     ort_pool_mutex_init(&__ort_pool.mutex);
     ort_pool_cond_init(&__ort_pool.cond);
     __ort_pool.stop = 0;
+
     for (size_t i = 0; i < size; ++i) {
 #if defined(_WIN32)
         __ort_pool.threads[i] = CreateThread(
-            NULL, 0, 
-            ort_pool_worker, 
+            NULL, 0,
+            (LPTHREAD_START_ROUTINE)ort_pool_worker,
             &__ort_pool, 0, NULL);
 #else
         pthread_create(
-            &__ort_pool.threads[i], 
-            NULL, 
-            ort_pool_worker, 
+            &__ort_pool.threads[i],
+            NULL,
+            ort_pool_worker,
             &__ort_pool);
 #endif
     }
