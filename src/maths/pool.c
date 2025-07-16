@@ -15,7 +15,7 @@
   | Author: krakjoe                                                      |
   +----------------------------------------------------------------------+
  */
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(_GNU_SOURCE)
 # define _GNU_SOURCE
 #endif
 

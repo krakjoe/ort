@@ -17,6 +17,7 @@
  */
 
 #include "maths/backend/impl.h"
+#include "maths/backend/guard.h"
 
 #include <emmintrin.h> /* SSE2 */
 

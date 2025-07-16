@@ -17,6 +17,7 @@
  */
 
 #include "maths/backend/impl.h"
+#include "maths/backend/guard.h"
 
 #include <smmintrin.h> /* SSE4.1 */
 
