@@ -540,47 +540,24 @@
 
                 <h3>Key Technical Innovations</h3>
                 <ul class="padded-list">
-                    <li><strong>Type System:</strong> Schemas extracted from NumPy authority—no guesswork</li>
+                    <li><strong>Type System:</strong> Schemas extracted from NumPy runtime—no guesswork</li>
                     <li><strong>Thread Pool:</strong> Custom work-stealing implementation with proper synchronization</li>
                     <li><strong>Memory Management:</strong> Atomic reference counting for thread safety</li>
                     <li><strong>SIMD Optimization:</strong> Runtime backend selection with optimal fallbacks</li>
                 </ul>
 
                 <h3>Performance Benchmarks</h3>
-                <table class="benchmark-table">
-                    <thead>
-                        <tr>
-                            <th>Operation</th>
-                            <th>Size</th>
-                            <th>Backend</th>
-                            <th>Time</th>
-                            <th>Speedup</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Matrix Multiply</td>
-                            <td>1000×1000</td>
-                            <td>AVX2</td>
-                            <td>2.3ms</td>
-                            <td>8.2x</td>
-                        </tr>
-                        <tr>
-                            <td>Element-wise Add</td>
-                            <td>1M elements</td>
-                            <td>AVX2</td>
-                            <td>0.8ms</td>
-                            <td>7.9x</td>
-                        </tr>
-                        <tr>
-                            <td>Tensor Reduction</td>
-                            <td>10M elements</td>
-                            <td>Multi-core</td>
-                            <td>1.2ms</td>
-                            <td>15.6x</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div id="benchmark-slideshow" style="text-align:center; margin: 30px 0;">
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <button class="button" style="margin-right: 20px;" onclick="prevSlide()">&#8592; Prev</button>
+                        <img id="benchmark-image" src="bench/images/mul.png" alt="Benchmark Chart" style="max-width:90%; max-height:400px; border-radius:8px; border:1px solid #ccc;">
+                        <button class="button" style="margin-left: 20px;" onclick="nextSlide()">Next &#8594;</button>
+                    </div>
+                    <div id="benchmark-caption" style="margin-top:10px; font-size:1.1em; color:#34495e;"></div>
+                </div>
+                <div class="benchmark-notes highlight">
+                    <p>All benchmarks are reproducible and available in the <a href="bench/">bench</a> directory.</p>
+                </div>
 
                 <h3>Getting Started</h3>
                 <div class="terminal code">
@@ -626,7 +603,7 @@ extension=ort.so
                     <div class="criticism-card">
                         <h4>"Type requirements too complex"</h4>
                         <div class="response">Response:</div>
-                        <p>We extract schemas from NumPy authority. No guesswork, no compatibility issues—strict adherence to proven standards.</p>
+                        <p>We extract schemas from NumPy runtime. No guesswork, no compatibility issues—strict adherence to proven standards.</p>
                     </div>
 
                     <div class="criticism-card">
@@ -847,5 +824,34 @@ extension=ort.so
 <span class="comment">// Result type: 1</span>`;
         }
     </script>
+    <script>
+    // List your benchmark images and captions here
+    const benchmarkImages = [
+        { src: "bench/images/add.png", caption: "Element-wise Addition Performance" },
+        { src: "bench/images/sub.png", caption: "Element-wise Subtraction Performance" },
+        { src: "bench/images/div.png", caption: "Element-wise Division Performance" },
+        { src: "bench/images/mul.png", caption: "Element-wise Multiplication Performance" }
+        // Add more images as needed
+    ];
+    let currentSlide = 0;
+
+    function showSlide(idx) {
+        const img = document.getElementById('benchmark-image');
+        const cap = document.getElementById('benchmark-caption');
+        if (!img || !cap) return;
+        currentSlide = (idx + benchmarkImages.length) % benchmarkImages.length;
+        img.src = benchmarkImages[currentSlide].src;
+        img.alt = benchmarkImages[currentSlide].caption;
+        cap.textContent = benchmarkImages[currentSlide].caption;
+    }
+
+    function prevSlide() { showSlide(currentSlide - 1); }
+    function nextSlide() { showSlide(currentSlide + 1); }
+
+    // Initialize slideshow on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        showSlide(0);
+    });
+</script>
 </body>
 </html>
