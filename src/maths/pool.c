@@ -44,6 +44,7 @@
     WakeAllConditionVariable(cond)
 #define ort_pool_cond_destroy(cond)
 #else
+# define _GNU_SOURCE
 # include <pthread.h>
 # include <sched.h>
 # include <unistd.h>
