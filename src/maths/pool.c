@@ -81,7 +81,6 @@ typedef struct _ort_task_t {
     volatile size_t completed;
     ort_mutex_t mutex;
     ort_cond_t cond;
-    volatile int done;
     volatile int refcount;
 } ort_task_t;
 
@@ -98,12 +97,13 @@ ORT_TLS ort_pool_t __ort_pool;
 ORT_TLS size_t     __ort_pool_cores = 0;
 
 static zend_always_inline void ort_pool_task_release(ort_task_t* task) {
-    if (php_ort_atomic_delref(
-            (uint32_t*)&task->refcount) == 0) {
-        ort_pool_mutex_destroy(
-            &task->mutex);
-        ort_pool_cond_destroy(
-            &task->cond);
+#if defined(_WIN32)
+    if (InterlockedDecrement((volatile LONG*)&task->refcount) == 0) {
+#else
+    if (__sync_fetch_and_sub(&task->refcount, 1) == 1) {
+#endif
+        ort_pool_mutex_destroy(&task->mutex);
+        ort_pool_cond_destroy(&task->cond);
         free(task);
     }
 }
@@ -319,6 +319,8 @@ static void *ort_pool_worker(void *arg) {
     ort_math_startup();
 
     while (1) {
+        ort_task_t *task = NULL;
+
         ort_pool_mutex_lock(&pool->mutex);
         while (!pool->task && !pool->stop) {
             ort_pool_cond_wait(&pool->cond, &pool->mutex);
@@ -327,10 +329,21 @@ static void *ort_pool_worker(void *arg) {
             ort_pool_mutex_unlock(&pool->mutex);
             break;
         }
-        ort_task_t *task = pool->task;
-        php_ort_atomic_addref(
-            (uint32_t*)&task->refcount);
+
+        task = pool->task;
+        if (task) {
+            // Take reference before releasing pool mutex
+#if defined(_WIN32)
+            InterlockedIncrement((volatile LONG*)&task->refcount);
+#else
+            __sync_fetch_and_add(&task->refcount, 1);
+#endif
+        }
         ort_pool_mutex_unlock(&pool->mutex);
+
+        if (!task) {
+            continue;
+        }
 
         while (1) {
 #if defined(_WIN32)
@@ -338,26 +351,26 @@ static void *ort_pool_worker(void *arg) {
 #else
             size_t index = __sync_fetch_and_add(&task->next, 1);
 #endif
-            if (index >= task->count)
+            if (index >= task->count) {
                 break;
-            task->func(task->arg, index, task->count);
-#if defined(_WIN32)
-            InterlockedIncrement64((volatile LONGLONG*)&task->completed);
-#else
-            __sync_fetch_and_add(&task->completed, 1);
-#endif
-        }
+            }
 
-        ort_pool_mutex_lock(&task->mutex);
-        if (task->completed == task->count) {
-            ort_pool_cond_signal(&task->cond);
-            // Wait for main thread to set done
-            while (!task->done) {
-                ort_pool_cond_wait(&task->cond, &task->mutex);
+            task->func(task->arg, index, task->count);
+
+#if defined(_WIN32)
+            size_t completed = InterlockedIncrement64(
+                (volatile LONGLONG*)&task->completed);
+#else
+            size_t completed = __sync_fetch_and_add(&task->completed, 1) + 1;
+#endif
+
+            if (completed == task->count) {
+                ort_pool_mutex_lock(&task->mutex);
+                ort_pool_cond_signal(&task->cond);
+                ort_pool_mutex_unlock(&task->mutex);
             }
         }
 
-        ort_pool_mutex_unlock(&task->mutex);
         ort_pool_task_release(task);
     }
 
@@ -490,6 +503,10 @@ void ort_pool_destroy() {
 
 void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
     ort_task_t *task = (ort_task_t*)calloc(1, sizeof(ort_task_t));
+    if (!task) {
+        return;
+    }
+
     ort_pool_mutex_init(&task->mutex);
     ort_pool_cond_init(&task->cond);
     task->func = func;
@@ -497,8 +514,7 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
     task->count = count;
     task->next = 0;
     task->completed = 0;
-    task->done = 0;
-    task->refcount = 2; // caller + stealer
+    task->refcount = 1;
 
     ort_pool_mutex_lock(&__ort_pool.mutex);
     __ort_pool.task = task;
@@ -509,13 +525,11 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
     while (task->completed < task->count) {
         ort_pool_cond_wait(&task->cond, &task->mutex);
     }
-    // Signal workers that it's safe to exit
-    task->done = 1;
-    ort_pool_cond_broadcast(&task->cond);
     ort_pool_mutex_unlock(&task->mutex);
-    ort_pool_task_release(task);
 
     ort_pool_mutex_lock(&__ort_pool.mutex);
     __ort_pool.task = NULL;
     ort_pool_mutex_unlock(&__ort_pool.mutex);
+
+    ort_pool_task_release(task);
 }
