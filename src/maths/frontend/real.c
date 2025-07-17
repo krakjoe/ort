@@ -30,6 +30,12 @@
 
 #include "maths/schema/abs.h"
 #include "maths/schema/acos.h"
+#include "maths/schema/arccos.h"
+#include "maths/schema/arccosh.h"
+#include "maths/schema/arcsin.h"
+#include "maths/schema/arcsinh.h"
+#include "maths/schema/arctan.h"
+#include "maths/schema/arctanh.h"
 #include "maths/schema/asin.h"
 #include "maths/schema/atan.h"
 #include "maths/schema/cbrt.h"
@@ -91,6 +97,12 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(func_name, c_type) {                \
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(sin, sinf, sin)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(cos, cosf, cos)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(tan, tanf, tan)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(arccos, acosf, acos)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(arcsin, asinf, asin)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(arctan, atanf, atan)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(arccosh, acoshf, acosh)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(arcsinh, asinhf, asinh)
+ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(arctanh, atanhf, atanh)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(asin, asinf, asin)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(acos, acosf, acos)
 ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(atan, atanf, atan)
@@ -173,6 +185,13 @@ ORT_MATH_RESULT_UNARY_IMPL(log, ort_math_frontend_get_log_func, &ort_math_promot
 ORT_MATH_RESULT_UNARY_IMPL(log2, ort_math_frontend_get_log2_func, &ort_math_promotion_schema_log2)
 ORT_MATH_RESULT_UNARY_IMPL(log10, ort_math_frontend_get_log10_func, &ort_math_promotion_schema_log10)
 ORT_MATH_RESULT_UNARY_IMPL(cbrt, ort_math_frontend_get_cbrt_func, &ort_math_promotion_schema_cbrt)
+
+ORT_MATH_RESULT_UNARY_IMPL(arccos, ort_math_frontend_get_arccos_func, &ort_math_promotion_schema_arccos)
+ORT_MATH_RESULT_UNARY_IMPL(arccosh, ort_math_frontend_get_arccosh_func, &ort_math_promotion_schema_arccosh)
+ORT_MATH_RESULT_UNARY_IMPL(arcsin, ort_math_frontend_get_arcsin_func, &ort_math_promotion_schema_arcsin)
+ORT_MATH_RESULT_UNARY_IMPL(arcsinh, ort_math_frontend_get_arcsinh_func, &ort_math_promotion_schema_arcsinh)
+ORT_MATH_RESULT_UNARY_IMPL(arctan, ort_math_frontend_get_arctan_func, &ort_math_promotion_schema_arctan)
+ORT_MATH_RESULT_UNARY_IMPL(arctanh, ort_math_frontend_get_arctanh_func, &ort_math_promotion_schema_arctanh)
 
 ORT_MATH_RESULT_UNARY_IMPL(abs, ort_math_frontend_get_abs_func, &ort_math_promotion_schema_abs)
 ORT_MATH_RESULT_UNARY_IMPL(ceil, ort_math_frontend_get_ceil_func, &ort_math_promotion_schema_ceil)

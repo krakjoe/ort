@@ -60,6 +60,14 @@ ort_tensor_t* ort_math_result_asin(ort_tensor_t* tensor);
 ort_tensor_t* ort_math_result_acos(ort_tensor_t* tensor);
 ort_tensor_t* ort_math_result_atan(ort_tensor_t* tensor);
 
+/* Inverse trigonometric operations */
+ort_tensor_t* ort_math_result_arccos(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_arcsin(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_arctan(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_arccosh(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_arcsinh(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_arctanh(ort_tensor_t* tensor);
+
 /* Hyperbolic operations */
 ort_tensor_t* ort_math_result_sinh(ort_tensor_t* tensor);
 ort_tensor_t* ort_math_result_cosh(ort_tensor_t* tensor);

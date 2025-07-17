@@ -28,6 +28,12 @@
 
 #include "maths/schema/abs.h"
 #include "maths/schema/acos.h"
+#include "maths/schema/arccos.h"
+#include "maths/schema/arccosh.h"
+#include "maths/schema/arcsin.h"
+#include "maths/schema/arcsinh.h"
+#include "maths/schema/arctan.h"
+#include "maths/schema/arctanh.h"
 #include "maths/schema/atan.h"
 #include "maths/schema/add.h"
 #include "maths/schema/asin.h"
@@ -258,6 +264,12 @@ ORT_MATH_UNARY_FUNCTION_IMPL(cos)
 ORT_MATH_UNARY_FUNCTION_IMPL(tan)
 ORT_MATH_UNARY_FUNCTION_IMPL(asin)
 ORT_MATH_UNARY_FUNCTION_IMPL(acos)
+ORT_MATH_UNARY_FUNCTION_IMPL(arccos)
+ORT_MATH_UNARY_FUNCTION_IMPL(arcsin)
+ORT_MATH_UNARY_FUNCTION_IMPL(arctan)
+ORT_MATH_UNARY_FUNCTION_IMPL(arccosh)
+ORT_MATH_UNARY_FUNCTION_IMPL(arcsinh)
+ORT_MATH_UNARY_FUNCTION_IMPL(arctanh)
 ORT_MATH_UNARY_FUNCTION_IMPL(atan)
 ORT_MATH_UNARY_FUNCTION_IMPL(sinh)
 ORT_MATH_UNARY_FUNCTION_IMPL(cosh)
@@ -497,6 +509,13 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_FE("ONNX\\Math", recip,   php_ort_math_recip_arginfo)
     ZEND_NS_FE("ONNX\\Math", trunc,   php_ort_math_trunc_arginfo)
 
+    ZEND_NS_FE("ONNX\\Math", arccos, php_ort_math_arccos_arginfo)
+    ZEND_NS_FE("ONNX\\Math", arccosh, php_ort_math_arccosh_arginfo)
+    ZEND_NS_FE("ONNX\\Math", arcsin, php_ort_math_arcsin_arginfo)
+    ZEND_NS_FE("ONNX\\Math", arcsinh, php_ort_math_arcsinh_arginfo)
+    ZEND_NS_FE("ONNX\\Math", arctan, php_ort_math_arctan_arginfo)
+    ZEND_NS_FE("ONNX\\Math", arctanh, php_ort_math_arctanh_arginfo)
+
     ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", min, php_ort_math_reduce_tensor_min, php_ort_math_reduce_tensor_min_arginfo)
     ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   min, php_ort_math_reduce_axis_min,   php_ort_math_reduce_axis_min_arginfo)
     ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", max, php_ort_math_reduce_tensor_max, php_ort_math_reduce_tensor_max_arginfo)
@@ -536,6 +555,18 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_acos;
     } else if (zend_string_equals_literal_ci(symbol, "add")) {
         ort->schema = &ort_math_promotion_schema_add;
+    } else if (zend_string_equals_literal_ci(symbol, "arccos")) {
+        ort->schema = &ort_math_promotion_schema_arccos;
+    } else if (zend_string_equals_literal_ci(symbol, "arccosh")) {
+        ort->schema = &ort_math_promotion_schema_arccosh;
+    } else if (zend_string_equals_literal_ci(symbol, "arcsin")) {
+        ort->schema = &ort_math_promotion_schema_arcsin;
+    } else if (zend_string_equals_literal_ci(symbol, "arcsinh")) {
+        ort->schema = &ort_math_promotion_schema_arcsinh;
+    } else if (zend_string_equals_literal_ci(symbol, "arctan")) {
+        ort->schema = &ort_math_promotion_schema_arctan;
+    } else if (zend_string_equals_literal_ci(symbol, "arctanh")) {
+        ort->schema = &ort_math_promotion_schema_arctanh;
     } else if (zend_string_equals_literal_ci(symbol, "asin")) {
         ort->schema = &ort_math_promotion_schema_asin;
     } else if (zend_string_equals_literal_ci(symbol, "atan")) {
