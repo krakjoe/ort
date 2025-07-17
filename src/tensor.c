@@ -1003,6 +1003,28 @@ PHP_METHOD(ONNX_Tensor, transpose)
     php_ort_tensor_transpose(ort->object, axis, return_value);
 }
 
+static zend_always_inline ort_tensor_t* php_ort_tensor_inverse(ort_tensor_t* input, zval* axis, zval* return_value) {
+    
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_inverse_arginfo, 0, 0, ONNX\\Tensor, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Tensor, inverse)
+{
+    php_ort_tensor_t* ort =
+        php_ort_tensor_fetch(Z_OBJ(EX(This)));
+    zval* axis = NULL;
+
+    ZEND_PARSE_PARAMETERS_START(0, 1);
+        Z_PARAM_OPTIONAL
+        Z_PARAM_ZVAL(axis)
+    ZEND_PARSE_PARAMETERS_END();
+
+    // Inversion is just a transpose for tensors
+    php_ort_tensor_inverse(ort->object, axis, return_value);
+}
+
 static zend_always_inline ort_tensor_t* php_ort_tensor_slice(ort_tensor_t* input, zval* start, zval* end, zval* axis, zval* return_value) {
     // Handle axis parameter - if provided, validate it
     zend_bool has_axis = (axis != NULL);

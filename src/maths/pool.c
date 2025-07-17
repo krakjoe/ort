@@ -97,6 +97,17 @@ typedef struct _ort_pool_t {
 ORT_TLS ort_pool_t __ort_pool;
 ORT_TLS size_t     __ort_pool_cores = 0;
 
+static zend_always_inline void ort_pool_task_release(ort_task_t* task) {
+    if (php_ort_atomic_delref(
+            (uint32_t*)&task->refcount) == 0) {
+        ort_pool_mutex_destroy(
+            &task->mutex);
+        ort_pool_cond_destroy(
+            &task->cond);
+        free(task);
+    }
+}
+
 void ort_pool_binary_worker(void *arg, size_t index, size_t count) {
     ort_pool_binary_ctx_t *ctx =
         (ort_pool_binary_ctx_t *)arg;
@@ -317,7 +328,8 @@ static void *ort_pool_worker(void *arg) {
             break;
         }
         ort_task_t *task = pool->task;
-        php_ort_atomic_addref((uint32_t*)&task->refcount);
+        php_ort_atomic_addref(
+            (uint32_t*)&task->refcount);
         ort_pool_mutex_unlock(&pool->mutex);
 
         while (1) {
@@ -344,18 +356,9 @@ static void *ort_pool_worker(void *arg) {
                 ort_pool_cond_wait(&task->cond, &task->mutex);
             }
         }
+
         ort_pool_mutex_unlock(&task->mutex);
-        // Drop worker's reference
-        if (php_ort_atomic_delref((uint32_t*)&task->refcount) == 0) {
-#if defined(_WIN32)
-            DeleteCriticalSection(&task->mutex);
-            free(task);
-#else
-            pthread_mutex_destroy(&task->mutex);
-            pthread_cond_destroy(&task->cond);
-            free(task);
-#endif
-        }
+        ort_pool_task_release(task);
     }
 
     /* Shutdown math library for this thread */
@@ -495,7 +498,7 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
     task->next = 0;
     task->completed = 0;
     task->done = 0;
-    task->refcount = 1 + __ort_pool.size; // main thread + all workers
+    task->refcount = 2; // caller + stealer
 
     ort_pool_mutex_lock(&__ort_pool.mutex);
     __ort_pool.task = task;
@@ -510,18 +513,7 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
     task->done = 1;
     ort_pool_cond_broadcast(&task->cond);
     ort_pool_mutex_unlock(&task->mutex);
-
-    // Drop main thread's reference
-    if (php_ort_atomic_delref((uint32_t*)&task->refcount) == 0) {
-#if defined(_WIN32)
-        DeleteCriticalSection(&task->mutex);
-        free(task);
-#else
-        pthread_mutex_destroy(&task->mutex);
-        pthread_cond_destroy(&task->cond);
-        free(task);
-#endif
-    }
+    ort_pool_task_release(task);
 
     ort_pool_mutex_lock(&__ort_pool.mutex);
     __ort_pool.task = NULL;
