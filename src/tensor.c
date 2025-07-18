@@ -20,6 +20,7 @@
 
 #include "alloc.h"
 #include "tensor.h"
+#include "generators.h"
 #include "status.h"
 
 #ifdef ZTS
@@ -35,8 +36,15 @@ zend_object_handlers php_ort_tensor_handlers;
 
 // Recursive shape/data validator
 static inline zend_bool php_ort_tensor_validate_next(ONNXTensorElementDataType type, zend_long rank, zend_long *dimensions, zval *node, zend_long depth) {
+    if (Z_TYPE_P(node) == IS_OBJECT &&
+            instanceof_function(
+                Z_OBJCE_P(node), php_ort_generator_interface_ce)) {
+        return 1;
+    }
+
     if (depth == rank) {
         // Leaf node — must match scalar type
+
         switch (type) {
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
@@ -91,6 +99,13 @@ static inline zend_bool php_ort_tensor_validate_next(ONNXTensorElementDataType t
 }
 
 static zend_always_inline zend_bool php_ort_tensor_validate(zval *shape, zend_string *name, zval *data, ONNXTensorElementDataType type) {
+    // Skip generator validation
+    if (Z_TYPE_P(data) == IS_OBJECT && 
+            instanceof_function(
+                Z_OBJCE_P(data), php_ort_generator_interface_ce)) {
+        return 1;
+    }
+
     zend_long dimensions[16];
     zend_long rank = 0;
     
@@ -193,131 +208,132 @@ static zend_always_inline zend_bool php_ort_tensor_validate(zval *shape, zend_st
     return 1;
 }
 
-static inline zend_bool php_ort_tensor_flatten(ort_tensor_t* tensor, size_t *offset, size_t size, zval *node, size_t depth) {
+void php_ort_tensor_store(ONNXTensorElementDataType type, void* target, zval* node) {
+    // Enter into generator objects
+    if (Z_TYPE_P(node) == IS_OBJECT && 
+            instanceof_function(
+                Z_OBJCE_P(node), php_ort_generator_interface_ce)) {
+        php_ort_generator_invoke(
+            node, type, target);
+        return;
+    }
+
+    switch (type) {
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
+            *(float *)target = Z_TYPE_P(node) == IS_DOUBLE
+                ? (float)Z_DVAL_P(node)
+                : (float)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+            *(double *)target = Z_TYPE_P(node) == IS_DOUBLE
+                ? Z_DVAL_P(node)
+                : (double)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
+            *(int8_t *)target = (int8_t)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
+            *(int16_t *)target = (int16_t)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
+            *(int32_t *)target = (int32_t)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
+            *(int64_t *)target = (int64_t)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
+            *(uint8_t *)target = (uint8_t)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
+            *(uint16_t *)target = (uint16_t)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
+            *(uint32_t *)target = (uint32_t)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64:
+            // UINT64 is not supported - this should not be reached due to validation
+            php_ort_status_throw(
+                php_ort_status_tensor_invalidtype_ce,
+                "UINT64 tensor type is not supported (values exceed PHP integer range)");
+            return;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
+            *(uint8_t *)target = (Z_TYPE_P(node) == IS_TRUE) ? 1 : 0;
+            break;
+
+        default: 
+            php_ort_status_throw(
+                php_ort_status_tensor_invalidtype_ce,
+                "unknown data type (%zd) provided",
+                (zend_long) type);
+    }
+}
+
+static zend_always_inline zval* php_ort_tensor_flatten_next(ort_tensor_t* tensor, zval* node, zend_long idx) {
+    // Special case for generators
+    if (Z_TYPE_P(node) == IS_OBJECT &&
+            instanceof_function(
+                Z_OBJCE_P(node), php_ort_generator_interface_ce)) {
+        return node;
+    }
+
     // Special case for scalar tensor (0 dimensions)
     if (tensor->dimensions == 0) {
         // For scalar tensors, we expect the data to be a single-element array
         if (Z_TYPE_P(node) != IS_ARRAY || zend_hash_num_elements(Z_ARRVAL_P(node)) != 1) {
-            return 0;
+            return NULL;
         }
-        
+
         // Get the scalar value (first element of the array)
-        zval *scalar = zend_hash_index_find(Z_ARRVAL_P(node), 0);
+        return zend_hash_index_find(Z_ARRVAL_P(node), idx);
+    }
+
+    if (Z_TYPE_P(node) != IS_ARRAY) {
+        return NULL;
+    }
+
+    return zend_hash_index_find(Z_ARRVAL_P(node), idx);
+}
+
+static inline zend_bool php_ort_tensor_flatten(ort_tensor_t* tensor, size_t *offset, size_t size, zval *node, size_t depth) {
+    // Scalar tensors have 0 dimensions
+    if (tensor->dimensions == 0) {        
+        // Get the scalar value (first element of the array)
+        zval *scalar = php_ort_tensor_flatten_next(tensor, node, 0);
         if (!scalar) {
             return 0;
         }
-        
+
         void *target = (char *)tensor->data + ((*offset) * size);
-        switch (tensor->type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-                *(float *)target = Z_TYPE_P(scalar) == IS_DOUBLE
-                    ? (float)Z_DVAL_P(scalar)
-                    : (float)Z_LVAL_P(scalar);
-                break;
 
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-                *(double *)target = Z_TYPE_P(scalar) == IS_DOUBLE
-                    ? Z_DVAL_P(scalar)
-                    : (double)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
-                *(int8_t *)target = (int8_t)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
-                *(int16_t *)target = (int16_t)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
-                *(int32_t *)target = (int32_t)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
-                *(int64_t *)target = (int64_t)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
-                *(uint8_t *)target = (uint8_t)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
-                *(uint16_t *)target = (uint16_t)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
-                *(uint32_t *)target = (uint32_t)Z_LVAL_P(scalar);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64:
-                // UINT64 is not supported - this should not be reached due to validation
-                return 0;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
-                *(uint8_t *)target = (Z_TYPE_P(scalar) == IS_TRUE) ? 1 : 0;
-                break;
-        }
+        php_ort_tensor_store(
+            tensor->type, target, scalar);
+        
         (*offset)++;
         return 1;
     }
 
     if (depth == tensor->dimensions) {
         void *target = (char *)tensor->data + ((*offset) * size);
-        switch (tensor->type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-                *(float *)target = Z_TYPE_P(node) == IS_DOUBLE
-                    ? (float)Z_DVAL_P(node)
-                    : (float)Z_LVAL_P(node);
-                break;
 
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-                *(double *)target = Z_TYPE_P(node) == IS_DOUBLE
-                    ? Z_DVAL_P(node)
-                    : (double)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
-                *(int8_t *)target = (int8_t)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
-                *(int16_t *)target = (int16_t)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
-                *(int32_t *)target = (int32_t)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
-                *(int64_t *)target = (int64_t)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
-                *(uint8_t *)target = (uint8_t)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
-                *(uint16_t *)target = (uint16_t)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
-                *(uint32_t *)target = (uint32_t)Z_LVAL_P(node);
-                break;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64:
-                // UINT64 is not supported - this should not be reached due to validation
-                return 0;
-
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
-                *(uint8_t *)target = (Z_TYPE_P(node) == IS_TRUE) ? 1 : 0;
-                break;
-        }
+        php_ort_tensor_store(
+            tensor->type, target, node);
+        
         (*offset)++;
         return 1;
     }
 
     for (int64_t i = 0; i < tensor->shape[depth]; i++) {
-        zval *child = zend_hash_index_find(Z_ARRVAL_P(node), i);
+        zval *child = php_ort_tensor_flatten_next(tensor, node, i);
         if (!php_ort_tensor_flatten(tensor, offset, size, child, depth + 1)) {
             return 0;
         }
@@ -605,7 +621,7 @@ static zend_always_inline size_t php_ort_tensor_indexof(ort_tensor_t *tensor, in
 ZEND_BEGIN_ARG_INFO_EX(php_ort_tensor_persistent_construct_arginfo, 0, 0, 1)
     ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
     ZEND_ARG_TYPE_INFO(0, shape, IS_ARRAY, 0)
-    ZEND_ARG_TYPE_INFO(0, data, IS_ARRAY, 0)
+    ZEND_ARG_TYPE_MASK(0, data, MAY_BE_ARRAY | MAY_BE_OBJECT, NULL)
     ZEND_ARG_TYPE_INFO(0, type, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
@@ -622,7 +638,7 @@ PHP_METHOD(ONNX_Tensor_Persistent, __construct)
         Z_PARAM_STR(name)
         Z_PARAM_OPTIONAL
         Z_PARAM_ARRAY(shape)
-        Z_PARAM_ARRAY(data)
+        Z_PARAM_ZVAL(data)
         Z_PARAM_LONG(type)
     ZEND_PARSE_PARAMETERS_END();
 
@@ -697,7 +713,7 @@ PHP_METHOD(ONNX_Tensor_Persistent, __construct)
 
 ZEND_BEGIN_ARG_INFO_EX(php_ort_tensor_transient_construct_arginfo, 0, 0, 2)
     ZEND_ARG_TYPE_INFO(0, shape, IS_ARRAY, 0)
-    ZEND_ARG_TYPE_INFO(0, data, IS_ARRAY, 0)
+    ZEND_ARG_TYPE_MASK(0, data, MAY_BE_ARRAY|MAY_BE_OBJECT, NULL)
     ZEND_ARG_TYPE_INFO(0, type, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
@@ -711,7 +727,7 @@ PHP_METHOD(ONNX_Tensor_Transient, __construct)
 
     ZEND_PARSE_PARAMETERS_START(2, 3);
         Z_PARAM_ARRAY(shape)
-        Z_PARAM_ARRAY(data)
+        Z_PARAM_ZVAL(data)
         Z_PARAM_OPTIONAL
         Z_PARAM_LONG(type)
     ZEND_PARSE_PARAMETERS_END();

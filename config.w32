@@ -34,7 +34,7 @@ if (PHP_ORT != 'no') {
 
     ADD_SOURCES(
         configure_module_dirname + "\\src",
-        "ort.c env.c runtime.c model.c tensor.c status.c options.c iterator.c maths.c alloc.c",
+        "ort.c env.c runtime.c model.c tensor.c status.c options.c iterator.c maths.c alloc.c generators.c",
         "ort"
     );
 

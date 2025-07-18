@@ -63,6 +63,8 @@ void ort_tensor_release(ort_tensor_t *tensor);
 
 OrtValue*     php_ort_tensor_value(php_ort_tensor_t* ort);
 ort_tensor_t* php_ort_tensor_object(OrtValue* value);
+void          php_ort_tensor_store(
+    ONNXTensorElementDataType type, void* target, zval* node);
 
 PHP_MINIT_FUNCTION(ORT_TENSOR);
 PHP_MSHUTDOWN_FUNCTION(ORT_TENSOR);
