@@ -38,7 +38,7 @@ For a NEON build:
 
 ```
 ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
-``
+```
 
 **TODO(krakjoe) this is less than ergonomic**
 
