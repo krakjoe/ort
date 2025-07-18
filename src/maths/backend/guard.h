@@ -25,6 +25,14 @@
     On platforms with a hybrid layout of P and E cores, it's necessary to guard
     against executing code that is not supported on the current core type.
 
+    On platforms where the CPU is homogeneous (for example neon on ARM), simd instructions
+    may still be disabled by kernel parameters (nosimd).
+
+    In every case, these guards are invoked once for each thread where the backend may operate.
+    Whatever the cost it's worth it to ensure stability in server environments, and to ensure that
+    where someone is engaged in a debugging workflow (ie, using nosimd or something like it), ort
+    isn't a red herring.
+
     The installation routine is called once for each thread where the backend may operate.
         - The main thread
         - Pool threads
@@ -40,7 +48,10 @@
     you should be able to research if you want to find out what it means.
 */
 
-#ifdef _WIN32
+#if defined(__aarch64__)
+#include <sys/auxv.h>
+#include <asm/hwcap.h>
+#elif defined(_WIN32)
 #include <intrin.h>
 #define __cpuid_count(leaf, level, eax, ebx, ecx, edx) do { \
     int registers[4];   \
@@ -61,8 +72,13 @@ typedef enum {
     ORT_MATH_BACKEND_AVX2,
     ORT_MATH_BACKEND_SSE2,
     ORT_MATH_BACKEND_SSE41,
+    ORT_MATH_BACKEND_NEON,
 } ort_math_backend_type_t;
 
+#ifdef __aarch64__
+#define __ORT_MATH_BACKEND_CPU_FEATURES      AT_HWCAP
+#define __ORT_MATH_BACKEND_CPU_NEON          HWCAP_ASIMD
+#else
 #define __ORT_MATH_BACKEND_CPU_TOPOLOGY      0x1A
 #define __ORT_MATH_BACKEND_CPU_SHIFT         24
 #define __ORT_MATH_BACKEND_CPU_MASK          0xFF
@@ -78,11 +94,12 @@ typedef enum {
 #define __ORT_MATH_BACKEND_CPU_LEAF_EXTENDED 7
 
 #define __ORT_MATH_BACKEND_CPU_EXT           (0x6ULL)
+#define __ORT_MATH_BACKEND_CPU_FEATURES(eax, edx, bits) \
+    ((((uint64_t)edx << 32) | eax) & (bits)) == (bits)
+#endif
 
 #define __ORT_MATH_BACKEND_CPU_BITS(reg, bits) \
     ((reg) & (bits)) == (bits)
-#define __ORT_MATH_BACKEND_CPU_FEATURES(eax, edx, bits) \
-    ((((uint64_t)edx << 32) | eax) & (bits)) == (bits)
 
 static zend_always_inline zend_bool __ort_math_backend_ecore() {
 #if defined(__x86_64__) || defined(_M_X64)
@@ -121,6 +138,17 @@ static zend_always_inline zend_bool
         return 1;
     }
 
+#ifdef __aarch64__
+    unsigned long features = getauxval(
+        __ORT_MATH_BACKEND_CPU_FEATURES);
+    switch(type) {
+        case ORT_MATH_BACKEND_NEON:
+            return !__ORT_MATH_BACKEND_CPU_BITS(
+                features, __ORT_MATH_BACKEND_CPU_NEON);
+        default:
+            return 1;
+    }
+#else
     if (type == ORT_MATH_BACKEND_AVX2 && __ort_math_backend_ecore()) {
         return 1;
     }
@@ -201,7 +229,7 @@ static zend_always_inline zend_bool
                 __ORT_MATH_BACKEND_CPU_BIT_SSE2);
         }
     }
-
+#endif
     /* safety: unknown backends should be guarded */
     return 1;
 }

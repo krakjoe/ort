@@ -20,6 +20,10 @@ PHP_ARG_ENABLE([ort-avx2],
   [whether to enable AVX2 support],
   [AS_HELP_STRING([--enable-ort-avx2], [Enable AVX2 support])], yes, no)
 
+PHP_ARG_ENABLE([ort-neon],
+  [whether to enable NEON support],
+  [AS_HELP_STRING([--enable-ort-neon], [Enable NEON support])], no, no)
+
 AS_VAR_IF([PHP_ORT], [no],, [
   dnl Check for ONNX Runtime library using pkg-config
   PKG_CHECK_MODULES([ONNX], [libonnxruntime >= 1.16])
@@ -197,8 +201,49 @@ AS_VAR_IF([PHP_ORT], [no],, [
       ])
     fi
 
+    dnl Check for NEON support (armv8)
+    if test "$PHP_ORT_NEON" != "no"; then
+      AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd], [
+        AC_CHECK_HEADERS([arm_neon.h], [
+          PHP_ORT_BACKEND_CFLAGS="-march=armv8-a+simd"
+          PHP_ORT_BACKEND_LEVEL="NEON"
+          PHP_ORT_BACKEND_IMPL=m4_normalize("
+            $PHP_ORT_BACKEND_DIR/neon/abs.c
+            $PHP_ORT_BACKEND_DIR/neon/add.c
+            $PHP_ORT_BACKEND_DIR/neon/ceil.c
+            $PHP_ORT_BACKEND_DIR/neon/div.c
+            $PHP_ORT_BACKEND_DIR/neon/floor.c
+            $PHP_ORT_BACKEND_DIR/neon/matmul.c
+            $PHP_ORT_BACKEND_DIR/neon/neg.c
+            $PHP_ORT_BACKEND_DIR/neon/recip.c
+            $PHP_ORT_BACKEND_DIR/neon/round.c
+            $PHP_ORT_BACKEND_DIR/neon/sign.c
+            $PHP_ORT_BACKEND_DIR/neon/sub.c
+            $PHP_ORT_BACKEND_DIR/neon/sqrt.c
+            $PHP_ORT_BACKEND_DIR/neon/trunc.c
+            $PHP_ORT_BACKEND_DIR/neon/mul.c
+            $PHP_ORT_BACKEND_DIR/neon/impl.c
+          ")
+        ], [
+          if test "$PHP_ORT_NEON" = "yes"; then
+            AC_MSG_ERROR([NEON headers not found])
+          fi
+        ])
+      ], [
+        if test "$PHP_ORT_NEON" = "yes"; then
+          AC_MSG_ERROR([NEON support requested but not available])
+        fi
+      ])
+    fi
+
     AC_MSG_CHECKING([for backend build])
-    if test "$PHP_ORT_BACKEND_LEVEL" = "AVX2"; then
+    if test "$PHP_ORT_BACKEND_LEVEL" = "NEON"; then
+      AC_DEFINE(ORT_BACKEND_ENABLED, 1,
+        [ort backend optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_NAME, "NEON",[ort backend name])
+      PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
+      AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
+    elif test "$PHP_ORT_BACKEND_LEVEL" = "AVX2"; then
       AC_DEFINE(ORT_BACKEND_ENABLED, 1,
         [ort backend optimizations enabled])
       AC_DEFINE(ORT_BACKEND_NAME, "AVX2", [ort backend name])

@@ -6,6 +6,7 @@ Single-Instruction Multiple Data (SIMD) instructions allow performing operations
 
 By default `php-ort` will attempt to build with the best backend available for your system, selected in this order:
 
+  - NEON
   - AVX2
   - SSE4.1
   - SSE2
@@ -17,6 +18,7 @@ To create a build using specific intrinsics, use (combinations of) the following
   - To disable AVX2:   `--disable-ort-avx2`  (will results in an SSE4.1 default)
   - To disable SSE4.1: `--disable-ort-sse41` (will result in an SSE2 default)
   - To disable SSE2:   `--disable-ort-sse2`  (will result in no intrinsics)
+  - To disable NEON:   `--disable-ort-neon`  (will result in a scalar default on armv8)
 
 For example:
 
@@ -32,6 +34,13 @@ For an SSE2 build:
 ./configure --disable-ort-avx2 --disable-ort-sse41
 ```
 
+For a NEON build:
+
+```
+./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+``
+
+**TODO(krakjoe) this is less than ergonomic**
 
 # SIMD Acceleration Tables
 
@@ -41,6 +50,33 @@ For an SSE2 build:
 - 🟧 = Not yet implemented, but possible and planned (native or efficient workaround exists)
 - ⬛ = Not applicable (mathematically meaningless, e.g. abs(unsigned))
 - 🟥 = Not planned (would require extreme workaround or is not practical)
+
+## NEON Backend
+
+| Operation | float | double | int8_t | int16_t | int32_t | int64_t | uint8_t | uint16_t | uint32_t |
+|-----------|:-----:|:------:|:------:|:-------:|:-------:|:-------:|:-------:|:--------:|:--------:|
+| **add**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **sub**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **mul**   |  🟩   |   🟩   |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |   🟩     |   🟩     |
+| **div**   |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **mod**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   ⬛    |   🟦    |   🟦     |   🟦     |
+| **pow**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   ⬛    |   🟦    |   🟦     |   🟦     |
+| **ceil**  |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **floor** |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **round** |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **abs**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   ⬛    |   ⬛     |   ⬛     |
+| **sqrt**  |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **neg**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   ⬛    |   ⬛     |   ⬛     |
+| **recip** |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **sign**  |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |   ⬛     |   ⬛     |
+| **trunc** |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **dot**   |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **matmul**|  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟦    |   🟩    |   🟩     |   🟩     |
+| **sum**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
+| **min**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
+| **max**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
+| **mean**  |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **softmax**|  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 
 ## AVX2 Backend
 
@@ -62,7 +98,7 @@ For an SSE2 build:
 | **sign**  |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |   ⬛     |   ⬛     |
 | **trunc** |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
 | **dot**   |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
-| **matmul**|  🟩   |   🟩   |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |   🟩     |   🟩     |
+| **matmul**|  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟦    |   🟩    |   🟩     |   🟩     |
 | **sum**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
 | **min**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
 | **max**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |

@@ -46,7 +46,6 @@ and
 
 ```Tensor Tensor\Persistent(string $name, array $shape, Tensor\Generator $generator)```
 
-
 ### Performance Considerations
 
 While generators offer flexibility and efficiency (in some cases where the alternative is a very large static array which is essentially duplicated on construction), they may introduce some overhead due to lazy evaluation. Users should consider performance implications when choosing between using an array initializer or a generator.
