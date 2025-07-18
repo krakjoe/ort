@@ -65,7 +65,7 @@ jobs:
           name: tests-php${{ matrix.php }}-${{ matrix.backend }}
           path: tests/
   BuildCoverallsReport:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-arm64
 
     strategy:
       matrix:
@@ -105,14 +105,8 @@ jobs:
         run: |
           phpize
           case "${{ matrix.backend }}" in
-            avx2)
-              ./configure --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
-              ;;
-            sse41)
-              ./configure --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2
-              ;;
-            sse2)
-              ./configure --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41
+            neon)
+              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
               ;;
             none)
               ./configure --disable-ort-backend

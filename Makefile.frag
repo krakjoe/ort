@@ -2,8 +2,7 @@ ort-test-coverage:
 	CCACHE_DISABLE=1 EXTRA_CFLAGS="-fprofile-arcs -ftest-coverage" TEST_PHP_ARGS="-q" $(MAKE) clean test
 
 ort-test-coverage-lcov: ort-test-coverage
-	lcov --ignore-errors negative                  \
-		 --directory $(top_srcdir)/src             \
+	lcov --directory $(top_srcdir)/src             \
 		 --no-external                             \
 		 --output-file $(top_srcdir)/coverage.info \
 		 -c
