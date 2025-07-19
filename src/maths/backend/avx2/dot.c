@@ -17,67 +17,9 @@
  */
 
 #include "maths/backend/impl.h"
+#include "maths/backend/avx2/util.h"
 
 #include <immintrin.h>  /* AVX/AVX2 */
-
-static zend_always_inline float
-    ort_math_backend_dot_hsum_float(__m256 v) {
-    __m128 low = _mm256_castps256_ps128(v);
-    __m128 high = _mm256_extractf128_ps(v, 1);
-    __m128 sum128 = _mm_add_ps(low, high);
-
-    sum128 = _mm_hadd_ps(sum128, sum128);
-    sum128 = _mm_hadd_ps(sum128, sum128);
-
-    return _mm_cvtss_f32(sum128);
-}
-
-static zend_always_inline double
-    ort_math_backend_dot_hsum_double(__m256d v) {
-    __m128d low = _mm256_castpd256_pd128(v);
-    __m128d high = _mm256_extractf128_pd(v, 1);
-    __m128d sum128 = _mm_add_pd(low, high);
-
-    sum128 = _mm_hadd_pd(sum128, sum128);
-
-    return _mm_cvtsd_f64(sum128);
-}
-
-static zend_always_inline int32_t
-    ort_math_backend_dot_hsum_int32_t(__m256i v) {
-    // Convert to 32-bit to avoid overflow during horizontal sum
-    __m128i low = _mm256_castsi256_si128(v);
-    __m128i high = _mm256_extracti128_si256(v, 1);
-    
-    // Unpack to 32-bit integers to prevent overflow
-    __m256i low_32 = _mm256_cvtepi16_epi32(low);
-    __m256i high_32 = _mm256_cvtepi16_epi32(high);
-    
-    // Add the two 256-bit vectors
-    __m256i sum256 = _mm256_add_epi32(low_32, high_32);
-    
-    // Horizontal sum of 8 32-bit integers
-    __m128i sum_low = _mm256_castsi256_si128(sum256);
-    __m128i sum_high = _mm256_extracti128_si256(sum256, 1);
-    __m128i sum128 = _mm_add_epi32(sum_low, sum_high);
-    
-    sum128 = _mm_hadd_epi32(sum128, sum128);
-    sum128 = _mm_hadd_epi32(sum128, sum128);
-    
-    return _mm_cvtsi128_si32(sum128);
-}
-
-static zend_always_inline int64_t
-    ort_math_backend_dot_hsum_int64_t(__m256i v) {
-    __m128i low = _mm256_castsi256_si128(v);
-    __m128i high = _mm256_extracti128_si256(v, 1);
-    __m128i sum128 = _mm_add_epi32(low, high);
-    
-    sum128 = _mm_hadd_epi32(sum128, sum128);
-    sum128 = _mm_hadd_epi32(sum128, sum128);
-    
-    return (int64_t)_mm_cvtsi128_si32(sum128);
-}
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(dot, float) {
     const float* va = (const float*) a;
@@ -96,7 +38,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, float) {
             __m256 mr = _mm256_mul_ps(ma, mb);
             vsum = _mm256_add_ps(vsum, mr);
         }
-        sum = ort_math_backend_dot_hsum_float(vsum);
+        sum = ort_math_backend_hsum_float(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -123,7 +65,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, double) {
             __m256d mr = _mm256_mul_pd(ma, mb);
             vsum = _mm256_add_pd(vsum, mr);
         }
-        sum = ort_math_backend_dot_hsum_double(vsum);
+        sum = ort_math_backend_hsum_double(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -145,14 +87,12 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int16_t) {
     if (mc > 0) {
         __m256i vsum = _mm256_setzero_si256();
         for (size_t i = 0; i < mc; i += mw) {
-            __m256i ma = _mm256_loadu_si256(
-                (const __m256i*)&va[i]);
-            __m256i mb = _mm256_loadu_si256(
-                (const __m256i*)&vb[i]);
+            __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+            __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
             __m256i mr = _mm256_mullo_epi16(ma, mb);
             vsum = _mm256_add_epi16(vsum, mr);
         }
-        sum = ort_math_backend_dot_hsum_int32_t(vsum);
+        sum = ort_math_backend_hsum_epi16_to_int32(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -181,7 +121,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int32_t) {
             __m256i mr = _mm256_mullo_epi32(ma, mb);
             vsum = _mm256_add_epi32(vsum, mr);
         }
-        sum = ort_math_backend_dot_hsum_int64_t(vsum);
+        sum = ort_math_backend_hsum_int64_t(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -203,14 +143,12 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint16_t) {
     if (mc > 0) {
         __m256i vsum = _mm256_setzero_si256();
         for (size_t i = 0; i < mc; i += mw) {
-            __m256i ma = _mm256_loadu_si256(
-                (const __m256i*)&va[i]);
-            __m256i mb = _mm256_loadu_si256(
-                (const __m256i*)&vb[i]);
+            __m256i ma = _mm256_loadu_si256((const __m256i*)&va[i]);
+            __m256i mb = _mm256_loadu_si256((const __m256i*)&vb[i]);
             __m256i mr = _mm256_mullo_epi16(ma, mb);
             vsum = _mm256_add_epi16(vsum, mr);
         }
-        sum = (uint32_t)ort_math_backend_dot_hsum_int32_t(vsum);
+        sum = (uint32_t)ort_math_backend_hsum_epi16_to_int32(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -239,7 +177,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint32_t) {
             __m256i mr = _mm256_mullo_epi32(ma, mb);
             vsum = _mm256_add_epi32(vsum, mr);
         }
-        sum = (uint64_t)ort_math_backend_dot_hsum_int64_t(vsum);
+        sum = (uint64_t)ort_math_backend_hsum_int64_t(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
