@@ -46,10 +46,10 @@ jobs:
           phpize
           case "${{ matrix.backend }}" in
             neon)
-              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2 --with-ort-onnx
               ;;
             none)
-              ./configure --disable-ort-backend
+              ./configure --disable-ort-backend --with-ort-onnx
               ;;
           esac
           make -j$(nproc)
@@ -106,10 +106,10 @@ jobs:
           phpize
           case "${{ matrix.backend }}" in
             neon)
-              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2 --with-ort-onnx
               ;;
             none)
-              ./configure --disable-ort-backend
+              ./configure --disable-ort-backend --with-ort-onnx
               ;;
           esac
           make -j$(nproc)
