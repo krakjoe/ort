@@ -114,7 +114,8 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     }
 
     // For N-D tensors, check that all batch dimensions are compatible
-    size_t batch_size = 1;
+    // batch_count is the number of independent matrices (outer product of batch dims)
+    size_t batch_count = 1;
     for (size_t i = 0; i < batch_dims; i++) {
         if (matrix_a->shape[i] != matrix_b->shape[i]) {
             php_ort_status_throw(php_ort_status_math_error_ce,
@@ -122,7 +123,7 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
                 i, matrix_a->shape[i], matrix_b->shape[i]);
             return NULL;
         }
-        batch_size *= matrix_a->shape[i];
+        batch_count *= matrix_a->shape[i];
     }
 
     ort_math_promotion_t promotion = ort_math_promotion_perform_binary(&ort_math_promotion_schema_matmul, matrix_a, matrix_b);
@@ -155,7 +156,7 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         (ort_math_matmul_op_func_t)
             ort_math_frontend_get_matmul_func(promoted_type);
 
-    // Prepare pointers for each batch, with type casting if needed (cast all batches up front)
+    // Prepare pointers for each batch, with type casting if needed (cast all matrices up front)
     size_t matrix_size_a = a_rows * a_cols;
     size_t matrix_size_b = b_rows * b_cols;
     size_t matrix_size_result = a_rows * b_cols;
@@ -169,8 +170,8 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     void* tmp_b = NULL;
 
     if (need_cast_a) {
-        tmp_a = ort_alloc(batch_size, matrix_size_a * type_size);
-        for (size_t batch = 0; batch < batch_size; ++batch) {
+        tmp_a = ort_alloc(batch_count, matrix_size_a * type_size);
+        for (size_t batch = 0; batch < batch_count; ++batch) {
             const void* src =
                 (const char*)matrix_a->data +
                     batch * matrix_size_a * php_ort_type_sizeof(matrix_a->type);
@@ -186,8 +187,8 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     }
 
     if (need_cast_b) {
-        tmp_b = ort_alloc(batch_size, matrix_size_b * type_size);
-        for (size_t batch = 0; batch < batch_size; ++batch) {
+        tmp_b = ort_alloc(batch_count, matrix_size_b * type_size);
+        for (size_t batch = 0; batch < batch_count; ++batch) {
             const void* src = 
                 (const char*)matrix_b->data +
                     batch * matrix_size_b * php_ort_type_sizeof(matrix_b->type);
