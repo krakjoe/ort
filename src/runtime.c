@@ -58,8 +58,8 @@ static void php_ort_runtime_destroy(zend_object* zo) {
 }
 
 ZEND_BEGIN_ARG_INFO_EX(php_ort_runtime_construct_arginfo, 0, 0, 1)
-    ZEND_ARG_OBJ_INFO(0, model,   \\ONNX\\Model,   0)
-    ZEND_ARG_OBJ_INFO(0, options, \\ONNX\\Options, 1)
+    ZEND_ARG_OBJ_INFO(0, model,   \\ORT\\Model,   0)
+    ZEND_ARG_OBJ_INFO(0, options, \\ORT\\Options, 1)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(ONNX_Runtime, __construct)
@@ -237,7 +237,7 @@ PHP_MINIT_FUNCTION(ORT_RUNTIME)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "ONNX", "Runtime", php_ort_runtime_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT", "Runtime", php_ort_runtime_methods);
 
     php_ort_runtime_ce = zend_register_internal_class(&ce);
     php_ort_runtime_ce->create_object = php_ort_runtime_create;

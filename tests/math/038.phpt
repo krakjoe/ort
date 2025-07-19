@@ -8,9 +8,9 @@ ort
 
 // Test vector operations that might need vector validation
 try {
-    $non_vector = new ONNX\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ONNX\Tensor::FLOAT);
+    $non_vector = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
     // Try to use operations that might expect vectors
-    $result = ONNX\Math\sqrt($non_vector); // This should work but might trigger validation
+    $result = ORT\Math\sqrt($non_vector); // This should work but might trigger validation
     $data = $result->getData();
     echo "Vector-like operation on matrix: " . $data[0][0] . "\n";
 } catch (Throwable $e) {
@@ -19,10 +19,10 @@ try {
 
 // Test matrix operations that might need matrix validation  
 try {
-    $non_matrix = new ONNX\Tensor\Transient([3], [1, 2, 3], ONNX\Tensor::FLOAT);
-    $matrix = new ONNX\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ONNX\Tensor::FLOAT);
+    $non_matrix = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT);
+    $matrix = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
     // Try matrix multiplication with incompatible shapes
-    $result = ONNX\Math\matmul($non_matrix, $matrix);
+    $result = ORT\Math\matmul($non_matrix, $matrix);
     echo "Unexpected matmul success\n";
 } catch (Throwable $e) {
     echo "Expected matrix validation error: " . get_class($e) . "\n";
@@ -31,9 +31,9 @@ try {
 // Test operations that might use type casting validation
 try {
     // UINT64 is unsupported and should be detected during tensor creation
-    $float_tensor = new ONNX\Tensor\Transient([2], [1.0, 2.0], ONNX\Tensor::FLOAT);
-    $int_tensor = new ONNX\Tensor\Transient([2], [1, 2], ONNX\Tensor::INT32);
-    $result = ONNX\Math\add($int_tensor, $float_tensor);
+    $float_tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+    $int_tensor = new ORT\Tensor\Transient([2], [1, 2], ORT\Tensor::INT32);
+    $result = ORT\Math\add($int_tensor, $float_tensor);
     $data = $result->getData();
     echo "Mixed type operation: " . $data[0] . "\n";
 } catch (Throwable $e) {
@@ -42,9 +42,9 @@ try {
 
 // Test broadcasitng with very specific shapes to trigger compatibility checks
 try {
-    $tensor1 = new ONNX\Tensor\Transient([1, 3, 1], [[[1], [2], [3]]], ONNX\Tensor::FLOAT);
-    $tensor2 = new ONNX\Tensor\Transient([2, 1, 4], [[[1, 2, 3, 4]], [[5, 6, 7, 8]]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\add($tensor1, $tensor2);
+    $tensor1 = new ORT\Tensor\Transient([1, 3, 1], [[[1], [2], [3]]], ORT\Tensor::FLOAT);
+    $tensor2 = new ORT\Tensor\Transient([2, 1, 4], [[[1, 2, 3, 4]], [[5, 6, 7, 8]]], ORT\Tensor::FLOAT);
+    $result = ORT\Math\add($tensor1, $tensor2);
     $data = $result->getData();
     echo "Complex broadcasting success: " . $data[0][0][0] . "\n";
 } catch (Throwable $e) {
@@ -53,9 +53,9 @@ try {
 
 // Test edge case with 0-dimensional (scalar) operations
 try {
-    $scalar = new ONNX\Tensor\Transient([], [5.0], ONNX\Tensor::FLOAT);
-    $vector = new ONNX\Tensor\Transient([3], [1, 2, 3], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\add($scalar, $vector);
+    $scalar = new ORT\Tensor\Transient([], [5.0], ORT\Tensor::FLOAT);
+    $vector = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT);
+    $result = ORT\Math\add($scalar, $vector);
     $data = $result->getData();
     echo "Scalar + vector: " . $data[0] . "\n";
 } catch (Throwable $e) {
@@ -66,7 +66,7 @@ echo "Targeted validation test completed\n";
 ?>
 --EXPECT--
 Vector-like operation on matrix: 1
-Expected matrix validation error: ONNX\Status\Math\Error
+Expected matrix validation error: ORT\Status\Math\Error
 Mixed type operation: 2
 Complex broadcasting success: 2
 Scalar + vector: 6

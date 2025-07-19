@@ -10,8 +10,8 @@ echo "=== Testing SQRT Function ===\n";
 
 // Test 1: Basic functionality
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [4.0, 9.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([2], [4.0, 9.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (abs($data[0] - 2.0) < 0.001 && abs($data[1] - 3.0) < 0.001) {
         echo "PASS: sqrt([4, 9]) = [2, 3]\n";
@@ -24,8 +24,8 @@ try {
 
 // Test 2: Edge case - zero
 try {
-    $tensor = new ONNX\Tensor\Transient([1], [0.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([1], [0.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (abs($data[0] - 0.0) < 0.001) {
         echo "PASS: sqrt(0) = 0\n";
@@ -38,8 +38,8 @@ try {
 
 // Test 3: Edge case - one
 try {
-    $tensor = new ONNX\Tensor\Transient([1], [1.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([1], [1.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (abs($data[0] - 1.0) < 0.001) {
         echo "PASS: sqrt(1) = 1\n";
@@ -52,8 +52,8 @@ try {
 
 // Test 4: Edge case - negative number (should return NaN)
 try {
-    $tensor = new ONNX\Tensor\Transient([1], [-1.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([1], [-1.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (is_nan($data[0])) {
         echo "PASS: sqrt(-1) = NaN\n";
@@ -66,8 +66,8 @@ try {
 
 // Test 5: Different data types
 try {
-    $tensor_double = new ONNX\Tensor\Transient([2], [16.0, 25.0], ONNX\Tensor::DOUBLE);
-    $result = ONNX\Math\sqrt($tensor_double);
+    $tensor_double = new ORT\Tensor\Transient([2], [16.0, 25.0], ORT\Tensor::DOUBLE);
+    $result = ORT\Math\sqrt($tensor_double);
     $data = $result->getData();
     if (abs($data[0] - 4.0) < 0.001 && abs($data[1] - 5.0) < 0.001) {
         echo "PASS: sqrt(DOUBLE) works correctly\n";
@@ -80,8 +80,8 @@ try {
 
 // Test 6: Large numbers
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [10000.0, 1000000.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([2], [10000.0, 1000000.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (abs($data[0] - 100.0) < 0.001 && abs($data[1] - 1000.0) < 0.001) {
         echo "PASS: sqrt(large numbers) works correctly\n";
@@ -94,8 +94,8 @@ try {
 
 // Test 7: Very small numbers
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [0.01, 0.0001], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([2], [0.01, 0.0001], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (abs($data[0] - 0.1) < 0.001 && abs($data[1] - 0.01) < 0.001) {
         echo "PASS: sqrt(small numbers) works correctly\n";
@@ -108,9 +108,9 @@ try {
 
 // Test 8: Return type validation
 try {
-    $tensor = new ONNX\Tensor\Transient([1], [4.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
-    if (get_class($result) === 'ONNX\\Tensor\\Transient') {
+    $tensor = new ORT\Tensor\Transient([1], [4.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
+    if (get_class($result) === 'ORT\\Tensor\\Transient') {
         echo "PASS: sqrt() returns Transient tensor\n";
     } else {
         echo "FAIL: sqrt() returns " . get_class($result) . "\n";

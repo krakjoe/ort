@@ -1,5 +1,5 @@
 --TEST--
-Check ONNX\Math deep testing - error handling and edge cases
+Check ORT\Math deep testing - error handling and edge cases
 --EXTENSIONS--
 ort
 --FILE--
@@ -10,17 +10,17 @@ echo "=== Testing Error Handling ===\n";
 
 // Test 1: Invalid tensor types
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [1.0, 2.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\add($tensor, "invalid_scalar");
+    $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\add($tensor, "invalid_scalar");
     echo "ERROR: Should have thrown exception for invalid scalar\n";
-} catch (ONNX\Status\Math\InvalidType $e) {
+} catch (ORT\Status\Math\InvalidType $e) {
     echo "PASS: add() correctly rejects invalid scalar type\n";
 }
 
 // Test 2: Divide by zero (should work and return INF)
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [1.0, 2.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\divide($tensor, 0.0);
+    $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\divide($tensor, 0.0);
     $data = $result->getData();
     if (is_infinite($data[0]) && is_infinite($data[1])) {
         echo "PASS: divide() by zero returns INF values\n";
@@ -33,8 +33,8 @@ try {
 
 // Test 3: Very small tensors
 try {
-    $tensor = new ONNX\Tensor\Transient([1], [42.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([1], [42.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     echo "PASS: sqrt() handles 1-element tensor\n";
 } catch (Error $e) {
     echo "ERROR: sqrt() failed on 1-element tensor: " . $e->getMessage() . "\n";
@@ -42,8 +42,8 @@ try {
 
 // Test 5: Negative values in sqrt (should work and return NaN)
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [-1.0, 4.0], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($tensor);
+    $tensor = new ORT\Tensor\Transient([2], [-1.0, 4.0], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (is_nan($data[0]) && $data[1] == 2.0) {
         echo "PASS: sqrt() handles negative values correctly (NaN for -1, 2 for 4)\n";
@@ -58,8 +58,8 @@ echo "\n=== Testing Edge Cases ===\n";
 
 // Test 6: Very large numbers
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [1e10, 1e10], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\multiply($tensor, 1e10);
+    $tensor = new ORT\Tensor\Transient([2], [1e10, 1e10], ORT\Tensor::FLOAT);
+    $result = ORT\Math\multiply($tensor, 1e10);
     echo "PASS: multiply() handles large numbers\n";
 } catch (Error $e) {
     echo "ERROR: multiply() failed on large numbers: " . $e->getMessage() . "\n";
@@ -67,8 +67,8 @@ try {
 
 // Test 7: Very small numbers
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [1e-10, 1e-10], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\add($tensor, 1e-10);
+    $tensor = new ORT\Tensor\Transient([2], [1e-10, 1e-10], ORT\Tensor::FLOAT);
+    $result = ORT\Math\add($tensor, 1e-10);
     echo "PASS: add() handles small numbers\n";
 } catch (Error $e) {
     echo "ERROR: add() failed on small numbers: " . $e->getMessage() . "\n";
@@ -76,11 +76,11 @@ try {
 
 // Test 8: Matrix multiplication dimension mismatch
 try {
-    $matrixA = new ONNX\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ONNX\Tensor::FLOAT);
-    $matrixB = new ONNX\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\matmul($matrixA, $matrixB);
+    $matrixA = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT);
+    $matrixB = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
+    $result = ORT\Math\matmul($matrixA, $matrixB);
     echo "ERROR: matmul() should reject dimension mismatch\n";
-} catch (ONNX\Status\Math\Error $e) {
+} catch (ORT\Status\Math\Error $e) {
     echo "PASS: matmul() correctly rejects dimension mismatch\n";
 }
 
@@ -88,8 +88,8 @@ echo "\n=== Testing Data Type Conversions ===\n";
 
 // Test 11: Mixed integer/float operations
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [1, 2], ONNX\Tensor::INT32);
-    $result = ONNX\Math\add($tensor, 3.5);
+    $tensor = new ORT\Tensor\Transient([2], [1, 2], ORT\Tensor::INT32);
+    $result = ORT\Math\add($tensor, 3.5);
     echo "PASS: add() handles INT32 tensor with float scalar\n";
 } catch (Error $e) {
     echo "ERROR: add() failed on mixed types: " . $e->getMessage() . "\n";
@@ -97,8 +97,8 @@ try {
 
 // Test 12: Boolean tensor operations
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\add($tensor, 1);
+    $tensor = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+    $result = ORT\Math\add($tensor, 1);
     echo "PASS: add() handles boolean tensors\n";
 } catch (Error $e) {
     echo "INFO: add() rejects boolean tensors: " . get_class($e) . "\n";
@@ -110,15 +110,15 @@ echo "\n=== Testing Return Value Consistency ===\n";
 $functions = ['add', 'multiply', 'sqrt'];
 foreach ($functions as $func) {
     try {
-        $tensor = new ONNX\Tensor\Transient([2], [1.0, 2.0], ONNX\Tensor::FLOAT);
+        $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
         if ($func === 'add' || $func === 'multiply') {
-            $result = call_user_func("ONNX\\Math\\$func", $tensor, 1.0);
+            $result = call_user_func("ORT\\Math\\$func", $tensor, 1.0);
         } else {
-            $result = call_user_func("ONNX\\Math\\$func", $tensor);
+            $result = call_user_func("ORT\\Math\\$func", $tensor);
         }
         
         $class = get_class($result);
-        if ($class === 'ONNX\\Tensor\\Transient') {
+        if ($class === 'ORT\\Tensor\\Transient') {
             echo "PASS: $func() returns Transient tensor\n";
         } else {
             echo "ERROR: $func() returns $class instead of Transient\n";

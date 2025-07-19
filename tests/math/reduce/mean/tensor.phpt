@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\reduce\tensor\mean: all types, shape, and error handling
+ORT\Math\reduce\tensor\mean: all types, shape, and error handling
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../../fixtures/math.php",
@@ -12,13 +12,13 @@ include sprintf(
 
 // 1. Basic mean for all types (2x3)
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\tensor\mean($a);
+        $result = ORT\Math\reduce\tensor\mean($a);
         echo "PASS: $name mean\n";
         print_result($result);
     } catch (Throwable $e) {

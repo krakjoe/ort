@@ -10,16 +10,16 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$options = new \ONNX\Options();
+$options = new \ORT\Options();
 
 $options->setLogSeverity(
-    \ONNX\Options::LINFO);
+    \ORT\Options::LINFO);
 $options->setLogSeverity(
-    \ONNX\Options::LERROR);
+    \ORT\Options::LERROR);
 $options->setLogSeverity(
-    \ONNX\Options::LWARNING);
+    \ORT\Options::LWARNING);
 $options->setLogSeverity(
-    \ONNX\Options::LFATAL);
+    \ORT\Options::LFATAL);
 
 echo "OK";
 ?>

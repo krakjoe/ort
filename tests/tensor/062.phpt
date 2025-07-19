@@ -1,14 +1,14 @@
 --TEST--
-ONNX\Tensor::transpose
+ORT\Tensor::transpose
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-$tensor = \ONNX\Tensor\Transient::from([
+$tensor = \ORT\Tensor\Transient::from([
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9]
-], \ONNX\Tensor::INT8);
+], \ORT\Tensor::INT8);
 
 var_dump($tensor->getData());
 

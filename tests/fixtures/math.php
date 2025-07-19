@@ -1,5 +1,5 @@
 <?php
-use \ONNX\Tensor;
+use \ORT\Tensor;
 
 function flatten_data($data) {
     if (\is_array($data)) {
@@ -43,31 +43,31 @@ function print_result($result) {
 }
 
 $types = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
-    'INT8'    => ONNX\Tensor::INT8,
-    'INT16'   => ONNX\Tensor::INT16,
-    'INT32'   => ONNX\Tensor::INT32,
-    'INT64'   => ONNX\Tensor::INT64,
-    'UINT8'   => ONNX\Tensor::UINT8,
-    'UINT16'  => ONNX\Tensor::UINT16,
-    'UINT32'  => ONNX\Tensor::UINT32,
-    'BOOL'    => ONNX\Tensor::BOOL,
+    'FLOAT'   => ORT\Tensor::FLOAT,
+    'DOUBLE'  => ORT\Tensor::DOUBLE,
+    'INT8'    => ORT\Tensor::INT8,
+    'INT16'   => ORT\Tensor::INT16,
+    'INT32'   => ORT\Tensor::INT32,
+    'INT64'   => ORT\Tensor::INT64,
+    'UINT8'   => ORT\Tensor::UINT8,
+    'UINT16'  => ORT\Tensor::UINT16,
+    'UINT32'  => ORT\Tensor::UINT32,
+    'BOOL'    => ORT\Tensor::BOOL,
 ];
 
 $signed_types = [
-    'INT8'    => ONNX\Tensor::INT8,
-    'INT16'   => ONNX\Tensor::INT16,
-    'INT32'   => ONNX\Tensor::INT32,
-    'INT64'   => ONNX\Tensor::INT64,
+    'INT8'    => ORT\Tensor::INT8,
+    'INT16'   => ORT\Tensor::INT16,
+    'INT32'   => ORT\Tensor::INT32,
+    'INT64'   => ORT\Tensor::INT64,
 ];
 $unsigned_types = [
-    'UINT8'   => ONNX\Tensor::UINT8,
-    'UINT16'  => ONNX\Tensor::UINT16,
-    'UINT32'  => ONNX\Tensor::UINT32,
+    'UINT8'   => ORT\Tensor::UINT8,
+    'UINT16'  => ORT\Tensor::UINT16,
+    'UINT32'  => ORT\Tensor::UINT32,
 ];
 
 $real = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
+    'FLOAT'   => ORT\Tensor::FLOAT,
+    'DOUBLE'  => ORT\Tensor::DOUBLE,
 ];

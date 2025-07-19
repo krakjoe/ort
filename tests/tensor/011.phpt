@@ -4,11 +4,11 @@ Check Tensor with UINT8 type
 ort
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "uint8_tensor",
     [2, 2],
     [[255, 0], [128, 64]],
-    ONNX\Tensor::UINT8
+    ORT\Tensor::UINT8
 );
 echo "Type: " . $tensor->getTypeName();
 ?>

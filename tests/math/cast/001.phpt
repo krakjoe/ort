@@ -1,13 +1,13 @@
 --TEST--
-ONNX\Math\cast: basic test
+ORT\Math\cast: basic test
 --EXTENSIONS--
 ort
 --ENV--
 ORT_POOL_CORES=12
 --FILE--
 <?php
-use ONNX\Tensor;
-use ONNX\Math;
+use ORT\Tensor;
+use ORT\Math;
 
 include sprintf(
     "%s/../../fixtures/math.php",

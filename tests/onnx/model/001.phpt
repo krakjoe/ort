@@ -11,8 +11,8 @@ include(sprintf(
 --FILE--
 <?php
 try {
-    new ONNX\Model("invalid.file");
-} catch(ONNX\Status\Model\InvalidFile $ex) {
+    new ORT\Model("invalid.file");
+} catch(ORT\Status\Model\InvalidFile $ex) {
     var_dump($ex->getMessage());
 }
 ?>

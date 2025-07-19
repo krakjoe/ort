@@ -129,8 +129,8 @@ void php_ort_math_schema_free(zend_object *zo) {
 
 #define ORT_MATH_UNARY_FUNCTION_IMPL(fname)                    \
     ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                    \
-        php_ort_math_##fname##_arginfo, 0, 1, ONNX\\Tensor, 0) \
-        ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)          \
+        php_ort_math_##fname##_arginfo, 0, 1, ORT\\Tensor, 0) \
+        ZEND_ARG_OBJ_INFO(0, tensor, ORT\\Tensor, 0)          \
     ZEND_END_ARG_INFO()                                        \
     PHP_FUNCTION(fname)                                        \
     {                                                          \
@@ -152,8 +152,8 @@ void php_ort_math_schema_free(zend_object *zo) {
 
 #define ORT_MATH_BINARY_FUNCTION_IMPL(fname)                    \
     ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                     \
-        php_ort_math_##fname##_arginfo, 0, 2, ONNX\\Tensor, 0)  \
-        ZEND_ARG_OBJ_INFO(0, tensor_a, ONNX\\Tensor, 0)         \
+        php_ort_math_##fname##_arginfo, 0, 2, ORT\\Tensor, 0)  \
+        ZEND_ARG_OBJ_INFO(0, tensor_a, ORT\\Tensor, 0)         \
         ZEND_ARG_INFO(0, tensor_b_or_scalar)                    \
     ZEND_END_ARG_INFO()                                         \
     PHP_FUNCTION(fname)                                         \
@@ -197,8 +197,8 @@ void php_ort_math_schema_free(zend_object *zo) {
 #define ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(fname)             \
     ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                        \
             php_ort_math_reduce_tensor_##fname##_arginfo,          \
-                0, 1, ONNX\\Tensor, 0)                             \
-        ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)              \
+                0, 1, ORT\\Tensor, 0)                             \
+        ZEND_ARG_OBJ_INFO(0, tensor, ORT\\Tensor, 0)              \
     ZEND_END_ARG_INFO()                                            \
     PHP_NAMED_FUNCTION(php_ort_math_reduce_tensor_##fname)         \
     {                                                              \
@@ -222,8 +222,8 @@ void php_ort_math_schema_free(zend_object *zo) {
 // Macro for reduction functions (Tensor, axis, keepdims)
 #define ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(fname)               \
     ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                        \
-            php_ort_math_reduce_axis_##fname##_arginfo, 0, 2, ONNX\\Tensor, 0) \
-        ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)              \
+            php_ort_math_reduce_axis_##fname##_arginfo, 0, 2, ORT\\Tensor, 0) \
+        ZEND_ARG_OBJ_INFO(0, tensor, ORT\\Tensor, 0)              \
         ZEND_ARG_TYPE_INFO(0, axis, IS_LONG, 0)                    \
         ZEND_ARG_TYPE_INFO(0, keepdims, _IS_BOOL, 0)               \
     ZEND_END_ARG_INFO()                                            \
@@ -249,7 +249,7 @@ void php_ort_math_schema_free(zend_object *zo) {
             php_ort_tensor_fetch(Z_OBJ_P(return_value));           \
         rv->object = result;                                       \
     }
-/* Mathematical functions in ONNX\Math namespace */
+/* Mathematical functions in ORT\Math namespace */
 
 ORT_MATH_BINARY_FUNCTION_IMPL(add)
 ORT_MATH_BINARY_FUNCTION_IMPL(multiply)
@@ -305,9 +305,9 @@ ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(sum)
 ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(softmax)
 
 /* Dot reduction function */
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ONNX\\Tensor, 0)
-    ZEND_ARG_OBJ_INFO(0, tensor_a, ONNX\\Tensor, 0)
-    ZEND_ARG_OBJ_INFO(0, tensor_b, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ORT\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor_a, ORT\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor_b, ORT\\Tensor, 0)
 ZEND_END_ARG_INFO()
 
 PHP_FUNCTION(dot)
@@ -332,9 +332,9 @@ PHP_FUNCTION(dot)
     rv->object = result;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_matmul_arginfo, 0, 2, ONNX\\Tensor, 0)
-    ZEND_ARG_OBJ_INFO(0, matrix_a, ONNX\\Tensor, 0)
-    ZEND_ARG_OBJ_INFO(0, matrix_b, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_matmul_arginfo, 0, 2, ORT\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, matrix_a, ORT\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, matrix_b, ORT\\Tensor, 0)
 ZEND_END_ARG_INFO()
 
 PHP_FUNCTION(matmul)
@@ -435,9 +435,9 @@ PHP_FUNCTION(scale)
     ort_pool_scale(scale);
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_cast_arginfo, 0, 2, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_cast_arginfo, 0, 2, ORT\\Tensor, 0)
     ZEND_ARG_TYPE_INFO(0, type, IS_LONG, 0)
-    ZEND_ARG_OBJ_INFO(0, tensor, ONNX\\Tensor, 0)
+    ZEND_ARG_OBJ_INFO(0, tensor, ORT\\Tensor, 0)
 ZEND_END_ARG_INFO()
 
 PHP_FUNCTION(cast)
@@ -474,64 +474,64 @@ PHP_FUNCTION(cast)
         iv->object->elements);
 }
 
-/* Function table for ONNX\Math namespace */
+/* Function table for ORT\Math namespace */
 static const zend_function_entry php_ort_math_functions[] = {
-    ZEND_NS_FE("ONNX\\Math", add, php_ort_math_add_arginfo)
-    ZEND_NS_FE("ONNX\\Math", multiply, php_ort_math_multiply_arginfo) 
-    ZEND_NS_FE("ONNX\\Math", subtract, php_ort_math_subtract_arginfo)
-    ZEND_NS_FE("ONNX\\Math", divide, php_ort_math_divide_arginfo)
-    ZEND_NS_FE("ONNX\\Math", sqrt, php_ort_math_sqrt_arginfo)
-    ZEND_NS_FE("ONNX\\Math", sin, php_ort_math_sin_arginfo)
-    ZEND_NS_FE("ONNX\\Math", cos, php_ort_math_cos_arginfo)
-    ZEND_NS_FE("ONNX\\Math", exp, php_ort_math_exp_arginfo)
-    ZEND_NS_FE("ONNX\\Math", log, php_ort_math_log_arginfo)
-    ZEND_NS_FE("ONNX\\Math", matmul, php_ort_math_matmul_arginfo)
-    ZEND_NS_FE("ONNX\\Math", asin, php_ort_math_asin_arginfo)
-    ZEND_NS_FE("ONNX\\Math", acos, php_ort_math_acos_arginfo)
-    ZEND_NS_FE("ONNX\\Math", atan, php_ort_math_atan_arginfo)
-    ZEND_NS_FE("ONNX\\Math", sinh, php_ort_math_sinh_arginfo)
-    ZEND_NS_FE("ONNX\\Math", cosh, php_ort_math_cosh_arginfo)
-    ZEND_NS_FE("ONNX\\Math", tanh, php_ort_math_tanh_arginfo)
-    ZEND_NS_FE("ONNX\\Math", exp2, php_ort_math_exp2_arginfo)
-    ZEND_NS_FE("ONNX\\Math", log2, php_ort_math_log2_arginfo)
-    ZEND_NS_FE("ONNX\\Math", log10, php_ort_math_log10_arginfo)
-    ZEND_NS_FE("ONNX\\Math", cbrt, php_ort_math_cbrt_arginfo)
-    ZEND_NS_FE("ONNX\\Math", ceil, php_ort_math_ceil_arginfo)
-    ZEND_NS_FE("ONNX\\Math", floor, php_ort_math_floor_arginfo)
-    ZEND_NS_FE("ONNX\\Math", round, php_ort_math_round_arginfo)
-    ZEND_NS_FE("ONNX\\Math", sign, php_ort_math_sign_arginfo)
-    ZEND_NS_FE("ONNX\\Math", tan, php_ort_math_tan_arginfo)
-    ZEND_NS_FE("ONNX\\Math", abs, php_ort_math_abs_arginfo)
-    ZEND_NS_FE("ONNX\\Math", pow, php_ort_math_pow_arginfo)
-    ZEND_NS_FE("ONNX\\Math", mod, php_ort_math_mod_arginfo)
+    ZEND_NS_FE("ORT\\Math", add, php_ort_math_add_arginfo)
+    ZEND_NS_FE("ORT\\Math", multiply, php_ort_math_multiply_arginfo) 
+    ZEND_NS_FE("ORT\\Math", subtract, php_ort_math_subtract_arginfo)
+    ZEND_NS_FE("ORT\\Math", divide, php_ort_math_divide_arginfo)
+    ZEND_NS_FE("ORT\\Math", sqrt, php_ort_math_sqrt_arginfo)
+    ZEND_NS_FE("ORT\\Math", sin, php_ort_math_sin_arginfo)
+    ZEND_NS_FE("ORT\\Math", cos, php_ort_math_cos_arginfo)
+    ZEND_NS_FE("ORT\\Math", exp, php_ort_math_exp_arginfo)
+    ZEND_NS_FE("ORT\\Math", log, php_ort_math_log_arginfo)
+    ZEND_NS_FE("ORT\\Math", matmul, php_ort_math_matmul_arginfo)
+    ZEND_NS_FE("ORT\\Math", asin, php_ort_math_asin_arginfo)
+    ZEND_NS_FE("ORT\\Math", acos, php_ort_math_acos_arginfo)
+    ZEND_NS_FE("ORT\\Math", atan, php_ort_math_atan_arginfo)
+    ZEND_NS_FE("ORT\\Math", sinh, php_ort_math_sinh_arginfo)
+    ZEND_NS_FE("ORT\\Math", cosh, php_ort_math_cosh_arginfo)
+    ZEND_NS_FE("ORT\\Math", tanh, php_ort_math_tanh_arginfo)
+    ZEND_NS_FE("ORT\\Math", exp2, php_ort_math_exp2_arginfo)
+    ZEND_NS_FE("ORT\\Math", log2, php_ort_math_log2_arginfo)
+    ZEND_NS_FE("ORT\\Math", log10, php_ort_math_log10_arginfo)
+    ZEND_NS_FE("ORT\\Math", cbrt, php_ort_math_cbrt_arginfo)
+    ZEND_NS_FE("ORT\\Math", ceil, php_ort_math_ceil_arginfo)
+    ZEND_NS_FE("ORT\\Math", floor, php_ort_math_floor_arginfo)
+    ZEND_NS_FE("ORT\\Math", round, php_ort_math_round_arginfo)
+    ZEND_NS_FE("ORT\\Math", sign, php_ort_math_sign_arginfo)
+    ZEND_NS_FE("ORT\\Math", tan, php_ort_math_tan_arginfo)
+    ZEND_NS_FE("ORT\\Math", abs, php_ort_math_abs_arginfo)
+    ZEND_NS_FE("ORT\\Math", pow, php_ort_math_pow_arginfo)
+    ZEND_NS_FE("ORT\\Math", mod, php_ort_math_mod_arginfo)
 
-    ZEND_NS_FE("ONNX\\Math", neg,     php_ort_math_neg_arginfo)
-    ZEND_NS_FE("ONNX\\Math", recip,   php_ort_math_recip_arginfo)
-    ZEND_NS_FE("ONNX\\Math", trunc,   php_ort_math_trunc_arginfo)
+    ZEND_NS_FE("ORT\\Math", neg,     php_ort_math_neg_arginfo)
+    ZEND_NS_FE("ORT\\Math", recip,   php_ort_math_recip_arginfo)
+    ZEND_NS_FE("ORT\\Math", trunc,   php_ort_math_trunc_arginfo)
 
-    ZEND_NS_FE("ONNX\\Math", arccos, php_ort_math_arccos_arginfo)
-    ZEND_NS_FE("ONNX\\Math", arccosh, php_ort_math_arccosh_arginfo)
-    ZEND_NS_FE("ONNX\\Math", arcsin, php_ort_math_arcsin_arginfo)
-    ZEND_NS_FE("ONNX\\Math", arcsinh, php_ort_math_arcsinh_arginfo)
-    ZEND_NS_FE("ONNX\\Math", arctan, php_ort_math_arctan_arginfo)
-    ZEND_NS_FE("ONNX\\Math", arctanh, php_ort_math_arctanh_arginfo)
+    ZEND_NS_FE("ORT\\Math", arccos, php_ort_math_arccos_arginfo)
+    ZEND_NS_FE("ORT\\Math", arccosh, php_ort_math_arccosh_arginfo)
+    ZEND_NS_FE("ORT\\Math", arcsin, php_ort_math_arcsin_arginfo)
+    ZEND_NS_FE("ORT\\Math", arcsinh, php_ort_math_arcsinh_arginfo)
+    ZEND_NS_FE("ORT\\Math", arctan, php_ort_math_arctan_arginfo)
+    ZEND_NS_FE("ORT\\Math", arctanh, php_ort_math_arctanh_arginfo)
 
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", min, php_ort_math_reduce_tensor_min, php_ort_math_reduce_tensor_min_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   min, php_ort_math_reduce_axis_min,   php_ort_math_reduce_axis_min_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", max, php_ort_math_reduce_tensor_max, php_ort_math_reduce_tensor_max_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   max, php_ort_math_reduce_axis_max,   php_ort_math_reduce_axis_max_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", mean, php_ort_math_reduce_tensor_mean, php_ort_math_reduce_tensor_mean_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   mean, php_ort_math_reduce_axis_mean,   php_ort_math_reduce_axis_mean_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\tensor", sum, php_ort_math_reduce_tensor_sum, php_ort_math_reduce_tensor_sum_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   sum, php_ort_math_reduce_axis_sum,   php_ort_math_reduce_axis_sum_arginfo)
-    ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   softmax, php_ort_math_reduce_axis_softmax,   php_ort_math_reduce_axis_softmax_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\tensor", min, php_ort_math_reduce_tensor_min, php_ort_math_reduce_tensor_min_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   min, php_ort_math_reduce_axis_min,   php_ort_math_reduce_axis_min_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\tensor", max, php_ort_math_reduce_tensor_max, php_ort_math_reduce_tensor_max_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   max, php_ort_math_reduce_axis_max,   php_ort_math_reduce_axis_max_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\tensor", mean, php_ort_math_reduce_tensor_mean, php_ort_math_reduce_tensor_mean_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   mean, php_ort_math_reduce_axis_mean,   php_ort_math_reduce_axis_mean_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\tensor", sum, php_ort_math_reduce_tensor_sum, php_ort_math_reduce_tensor_sum_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   sum, php_ort_math_reduce_axis_sum,   php_ort_math_reduce_axis_sum_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   softmax, php_ort_math_reduce_axis_softmax,   php_ort_math_reduce_axis_softmax_arginfo)
 
-    ZEND_NS_FE("ONNX\\Math\\reduce", dot, php_ort_math_dot_arginfo)
+    ZEND_NS_FE("ORT\\Math\\reduce", dot, php_ort_math_dot_arginfo)
 
-    ZEND_NS_FE("ONNX\\Math", backend, php_ort_math_backend_arginfo)
-    ZEND_NS_FE("ONNX\\Math", cores,   php_ort_math_cores_arginfo)
-    ZEND_NS_FE("ONNX\\Math", scale,   php_ort_math_scale_arginfo)
-    ZEND_NS_FE("ONNX\\Math", cast,    php_ort_math_cast_arginfo)
+    ZEND_NS_FE("ORT\\Math", backend, php_ort_math_backend_arginfo)
+    ZEND_NS_FE("ORT\\Math", cores,   php_ort_math_cores_arginfo)
+    ZEND_NS_FE("ORT\\Math", scale,   php_ort_math_scale_arginfo)
+    ZEND_NS_FE("ORT\\Math", cast,    php_ort_math_cast_arginfo)
     ZEND_FE_END
 };
 
@@ -741,7 +741,7 @@ PHP_MINIT_FUNCTION(ORT_MATH)
 
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "ONNX\\Math", "Schema", php_ort_math_schema_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Math", "Schema", php_ort_math_schema_methods);
     php_ort_math_schema_ce = zend_register_internal_class(&ce);
     php_ort_math_schema_ce->create_object = php_ort_math_schema_create;
     php_ort_math_schema_ce->ce_flags |= ZEND_ACC_FINAL;

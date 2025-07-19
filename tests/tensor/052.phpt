@@ -9,33 +9,33 @@ include (\sprintf("%s/../fixtures/skipif.php", dirname(__FILE__)));
 --FILE--
 <?php
 // Test debug info for a standard tensor
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "debug_test_tensor",
     [2, 3],
     [[1, 2, 3], [4, 5, 6]],
-    ONNX\Tensor::INT32
+    ORT\Tensor::INT32
 );
 
 echo "=== Standard Tensor Debug Info ===\n";
 var_dump($tensor);
 
 // Test debug info for a tensor with different type and shape
-$float_tensor = new ONNX\Tensor\Persistent(
+$float_tensor = new ORT\Tensor\Persistent(
     "float_debug_tensor",
     [1, 4],
     [[1.1, 2.2, 3.3, 4.4]],
-    ONNX\Tensor::FLOAT
+    ORT\Tensor::FLOAT
 );
 
 echo "\n=== Float Tensor Debug Info ===\n";
 var_dump($float_tensor);
 
 // Test debug info for a boolean tensor
-$bool_tensor = new ONNX\Tensor\Persistent(
+$bool_tensor = new ORT\Tensor\Persistent(
     "bool_debug_tensor",
     [3],
     [true, false, true],
-    ONNX\Tensor::BOOL
+    ORT\Tensor::BOOL
 );
 
 echo "\n=== Boolean Tensor Debug Info ===\n";
@@ -43,7 +43,7 @@ var_dump($bool_tensor);
 ?>
 --EXPECTF--
 === Standard Tensor Debug Info ===
-object(ONNX\Tensor\Persistent)#%d (%d) {
+object(ORT\Tensor\Persistent)#%d (%d) {
   ["persistent"]=>
   bool(true)
   ["type"]=>
@@ -60,7 +60,7 @@ object(ONNX\Tensor\Persistent)#%d (%d) {
 }
 
 === Float Tensor Debug Info ===
-object(ONNX\Tensor\Persistent)#%d (%d) {
+object(ORT\Tensor\Persistent)#%d (%d) {
   ["persistent"]=>
   bool(true)
   ["type"]=>
@@ -77,7 +77,7 @@ object(ONNX\Tensor\Persistent)#%d (%d) {
 }
 
 === Boolean Tensor Debug Info ===
-object(ONNX\Tensor\Persistent)#%d (%d) {
+object(ORT\Tensor\Persistent)#%d (%d) {
   ["persistent"]=>
   bool(true)
   ["type"]=>

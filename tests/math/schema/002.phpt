@@ -1,8 +1,8 @@
 --TEST--
-ONNX\Math\Schema: getKind
+ORT\Math\Schema: getKind
 --FILE--
 <?php
-use ONNX\Math;
+use ORT\Math;
 
 $schema = new Math\Schema("add");
 

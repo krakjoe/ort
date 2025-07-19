@@ -10,13 +10,13 @@ echo "=== Testing Result Management ===\n";
 
 // Test 1: Basic result creation and memory handling
 try {
-    $tensor_a = new ONNX\Tensor\Persistent("a", [2, 2], [[1, 2], [3, 4]], ONNX\Tensor::FLOAT);
-    $tensor_b = new ONNX\Tensor\Persistent("b", [2, 2], [[1, 1], [1, 1]], ONNX\Tensor::FLOAT);
+    $tensor_a = new ORT\Tensor\Persistent("a", [2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
+    $tensor_b = new ORT\Tensor\Persistent("b", [2, 2], [[1, 1], [1, 1]], ORT\Tensor::FLOAT);
     
     // This should create and properly manage result structures
-    $result = ONNX\Math\add($tensor_a, $tensor_b);
+    $result = ORT\Math\add($tensor_a, $tensor_b);
     
-    if ($result instanceof ONNX\Tensor) {
+    if ($result instanceof ORT\Tensor) {
         echo "PASS: Result properly created as tensor\n";
     } else {
         echo "FAIL: Result is not a tensor: " . gettype($result) . "\n";
@@ -27,16 +27,16 @@ try {
 
 // Test 2: Multiple operations to test memory management
 try {
-    $tensor = new ONNX\Tensor\Persistent("test", [3, 3], [
+    $tensor = new ORT\Tensor\Persistent("test", [3, 3], [
         [1, 2, 3], 
         [4, 5, 6], 
         [7, 8, 9]
-    ], ONNX\Tensor::FLOAT);
+    ], ORT\Tensor::FLOAT);
     
     // Chain operations to test result management
-    $result1 = ONNX\Math\sqrt($tensor);
-    $result2 = ONNX\Math\multiply($result1, $result1);  // Should be close to original
-    $result3 = ONNX\Math\add($result2, $tensor);
+    $result1 = ORT\Math\sqrt($tensor);
+    $result2 = ORT\Math\multiply($result1, $result1);  // Should be close to original
+    $result3 = ORT\Math\add($result2, $tensor);
     
     echo "PASS: Multiple result operations completed\n";
 } catch (Error $e) {
@@ -45,15 +45,15 @@ try {
 
 // Test 3: Test scalar operations result management
 try {
-    $tensor = new ONNX\Tensor\Persistent("scalar_test", [2, 3], [
+    $tensor = new ORT\Tensor\Persistent("scalar_test", [2, 3], [
         [1, 2, 3], 
         [4, 5, 6]
-    ], ONNX\Tensor::FLOAT);
+    ], ORT\Tensor::FLOAT);
     
     // Scalar operations
-    $result1 = ONNX\Math\add($tensor, 10);
-    $result2 = ONNX\Math\multiply($result1, 0.5);
-    $result3 = ONNX\Math\subtract($result2, 5);
+    $result1 = ORT\Math\add($tensor, 10);
+    $result2 = ORT\Math\multiply($result1, 0.5);
+    $result3 = ORT\Math\subtract($result2, 5);
     
     echo "PASS: Scalar operation results managed properly\n";
 } catch (Error $e) {

@@ -7,9 +7,9 @@ ort
 // Test getData behavior with scalar tensors
 try {
     // Create scalar tensors with different data types
-    $float_scalar = new ONNX\Tensor\Transient([], [3.14], ONNX\Tensor::FLOAT);
-    $int_scalar = new ONNX\Tensor\Transient([], [42], ONNX\Tensor::INT64);
-    $bool_scalar = new ONNX\Tensor\Transient([], [true], ONNX\Tensor::BOOL);
+    $float_scalar = new ORT\Tensor\Transient([], [3.14], ORT\Tensor::FLOAT);
+    $int_scalar = new ORT\Tensor\Transient([], [42], ORT\Tensor::INT64);
+    $bool_scalar = new ORT\Tensor\Transient([], [true], ORT\Tensor::BOOL);
     
     // Scalar tensors should return an array with a single element
     $float_data = $float_scalar->getData();
@@ -26,7 +26,7 @@ try {
         // Depth parameter should be invalid for scalar tensors since they have 0 dimensions
         $float_scalar->getData(0, 1);  // Use depth=1 to trigger the exception
         echo "ERROR: Should not accept depth parameter for scalar tensor\n";
-    } catch (ONNX\Status\Tensor\InvalidShape $e) {
+    } catch (ORT\Status\Tensor\InvalidShape $e) {
         echo "PASS: Correctly rejected depth parameter for scalar tensor\n";
     }
     

@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\mod: tensor % scalar, all types, shape, numpy/onnx semantics
+ORT\Math\mod: tensor % scalar, all types, shape, numpy/onnx semantics
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -14,9 +14,9 @@ $values = array_merge(range(-16, -1), [0], range(1, 16));
 $scalars = [-7, -3, -1, 0, 1, 3, 7];
 // tensor % scalar
 foreach (array_merge($real, $signed_types, $unsigned_types) as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
+    $a = new ORT\Tensor\Transient([count($values)], $values, $type);
     foreach ($scalars as $scalar) {
-        $result = ONNX\Math\mod($a, $scalar);
+        $result = ORT\Math\mod($a, $scalar);
         echo "PASS: $name mod tensor % scalar ($scalar)\n";
         print_result($result);
     }

@@ -1,14 +1,18 @@
 # PHP-ORT
 
-A high-performance PHP extension providing tensor mathematics and ONNX Runtime (inference) integration with hybrid parallelism.
+<em>PHP - Oh Really, Tensors?</em>
+
+This extension provides high performance tensor mathematics. It supports a wide range of mathematical operations on tensors, including element-wise computations, reductions, linear algebra functions, and more.
+
+This extension also includes optional integration with Microsoft's ONNX Runtime for efficient model execution.
 
 ## Features
 
 - **High-Performance Mathematics**: SIMD-accelerated operations (AVX2, SSE4.1, SSE2)
 - **Multi-Core Parallelism**: Automatic work distribution across CPU cores
-- **ONNX Integration**: Direct ONNX model loading and inference
 - **Comprehensive Type Support**: 9 data types with automatic promotion
 - **Memory Efficient**: Reference-counted tensors with zero-copy slicing
+- **ONNX Integration**: Optional and Direct ONNX model loading and inference
 
 ## Quick Start
 
@@ -33,12 +37,12 @@ extension=ort.so
 ### Basic Usage
 
 ```php
-use ONNX\Tensor\Transient;
-use ONNX\Math;
+use ORT\Tensor\Transient;
+use ORT\Math;
 
 // Create tensors
-$a = new Transient([1000, 1000], $matrix_data, ONNX\Tensor::FLOAT);
-$b = new Transient([1000, 1000], $matrix_data, ONNX\Tensor::FLOAT);
+$a = new Transient([1000, 1000], $matrix_data, ORT\Tensor::FLOAT);
+$b = new Transient([1000, 1000], $matrix_data, ORT\Tensor::FLOAT);
 
 // High-performance matrix multiplication
 $result = Math\matmul($a, $b);
@@ -60,15 +64,15 @@ $row_sums = Math\reduce\axis\sum($a, 1);
 
 Check your system configuration:
 ```php
-echo "Backend: " . (ONNX\Math\backend() ?: "scalar") . "\n";
-echo "Cores: " . ONNX\Math\cores() . "\n";
+echo "Backend: " . (ORT\Math\backend() ?: "scalar") . "\n";
+echo "Cores: " . ORT\Math\cores() . "\n";
 ```
 
-## API Reference
+## API Reference (not exhaustive)
 
 ### Tensor Types
-- `ONNX\Tensor\Transient` - Temporary tensors
-- `ONNX\Tensor\Persistent` - Named, persistent tensors
+- `ORT\Tensor\Transient` - Temporary tensors
+- `ORT\Tensor\Persistent` - Named, persistent tensors
 
 ### Mathematical Operations
 - **Binary**: `add`, `subtract`, `multiply`, `divide`, `pow`, `mod`
@@ -77,9 +81,9 @@ echo "Cores: " . ONNX\Math\cores() . "\n";
 - **Reduction**: `sum`, `mean`, `min`, `max`, `softmax`
 
 ### ONNX Integration
-- `ONNX\Model` - Load and manage ONNX models
-- `ONNX\Runtime` - Execute model inference
-- `ONNX\Math\cast` - Type conversion between tensor types
+- `ORT\Model` - Load and manage ORT models
+- `ORT\Runtime` - Execute model inference
+- 'ORT\Options' - Inference Options
 
 ## Configuration
 
@@ -87,23 +91,21 @@ echo "Cores: " . ONNX\Math\cores() . "\n";
 - `ORT_POOL_CORES` - Set thread pool size (default: CPU cores)
 
 ### Build Options
-- `--enable-ort-backend` - Enable SIMD optimizations (default: yes)
-- `--disable-ort-avx2` - Disable AVX2, use SSE4.1
-- `--disable-ort-sse41` - Disable SSE4.1, use SSE2
-- `--disable-ort-backend` - Disable all SIMD optimizations
+- `--enable-ort-backend`  - Enable SIMD optimizations (default: yes)
+- `--disable-ort-avx2`    - Disable AVX2, use SSE4.1
+- `--disable-ort-sse41`   - Disable SSE4.1, use SSE2
+- `--enable-ort-neon`     - For armv8 builds (disable all other backends)
+- `--disable-ort-backend` - Disable all SIMD optimizations (default: no)
+- `--with-ort-onnx`       - Link against ONNX Runtime (default: no)
 
 ## Technical Details
 
-See [TECHNICAL.md](TECHNICAL.md) for detailed architecture documentation, including:
-- SIMD implementation details
-- Thread pool architecture
-- Memory management strategies
-- Performance characteristics
+See [docs](docs) for detailed technical documentation.
 
 ## Requirements
 
 - **PHP**: 7.4+ or 8.0+
-- **ONNX Runtime**: 1.16+
+- **ONNX Runtime**: 1.16+ (optional)
 - **Compiler**: GCC 4.8+ or Clang 3.8+
 - **CPU**: x86_64 with SSE2 (AVX2 recommended)
 

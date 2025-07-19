@@ -4,11 +4,11 @@ Check Tensor with FLOAT type
 ort
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "float_tensor",
     [2, 2],
     [[1.5, 2.5], [3.5, 4.5]],
-    ONNX\Tensor::FLOAT
+    ORT\Tensor::FLOAT
 );
 echo "Type: " . $tensor->getType() . "\n";
 echo "Shape: " . implode('x', $tensor->getShape());

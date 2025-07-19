@@ -5,8 +5,8 @@ ort
 --FILE--
 <?php
 try {
-    new ONNX\Tensor\Persistent("not.found");
-} catch(ONNX\Status\Tensor\NotFound) {
+    new ORT\Tensor\Persistent("not.found");
+} catch(ORT\Status\Tensor\NotFound) {
     echo "OK";
 }
 ?>

@@ -8,11 +8,11 @@ include (\sprintf("%s/../fixtures/skipif.php", dirname(__FILE__)));
 ?>
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "test_tensor",
     [2, 3],
     [[1, 2, 3], [4, 5, 6]],
-    ONNX\Tensor::INT32
+    ORT\Tensor::INT32
 );
 
 // Get data starting from depth 0 (full array)

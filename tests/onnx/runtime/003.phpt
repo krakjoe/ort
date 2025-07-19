@@ -10,12 +10,12 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new ONNX\Model("test_model",
+$model = new ORT\Model("test_model",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 
-$runtime = new \ONNX\Runtime($model);
+$runtime = new \ORT\Runtime($model);
 
-$A = new ONNX\Tensor\Persistent(
+$A = new ORT\Tensor\Persistent(
     "A",
     [3, 2, 1],
     [
@@ -23,10 +23,10 @@ $A = new ONNX\Tensor\Persistent(
         [[3.0], [4.0]],
         [[5.0], [6.0]],
     ],
-    ONNX\Tensor::FLOAT
+    ORT\Tensor::FLOAT
 );
 
-$B = new \ONNX\Tensor\Persistent(
+$B = new \ORT\Tensor\Persistent(
     "B",
     [3, 2, 1],
     [
@@ -34,7 +34,7 @@ $B = new \ONNX\Tensor\Persistent(
         [[3.0], [4.0]],
         [[5.0], [6.0]],
     ],
-    ONNX\Tensor::FLOAT
+    ORT\Tensor::FLOAT
 );
 
 $result = $runtime->run([

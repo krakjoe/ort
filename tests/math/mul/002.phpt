@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\multiply: tensor + scalar, all types, shape, numpy/onnx semantics
+ORT\Math\multiply: tensor + scalar, all types, shape, numpy/onnx semantics
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -27,8 +27,8 @@ $types = [
 
 foreach ($types as $name => [$type, $values]) {
     foreach ($scalars as $scalar) {
-        $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
-        $result = ONNX\Math\multiply($a, $scalar);
+        $a = new ORT\Tensor\Transient([count($values)], $values, $type);
+        $result = ORT\Math\multiply($a, $scalar);
         echo "PASS: $name multiply tensor + scalar ($scalar)\n";
         print_result($result);
     }

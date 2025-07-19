@@ -2,12 +2,12 @@
 
 Tensor objects can become quite large, because PHP has a shared nothing architecture this could become a problem.
 
-# ONNX\Tensor Opt-In Persistence
+# ORT\Tensor Opt-In Persistence
 
-`ONNX\Tensor` is an interface implemented by the concrete classes:
+`ORT\Tensor` is an interface implemented by the concrete classes:
 
-  - `ONNX\Tensor\Persistent`
-  - `ONNX\Tensor\Transient`
+  - `ORT\Tensor\Persistent`
+  - `ORT\Tensor\Transient`
 
 A persistent tensor is named upon creation, and will survive the request lifecycle, subsequent requests need only know the name of the tensor to instantiate it.
 
@@ -15,7 +15,7 @@ A transient tensor has no name, may be returned by math operations and is inacce
 
 Many *threads* may work on the same persistent tensor concurrently, the API provides read only views via `Tensor::getSlice`.
 
-# ONNX\Model Persistence
+# ORT\Model Persistence
 
 Models are persistent (they survive the request cycle) and shared among contexts (so far as the current processing model allows[1]).
 

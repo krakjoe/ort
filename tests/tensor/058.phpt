@@ -7,14 +7,14 @@ ort
 // Test scalar tensor operations with math functions
 try {
     // Create scalar tensors
-    $scalar1 = new ONNX\Tensor\Transient([], [4], ONNX\Tensor::FLOAT);
-    $scalar2 = new ONNX\Tensor\Transient([], [2], ONNX\Tensor::FLOAT);
+    $scalar1 = new ORT\Tensor\Transient([], [4], ORT\Tensor::FLOAT);
+    $scalar2 = new ORT\Tensor\Transient([], [2], ORT\Tensor::FLOAT);
     
     // Test basic operations
-    $sum = ONNX\Math\add($scalar1, $scalar2);
-    $diff = ONNX\Math\subtract($scalar1, $scalar2);
-    $prod = ONNX\Math\multiply($scalar1, $scalar2);
-    $quot = ONNX\Math\divide($scalar1, $scalar2);
+    $sum = ORT\Math\add($scalar1, $scalar2);
+    $diff = ORT\Math\subtract($scalar1, $scalar2);
+    $prod = ORT\Math\multiply($scalar1, $scalar2);
+    $quot = ORT\Math\divide($scalar1, $scalar2);
     
     echo "Sum: " . $sum->getData()[0] . "\n";
     echo "Difference: " . $diff->getData()[0] . "\n";
@@ -22,15 +22,15 @@ try {
     echo "Quotient: " . $quot->getData()[0] . "\n";
     
     // Test unary operations
-    $sqrt = ONNX\Math\sqrt($scalar1);
-    $neg = ONNX\Math\neg($scalar1);
+    $sqrt = ORT\Math\sqrt($scalar1);
+    $neg = ORT\Math\neg($scalar1);
     
     echo "Square root: " . $sqrt->getData()[0] . "\n";
     echo "Negation: " . $neg->getData()[0] . "\n";
     
     // Test scalar-tensor broadcasting
-    $vector = new ONNX\Tensor\Transient([3], [1, 2, 3], ONNX\Tensor::FLOAT);
-    $scaled = ONNX\Math\multiply($vector, $scalar2);
+    $vector = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT);
+    $scaled = ORT\Math\multiply($vector, $scalar2);
     
     $scaled_data = $scaled->getData();
     echo "Scaled vector: [" . implode(", ", $scaled_data) . "]\n";

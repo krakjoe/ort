@@ -5,13 +5,13 @@ ort
 --FILE--
 <?php
 try {
-    new \ONNX\Tensor\Persistent(
+    new \ORT\Tensor\Persistent(
         "test_tensor",
         [2, 2],
         [[1, 2], [3, 4]],
         42
     );
-} catch(\ONNX\Status\Tensor\InvalidType $ex) {
+} catch(\ORT\Status\Tensor\InvalidType $ex) {
     var_dump($ex->getMessage());
 }
 ?>

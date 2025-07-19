@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\matmul: matrix x matrix, all types, shape, numpy/onnx semantics, includes large matrix and batched 3D for vectorization
+ORT\Math\matmul: matrix x matrix, all types, shape, numpy/onnx semantics, includes large matrix and batched 3D for vectorization
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -27,9 +27,9 @@ foreach ($types as $name => [$type, $values]) {
     // Build 2D arrays matching the shape
     $a_data = array_map(fn($v) => [$v, $v], $values); // shape [count($values), 2]
     $b_data = [array_values($values), array_values($values)]; // shape [2, count($values)]
-    $a = new ONNX\Tensor\Transient([count($values), 2], $a_data, $type);
-    $b = new ONNX\Tensor\Transient([2, count($values)], $b_data, $type);
-    $result = ONNX\Math\matmul($a, $b);
+    $a = new ORT\Tensor\Transient([count($values), 2], $a_data, $type);
+    $b = new ORT\Tensor\Transient([2, count($values)], $b_data, $type);
+    $result = ORT\Math\matmul($a, $b);
     echo "PASS: $name matmul matrix x matrix\n";
     print_result($result);
 }
@@ -47,9 +47,9 @@ foreach ($types as $name => [$type, $values]) {
     for ($i = 0; $i < 2; $i++) {
         $b_data[] = array_fill(0, $large_size, 2);
     }
-    $a = new ONNX\Tensor\Transient([$large_size, 2], $a_data, $type);
-    $b = new ONNX\Tensor\Transient([2, $large_size], $b_data, $type);
-    $result = ONNX\Math\matmul($a, $b);
+    $a = new ORT\Tensor\Transient([$large_size, 2], $a_data, $type);
+    $b = new ORT\Tensor\Transient([2, $large_size], $b_data, $type);
+    $result = ORT\Math\matmul($a, $b);
     $data = $result->getData();
     $first = $data[0][0];
     $last = $data[$large_size-1][$large_size-1];
@@ -68,9 +68,9 @@ $b_data = [
     [ [1,0], [0,1] ],
     [ [1,0], [0,1] ]
 ];
-$a = new ONNX\Tensor\Transient([2,2,2], $a_data, $real['FLOAT']);
-$b = new ONNX\Tensor\Transient([2,2,2], $b_data, $real['FLOAT']);
-$result = ONNX\Math\matmul($a, $b);
+$a = new ORT\Tensor\Transient([2,2,2], $a_data, $real['FLOAT']);
+$b = new ORT\Tensor\Transient([2,2,2], $b_data, $real['FLOAT']);
+$result = ORT\Math\matmul($a, $b);
 echo "PASS: FLOAT matmul batched 3D\n";
 print_result($result);
 ?>

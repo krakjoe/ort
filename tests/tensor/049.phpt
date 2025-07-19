@@ -9,11 +9,11 @@ include (\sprintf("%s/../fixtures/skipif.php", dirname(__FILE__)));
 --FILE--
 <?php
 // Test with 1D tensor to cover different depth scenarios
-$tensor_1d = new ONNX\Tensor\Persistent(
+$tensor_1d = new ORT\Tensor\Persistent(
     "tensor_1d",
     [5],
     [1, 2, 3, 4, 5],
-    ONNX\Tensor::INT32
+    ORT\Tensor::INT32
 );
 
 // Test getData on 1D tensor with depth 0 (should work)
@@ -21,11 +21,11 @@ $data_1d = $tensor_1d->getData(0, 0);
 var_dump(count($data_1d));
 
 // Test with edge case: small tensor with different starting depths
-$tensor_small = new ONNX\Tensor\Persistent(
+$tensor_small = new ORT\Tensor\Persistent(
     "tensor_small",
     [2, 2],
     [[1, 2], [3, 4]],
-    ONNX\Tensor::INT32
+    ORT\Tensor::INT32
 );
 
 // Test getData starting from depth 1 (should extract sub-arrays)
@@ -33,11 +33,11 @@ $data_depth1 = $tensor_small->getData(0, 1);
 var_dump($data_depth1);
 
 // Test BOOL type with getData to ensure BOOL branch is covered
-$tensor_bool = new ONNX\Tensor\Persistent(
+$tensor_bool = new ORT\Tensor\Persistent(
     "tensor_bool",
     [2, 2],
     [[true, false], [false, true]],
-    ONNX\Tensor::BOOL
+    ORT\Tensor::BOOL
 );
 
 $data_bool = $tensor_bool->getData();

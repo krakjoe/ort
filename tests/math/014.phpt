@@ -11,10 +11,10 @@ echo "=== Testing Error Handling Paths ===\n";
 // Test 1: NULL/empty tensor validation
 try {
     // This should trigger validation error handling
-    $empty_tensor = new ONNX\Tensor\Transient([], [], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($empty_tensor);
+    $empty_tensor = new ORT\Tensor\Transient([], [], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($empty_tensor);
     echo "FAIL: Empty tensor should be rejected\n";
-} catch (ONNX\Status\Tensor\InvalidData $e) {
+} catch (ORT\Status\Tensor\InvalidData $e) {
     echo "PASS: Empty tensor correctly rejected\n";
 } catch (Error $e) {
     echo "PARTIAL: Empty tensor rejected with: " . get_class($e) . "\n";

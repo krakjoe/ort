@@ -1009,7 +1009,7 @@ __php_ort_tensor_transpose_failed:
     return NULL;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_transpose_arginfo, 0, 0, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_transpose_arginfo, 0, 0, ORT\\Tensor, 0)
     ZEND_ARG_TYPE_INFO(0, axis, IS_ARRAY, 1)
 ZEND_END_ARG_INFO()
 
@@ -1225,7 +1225,7 @@ static zend_always_inline ort_tensor_t* php_ort_tensor_slice(ort_tensor_t* input
     return ort->object;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_getSlice_arginfo, 0, 2, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_getSlice_arginfo, 0, 2, ORT\\Tensor, 0)
     ZEND_ARG_TYPE_INFO(0, start, IS_ARRAY, 0)
     ZEND_ARG_TYPE_INFO(0, end,   IS_ARRAY, 0)
     ZEND_ARG_TYPE_INFO(0, axis,  IS_ARRAY, 0)
@@ -1610,7 +1610,7 @@ static zend_bool php_ort_infer_shape(zval *data, size_t *shape, size_t max, size
     return 1;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_from_arginfo, 0, 2, ONNX\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_from_arginfo, 0, 2, ORT\\Tensor, 0)
     ZEND_ARG_TYPE_INFO(0, data, IS_ARRAY, 0)
     ZEND_ARG_TYPE_INFO(0, type, IS_LONG, 0)
 ZEND_END_ARG_INFO()
@@ -1807,17 +1807,17 @@ PHP_MINIT_FUNCTION(ORT_TENSOR)
     php_ort_tensor_handlers.clone_obj = NULL;
 
     // Register the interface
-    INIT_NS_CLASS_ENTRY(ce, "ONNX", "Tensor", php_ort_tensor_interface_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT", "Tensor", php_ort_tensor_interface_methods);
     php_ort_tensor_interface_ce = zend_register_internal_interface(&ce);
 
     // Register persistent tensor class
-    INIT_NS_CLASS_ENTRY(ce, "ONNX\\Tensor", "Persistent", php_ort_tensor_persistent_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Tensor", "Persistent", php_ort_tensor_persistent_methods);
     php_ort_tensor_persistent_ce = zend_register_internal_class(&ce);
     php_ort_tensor_persistent_ce->create_object = php_ort_tensor_create;
     zend_class_implements(php_ort_tensor_persistent_ce, 1, php_ort_tensor_interface_ce);
 
     // Register transient tensor class
-    INIT_NS_CLASS_ENTRY(ce, "ONNX\\Tensor", "Transient", php_ort_tensor_transient_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Tensor", "Transient", php_ort_tensor_transient_methods);
     php_ort_tensor_transient_ce = zend_register_internal_class(&ce);
     php_ort_tensor_transient_ce->create_object = php_ort_tensor_create;
     zend_class_implements(php_ort_tensor_transient_ce, 1, php_ort_tensor_interface_ce);

@@ -11,9 +11,9 @@ try {
     // Test 1: BOOL to INT8 conversion (line 79)
     echo "\n--- Testing BOOL to INT8 ---\n";
     try {
-        $tensor_bool = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-        $tensor_int8 = new ONNX\Tensor\Transient([2], [100, -100], ONNX\Tensor::INT8);
-        $result = ONNX\Math\add($tensor_bool, $tensor_int8);
+        $tensor_bool = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+        $tensor_int8 = new ORT\Tensor\Transient([2], [100, -100], ORT\Tensor::INT8);
+        $result = ORT\Math\add($tensor_bool, $tensor_int8);
         echo "PASS: BOOL + INT8 casting works\n";
     } catch (Exception $e) {
         echo "INFO: BOOL + INT8: " . $e->getMessage() . "\n";
@@ -22,9 +22,9 @@ try {
     // Test 2: BOOL to INT16 conversion (line 80)
     echo "\n--- Testing BOOL to INT16 ---\n";
     try {
-        $tensor_bool = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-        $tensor_int16 = new ONNX\Tensor\Transient([2], [30000, -30000], ONNX\Tensor::INT16);
-        $result = ONNX\Math\add($tensor_bool, $tensor_int16);
+        $tensor_bool = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+        $tensor_int16 = new ORT\Tensor\Transient([2], [30000, -30000], ORT\Tensor::INT16);
+        $result = ORT\Math\add($tensor_bool, $tensor_int16);
         echo "PASS: BOOL + INT16 casting works\n";
     } catch (Exception $e) {
         echo "INFO: BOOL + INT16: " . $e->getMessage() . "\n";
@@ -33,9 +33,9 @@ try {
     // Test 3: BOOL to UINT8 conversion (line 83)
     echo "\n--- Testing BOOL to UINT8 ---\n";
     try {
-        $tensor_bool = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-        $tensor_uint8 = new ONNX\Tensor\Transient([2], [200, 100], ONNX\Tensor::UINT8);
-        $result = ONNX\Math\add($tensor_bool, $tensor_uint8);
+        $tensor_bool = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+        $tensor_uint8 = new ORT\Tensor\Transient([2], [200, 100], ORT\Tensor::UINT8);
+        $result = ORT\Math\add($tensor_bool, $tensor_uint8);
         echo "PASS: BOOL + UINT8 casting works\n";
     } catch (Exception $e) {
         echo "INFO: BOOL + UINT8: " . $e->getMessage() . "\n";
@@ -44,9 +44,9 @@ try {
     // Test 4: BOOL to BOOL conversion (line 87) - same type, should hit fast path
     echo "\n--- Testing BOOL to BOOL (same type) ---\n";
     try {
-        $tensor_bool1 = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-        $tensor_bool2 = new ONNX\Tensor\Transient([2], [false, true], ONNX\Tensor::BOOL);
-        $result = ONNX\Math\add($tensor_bool1, $tensor_bool2);
+        $tensor_bool1 = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+        $tensor_bool2 = new ORT\Tensor\Transient([2], [false, true], ORT\Tensor::BOOL);
+        $result = ORT\Math\add($tensor_bool1, $tensor_bool2);
         echo "PASS: BOOL + BOOL same type works\n";
     } catch (Exception $e) {
         echo "INFO: BOOL + BOOL: " . $e->getMessage() . "\n";
@@ -59,9 +59,9 @@ try {
     
     // DOUBLE to INT8
     try {
-        $tensor_double = new ONNX\Tensor\Transient([2], [123.456, -789.012], ONNX\Tensor::DOUBLE);
-        $tensor_int8 = new ONNX\Tensor\Transient([2], [50, -50], ONNX\Tensor::INT8);
-        $result = ONNX\Math\add($tensor_double, $tensor_int8);
+        $tensor_double = new ORT\Tensor\Transient([2], [123.456, -789.012], ORT\Tensor::DOUBLE);
+        $tensor_int8 = new ORT\Tensor\Transient([2], [50, -50], ORT\Tensor::INT8);
+        $result = ORT\Math\add($tensor_double, $tensor_int8);
         echo "PASS: DOUBLE + INT8 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + INT8: " . $e->getMessage() . "\n";
@@ -69,9 +69,9 @@ try {
     
     // DOUBLE to INT16
     try {
-        $tensor_double = new ONNX\Tensor\Transient([2], [12345.67, -23456.78], ONNX\Tensor::DOUBLE);
-        $tensor_int16 = new ONNX\Tensor\Transient([2], [1000, -1000], ONNX\Tensor::INT16);
-        $result = ONNX\Math\add($tensor_double, $tensor_int16);
+        $tensor_double = new ORT\Tensor\Transient([2], [12345.67, -23456.78], ORT\Tensor::DOUBLE);
+        $tensor_int16 = new ORT\Tensor\Transient([2], [1000, -1000], ORT\Tensor::INT16);
+        $result = ORT\Math\add($tensor_double, $tensor_int16);
         echo "PASS: DOUBLE + INT16 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + INT16: " . $e->getMessage() . "\n";
@@ -79,9 +79,9 @@ try {
     
     // DOUBLE to INT32
     try {
-        $tensor_double = new ONNX\Tensor\Transient([2], [1234567.89, -9876543.21], ONNX\Tensor::DOUBLE);
-        $tensor_int32 = new ONNX\Tensor\Transient([2], [100000, -100000], ONNX\Tensor::INT32);
-        $result = ONNX\Math\add($tensor_double, $tensor_int32);
+        $tensor_double = new ORT\Tensor\Transient([2], [1234567.89, -9876543.21], ORT\Tensor::DOUBLE);
+        $tensor_int32 = new ORT\Tensor\Transient([2], [100000, -100000], ORT\Tensor::INT32);
+        $result = ORT\Math\add($tensor_double, $tensor_int32);
         echo "PASS: DOUBLE + INT32 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + INT32: " . $e->getMessage() . "\n";
@@ -89,9 +89,9 @@ try {
     
     // DOUBLE to UINT8
     try {
-        $tensor_double = new ONNX\Tensor\Transient([2], [100.5, 200.7], ONNX\Tensor::DOUBLE);
-        $tensor_uint8 = new ONNX\Tensor\Transient([2], [10, 20], ONNX\Tensor::UINT8);
-        $result = ONNX\Math\add($tensor_double, $tensor_uint8);
+        $tensor_double = new ORT\Tensor\Transient([2], [100.5, 200.7], ORT\Tensor::DOUBLE);
+        $tensor_uint8 = new ORT\Tensor\Transient([2], [10, 20], ORT\Tensor::UINT8);
+        $result = ORT\Math\add($tensor_double, $tensor_uint8);
         echo "PASS: DOUBLE + UINT8 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + UINT8: " . $e->getMessage() . "\n";
@@ -104,9 +104,9 @@ try {
     
     // Create tensors with extreme values that might trigger edge cases
     try {
-        $tensor_float_inf = new ONNX\Tensor\Transient([2], [INF, -INF], ONNX\Tensor::FLOAT);
-        $tensor_double_nan = new ONNX\Tensor\Transient([2], [NAN, 1.0], ONNX\Tensor::DOUBLE);
-        $result = ONNX\Math\add($tensor_float_inf, $tensor_double_nan);
+        $tensor_float_inf = new ORT\Tensor\Transient([2], [INF, -INF], ORT\Tensor::FLOAT);
+        $tensor_double_nan = new ORT\Tensor\Transient([2], [NAN, 1.0], ORT\Tensor::DOUBLE);
+        $result = ORT\Math\add($tensor_float_inf, $tensor_double_nan);
         echo "PASS: Infinity/NaN handling works\n";
     } catch (Exception $e) {
         echo "INFO: INF/NAN test: " . $e->getMessage() . "\n";
@@ -132,9 +132,9 @@ try {
         foreach ($types_to_test as $type2) {
             if ($type1[0] !== $type2[0]) { // Skip same types for variety
                 try {
-                    $tensor1 = new ONNX\Tensor\Transient([2], $type1[1], constant('ONNX\Tensor::' . $type1[0]));
-                    $tensor2 = new ONNX\Tensor\Transient([2], $type2[1], constant('ONNX\Tensor::' . $type2[0]));
-                    $result = ONNX\Math\add($tensor1, $tensor2);
+                    $tensor1 = new ORT\Tensor\Transient([2], $type1[1], constant('ORT\Tensor::' . $type1[0]));
+                    $tensor2 = new ORT\Tensor\Transient([2], $type2[1], constant('ORT\Tensor::' . $type2[0]));
+                    $result = ORT\Math\add($tensor1, $tensor2);
                     $tested_combinations++;
                     if ($tested_combinations <= 3) { // Don't spam output
                         echo "PASS: {$type1[0]} + {$type2[0]} works\n";

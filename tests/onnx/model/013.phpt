@@ -10,10 +10,10 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new ONNX\Model("test_model",
+$model = new ORT\Model("test_model",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 $iterator = $model->getOutputIterator();
-var_dump($iterator instanceof ONNX\Model\Iterator);
+var_dump($iterator instanceof ORT\Model\Iterator);
 ?>
 --EXPECT--
 bool(true)

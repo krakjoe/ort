@@ -30,14 +30,14 @@ for ($i = 0; $i < $size; $i++) {
     $dataB[] = $rowB;
 }
 
-$a = ONNX\Tensor\Transient::from($dataA, ONNX\Tensor::FLOAT);
-$b = ONNX\Tensor\Transient::from($dataB, ONNX\Tensor::FLOAT);
+$a = ORT\Tensor\Transient::from($dataA, ORT\Tensor::FLOAT);
+$b = ORT\Tensor\Transient::from($dataB, ORT\Tensor::FLOAT);
 
 $php_funcs = [
-    'add' => 'ONNX\\Math\\add',
-    'mul' => 'ONNX\\Math\\multiply',
-    'sub' => 'ONNX\\Math\\subtract',
-    'div' => 'ONNX\\Math\\divide',
+    'add' => 'ORT\\Math\\add',
+    'mul' => 'ORT\\Math\\multiply',
+    'sub' => 'ORT\\Math\\subtract',
+    'div' => 'ORT\\Math\\divide',
 ];
 if (!isset($php_funcs[$func]) || !function_exists($php_funcs[$func])) {
     fwrite(STDERR, "Unknown function: $func\n");
@@ -49,8 +49,8 @@ if (!$as_json) {
         $func,
         $size, $size,
         $size, $size,
-        \ONNX\Math\cores(),
-        \ONNX\Math\backend() ?: 'scalar');
+        \ORT\Math\cores(),
+        \ORT\Math\backend() ?: 'scalar');
 }
 
 $times = [];
@@ -74,7 +74,7 @@ function trimmed_mean(array $arr, int $trim = 1): float {
 $trim = min(1, intdiv($repeat, 4));
 $mean_time = array_sum($times) / count($times);
 $trimmed = trimmed_mean($times, $trim);
-$sum = ONNX\Math\reduce\tensor\sum($result)->getData()[0];
+$sum = ORT\Math\reduce\tensor\sum($result)->getData()[0];
 $ops = $size * $size;
 $mops = $ops / $mean_time / 1e6;
 $trimmed_mops = $ops / $trimmed / 1e6;
@@ -90,8 +90,8 @@ if ($as_json) {
         'mops' => $mops,
         'trimmed_mops' => $trimmed_mops,
         'sum' => $sum,
-        'threads' => function_exists('ONNX\\Math\\cores') ? \ONNX\Math\cores() : -1,
-        'backend' => function_exists('ONNX\\Math\\backend') ? (\ONNX\Math\backend() ?: 'scalar') : 'unknown',
+        'threads' => function_exists('ORT\\Math\\cores') ? \ORT\Math\cores() : -1,
+        'backend' => function_exists('ORT\\Math\\backend') ? (\ORT\Math\backend() ?: 'scalar') : 'unknown',
     ];
     echo json_encode($out, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT) . "\n";
 } else {

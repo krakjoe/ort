@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\reduce\axis\max: all types, axis, keepdims, negative axis, and error handling
+ORT\Math\reduce\axis\max: all types, axis, keepdims, negative axis, and error handling
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../../fixtures/math.php",
@@ -12,13 +12,13 @@ include sprintf(
 
 // 1. Max along axis=0
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\max($a, 0);
+        $result = ORT\Math\reduce\axis\max($a, 0);
         echo "PASS: $name max axis=0\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -28,13 +28,13 @@ foreach ($types as $name => $type) {
 
 // 2. Max along axis=1
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\max($a, 1);
+        $result = ORT\Math\reduce\axis\max($a, 1);
         echo "PASS: $name max axis=1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -44,13 +44,13 @@ foreach ($types as $name => $type) {
 
 // 3. Max along axis=-1 (negative axis, should match axis=1)
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\max($a, -1);
+        $result = ORT\Math\reduce\axis\max($a, -1);
         echo "PASS: $name max axis=-1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -60,13 +60,13 @@ foreach ($types as $name => $type) {
 
 // 4. Max along axis=1, keepdims=true
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\max($a, 1, true);
+        $result = ORT\Math\reduce\axis\max($a, 1, true);
         echo "PASS: $name max axis=1 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -76,8 +76,8 @@ foreach ($types as $name => $type) {
 
 // 5. Error: axis not integer
 try {
-    $a = new ONNX\Tensor\Transient([3], [1,2,3], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\reduce\axis\max($a, 'foo');
+    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT);
+    $result = ORT\Math\reduce\axis\max($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-integer axis: ".$e->getMessage()."\n";
@@ -85,8 +85,8 @@ try {
 
 // 6. Error: axis out of range
 try {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\reduce\axis\max($a, 2);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $result = ORT\Math\reduce\axis\max($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
     echo "PASS: Error on axis out of range: ".$e->getMessage()."\n";

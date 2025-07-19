@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\divide: tensor + scalar, all types, shape, numpy/onnx semantics
+ORT\Math\divide: tensor + scalar, all types, shape, numpy/onnx semantics
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -27,9 +27,9 @@ $types = [
 
 foreach ($types as $name => [$type, $values]) {
     foreach ($scalars as $scalar) {
-        $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
+        $a = new ORT\Tensor\Transient([count($values)], $values, $type);
         try {
-            $result = ONNX\Math\divide($a, $scalar);
+            $result = ORT\Math\divide($a, $scalar);
             echo "PASS: $name divide tensor + scalar ($scalar)\n";
             print_result($result);
         } catch (Throwable $e) {

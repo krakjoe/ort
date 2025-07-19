@@ -1,9 +1,9 @@
 --TEST--
-ONNX\Math\Schema: resolve
+ORT\Math\Schema: resolve
 --FILE--
 <?php
-use ONNX\Math;
-use ONNX\Tensor;
+use ORT\Math;
+use ORT\Tensor;
 
 $schema = new Math\Schema("add");
 

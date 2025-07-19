@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\pow: tensor ** tensor, all types, shape, numpy/onnx semantics
+ORT\Math\pow: tensor ** tensor, all types, shape, numpy/onnx semantics
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -13,9 +13,9 @@ include sprintf(
 $values = array_merge(range(-16, -1), [0], range(1, 16));
 $scalars = [-7, -3, -1, 0, 1, 3, 7];
 foreach (array_merge($real, $signed_types, $unsigned_types) as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
-    $b = new ONNX\Tensor\Transient([count($values)], $values, $type);
-    $result = ONNX\Math\pow($a, $b);
+    $a = new ORT\Tensor\Transient([count($values)], $values, $type);
+    $b = new ORT\Tensor\Transient([count($values)], $values, $type);
+    $result = ORT\Math\pow($a, $b);
     echo "PASS: $name pow tensor ** tensor\n";
     print_result($result);
 }

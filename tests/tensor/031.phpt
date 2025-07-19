@@ -4,11 +4,11 @@ Check Tensor handles overflow gracefully (int16)
 ort
 --FILE--
 <?php
-$tensor = new \ONNX\Tensor\Persistent(
+$tensor = new \ORT\Tensor\Persistent(
     "test_tensor",
     [2, 2],
     [[32767, 32768], [32769, 32770]],
-    \ONNX\Tensor::INT16
+    \ORT\Tensor::INT16
 );
 
 var_dump($tensor->getData());

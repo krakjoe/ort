@@ -8,9 +8,9 @@ echo "=== Testing Boolean Tensor Operations ===\n";
 
 // Test 1: Boolean tensor addition (logical OR)
 try {
-    $tensor_a = new ONNX\Tensor\Transient([2, 2], [[true, false], [false, true]], ONNX\Tensor::BOOL);
-    $tensor_b = new ONNX\Tensor\Transient([2, 2], [[false, true], [true, false]], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\add($tensor_a, $tensor_b);
+    $tensor_a = new ORT\Tensor\Transient([2, 2], [[true, false], [false, true]], ORT\Tensor::BOOL);
+    $tensor_b = new ORT\Tensor\Transient([2, 2], [[false, true], [true, false]], ORT\Tensor::BOOL);
+    $result = ORT\Math\add($tensor_a, $tensor_b);
     $data = $result->getData();
     // OR: [true||false, false||true], [false||true, true||false] = [true, true], [true, true]
     // getData returns structured array, so we need to flatten it or access correctly
@@ -25,9 +25,9 @@ try {
 
 // Test 3: Boolean tensor multiplication (logical AND)
 try {
-    $tensor_a = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $tensor_b = new ONNX\Tensor\Transient([2], [true, true], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\multiply($tensor_a, $tensor_b);
+    $tensor_a = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+    $tensor_b = new ORT\Tensor\Transient([2], [true, true], ORT\Tensor::BOOL);
+    $result = ORT\Math\multiply($tensor_a, $tensor_b);
     $data = $result->getData();
     // AND: [true && true, false && true] = [true, false]
     if ($data[0] === true && $data[1] === false) {
@@ -41,8 +41,8 @@ try {
 
 // Test 5: Boolean scalar operations - addition (using 0/1 for false/true)
 try {
-    $tensor = new ONNX\Tensor\Transient([3], [true, false, true], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\add($tensor, 0); // 0 = false
+    $tensor = new ORT\Tensor\Transient([3], [true, false, true], ORT\Tensor::BOOL);
+    $result = ORT\Math\add($tensor, 0); // 0 = false
     $data = $result->getData();
     // OR with false: [true||false, false||false, true||false] = [true, false, true]
     if ($data[0] === true && $data[1] === false && $data[2] === true) {
@@ -56,8 +56,8 @@ try {
 
 // Test 7: Boolean scalar multiplication
 try {
-    $tensor = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\multiply($tensor, 1); // 1 = true
+    $tensor = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+    $result = ORT\Math\multiply($tensor, 1); // 1 = true
     $data = $result->getData();
     // AND: [true && true, false && true] = [true, false]
     if ($data[0] === true && $data[1] === false) {

@@ -10,10 +10,10 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new \ONNX\Model("test_model",
+$model = new \ORT\Model("test_model",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 $runtime = 
-    new \ONNX\Runtime($model);
+    new \ORT\Runtime($model);
 echo "OK";
 ?>
 --EXPECT--

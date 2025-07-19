@@ -7,10 +7,10 @@ ort
 // Test creating a scalar tensor with empty shape array
 try {
     // Create a scalar tensor with a single value
-    $scalar = new ONNX\Tensor\Transient(
+    $scalar = new ORT\Tensor\Transient(
         [],  // Empty shape array indicates a scalar
         [5], // Single value in data array
-        ONNX\Tensor::FLOAT
+        ORT\Tensor::FLOAT
     );
     
     // Verify properties
@@ -24,14 +24,14 @@ try {
     echo "Is scalar: " . (count($shape) === 0 ? "Yes" : "No") . "\n";
     
     // Also test with different data types
-    $int_scalar = new ONNX\Tensor\Transient([], [42], ONNX\Tensor::INT64);
-    $bool_scalar = new ONNX\Tensor\Transient([], [true], ONNX\Tensor::BOOL);
+    $int_scalar = new ORT\Tensor\Transient([], [42], ORT\Tensor::INT64);
+    $bool_scalar = new ORT\Tensor\Transient([], [true], ORT\Tensor::BOOL);
     
     echo "Int scalar value: " . $int_scalar->getData()[0] . "\n";
     echo "Bool scalar value: " . ($bool_scalar->getData()[0] ? "true" : "false") . "\n";
     
     // Test persistent scalar tensor
-    $persistent = new ONNX\Tensor\Persistent("scalar_test", [], [3.14], ONNX\Tensor::DOUBLE);
+    $persistent = new ORT\Tensor\Persistent("scalar_test", [], [3.14], ORT\Tensor::DOUBLE);
     echo "Persistent scalar value: " . $persistent->getData()[0] . "\n";
     
     echo "OK";

@@ -1,26 +1,26 @@
 --TEST--
-ONNX\Math\reduce\tensor\sum: all types, shape, and error handling
+ORT\Math\reduce\tensor\sum: all types, shape, and error handling
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 $types = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
-    'INT8'    => ONNX\Tensor::INT8,
-    'INT16'   => ONNX\Tensor::INT16,
-    'INT32'   => ONNX\Tensor::INT32,
-    'INT64'   => ONNX\Tensor::INT64,
+    'FLOAT'   => ORT\Tensor::FLOAT,
+    'DOUBLE'  => ORT\Tensor::DOUBLE,
+    'INT8'    => ORT\Tensor::INT8,
+    'INT16'   => ORT\Tensor::INT16,
+    'INT32'   => ORT\Tensor::INT32,
+    'INT64'   => ORT\Tensor::INT64,
     /* compliance, sum(unsigned) -> uint64
         we don't support uint64, so cannot
         support these operations with numpy semantics
-    'UINT8'   => ONNX\Tensor::UINT8,
-    'UINT16'  => ONNX\Tensor::UINT16,
-    'UINT32'  => ONNX\Tensor::UINT32,
+    'UINT8'   => ORT\Tensor::UINT8,
+    'UINT16'  => ORT\Tensor::UINT16,
+    'UINT32'  => ORT\Tensor::UINT32,
     */
-    'BOOL'    => ONNX\Tensor::BOOL,
+    'BOOL'    => ORT\Tensor::BOOL,
 ];
 
 function print_result($result) {
@@ -35,13 +35,13 @@ function print_result($result) {
 
 // 1. Basic sum for all types (2x3)
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\tensor\sum($a);
+        $result = ORT\Math\reduce\tensor\sum($a);
         echo "PASS: $name sum\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -51,8 +51,8 @@ foreach ($types as $name => $type) {
 
 // 2. Error: empty tensor
 try {
-    $a = new ONNX\Tensor\Transient([0], [], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\reduce\tensor\sum($a);
+    $a = new ORT\Tensor\Transient([0], [], ORT\Tensor::FLOAT);
+    $result = ORT\Math\reduce\tensor\sum($a);
     echo "FAIL: Did not throw on empty tensor\n";
 } catch (Throwable $e) {
     echo "PASS: Error on empty tensor: ".$e->getMessage()."\n";
@@ -60,8 +60,8 @@ try {
 
 // 3. Error: bool sum with non-binary values
 try {
-    $a = new ONNX\Tensor\Transient([2,2], [[1,2],[3,4]], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\reduce\tensor\sum($a);
+    $a = new ORT\Tensor\Transient([2,2], [[1,2],[3,4]], ORT\Tensor::BOOL);
+    $result = ORT\Math\reduce\tensor\sum($a);
     echo "FAIL: Did not throw on non-binary bool tensor\n";
 } catch (Throwable $e) {
     echo "PASS: Error on non-binary bool tensor: ".$e->getMessage()."\n";

@@ -10,7 +10,7 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new ONNX\Model("test_model",
+$model = new ORT\Model("test_model",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 $domain = $model->getMeta("domain");
 var_dump(is_string($domain) || is_null($domain));

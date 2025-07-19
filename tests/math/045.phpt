@@ -15,9 +15,9 @@ try {
     
     // Test 1: INT8 + UINT8 (both integers, no floats)
     try {
-        $tensor_int8 = new ONNX\Tensor\Transient([2], [100, -50], ONNX\Tensor::INT8);
-        $tensor_uint8 = new ONNX\Tensor\Transient([2], [200, 150], ONNX\Tensor::UINT8);
-        $result = ONNX\Math\add($tensor_int8, $tensor_uint8);
+        $tensor_int8 = new ORT\Tensor\Transient([2], [100, -50], ORT\Tensor::INT8);
+        $tensor_uint8 = new ORT\Tensor\Transient([2], [200, 150], ORT\Tensor::UINT8);
+        $result = ORT\Math\add($tensor_int8, $tensor_uint8);
         echo "PASS: INT8 + UINT8 mixed integer promotion works\n";
         
         // Check result type should be INT64
@@ -29,9 +29,9 @@ try {
     
     // Test 2: UINT8 + INT16 (reverse order)
     try {
-        $tensor_uint8 = new ONNX\Tensor\Transient([2], [255, 100], ONNX\Tensor::UINT8);
-        $tensor_int16 = new ONNX\Tensor\Transient([2], [1000, -1000], ONNX\Tensor::INT16);
-        $result = ONNX\Math\add($tensor_uint8, $tensor_int16);
+        $tensor_uint8 = new ORT\Tensor\Transient([2], [255, 100], ORT\Tensor::UINT8);
+        $tensor_int16 = new ORT\Tensor\Transient([2], [1000, -1000], ORT\Tensor::INT16);
+        $result = ORT\Math\add($tensor_uint8, $tensor_int16);
         echo "PASS: UINT8 + INT16 mixed integer promotion works\n";
         
         $data = $result->getData();
@@ -42,9 +42,9 @@ try {
     
     // Test 3: INT32 + UINT16 
     try {
-        $tensor_int32 = new ONNX\Tensor\Transient([2], [1000000, -500000], ONNX\Tensor::INT32);
-        $tensor_uint16 = new ONNX\Tensor\Transient([2], [50000, 30000], ONNX\Tensor::UINT16);
-        $result = ONNX\Math\add($tensor_int32, $tensor_uint16);
+        $tensor_int32 = new ORT\Tensor\Transient([2], [1000000, -500000], ORT\Tensor::INT32);
+        $tensor_uint16 = new ORT\Tensor\Transient([2], [50000, 30000], ORT\Tensor::UINT16);
+        $result = ORT\Math\add($tensor_int32, $tensor_uint16);
         echo "PASS: INT32 + UINT16 mixed integer promotion works\n";
         
         $data = $result->getData();
@@ -55,9 +55,9 @@ try {
     
     // Test 4: UINT32 + INT8 (large unsigned + small signed)
     try {
-        $tensor_uint32 = new ONNX\Tensor\Transient([2], [3000000000, 1000000000], ONNX\Tensor::UINT32);
-        $tensor_int8 = new ONNX\Tensor\Transient([2], [50, -50], ONNX\Tensor::INT8);
-        $result = ONNX\Math\add($tensor_uint32, $tensor_int8);
+        $tensor_uint32 = new ORT\Tensor\Transient([2], [3000000000, 1000000000], ORT\Tensor::UINT32);
+        $tensor_int8 = new ORT\Tensor\Transient([2], [50, -50], ORT\Tensor::INT8);
+        $result = ORT\Math\add($tensor_uint32, $tensor_int8);
         echo "PASS: UINT32 + INT8 mixed integer promotion works\n";
         
         $data = $result->getData();
@@ -68,16 +68,16 @@ try {
     
     // Test 5: Multiple combinations to ensure we hit both directions of the conditional
     $signed_types = [
-        ['INT8', [100, -100], 'ONNX\Tensor::INT8'],
-        ['INT16', [30000, -30000], 'ONNX\Tensor::INT16'],
-        ['INT32', [2000000000, -1000000000], 'ONNX\Tensor::INT32'],
-        ['INT64', [9000000000000, -5000000000000], 'ONNX\Tensor::INT64']
+        ['INT8', [100, -100], 'ORT\Tensor::INT8'],
+        ['INT16', [30000, -30000], 'ORT\Tensor::INT16'],
+        ['INT32', [2000000000, -1000000000], 'ORT\Tensor::INT32'],
+        ['INT64', [9000000000000, -5000000000000], 'ORT\Tensor::INT64']
     ];
     
     $unsigned_types = [
-        ['UINT8', [255, 100], 'ONNX\Tensor::UINT8'],
-        ['UINT16', [65000, 30000], 'ONNX\Tensor::UINT16'],
-        ['UINT32', [4000000000, 2000000000], 'ONNX\Tensor::UINT32']
+        ['UINT8', [255, 100], 'ORT\Tensor::UINT8'],
+        ['UINT16', [65000, 30000], 'ORT\Tensor::UINT16'],
+        ['UINT32', [4000000000, 2000000000], 'ORT\Tensor::UINT32']
     ];
     
     echo "\n--- Comprehensive Mixed Integer Combinations ---\n";
@@ -86,9 +86,9 @@ try {
     foreach ($signed_types as $signed) {
         foreach ($unsigned_types as $unsigned) {
             try {
-                $tensor_signed = new ONNX\Tensor\Transient([2], $signed[1], constant($signed[2]));
-                $tensor_unsigned = new ONNX\Tensor\Transient([2], $unsigned[1], constant($unsigned[2]));
-                $result = ONNX\Math\add($tensor_signed, $tensor_unsigned);
+                $tensor_signed = new ORT\Tensor\Transient([2], $signed[1], constant($signed[2]));
+                $tensor_unsigned = new ORT\Tensor\Transient([2], $unsigned[1], constant($unsigned[2]));
+                $result = ORT\Math\add($tensor_signed, $tensor_unsigned);
                 $tested++;
                 if ($tested <= 3) { // Don't spam output
                     echo "PASS: {$signed[0]} + {$unsigned[0]} -> INT64\n";

@@ -143,7 +143,7 @@ PHP_MINIT_FUNCTION(ORT_ITERATOR)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "ONNX\\Model", "Iterator", php_ort_model_iterator_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Model", "Iterator", php_ort_model_iterator_methods);
 
     php_ort_model_iterator_ce = zend_register_internal_class(&ce);
     php_ort_model_iterator_ce->create_object = php_ort_model_iterator_create;

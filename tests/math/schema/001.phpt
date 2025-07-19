@@ -1,8 +1,8 @@
 --TEST--
-ONNX\Math\Schema: test constructor
+ORT\Math\Schema: test constructor
 --FILE--
 <?php
-use ONNX\Math;
+use ORT\Math;
 
 foreach ([
     "abs",

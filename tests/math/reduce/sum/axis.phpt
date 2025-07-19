@@ -1,26 +1,26 @@
 --TEST--
-ONNX\Math\reduce\axis\sum: all types, axis, keepdims, negative axis, and error handling
+ORT\Math\reduce\axis\sum: all types, axis, keepdims, negative axis, and error handling
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 $types = [
-    'FLOAT'   => ONNX\Tensor::FLOAT,
-    'DOUBLE'  => ONNX\Tensor::DOUBLE,
-    'INT8'    => ONNX\Tensor::INT8,
-    'INT16'   => ONNX\Tensor::INT16,
-    'INT32'   => ONNX\Tensor::INT32,
-    'INT64'   => ONNX\Tensor::INT64,
+    'FLOAT'   => ORT\Tensor::FLOAT,
+    'DOUBLE'  => ORT\Tensor::DOUBLE,
+    'INT8'    => ORT\Tensor::INT8,
+    'INT16'   => ORT\Tensor::INT16,
+    'INT32'   => ORT\Tensor::INT32,
+    'INT64'   => ORT\Tensor::INT64,
     /* compliance, sum(unsigned) -> uint64
         we don't support uint64, so cannot
         support these operations with numpy semantics
-    'UINT8'   => ONNX\Tensor::UINT8,
-    'UINT16'  => ONNX\Tensor::UINT16,
-    'UINT32'  => ONNX\Tensor::UINT32,
+    'UINT8'   => ORT\Tensor::UINT8,
+    'UINT16'  => ORT\Tensor::UINT16,
+    'UINT32'  => ORT\Tensor::UINT32,
     */
-    'BOOL'    => ONNX\Tensor::BOOL,
+    'BOOL'    => ORT\Tensor::BOOL,
 ];
 
 function print_result($result) {
@@ -35,13 +35,13 @@ function print_result($result) {
 
 // 1. Axis=0, keepdims=0
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\sum($a, 0, false);
+        $result = ORT\Math\reduce\axis\sum($a, 0, false);
         echo "PASS: $name sum axis=0\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -51,13 +51,13 @@ foreach ($types as $name => $type) {
 
 // 2. Axis=1, keepdims=0
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\sum($a, 1, false);
+        $result = ORT\Math\reduce\axis\sum($a, 1, false);
         echo "PASS: $name sum axis=1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -67,13 +67,13 @@ foreach ($types as $name => $type) {
 
 // 3. Axis=0, keepdims=1
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\sum($a, 0, true);
+        $result = ORT\Math\reduce\axis\sum($a, 0, true);
         echo "PASS: $name sum axis=0 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -83,13 +83,13 @@ foreach ($types as $name => $type) {
 
 // 4. Axis=1, keepdims=1
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\sum($a, 1, true);
+        $result = ORT\Math\reduce\axis\sum($a, 1, true);
         echo "PASS: $name sum axis=1 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -99,13 +99,13 @@ foreach ($types as $name => $type) {
 
 // 5. Axis=-1 (last axis), keepdims=0
 foreach ($types as $name => $type) {
-    if ($type === ONNX\Tensor::BOOL) {
-        $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
+    if ($type === ORT\Tensor::BOOL) {
+        $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], $type);
     } else {
-        $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+        $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     }
     try {
-        $result = ONNX\Math\reduce\axis\sum($a, -1, false);
+        $result = ORT\Math\reduce\axis\sum($a, -1, false);
         echo "PASS: $name sum axis=-1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -115,8 +115,8 @@ foreach ($types as $name => $type) {
 
 // 6. Error: invalid axis
 try {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\reduce\axis\sum($a, 2, false);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $result = ORT\Math\reduce\axis\sum($a, 2, false);
     echo "FAIL: Did not throw on invalid axis\n";
 } catch (Throwable $e) {
     echo "PASS: Error on invalid axis: ".$e->getMessage()."\n";

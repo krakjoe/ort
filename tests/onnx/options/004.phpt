@@ -10,7 +10,7 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$options = new \ONNX\Options();
+$options = new \ORT\Options();
 
 $options->setLogId("\0");
 $options->setLogId("");

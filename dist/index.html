@@ -465,11 +465,11 @@
                 <div class="demo-container">
                     <div class="code"><span class="php-tag">&lt;?php</span>
 <span class="comment">// Now this is possible in PHP:</span>
-<span class="keyword">use</span> <span class="class">ONNX\Tensor\Transient</span>;
-<span class="keyword">use</span> <span class="class">ONNX\Math</span>;
+<span class="keyword">use</span> <span class="class">ORT\Tensor\Transient</span>;
+<span class="keyword">use</span> <span class="class">ORT\Math</span>;
 
 <span class="comment">// High-performance tensor operations</span>
-<span class="variable">$image</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">224</span>, <span class="number">224</span>, <span class="number">3</span>], <span class="variable">$pixel_data</span>, <span class="class">ONNX\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$image</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">224</span>, <span class="number">224</span>, <span class="number">3</span>], <span class="variable">$pixel_data</span>, <span class="class">ORT\Tensor</span>::<span class="keyword">FLOAT</span>);
 <span class="variable">$features</span> <span class="operator">=</span> <span class="class">Math</span>\<span class="function">matmul</span>(<span class="variable">$weights</span>, <span class="variable">$image</span>);
 
 <span class="comment">// ML inference in your web application</span>
@@ -535,13 +535,13 @@
                         <strong>PHP API Layer</strong> - Clean, intuitive interface
                     </div>
                     <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #27ae60; border-radius: 4px;">
-                        <strong>Mathematics Layer</strong> - Comprehensive maths library supporting 9 data types: real, double, int8 - int64, uint8 - uiint32
+                        <strong>Frontend</strong> - Comprehensive maths library supporting 9 data types: real, double, int8 - int64, uint8 - uiint32
                     </div>
                     <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #f39c12; border-radius: 4px;">
-                        <strong>SIMD Backend</strong> - NEON, AVX2, SSE4.1, SSE2
+                        <strong>Backend</strong> - NEON, AVX2, SSE4.1, SSE2
                     </div>
                     <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #e74c3c; border-radius: 4px;">
-                        <strong>Extension Core</strong> - ONNX Runtime integration with proper resource management
+                        <strong>Extension Core</strong> - Core stuff 
                     </div>
                 </div>
 
@@ -584,8 +584,8 @@ extension=ort.so
                 <div class="demo-container">
                     <div class="code"><span class="php-tag">&lt;?php</span>
 <span class="comment">// Check your system capabilities</span>
-<span class="keyword">echo</span> <span class="string">"Backend: "</span> <span class="operator">.</span> (<span class="class">ONNX\Math</span>\<span class="function">backend</span>() <span class="operator">?:</span> <span class="string">"scalar"</span>) <span class="operator">.</span> <span class="string">"\n"</span>;
-<span class="keyword">echo</span> <span class="string">"Cores: "</span> <span class="operator">.</span> <span class="class">ONNX\Math</span>\<span class="function">cores</span>() <span class="operator">.</span> <span class="string">"\n"</span>;
+<span class="keyword">echo</span> <span class="string">"Backend: "</span> <span class="operator">.</span> (<span class="class">ORT\Math</span>\<span class="function">backend</span>() <span class="operator">?:</span> <span class="string">"scalar"</span>) <span class="operator">.</span> <span class="string">"\n"</span>;
+<span class="keyword">echo</span> <span class="string">"Cores: "</span> <span class="operator">.</span> <span class="class">ORT\Math</span>\<span class="function">cores</span>() <span class="operator">.</span> <span class="string">"\n"</span>;
 </div>
                 </div>
 
@@ -750,8 +750,8 @@ extension=ort.so
             const output = document.getElementById('demo-output');
             output.innerHTML = `<span class="php-tag">&lt;?php</span>
 <span class="comment">// Matrix multiplication demo</span>
-<span class="variable">$a</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_a</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
-<span class="variable">$b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_b</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$a</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_a</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_b</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
 
 <span class="variable">$start</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>);
 <span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">matmul</span>(<span class="variable">$a</span>, <span class="variable">$b</span>);
@@ -771,7 +771,7 @@ extension=ort.so
             const output = document.getElementById('demo-output');
             output.innerHTML = `<span class="php-tag">&lt;?php</span>
 <span class="comment">// SIMD vectorization demo</span>
-<span class="variable">$large_array</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000000</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$large_array</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000000</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
 <span class="variable">$scalar</span> <span class="operator">=</span> <span class="number">2.5</span>;
 
 <span class="variable">$start</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>);
@@ -792,7 +792,7 @@ extension=ort.so
             const output = document.getElementById('demo-output');
             output.innerHTML = `<span class="php-tag">&lt;?php</span>
 <span class="comment">// Thread pool demonstration</span>
-<span class="variable">$big_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">10000</span>, <span class="number">10000</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$big_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">10000</span>, <span class="number">10000</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
 
 <span class="keyword">echo</span> <span class="string">"Available cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>();
 <span class="keyword">echo</span> <span class="string">"Max cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>(<span class="keyword">true</span>);
@@ -818,15 +818,15 @@ extension=ort.so
 <span class="comment">// Type promotion system</span>
 <span class="variable">$schema</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Math</span>\\<span class="class">Schema</span>(<span class="string">"add"</span>);
 
-<span class="variable">$float_int</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">INT32</span>);
-<span class="variable">$double_float</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ONNX\\Tensor</span>::<span class="keyword">DOUBLE</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$float_int</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">INT32</span>);
+<span class="variable">$double_float</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ORT\\Tensor</span>::<span class="keyword">DOUBLE</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
 
 <span class="keyword">echo</span> <span class="string">"FLOAT + INT32 = "</span> <span class="operator">.</span> <span class="variable">$float_int</span>; <span class="comment">// Promotes to FLOAT</span>
 <span class="keyword">echo</span> <span class="string">"DOUBLE + FLOAT = "</span> <span class="operator">.</span> <span class="variable">$double_float</span>; <span class="comment">// Promotes to DOUBLE</span>
 
 <span class="comment">// Automatic type promotion in operations</span>
-<span class="variable">$float_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">FLOAT</span>);
-<span class="variable">$int_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ONNX\\Tensor</span>::<span class="keyword">INT32</span>);
+<span class="variable">$float_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
+<span class="variable">$int_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">INT32</span>);
 
 <span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">add</span>(<span class="variable">$float_tensor</span>, <span class="variable">$int_tensor</span>);
 <span class="keyword">echo</span> <span class="string">"Result type: "</span> <span class="operator">.</span> <span class="variable">$result</span>-><span class="function">getType</span>(); <span class="comment">// FLOAT</span>

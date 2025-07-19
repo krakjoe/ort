@@ -10,11 +10,11 @@ echo "=== Testing Type Casting and Compatibility ===\n";
 
 // Test 1: Mixed type operations (should promote to higher precision)
 try {
-    $tensor_int = new ONNX\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ONNX\Tensor::INT32);
-    $tensor_float = new ONNX\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ONNX\Tensor::FLOAT);
+    $tensor_int = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::INT32);
+    $tensor_float = new ORT\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ORT\Tensor::FLOAT);
     
     // This should test type promotion logic
-    $result = ONNX\Math\add($tensor_int, $tensor_float);
+    $result = ORT\Math\add($tensor_int, $tensor_float);
     echo "PASS: Mixed INT32 + FLOAT operation completed\n";
 } catch (Error $e) {
     echo "FAIL: Mixed type operation failed: " . $e->getMessage() . "\n";
@@ -31,10 +31,10 @@ try {
 
 // Test 3: Different integer types
 try {
-    $tensor_int8 = new ONNX\Tensor\Transient([2], [10, 20], ONNX\Tensor::INT8);
-    $tensor_int16 = new ONNX\Tensor\Transient([2], [100, 200], ONNX\Tensor::INT16);
+    $tensor_int8 = new ORT\Tensor\Transient([2], [10, 20], ORT\Tensor::INT8);
+    $tensor_int16 = new ORT\Tensor\Transient([2], [100, 200], ORT\Tensor::INT16);
     
-    $result = ONNX\Math\add($tensor_int8, $tensor_int16);
+    $result = ORT\Math\add($tensor_int8, $tensor_int16);
     echo "PASS: INT8 + INT16 operation completed\n";
 } catch (Error $e) {
     echo "FAIL: Different integer types failed: " . $e->getMessage() . "\n";
@@ -42,13 +42,13 @@ try {
 
 // Test 4: Scalar type compatibility
 try {
-    $tensor_double = new ONNX\Tensor\Transient([3], [1.1, 2.2, 3.3], ONNX\Tensor::DOUBLE);
+    $tensor_double = new ORT\Tensor\Transient([3], [1.1, 2.2, 3.3], ORT\Tensor::DOUBLE);
     
     // Test with integer scalar
-    $result1 = ONNX\Math\add($tensor_double, 5);
+    $result1 = ORT\Math\add($tensor_double, 5);
     
     // Test with float scalar
-    $result2 = ONNX\Math\multiply($tensor_double, 2.5);
+    $result2 = ORT\Math\multiply($tensor_double, 2.5);
     
     echo "PASS: Scalar type compatibility tests completed\n";
 } catch (Error $e) {
@@ -58,10 +58,10 @@ try {
 // Test 5: Type promotion hierarchy
 try {
     // Test promoting to DOUBLE when one operand is DOUBLE
-    $tensor_int = new ONNX\Tensor\Transient([2], [1, 2], ONNX\Tensor::INT32);
-    $tensor_double = new ONNX\Tensor\Transient([2], [1.5, 2.5], ONNX\Tensor::DOUBLE);
+    $tensor_int = new ORT\Tensor\Transient([2], [1, 2], ORT\Tensor::INT32);
+    $tensor_double = new ORT\Tensor\Transient([2], [1.5, 2.5], ORT\Tensor::DOUBLE);
     
-    $result = ONNX\Math\multiply($tensor_int, $tensor_double);
+    $result = ORT\Math\multiply($tensor_int, $tensor_double);
     echo "PASS: Type promotion to DOUBLE completed\n";
 } catch (Error $e) {
     echo "FAIL: Type promotion failed: " . $e->getMessage() . "\n";

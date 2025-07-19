@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\subtract: tensor - scalar, all types, numpy/onnx semantics
+ORT\Math\subtract: tensor - scalar, all types, numpy/onnx semantics
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -24,8 +24,8 @@ $types = [
     'UINT32' => [$unsigned_types['UINT32'], $unsigned_values, 2],
 ];
 foreach ($types as $name => [$type, $values, $scalar]) {
-    $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
-    $result = ONNX\Math\subtract($a, $scalar);
+    $a = new ORT\Tensor\Transient([count($values)], $values, $type);
+    $result = ORT\Math\subtract($a, $scalar);
     echo "PASS: $name sub tensor - scalar\n";
     print_result($result, $name);
 }

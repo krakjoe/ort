@@ -10,41 +10,41 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$options = new \ONNX\Options();
+$options = new \ORT\Options();
 
 $options->setGraphOptimization(
-    \ONNX\Options::ONONE);
+    \ORT\Options::ONONE);
 
 var_dump($options);
 
 $options->setGraphOptimization(
-    \ONNX\Options::OBASIC);
+    \ORT\Options::OBASIC);
 
 var_dump($options);
 
 $options->setGraphOptimization(
-    \ONNX\Options::OEXTENDED);
+    \ORT\Options::OEXTENDED);
 
 var_dump($options);
 
 $options->setGraphOptimization(
-    \ONNX\Options::OALL);
+    \ORT\Options::OALL);
 
 var_dump($options);
 
 try {
     $options->setGraphOptimization(42);
-} catch (\ONNX\Status\Error $ex) {
+} catch (\ORT\Status\Error $ex) {
     var_dump($ex->getMessage());
 }
 ?>
 --EXPECTF--
-object(ONNX\Options)#%d (0) {
+object(ORT\Options)#%d (0) {
 }
-object(ONNX\Options)#%d (0) {
+object(ORT\Options)#%d (0) {
 }
-object(ONNX\Options)#%d (0) {
+object(ORT\Options)#%d (0) {
 }
-object(ONNX\Options)#%d (0) {
+object(ORT\Options)#%d (0) {
 }
 string(%d) "failed to set graph optimization: graph_optimization_level is not valid"

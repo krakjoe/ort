@@ -5,13 +5,13 @@ ort
 --FILE--
 <?php
 try {
-    new ONNX\Tensor\Persistent(
+    new ORT\Tensor\Persistent(
         "invalid_tensor",
         [2, 2],
         [[1, 2], [3]], // second row has wrong length
-        ONNX\Tensor::INT64
+        ORT\Tensor::INT64
     );
-} catch(ONNX\Status\Tensor\InvalidData $e) {
+} catch(ORT\Status\Tensor\InvalidData $e) {
     echo "OK";
 }
 ?>

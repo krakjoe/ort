@@ -4,11 +4,11 @@ Check Tensor with BOOL type
 ort
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "bool_tensor",
     [2, 2],
     [[true, false], [false, true]],
-    ONNX\Tensor::BOOL
+    ORT\Tensor::BOOL
 );
 echo "Type: " . $tensor->getTypeName();
 ?>

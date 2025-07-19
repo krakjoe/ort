@@ -4,17 +4,17 @@ Check Tensor constants
 ort
 --FILE--
 <?php
-echo "UNDEFINED: " . ONNX\Tensor::UNDEFINED . "\n";
-echo "FLOAT: " . ONNX\Tensor::FLOAT . "\n";
-echo "DOUBLE: " . ONNX\Tensor::DOUBLE . "\n";
-echo "UINT8: " . ONNX\Tensor::UINT8 . "\n";
-echo "INT8: " . ONNX\Tensor::INT8 . "\n";
-echo "UINT16: " . ONNX\Tensor::UINT16 . "\n";
-echo "INT16: " . ONNX\Tensor::INT16 . "\n";
-echo "UINT32: " . ONNX\Tensor::UINT32 . "\n";
-echo "INT32: " . ONNX\Tensor::INT32 . "\n";
-echo "INT64: " . ONNX\Tensor::INT64 . "\n";
-echo "BOOL: " . ONNX\Tensor::BOOL;
+echo "UNDEFINED: " . ORT\Tensor::UNDEFINED . "\n";
+echo "FLOAT: " . ORT\Tensor::FLOAT . "\n";
+echo "DOUBLE: " . ORT\Tensor::DOUBLE . "\n";
+echo "UINT8: " . ORT\Tensor::UINT8 . "\n";
+echo "INT8: " . ORT\Tensor::INT8 . "\n";
+echo "UINT16: " . ORT\Tensor::UINT16 . "\n";
+echo "INT16: " . ORT\Tensor::INT16 . "\n";
+echo "UINT32: " . ORT\Tensor::UINT32 . "\n";
+echo "INT32: " . ORT\Tensor::INT32 . "\n";
+echo "INT64: " . ORT\Tensor::INT64 . "\n";
+echo "BOOL: " . ORT\Tensor::BOOL;
 ?>
 --EXPECTF--
 UNDEFINED: %d

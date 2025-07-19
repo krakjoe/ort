@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\sqrt: line-by-line, all types, shape, error handling, numpy semantics
+ORT\Math\sqrt: line-by-line, all types, shape, error handling, numpy semantics
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -12,15 +12,15 @@ include sprintf(
 
 // 1. Sqrt for signed/real types: negatives, zero, positives
 foreach (array_merge($real, $signed_types) as $name => $type) {
-    $a = new ONNX\Tensor\Transient([5], [-1, 0, 4, 9, -9], $type);
-    $result = ONNX\Math\sqrt($a);
+    $a = new ORT\Tensor\Transient([5], [-1, 0, 4, 9, -9], $type);
+    $result = ORT\Math\sqrt($a);
     echo "PASS: $name sqrt [-1,0,4,9,-9]\n";
     print_result($result);
 }
 // 1b. Sqrt for unsigned types: only non-negative values
 foreach ($unsigned_types as $name => $type) {
-    $a = new ONNX\Tensor\Transient([3], [0, 4, 9], $type);
-    $result = ONNX\Math\sqrt($a);
+    $a = new ORT\Tensor\Transient([3], [0, 4, 9], $type);
+    $result = ORT\Math\sqrt($a);
     echo "PASS: $name sqrt [0,4,9]\n";
     print_result($result);
 }
@@ -28,35 +28,35 @@ foreach ($unsigned_types as $name => $type) {
 
 // 2. Sqrt of zeros and ones (valid for all types)
 foreach ($types as $name => $type) {
-    if ($type == \ONNX\Tensor::BOOL) {
+    if ($type == \ORT\Tensor::BOOL) {
         /* meaningless */
         continue;
     }
-    $a = new ONNX\Tensor\Transient([6], [0,1,0,1,0,1], $type);
-    $result = ONNX\Math\sqrt($a);
+    $a = new ORT\Tensor\Transient([6], [0,1,0,1,0,1], $type);
+    $result = ORT\Math\sqrt($a);
     echo "PASS: $name sqrt zeros/ones\n";
     print_result($result);
 }
 
 
 // 3. Sqrt of 2D tensor for INT8 (with negative and positive values)
-$a = new ONNX\Tensor\Transient([2,2], [[12,16],[24,-128]], ONNX\Tensor::INT8);
-$result = ONNX\Math\sqrt($a);
+$a = new ORT\Tensor\Transient([2,2], [[12,16],[24,-128]], ORT\Tensor::INT8);
+$result = ORT\Math\sqrt($a);
 echo "PASS: INT8 sqrt 2D [[12,16],[24,-128]]\n";
 print_result($result);
 
 
 // 4. Sqrt of bool tensor
-$a = new ONNX\Tensor\Transient([2,2], [[true,false],[false,true]], ONNX\Tensor::BOOL);
-$result = ONNX\Math\sqrt($a);
+$a = new ORT\Tensor\Transient([2,2], [[true,false],[false,true]], ORT\Tensor::BOOL);
+$result = ORT\Math\sqrt($a);
 echo "PASS: BOOL sqrt [bool 2x2] (numpy semantics)\n";
 print_result($result);
 
 
 // 5. Sqrt of large and small values (real types only)
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([4], [1e10, 1e-10, 0, 1], $type);
-    $result = ONNX\Math\sqrt($a);
+    $a = new ORT\Tensor\Transient([4], [1e10, 1e-10, 0, 1], $type);
+    $result = ORT\Math\sqrt($a);
     echo "PASS: $name sqrt extremes\n";
     print_result($result);
 }
@@ -64,8 +64,8 @@ foreach ($real as $name => $type) {
 
 // 6. Sqrt of empty tensor (should error)
 try {
-    $a = new ONNX\Tensor\Transient([0], [], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\sqrt($a);
+    $a = new ORT\Tensor\Transient([0], [], ORT\Tensor::FLOAT);
+    $result = ORT\Math\sqrt($a);
     echo "FAIL: Did not throw on empty tensor\n";
 } catch (Throwable $e) {
     echo "PASS: Error on empty tensor: ".$e->getMessage()."\n";

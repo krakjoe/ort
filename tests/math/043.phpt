@@ -16,24 +16,24 @@ try {
     // We might have missed some specific combinations - let's be systematic
     $bool_values = [true, false];
     $test_values = [
-        ['INT8', [127, -128], 'ONNX\Tensor::INT8'],
-        ['INT16', [32767, -32768], 'ONNX\Tensor::INT16'],
-        ['INT32', [2147483647, -2147483648], 'ONNX\Tensor::INT32'],
-        ['INT64', [1000000000000, -1000000000000], 'ONNX\Tensor::INT64'],
-        ['UINT8', [255, 0], 'ONNX\Tensor::UINT8'],
-        ['UINT16', [65535, 0], 'ONNX\Tensor::UINT16'],
-        ['UINT32', [4294967295, 0], 'ONNX\Tensor::UINT32'],
-        ['FLOAT', [3.4028235e+38, -3.4028235e+38], 'ONNX\Tensor::FLOAT'],
-        ['DOUBLE', [1.7976931348623157e+308, -1.7976931348623157e+308], 'ONNX\Tensor::DOUBLE'],
-        ['BOOL', [true, false], 'ONNX\Tensor::BOOL']
+        ['INT8', [127, -128], 'ORT\Tensor::INT8'],
+        ['INT16', [32767, -32768], 'ORT\Tensor::INT16'],
+        ['INT32', [2147483647, -2147483648], 'ORT\Tensor::INT32'],
+        ['INT64', [1000000000000, -1000000000000], 'ORT\Tensor::INT64'],
+        ['UINT8', [255, 0], 'ORT\Tensor::UINT8'],
+        ['UINT16', [65535, 0], 'ORT\Tensor::UINT16'],
+        ['UINT32', [4294967295, 0], 'ORT\Tensor::UINT32'],
+        ['FLOAT', [3.4028235e+38, -3.4028235e+38], 'ORT\Tensor::FLOAT'],
+        ['DOUBLE', [1.7976931348623157e+308, -1.7976931348623157e+308], 'ORT\Tensor::DOUBLE'],
+        ['BOOL', [true, false], 'ORT\Tensor::BOOL']
     ];
     
     // Test every type WITH BOOL (where BOOL is the SECOND operand - might trigger different paths)
     foreach ($test_values as $type_info) {
         try {
-            $tensor_type = new ONNX\Tensor\Transient([2], $type_info[1], constant($type_info[2]));
-            $tensor_bool = new ONNX\Tensor\Transient([2], [true, false], ONNX\Tensor::BOOL);
-            $result = ONNX\Math\add($tensor_type, $tensor_bool);
+            $tensor_type = new ORT\Tensor\Transient([2], $type_info[1], constant($type_info[2]));
+            $tensor_bool = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
+            $result = ORT\Math\add($tensor_type, $tensor_bool);
             // Don't print every success to avoid spam
         } catch (Exception $e) {
             echo "INFO: {$type_info[0]} + BOOL: " . $e->getMessage() . "\n";
@@ -47,9 +47,9 @@ try {
     try {
         // Use very large arrays to see if we can trigger memory/size issues
         $large_data = array_fill(0, 100, 1.0);
-        $tensor_large = new ONNX\Tensor\Transient([100], $large_data, ONNX\Tensor::FLOAT);
-        $tensor_single = new ONNX\Tensor\Transient([1], [2.0], ONNX\Tensor::FLOAT);
-        $result = ONNX\Math\add($tensor_large, $tensor_single); // Should broadcast
+        $tensor_large = new ORT\Tensor\Transient([100], $large_data, ORT\Tensor::FLOAT);
+        $tensor_single = new ORT\Tensor\Transient([1], [2.0], ORT\Tensor::FLOAT);
+        $result = ORT\Math\add($tensor_large, $tensor_single); // Should broadcast
         echo "PASS: Large tensor operations work\n";
     } catch (Exception $e) {
         echo "INFO: Large tensor test: " . $e->getMessage() . "\n";
@@ -76,9 +76,9 @@ try {
         foreach ($extreme_test_cases as $case2) {
             if ($case1[0] !== $case2[0]) { // Different types
                 try {
-                    $tensor1 = new ONNX\Tensor\Transient([2], $case1[1], constant('ONNX\Tensor::' . $case1[0]));
-                    $tensor2 = new ONNX\Tensor\Transient([2], $case2[1], constant('ONNX\Tensor::' . $case2[0]));
-                    $result = ONNX\Math\add($tensor1, $tensor2);
+                    $tensor1 = new ORT\Tensor\Transient([2], $case1[1], constant('ORT\Tensor::' . $case1[0]));
+                    $tensor2 = new ORT\Tensor\Transient([2], $case2[1], constant('ORT\Tensor::' . $case2[0]));
+                    $result = ORT\Math\add($tensor1, $tensor2);
                     // Success - no output
                 } catch (Exception $e) {
                     // Might be interesting edge case
@@ -97,9 +97,9 @@ try {
     // Force a situation where we have BOOL source but might not take fast path
     try {
         // Create scenarios with different tensor shapes that force broadcasting
-        $tensor_bool_1d = new ONNX\Tensor\Transient([1], [true], ONNX\Tensor::BOOL);
-        $tensor_bool_2d = new ONNX\Tensor\Transient([2], [false, true], ONNX\Tensor::BOOL);
-        $result = ONNX\Math\add($tensor_bool_1d, $tensor_bool_2d);
+        $tensor_bool_1d = new ORT\Tensor\Transient([1], [true], ORT\Tensor::BOOL);
+        $tensor_bool_2d = new ORT\Tensor\Transient([2], [false, true], ORT\Tensor::BOOL);
+        $result = ORT\Math\add($tensor_bool_1d, $tensor_bool_2d);
         echo "PASS: BOOL broadcasting works\n";
     } catch (Exception $e) {
         echo "INFO: BOOL broadcasting: " . $e->getMessage() . "\n";
@@ -110,9 +110,9 @@ try {
     
     try {
         // Zero division edge cases
-        $tensor_zero = new ONNX\Tensor\Transient([2], [0.0, 1.0], ONNX\Tensor::FLOAT);
-        $tensor_div = new ONNX\Tensor\Transient([2], [1.0, 0.0], ONNX\Tensor::FLOAT);
-        $result = ONNX\Math\divide($tensor_div, $tensor_zero);
+        $tensor_zero = new ORT\Tensor\Transient([2], [0.0, 1.0], ORT\Tensor::FLOAT);
+        $tensor_div = new ORT\Tensor\Transient([2], [1.0, 0.0], ORT\Tensor::FLOAT);
+        $result = ORT\Math\divide($tensor_div, $tensor_zero);
         echo "PASS: Division by zero handled\n";
     } catch (Exception $e) {
         echo "INFO: Division by zero: " . $e->getMessage() . "\n";

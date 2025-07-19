@@ -1,42 +1,62 @@
 // config.w32 for php-ort
 
-ARG_WITH('ort', 'Enable ort extension', 'yes');
+ARG_ENABLE('ort',         'Enable ort extension', 'yes');
 ARG_ENABLE('ort-backend', 'Enable backend optimizations', 'yes');
 ARG_ENABLE('ort-sse2',    'Enable SSE2 support', 'yes');
 ARG_ENABLE('ort-sse41',   'Enable SSE4.1 support', 'yes');
 ARG_ENABLE('ort-avx2',    'Enable AVX2 support', 'yes');
+/* TODO(krakjoe) neon build testing on windows */
+ARG_WITH('ort-onnx',      'Enable ONNX Runtime support', 'no');
 
 if (PHP_ORT != 'no') {
 
-    if (!CHECK_HEADER_ADD_INCLUDE("onnxruntime_c_api.h", "CFLAGS_ORT", PHP_ORT + "\\include")) {
-        ERROR("onnxruntime_c_api.h cannot be found in " + PHP_ORT + "\\include");
+    if (PHP_ORT_ONNX != 'no') {
+        if (!CHECK_HEADER_ADD_INCLUDE("onnxruntime_c_api.h", "CFLAGS_ORT", PHP_ORT_ONNX + "\\include")) {
+            ERROR("onnxruntime_c_api.h cannot be found in " + PHP_ORT_ONNX + "\\include");
+        }
+
+        if (!CHECK_LIB("onnxruntime.lib", "OrtGetApiBase", PHP_ORT_ONNX + "\\lib")) {
+            ERROR("onnxruntime.lib cannot be found in " + PHP_ORT_ONNX + "\\lib");
+        }
+
+        PHP_ORT_ONNX_LIBPATH=PHP_ORT_ONNX + "\\lib";
+        PHP_ORT_ONNX_INCPATH=PHP_ORT_ONNX + "\\include";
+
+        EXTENSION('ort', 
+            'php_ort.c',
+            PHP_ORT_SHARED,
+            "/I" + configure_module_dirname                    + " " +
+            "/I" + configure_module_dirname + "\\src"          + " " +
+            "/I" + configure_module_dirname + "\\src\\backend" + " " +
+            "/I" + PHP_ORT_ONNX_INCPATH                        + " " +
+            "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+
+        ADD_FLAG("LDFLAGS_ORT",
+            "/libpath:\"" + PHP_ORT_ONNX_LIBPATH + "\"");
+        ADD_FLAG("LIBS_ORT", "onnxruntime.lib");
+
+        ADD_SOURCES(
+            configure_module_dirname + "\\src",
+            "ort.c alloc.c env.c status.c tensor.c maths.c generators.c runtime.c model.c options.c iterator.c",
+            "ort"
+        );
+
+        AC_DEFINE('HAVE_ONNXRUNTIME', 1);
+    } else {
+        EXTENSION('ort', 
+            'php_ort.c',
+            PHP_ORT_SHARED,
+            "/I" + configure_module_dirname                    + " " +
+            "/I" + configure_module_dirname + "\\src"          + " " +
+            "/I" + configure_module_dirname + "\\src\\backend" + " " +
+            "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+
+        ADD_SOURCES(
+            configure_module_dirname + "\\src",
+            "ort.c alloc.c env.c status.c tensor.c maths.c generators.c",
+            "ort"
+        );
     }
-
-    if (!CHECK_LIB("onnxruntime.lib", "OrtGetApiBase", PHP_ORT + "\\lib")) {
-        ERROR("onnxruntime.lib cannot be found in " + PHP_ORT + "\\lib");
-    }
-
-    PHP_ORT_LIBPATH=PHP_ORT + "\\lib";
-    PHP_ORT_INCPATH=PHP_ORT + "\\include";
-
-    EXTENSION('ort', 
-        'php_ort.c',
-        PHP_ORT_SHARED,
-        "/I" + configure_module_dirname                    + " " +
-        "/I" + configure_module_dirname + "\\src"          + " " +
-        "/I" + configure_module_dirname + "\\src\\backend" + " " +
-	    "/I" + PHP_ORT_INCPATH                             + " " +
-        "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
-
-    ADD_FLAG("LDFLAGS_ORT",
-        "/libpath:\"" + PHP_ORT_LIBPATH + "\"");
-    ADD_FLAG("LIBS_ORT", "onnxruntime.lib");
-
-    ADD_SOURCES(
-        configure_module_dirname + "\\src",
-        "ort.c env.c runtime.c model.c tensor.c status.c options.c iterator.c maths.c alloc.c generators.c",
-        "ort"
-    );
 
     ADD_SOURCES(
         configure_module_dirname + "\\src\\maths",

@@ -4,11 +4,11 @@ Check Tensor with mixed numeric types for DOUBLE
 ort
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "mixed_tensor",
     [2, 2],
     [[1, 2.5], [3.7, 4]], // mix of int and float
-    ONNX\Tensor::DOUBLE
+    ORT\Tensor::DOUBLE
 );
 echo "OK";
 ?>

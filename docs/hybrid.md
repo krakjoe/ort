@@ -1,6 +1,6 @@
 # Hybrid Parallelism
 
-In order to saturate the CPU, `ONNX\Math` uses a pool of workers (per interpreter[1]). The number of workers will default to the number of available cores. This can be overridden by setting the environment variable `ORT_POOL_CORES` explicitly.
+In order to saturate the CPU, `ORT\Math` uses a pool of workers (per interpreter[1]). The number of workers will default to the number of available cores. This can be overridden by setting the environment variable `ORT_POOL_CORES` explicitly.
 
 Both vectorized operations (provided by various backends, see `docs/backend.md`) and non-vectorized operations (provided by the frontend where vectorization isn't possible/applicable) are distributed across the pool transparently.
 
@@ -9,14 +9,14 @@ This provides `php-ort` with hybrid parallelism: instruction-level parallelism i
 For a concrete example, consider this code:
 
 ```php
-$tensors[] = new \ONNX\Tensor\Transient(...);
-$tensors[] = new \ONNX\Tensor\Transient(...);
-ONNX\Math\add($tensors[0], $tensors[1]);
+$tensors[] = new \ORT\Tensor\Transient(...);
+$tensors[] = new \ORT\Tensor\Transient(...);
+ORT\Math\add($tensors[0], $tensors[1]);
 ```
 
 ### Distribution of Computation Across the Pool
 
-Where tensors are large enough for vectorization, the call to `ONNX\Math\add` will, on a typical 24-core AVX2 machine, result in:
+Where tensors are large enough for vectorization, the call to `ORT\Math\add` will, on a typical 24-core AVX2 machine, result in:
 
   - Input tensors are split into 24 chunks (one per core/thread in the pool).
   - Each worker thread processes its chunk independently and in parallel.

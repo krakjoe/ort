@@ -10,11 +10,11 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new ONNX\Model("test_model",
+$model = new ORT\Model("test_model",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 try {
     $model->getInput(-1);
-} catch(ONNX\Status\Model\InvalidIndex $ex) {
+} catch(ORT\Status\Model\InvalidIndex $ex) {
     var_dump($ex->getMessage());
 }
 ?>

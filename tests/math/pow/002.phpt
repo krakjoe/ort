@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\pow: tensor ** scalar, all types, shape, numpy/onnx semantics
+ORT\Math\pow: tensor ** scalar, all types, shape, numpy/onnx semantics
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -26,8 +26,8 @@ $types = [
 ];
 foreach ($types as $name => [$type, $values]) {
     foreach ($scalars as $scalar) {
-        $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
-        $result = ONNX\Math\pow($a, $scalar);
+        $a = new ORT\Tensor\Transient([count($values)], $values, $type);
+        $result = ORT\Math\pow($a, $scalar);
         echo "PASS: $name pow tensor ** scalar ($scalar)\n";
         print_result($result);
     }

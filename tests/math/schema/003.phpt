@@ -1,8 +1,8 @@
 --TEST--
-ONNX\Math\Schema: getSymbol
+ORT\Math\Schema: getSymbol
 --FILE--
 <?php
-use ONNX\Math;
+use ORT\Math;
 
 $schema = new Math\Schema("add");
 

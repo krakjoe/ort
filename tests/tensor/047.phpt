@@ -8,17 +8,17 @@ include (\sprintf("%s/../fixtures/skipif.php", dirname(__FILE__)));
 ?>
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "test_tensor",
     [2, 3],
     [[1, 2, 3], [4, 5, 6]],
-    ONNX\Tensor::INT32
+    ORT\Tensor::INT32
 );
 
 // Test negative offset
 try {
     $data = $tensor->getData(-1);
-} catch (ONNX\Status\Tensor\InvalidData $e) {
+} catch (ORT\Status\Tensor\InvalidData $e) {
     echo "Caught negative offset: " . $e->getMessage() . "\n";
 }
 
@@ -30,7 +30,7 @@ var_dump($data);
 // Test offset greater than elements count
 try {
     $data = $tensor->getData(10);
-} catch (ONNX\Status\Tensor\InvalidData $e) {
+} catch (ORT\Status\Tensor\InvalidData $e) {
     echo "Caught large offset: " . $e->getMessage() . "\n";
 }
 ?>

@@ -10,18 +10,18 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new ONNX\Model("test_model",
+$model = new ORT\Model("test_model",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 
-var_dump(\ONNX\Model::unload("test_model"));
+var_dump(\ORT\Model::unload("test_model"));
 
 // Try to unload non-existent model
 
-var_dump(\ONNX\Model::unload("nonexistent"));
+var_dump(\ORT\Model::unload("nonexistent"));
 
 // Ensure unloading actually happened
 
-var_dump(\ONNX\Model::unload("test_model"));
+var_dump(\ORT\Model::unload("test_model"));
 ?>
 --EXPECT--
 bool(true)

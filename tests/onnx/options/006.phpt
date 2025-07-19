@@ -10,18 +10,18 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$options = new \ONNX\Options();
+$options = new \ORT\Options();
 
 $options->setLogVerbosity(
-    \ONNX\Options::LVERBOSE);
+    \ORT\Options::LVERBOSE);
 $options->setLogVerbosity(
-    \ONNX\Options::LINFO);
+    \ORT\Options::LINFO);
 $options->setLogVerbosity(
-    \ONNX\Options::LERROR);
+    \ORT\Options::LERROR);
 $options->setLogVerbosity(
-    \ONNX\Options::LWARNING);
+    \ORT\Options::LWARNING);
 $options->setLogVerbosity(
-    \ONNX\Options::LFATAL);
+    \ORT\Options::LFATAL);
 
 echo "OK";
 ?>

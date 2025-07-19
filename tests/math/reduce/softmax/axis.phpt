@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\reduce\axis\softmax: float/double, axis, keepdims, negative axis, and error handling
+ORT\Math\reduce\axis\softmax: float/double, axis, keepdims, negative axis, and error handling
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../../fixtures/math.php",
@@ -12,9 +12,9 @@ include sprintf(
 
 // 1. Axis=0, keepdims=0
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
-        $result = ONNX\Math\reduce\axis\softmax($a, 0, false);
+        $result = ORT\Math\reduce\axis\softmax($a, 0, false);
         echo "PASS: $name softmax axis=0\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -24,9 +24,9 @@ foreach ($real as $name => $type) {
 
 // 2. Axis=1, keepdims=0
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
-        $result = ONNX\Math\reduce\axis\softmax($a, 1, false);
+        $result = ORT\Math\reduce\axis\softmax($a, 1, false);
         echo "PASS: $name softmax axis=1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -36,9 +36,9 @@ foreach ($real as $name => $type) {
 
 // 3. Axis=0, keepdims=1
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
-        $result = ONNX\Math\reduce\axis\softmax($a, 0, true);
+        $result = ORT\Math\reduce\axis\softmax($a, 0, true);
         echo "PASS: $name softmax axis=0 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -48,9 +48,9 @@ foreach ($real as $name => $type) {
 
 // 4. Axis=1, keepdims=1
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
-        $result = ONNX\Math\reduce\axis\softmax($a, 1, true);
+        $result = ORT\Math\reduce\axis\softmax($a, 1, true);
         echo "PASS: $name softmax axis=1 keepdims\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -60,9 +60,9 @@ foreach ($real as $name => $type) {
 
 // 5. Axis=-1 (last axis), keepdims=0
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], $type);
     try {
-        $result = ONNX\Math\reduce\axis\softmax($a, -1, false);
+        $result = ORT\Math\reduce\axis\softmax($a, -1, false);
         echo "PASS: $name softmax axis=-1\n";
         print_result($result);
     } catch (Throwable $e) {
@@ -72,8 +72,8 @@ foreach ($real as $name => $type) {
 
 // 6. Error: invalid axis
 try {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ONNX\Tensor::FLOAT);
-    $result = ONNX\Math\reduce\axis\softmax($a, 2, false);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $result = ORT\Math\reduce\axis\softmax($a, 2, false);
     echo "FAIL: Did not throw on invalid axis\n";
 } catch (Throwable $e) {
     echo "PASS: Error on invalid axis: ".$e->getMessage()."\n";
@@ -81,8 +81,8 @@ try {
 
 // 7. Error: integer input
 try {
-    $a = new ONNX\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ONNX\Tensor::INT32);
-    $result = ONNX\Math\reduce\axis\softmax($a, 1, false);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::INT32);
+    $result = ORT\Math\reduce\axis\softmax($a, 1, false);
     echo "FAIL: Did not throw on integer input\n";
 } catch (Throwable $e) {
     echo "PASS: Error on integer input: ".$e->getMessage()."\n";
@@ -90,8 +90,8 @@ try {
 
 // 8. Error: bool input
 try {
-    $a = new ONNX\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], ONNX\Tensor::BOOL);
-    $result = ONNX\Math\reduce\axis\softmax($a, 1, false);
+    $a = new ORT\Tensor\Transient([2,3], [[true,false,true],[false,true,false]], ORT\Tensor::BOOL);
+    $result = ORT\Math\reduce\axis\softmax($a, 1, false);
     echo "FAIL: Did not throw on bool input\n";
 } catch (Throwable $e) {
     echo "PASS: Error on bool input: ".$e->getMessage()."\n";

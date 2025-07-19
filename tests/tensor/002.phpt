@@ -4,11 +4,11 @@ Check Tensor construction with valid data
 ort
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "test_tensor",
     [2, 3],
     [[1, 2, 3], [4, 5, 6]],
-    ONNX\Tensor::INT64
+    ORT\Tensor::INT64
 );
 echo "OK";
 ?>

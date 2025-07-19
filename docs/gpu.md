@@ -15,16 +15,16 @@ The ONNX Runtime already provides (and maintains) the ability to offload computa
 Should you want to perform a particular computation (for example `MatMul`) on a GPU:
 
   - Create `matmul.onnx` that contains only the `MatMul` node (using Python or another tool).
-  - Load the model using `ONNX\Model`.
-  - Create an instance of `ONNX\Runtime`.
-    - Create input as usual using a concrete `ONNX\Tensor`.
-  - Execute the `MatMul` operation on the GPU with `ONNX\Runtime::run`.
+  - Load the model using `ORT\Model`.
+  - Create an instance of `ORT\Runtime`.
+    - Create input as usual using a concrete `ORT\Tensor`.
+  - Execute the `MatMul` operation on the GPU with `ORT\Runtime::run`.
 
 This methodology can be applied to any operator supported by the ONNX Runtime.
 
-`ONNX\Model` objects are persistent (they survive the current request), so during a preloading stage, you may construct all the necessary models your application requires to perform operations on the GPU. In a threaded environment (e.g., FrankenPHP), all threads access the same model (i.e., it is loaded once), but have their own `ONNX\Runtime`, allowing for parallel access to the GPU with a single instance of the model loaded into memory.
+`ORT\Model` objects are persistent (they survive the current request), so during a preloading stage, you may construct all the necessary models your application requires to perform operations on the GPU. In a threaded environment (e.g., FrankenPHP), all threads access the same model (i.e., it is loaded once), but have their own `ORT\Runtime`, allowing for parallel access to the GPU with a single instance of the model loaded into memory.
 
-*Because math is implemented in the namespace `ONNX\Math` (not as methods on `Tensor` objects), migrating code to execute on the GPU might be as simple as changing import statements and writing a few functions in your own namespace.*
+*Because math is implemented in the namespace `ORT\Math` (not as methods on `Tensor` objects), migrating code to execute on the GPU might be as simple as changing import statements and writing a few functions in your own namespace.*
 
 **Because the `php-ort` extension does not provide any means for creating models (because it's focused on inference), Python or some other tool must be used to create the model; documenting the process here is out of scope.**
 

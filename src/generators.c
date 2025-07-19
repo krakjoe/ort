@@ -61,7 +61,7 @@ PHP_MINIT_FUNCTION(ORT_GENERATORS)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "ONNX\\Tensor",
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Tensor",
         "Generator", php_ort_generator_methods);
     php_ort_generator_interface_ce =
         zend_register_internal_interface(&ce);

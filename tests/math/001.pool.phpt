@@ -1,12 +1,12 @@
 --TEST--
-ONNX Math cores configuration
+ORT Math cores configuration
 --EXTENSIONS--
 ort
 --ENV--
 ORT_POOL_CORES=2
 --FILE--
 <?php
-use ONNX\Math;
+use ORT\Math;
 
 $max = Math\cores();
 if ($max != 2) {

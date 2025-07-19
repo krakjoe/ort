@@ -262,7 +262,7 @@ PHP_MINIT_FUNCTION(ORT_OPTIONS)
 {
     zend_class_entry ce;
 
-    INIT_NS_CLASS_ENTRY(ce, "ONNX", "Options", php_ort_options_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT", "Options", php_ort_options_methods);
 
     php_ort_options_ce = zend_register_internal_class(&ce);
     php_ort_options_ce->create_object = php_ort_options_create;

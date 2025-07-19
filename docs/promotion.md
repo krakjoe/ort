@@ -23,20 +23,20 @@ Will extract the promotion schema for `np.sqrt` (which is a unary function). The
 
 ## Introspection
 
-Introspection of promotion schemas can be performed using the `ONNX\Math\Schema` API:
+Introspection of promotion schemas can be performed using the `ORT\Math\Schema` API:
 
-  - `ONNX\Math\Schema::__construct(string symbol)`
-  - `ONNX\Math\Schema::resolve(int ... types)`
+  - `ORT\Math\Schema::__construct(string symbol)`
+  - `ORT\Math\Schema::resolve(int ... types)`
 
 Example:
 
 ```php
-$schema = new ONNX\Math\Schema('add');
+$schema = new ORT\Math\Schema('add');
 
 var_dump($schema->resolve(
-    ONNX\Tensor::FLOAT,
-    ONNX\Tensor::DOUBLE) ==
-        ONNX\Tensor::DOUBLE);
+    ORT\Tensor::FLOAT,
+    ORT\Tensor::DOUBLE) ==
+        ORT\Tensor::DOUBLE);
 ```
 
 Will yield:
@@ -53,7 +53,7 @@ Errors: `resolve` will return `-1` upon encountering error conditions (adjust yo
 
 Casting between types is handled implicitly according to the promotion schema. This happens transparently and just in time, however it's sometimes preferable to coerce explicitly (which we call casting), because this makes code easier to reason about, and possibly more efficient.
 
-`ONNX\Tensor ONNX\Math\cast(int $type, ONNX\Tensor $tensor)` shall cast `$tensor` to `$type` and return the resulting `Tensor`.
+`ORT\Tensor ORT\Math\cast(int $type, ORT\Tensor $tensor)` shall cast `$tensor` to `$type` and return the resulting `Tensor`.
 
 **Whether explicit or implicit, `php-ort` parallelizes large casting operations automatically.**
 

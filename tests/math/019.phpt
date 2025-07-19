@@ -10,10 +10,10 @@ echo "=== Testing Matrix Operations ===\n";
 
 // Test 1: Basic square matrix multiplication
 try {
-    $matrix_a = new ONNX\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ONNX\Tensor::FLOAT);
-    $matrix_b = new ONNX\Tensor\Transient([2, 2], [[2, 0], [1, 2]], ONNX\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
+    $matrix_b = new ORT\Tensor\Transient([2, 2], [[2, 0], [1, 2]], ORT\Tensor::FLOAT);
     
-    $result = ONNX\Math\matmul($matrix_a, $matrix_b);
+    $result = ORT\Math\matmul($matrix_a, $matrix_b);
     // Result should be [[4, 4], [10, 8]]
     echo "PASS: Basic square matrix multiplication works\n";
 } catch (Error $e) {
@@ -22,10 +22,10 @@ try {
 
 // Test 2: Non-square matrix multiplication
 try {
-    $matrix_a = new ONNX\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ONNX\Tensor::FLOAT);
-    $matrix_b = new ONNX\Tensor\Transient([3, 2], [[1, 2], [3, 4], [5, 6]], ONNX\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
+    $matrix_b = new ORT\Tensor\Transient([3, 2], [[1, 2], [3, 4], [5, 6]], ORT\Tensor::FLOAT);
     
-    $result = ONNX\Math\matmul($matrix_a, $matrix_b);
+    $result = ORT\Math\matmul($matrix_a, $matrix_b);
     // Result should be [2, 2] matrix
     echo "PASS: Non-square matrix multiplication works\n";
 } catch (Error $e) {
@@ -34,12 +34,12 @@ try {
 
 // Test 3: Incompatible matrix dimensions
 try {
-    $matrix_a = new ONNX\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ONNX\Tensor::FLOAT);
-    $matrix_b = new ONNX\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ONNX\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
+    $matrix_b = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
     
-    $result = ONNX\Math\matmul($matrix_a, $matrix_b);
+    $result = ORT\Math\matmul($matrix_a, $matrix_b);
     echo "FAIL: Incompatible matrix dimensions should be rejected\n";
-} catch (ONNX\Status\Math\Error $e) {
+} catch (ORT\Status\Math\Error $e) {
     echo "PASS: Incompatible matrix dimensions correctly rejected\n";
 } catch (Error $e) {
     echo "PARTIAL: Incompatible dimensions rejected with: " . get_class($e) . "\n";
@@ -47,12 +47,12 @@ try {
 
 // Test 4: Matrix with vector (should fail - vectors need to be 2D)
 try {
-    $matrix = new ONNX\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ONNX\Tensor::FLOAT);
-    $vector = new ONNX\Tensor\Transient([3], [1, 2, 3], ONNX\Tensor::FLOAT);
+    $matrix = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
+    $vector = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT);
     
-    $result = ONNX\Math\matmul($matrix, $vector);
+    $result = ORT\Math\matmul($matrix, $vector);
     echo "FAIL: 1D vector should be rejected for matmul\n";
-} catch (ONNX\Status\Math\Error $e) {
+} catch (ORT\Status\Math\Error $e) {
     echo "PASS: 1D vector correctly rejected for matmul\n";
 } catch (Error $e) {
     echo "PARTIAL: 1D vector rejected with: " . get_class($e) . "\n";
@@ -75,10 +75,10 @@ try {
         $large_b[] = $row_b;
     }
     
-    $matrix_a = new ONNX\Tensor\Transient([5, 5], $large_a, ONNX\Tensor::FLOAT);
-    $matrix_b = new ONNX\Tensor\Transient([5, 5], $large_b, ONNX\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([5, 5], $large_a, ORT\Tensor::FLOAT);
+    $matrix_b = new ORT\Tensor\Transient([5, 5], $large_b, ORT\Tensor::FLOAT);
     
-    $result = ONNX\Math\matmul($matrix_a, $matrix_b);
+    $result = ORT\Math\matmul($matrix_a, $matrix_b);
     echo "PASS: Large matrix multiplication completed\n";
 } catch (Error $e) {
     echo "FAIL: Large matrix multiplication failed: " . $e->getMessage() . "\n";

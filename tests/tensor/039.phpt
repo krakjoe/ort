@@ -9,15 +9,15 @@ include (\sprintf("%s/../fixtures/skipif.php", dirname(__FILE__)));
 --FILE--
 <?php
 try {
-    $tensor = new ONNX\Tensor\Persistent(
+    $tensor = new ORT\Tensor\Persistent(
         "test_tensor",
         [2, 3],
         [[1, 2, 3], [4, 5, 6]],
-        ONNX\Tensor::INT32
+        ORT\Tensor::INT32
     );
     
     $tensor->getData(0, -1);
-} catch (ONNX\Status\Tensor\InvalidShape $e) {
+} catch (ORT\Status\Tensor\InvalidShape $e) {
     echo "Exception caught: " . $e->getMessage() . "\n";
 }
 ?>

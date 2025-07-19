@@ -10,12 +10,12 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new ONNX\Model("test_model",
+$model = new ORT\Model("test_model",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 $count = $model->getInputCount();
 try {
     $model->getInput($count);
-} catch(ONNX\Status\Model\InvalidIndex $ex) {
+} catch(ORT\Status\Model\InvalidIndex $ex) {
     var_dump(strpos($ex->getMessage(), 
         "is out of range for input") !== false);
 }

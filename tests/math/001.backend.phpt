@@ -1,10 +1,10 @@
 --TEST--
-ONNX Math backend configuration
+ORT Math backend configuration
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-$backend = \ONNX\Math\backend();
+$backend = \ORT\Math\backend();
 
 if ($backend === false) {
     printf("Backend: none\n");

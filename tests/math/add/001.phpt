@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\add: tensor + tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
+ORT\Math\add: tensor + tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -24,9 +24,9 @@ $types = [
     'UINT32' => [$unsigned_types['UINT32'], $unsigned_values],
 ];
 foreach ($types as $name => [$type, $values]) {
-    $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
-    $b = new ONNX\Tensor\Transient([count($values)], $values, $type);
-    $result = ONNX\Math\add($a, $b);
+    $a = new ORT\Tensor\Transient([count($values)], $values, $type);
+    $b = new ORT\Tensor\Transient([count($values)], $values, $type);
+    $result = ORT\Math\add($a, $b);
     echo "PASS: $name add tensor + tensor\n";
     print_result($result);
 }
@@ -34,9 +34,9 @@ foreach ($types as $name => [$type, $values]) {
 // Large tensor case for vectorization
 $large_size = 4096;
 foreach ($types as $name => [$type, $values]) {
-    $a = new ONNX\Tensor\Transient([$large_size], array_fill(0, $large_size, 1), $type);
-    $b = new ONNX\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
-    $result = ONNX\Math\add($a, $b);
+    $a = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 1), $type);
+    $b = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
+    $result = ORT\Math\add($a, $b);
     $data = $result->getData();
     echo "PASS: $name add large tensor + large tensor (vectorized)\n";
     printf("RESULT: [%d x %d] first=%.1f last=%.1f\n", $large_size, $large_size, $data[0], $data[$large_size-1]);

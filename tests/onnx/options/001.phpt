@@ -10,8 +10,8 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-var_dump(new \ONNX\Options());
+var_dump(new \ORT\Options());
 ?>
 --EXPECTF--
-object(ONNX\Options)#%d (0) {
+object(ORT\Options)#%d (0) {
 }

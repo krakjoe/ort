@@ -10,7 +10,7 @@ include(sprintf(
 ?>
 --FILE--
 <?php
-$model = new ONNX\Model("mismatch_test",
+$model = new ORT\Model("mismatch_test",
     \sprintf("%s/../fixtures/add.onnx", dirname(__FILE__)));
 
 try {

@@ -481,7 +481,7 @@ PHP_METHOD(ONNX_Model, unload)
 #endif
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_model_getInputIterator_arginfo, 0, 0, ONNX\\Model\\Iterator, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_model_getInputIterator_arginfo, 0, 0, ORT\\Model\\Iterator, 0)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(ONNX_Model, getInputIterator)
@@ -495,7 +495,7 @@ PHP_METHOD(ONNX_Model, getInputIterator)
             ort->object->counters.input, return_value);
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_model_getOutputIterator_arginfo, 0, 0, ONNX\\Model\\Iterator, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_model_getOutputIterator_arginfo, 0, 0, ORT\\Model\\Iterator, 0)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(ONNX_Model, getOutputIterator)
@@ -784,7 +784,7 @@ PHP_MINIT_FUNCTION(ORT_MODEL)
     php_ort_model_handlers.free_obj = php_ort_model_destroy;
     php_ort_model_handlers.clone_obj = NULL;
 
-    INIT_NS_CLASS_ENTRY(ce, "ONNX", "Model", php_ort_model_methods);
+    INIT_NS_CLASS_ENTRY(ce, "ORT", "Model", php_ort_model_methods);
 
     php_ort_model_ce = zend_register_internal_class(&ce);
     php_ort_model_ce->create_object = php_ort_model_create;

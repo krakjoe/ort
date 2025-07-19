@@ -5,8 +5,8 @@ ort
 --FILE--
 <?php
 try {
-    new ONNX\Tensor\Persistent("my.tensor", [2, 3], []);
-} catch(ONNX\Status\Tensor\InvalidData $status) {
+    new ORT\Tensor\Persistent("my.tensor", [2, 3], []);
+} catch(ORT\Status\Tensor\InvalidData $status) {
     var_dump($status->getMessage());
 }
 ?>

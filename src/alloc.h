@@ -29,9 +29,9 @@
  The interactions are complex, but the contract this implementation fulfils is simple:
     Tensor memory must be allocated in a way that is compatible with the current backend.
 
- In all cases, including where the ONNX runtime returns a tensor from inference, we must be
+ In all cases, including where the ORT runtime returns a tensor from inference, we must be
  sure that the above contract is fulfilled; this means that this allocator must interact with
- the ONNX runtime to install itself as the allocator for ONNX.
+ the ORT runtime to install itself as the allocator for ORT.
 */
 #ifndef HAVE_ORT_ALLOC
 #define HAVE_ORT_ALLOC

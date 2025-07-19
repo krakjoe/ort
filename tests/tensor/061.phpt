@@ -1,23 +1,23 @@
 --TEST--
-ONNX\Tensor::getTypeName()
+ORT\Tensor::getTypeName()
 --EXTENSIONS--
 ort
 --FILE--
 <?php
 foreach ([
-    \ONNX\Tensor::DOUBLE,
-    \ONNX\Tensor::FLOAT,
-    \ONNX\Tensor::INT8,
-    \ONNX\Tensor::INT16,
-    \ONNX\Tensor::INT32,
-    \ONNX\Tensor::INT64,
-    \ONNX\Tensor::UINT8,
-    \ONNX\Tensor::UINT16,
-    \ONNX\Tensor::UINT32,
-    \ONNX\Tensor::BOOL
+    \ORT\Tensor::DOUBLE,
+    \ORT\Tensor::FLOAT,
+    \ORT\Tensor::INT8,
+    \ORT\Tensor::INT16,
+    \ORT\Tensor::INT32,
+    \ORT\Tensor::INT64,
+    \ORT\Tensor::UINT8,
+    \ORT\Tensor::UINT16,
+    \ORT\Tensor::UINT32,
+    \ORT\Tensor::BOOL
 ] as $type) {
-    $tensor = \ONNX\Tensor\Transient::from(
-        $type == \ONNX\Tensor::BOOL ?
+    $tensor = \ORT\Tensor\Transient::from(
+        $type == \ORT\Tensor::BOOL ?
             [true, false, true] : [1,2,3], $type);
 
     if ($type != $tensor->getType()) {

@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Math\sign: all types, shape, error handling, numpy/ONNX schema compliance
+ORT\Math\sign: all types, shape, error handling, numpy/ORT schema compliance
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../fixtures/math.php",
@@ -17,16 +17,16 @@ $large_signed = array_merge(
     range(1, 16)
 );
 foreach (array_merge($real, $signed_types) as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($large_signed)], $large_signed, $type);
-    $result = ONNX\Math\sign($a);
+    $a = new ORT\Tensor\Transient([count($large_signed)], $large_signed, $type);
+    $result = ORT\Math\sign($a);
     echo "PASS: $name sign large signed [-16..-1,0,1..16]\n";
     print_result($result);
 }
 // 1b. Sign for unsigned types: only non-negative values (large enough for vectorization)
 $large_unsigned = range(0, 31);
 foreach ($unsigned_types as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
-    $result = ONNX\Math\sign($a);
+    $a = new ORT\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
+    $result = ORT\Math\sign($a);
     echo "PASS: $name sign large unsigned [0..31]\n";
     print_result($result);
 }
@@ -35,8 +35,8 @@ $extremes = array_merge([
     -1e10, -1e-10, 0, 1e-10, 1e10, 0, 1
 ], range(2, 33));
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($extremes)], $extremes, $type);
-    $result = ONNX\Math\sign($a);
+    $a = new ORT\Tensor\Transient([count($extremes)], $extremes, $type);
+    $result = ORT\Math\sign($a);
     echo "PASS: $name sign extremes large\n";
     print_result($result);
 }
@@ -49,8 +49,8 @@ for ($i = 0; $i < 8; $i++) {
     }
     $int8_2d[] = $row;
 }
-$a = new ONNX\Tensor\Transient([8,8], $int8_2d, ONNX\Tensor::INT8);
-$result = ONNX\Math\sign($a);
+$a = new ORT\Tensor\Transient([8,8], $int8_2d, ORT\Tensor::INT8);
+$result = ORT\Math\sign($a);
 echo "PASS: INT8 sign 2D 8x8 alt sign\n";
 print_result($result);
 // 4. Sign for bool tensor (should error)
@@ -63,8 +63,8 @@ for ($i = 0; $i < 8; $i++) {
     $bool_2d[] = $row;
 }
 try {
-    $a = new ONNX\Tensor\Transient([8,8], $bool_2d, ONNX\Tensor::BOOL);
-    $result = ONNX\Math\sign($a);
+    $a = new ORT\Tensor\Transient([8,8], $bool_2d, ORT\Tensor::BOOL);
+    $result = ORT\Math\sign($a);
     echo "FAIL: BOOL sign [bool 8x8] (should error)\n";
     print_result($result);
 } catch (Throwable $e) {

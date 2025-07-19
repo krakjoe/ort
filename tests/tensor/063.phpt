@@ -1,10 +1,10 @@
 --TEST--
-ONNX\Tensor\Generator
+ORT\Tensor\Generator
 --EXTENSIONS--
 ort
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 $generated = new Tensor\Transient([], new class
     implements Tensor\Generator {

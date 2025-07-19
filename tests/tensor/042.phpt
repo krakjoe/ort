@@ -8,11 +8,11 @@ include (\sprintf("%s/../fixtures/skipif.php", dirname(__FILE__)));
 ?>
 --FILE--
 <?php
-$tensor = new ONNX\Tensor\Persistent(
+$tensor = new ORT\Tensor\Persistent(
     "test_tensor",
     [2, 2],
     [[1.5, 2.5], [3.5, 4.5]],
-    ONNX\Tensor::DOUBLE
+    ORT\Tensor::DOUBLE
 );
 
 $data = $tensor->getData();

@@ -1,8 +1,8 @@
 --TEST--
-ONNX\Math\asin: line-by-line, all types, shape, error handling, numpy semantics
+ORT\Math\asin: line-by-line, all types, shape, error handling, numpy semantics
 --FILE--
 <?php
-use ONNX\Tensor;
+use ORT\Tensor;
 
 include sprintf(
     "%s/../../../fixtures/math.php",
@@ -15,16 +15,16 @@ $large_signed = array_merge(
     range(1, 16)
 );
 foreach (array_merge($real, $signed_types) as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($large_signed)], $large_signed, $type);
-    $result = ONNX\Math\asin($a);
+    $a = new ORT\Tensor\Transient([count($large_signed)], $large_signed, $type);
+    $result = ORT\Math\asin($a);
     echo "PASS: $name asin large signed [-16..-1,0,1..16]\n";
     print_result($result);
 }
 // 1b. Asin for unsigned types: only non-negative values (large enough for vectorization)
 $large_unsigned = range(0, 31);
 foreach ($unsigned_types as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
-    $result = ONNX\Math\asin($a);
+    $a = new ORT\Tensor\Transient([count($large_unsigned)], $large_unsigned, $type);
+    $result = ORT\Math\asin($a);
     echo "PASS: $name asin large unsigned [0..31]\n";
     print_result($result);
 }
@@ -33,12 +33,12 @@ foreach ($unsigned_types as $name => $type) {
 $zeros_ones = array_fill(0, 32, 0);
 for ($i = 0; $i < 32; $i += 2) $zeros_ones[$i] = 1;
 foreach ($types as $name => $type) {
-    if ($type == \ONNX\Tensor::BOOL) {
+    if ($type == \ORT\Tensor::BOOL) {
         /* meaningless */
         continue;
     }
-    $a = new ONNX\Tensor\Transient([count($zeros_ones)], $zeros_ones, $type);
-    $result = ONNX\Math\asin($a);
+    $a = new ORT\Tensor\Transient([count($zeros_ones)], $zeros_ones, $type);
+    $result = ORT\Math\asin($a);
     echo "PASS: $name asin large zeros/ones\n";
     print_result($result);
 }
@@ -52,8 +52,8 @@ for ($i = 0; $i < 8; $i++) {
     }
     $int8_2d[] = $row;
 }
-$a = new ONNX\Tensor\Transient([8,8], $int8_2d, ONNX\Tensor::INT8);
-$result = ONNX\Math\asin($a);
+$a = new ORT\Tensor\Transient([8,8], $int8_2d, ORT\Tensor::INT8);
+$result = ORT\Math\asin($a);
 echo "PASS: INT8 asin 2D 8x8 alt sign\n";
 print_result($result);
 
@@ -66,8 +66,8 @@ for ($i = 0; $i < 8; $i++) {
     }
     $bool_2d[] = $row;
 }
-$a = new ONNX\Tensor\Transient([8,8], $bool_2d, ONNX\Tensor::BOOL);
-$result = ONNX\Math\asin($a);
+$a = new ORT\Tensor\Transient([8,8], $bool_2d, ORT\Tensor::BOOL);
+$result = ORT\Math\asin($a);
 echo "PASS: BOOL asin [bool 8x8] (numpy semantics)\n";
 print_result($result);
 
@@ -76,8 +76,8 @@ $extremes = array_merge([
     1e10, 1e-10, 0, 1
 ], range(2, 33));
 foreach ($real as $name => $type) {
-    $a = new ONNX\Tensor\Transient([count($extremes)], $extremes, $type);
-    $result = ONNX\Math\asin($a);
+    $a = new ORT\Tensor\Transient([count($extremes)], $extremes, $type);
+    $result = ORT\Math\asin($a);
     echo "PASS: $name asin extremes large\n";
     print_result($result);
 }
