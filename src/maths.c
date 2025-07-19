@@ -526,7 +526,7 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   sum, php_ort_math_reduce_axis_sum,   php_ort_math_reduce_axis_sum_arginfo)
     ZEND_NS_NAMED_FE("ONNX\\Math\\reduce\\axis",   softmax, php_ort_math_reduce_axis_softmax,   php_ort_math_reduce_axis_softmax_arginfo)
 
-    ZEND_NS_FE("ONNX\\Math", dot, php_ort_math_dot_arginfo)
+    ZEND_NS_FE("ONNX\\Math\\reduce", dot, php_ort_math_dot_arginfo)
 
     ZEND_NS_FE("ONNX\\Math", backend, php_ort_math_backend_arginfo)
     ZEND_NS_FE("ONNX\\Math", cores,   php_ort_math_cores_arginfo)

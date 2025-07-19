@@ -88,6 +88,14 @@ void ort_math_backend_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, FLOAT,   div, float)
     ORT_MATH_BACKEND_INSTALL(table, DOUBLE,  div, double)
 
+    /* dot.c */
+    ORT_MATH_BACKEND_INSTALL(table, FLOAT,   dot, float)
+    ORT_MATH_BACKEND_INSTALL(table, DOUBLE,  dot, double)
+    ORT_MATH_BACKEND_INSTALL(table, INT16,   dot, int16_t)
+    ORT_MATH_BACKEND_INSTALL(table, INT32,   dot, int32_t)
+    ORT_MATH_BACKEND_INSTALL(table, UINT16,  dot, uint16_t)
+    ORT_MATH_BACKEND_INSTALL(table, UINT32,  dot, uint32_t)
+
     /* floor.c */
     ORT_MATH_BACKEND_INSTALL(table, FLOAT,   floor, float)
     ORT_MATH_BACKEND_INSTALL(table, DOUBLE,  floor, double)

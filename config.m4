@@ -175,6 +175,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           PHP_ORT_BACKEND_IMPL=m4_normalize("
             $PHP_ORT_BACKEND_DIR/avx2/add.c
             $PHP_ORT_BACKEND_DIR/avx2/sub.c
+            $PHP_ORT_BACKEND_DIR/avx2/dot.c
             $PHP_ORT_BACKEND_DIR/avx2/matmul.c
             $PHP_ORT_BACKEND_DIR/avx2/mul.c
             $PHP_ORT_BACKEND_DIR/avx2/div.c

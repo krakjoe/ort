@@ -1,5 +1,5 @@
 --TEST--
-ONNX\Math\dot: tensor • tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
+ONNX\Math\reduce\dot: tensor • tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
 --EXTENSIONS--
 ort
 --FILE--
@@ -7,7 +7,7 @@ ort
 use ONNX\Tensor;
 
 include sprintf(
-    "%s/../../fixtures/math.php",
+    "%s/../../../fixtures/math.php",
     dirname(__FILE__));
 
 $signed_values = array_merge(range(-16, -1), [0], range(1, 16)); // 33 elements
@@ -26,7 +26,7 @@ $types = [
 foreach ($types as $name => [$type, $values]) {
     $a = new ONNX\Tensor\Transient([count($values)], $values, $type);
     $b = new ONNX\Tensor\Transient([count($values)], $values, $type);
-    $result = ONNX\Math\dot($a, $b);
+    $result = ONNX\Math\reduce\dot($a, $b);
     echo "PASS: $name dot tensor • tensor\n";
     print_result($result);
 }
@@ -36,7 +36,7 @@ $large_size = 4096;
 foreach ($types as $name => [$type, $values]) {
     $a = new ONNX\Tensor\Transient([$large_size], array_fill(0, $large_size, 1), $type);
     $b = new ONNX\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
-    $result = ONNX\Math\dot($a, $b);
+    $result = ONNX\Math\reduce\dot($a, $b);
     echo "PASS: $name dot large tensor • large tensor (vectorized)\n";
     print_result($result);
 }

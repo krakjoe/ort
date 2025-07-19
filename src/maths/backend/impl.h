@@ -128,6 +128,12 @@ ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_BACKEND_RECIP_OP_DECL)
 ORT_MATH_FOREACH_ALL_TYPES(_ORT_MATH_BACKEND_MATMUL_OP_DECL)
 #undef _ORT_MATH_BACKEND_MATMUL_OP_DECL /* }}} */
 
+/* {{{ Backend Forward Declarations of Dot Reduction Operations */
+#define ORT_MATH_BACKEND_DOT_OP_DECL(type, unused) \
+        ORT_MATH_BACKEND_BINARY_OP_DECL(dot, type);
+ORT_MATH_FOREACH_NUMERIC_TYPE(ORT_MATH_BACKEND_DOT_OP_DECL)
+#undef ORT_MATH_BACKEND_DOT_OP_DECL /* }}} */
+
 /* {{{ Backend Forward Declarations of Min Reduction Operations */
 #define ORT_MATH_BACKEND_MIN_OP_DECL(type, unused)         \
         ORT_MATH_BACKEND_REDUCTION_OP_DECL(min, type);     \

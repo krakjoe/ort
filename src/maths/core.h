@@ -47,4 +47,11 @@ typedef void (*ort_math_reduction_op_func_t)(
 typedef void (*ort_math_matmul_op_func_t)(
   void* result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
 
+/* {{{ Clamping is required everywhere */
+#define ORT_MATH_CLAMP(val, range, type) \
+    (val > range##_MAX) ? (type) val :   \
+    (val < range##_MIN) ? (type) val : val /* }}} */
+/* {{{ Clamping at max is required everywhere min is undefined */
+#define ORT_MATH_CLAMP_MAX(val, range, type) \
+    (val > range##_MAX) ? (type) val : val /* }}} */
 #endif
