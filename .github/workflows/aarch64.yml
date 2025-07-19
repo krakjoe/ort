@@ -1,10 +1,8 @@
 name: aarch64
 
 on:
-  push:
-    branches: [ develop, release ]
-  pull_request:
-    branches: [ develop, release ]
+  workflow_dispatch:
+
 jobs:
   RunBasicTests:
     runs-on: ubuntu-latest-arm64 
