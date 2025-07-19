@@ -415,12 +415,12 @@
 
             <div id="problem" class="tab-content active">
                 <h2>The Inevitable Transformation</h2>
-                <p>Software is changing faster than we've seen in 25 years. Machine learning isn't just becoming important—it's becoming essential. Every application, every website, every digital interaction will soon expect intelligent features as standard.</p>
+                <p>Software is changing faster than we've seen in 25 years. Machine learning isn't just becoming important, it's becoming essential. Every application, every website, every digital interaction will soon expect intelligent features as standard.</p>
                 
                 <p>For millions of PHP developers who power the web, this creates an existential challenge: stay relevant in an AI-first world or risk obsolescence.</p>
 
                 <div class="highlight">
-                    <strong>The Stakes:</strong> This isn't about technology preferences—it's about livelihoods. Mortgages, families, careers built on PHP expertise.
+                    <strong>The Stakes:</strong> This isn't about technology preferences, it's about livelihoods. Mortgages, families, careers built on PHP expertise.
                 </div>
 
                 <h3>The Current Reality</h3>
@@ -450,7 +450,7 @@
                 </div>
 
                 <h3>Why This Matters</h3>
-                <p>PHP's web dominance isn't just a technical fact—it's a distribution advantage.</p>
+                <p>PHP's web dominance isn't just a technical fact, it's a distribution advantage.</p>
                 <p>If ML inference becomes a first class citizen in PHP, we democratize machine learning at unprecedented scale.</p>
                 <p>Every PHP developer becomes capable of building intelligent applications, but more importantly, they are able to innovate in this space.</p>
                 <p>Genuine innovation is a far reach when what you are able to do is mostly determined by remote endpoints.</p>
@@ -527,7 +527,7 @@
 
             <div id="technical" class="tab-content">
                 <h2>Technical Excellence</h2>
-                <p>This isn't a proof of concept—it's production-ready infrastructure built to exacting standards.</p>
+                <p>This isn't a proof of concept, it's production-ready infrastructure built to exacting standards.</p>
 
                 <h3>Four-Layer Architecture</h3>
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -535,10 +535,10 @@
                         <strong>PHP API Layer</strong> - Clean, intuitive interface
                     </div>
                     <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #27ae60; border-radius: 4px;">
-                        <strong>Mathematics Layer</strong> - 439 optimized functions across 9 data types
+                        <strong>Mathematics Layer</strong> - Comprehensive math library supporting 9 data types: real, double, int8 - int64, uint8 - uiint32
                     </div>
                     <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #f39c12; border-radius: 4px;">
-                        <strong>SIMD Backend</strong> - AVX2, SSE4.1, SSE2 support with fallbacks
+                        <strong>SIMD Backend</strong> - NEON, AVX2, SSE4.1, SSE2
                     </div>
                     <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #e74c3c; border-radius: 4px;">
                         <strong>Extension Core</strong> - ONNX Runtime integration with proper resource management
@@ -547,10 +547,10 @@
 
                 <h3>Key Technical Innovations</h3>
                 <ul class="padded-list">
-                    <li><strong>Type System:</strong> Schemas extracted from NumPy runtime—no guesswork</li>
-                    <li><strong>Thread Pool:</strong> Custom work-stealing implementation with proper synchronization</li>
-                    <li><strong>Memory Management:</strong> Atomic reference counting for thread safety</li>
-                    <li><strong>SIMD Optimization:</strong> Runtime backend selection with optimal fallbacks</li>
+                    <li><strong>Type System:</strong> Schemas extracted from NumPy runtime; no guesswork</li>
+                    <li><strong>Memory Management:</strong> Aligned allocator and optimized memcpy for each backend provides maximum performance in potential</li>
+                    <li><strong>Thread Pool:</strong> Alignment aware work-stealing implementation</li>
+                    <li><strong>SIMD Optimization:</strong> Sophisticated guarding (runtime detection of features) and pinning (disallowing thread migration) ensures stability and predictability at scale</li>
                 </ul>
 
                 <h3>Performance Benchmarks</h3>
@@ -588,6 +588,10 @@ extension=ort.so
 <span class="keyword">echo</span> <span class="string">"Cores: "</span> <span class="operator">.</span> <span class="class">ONNX\Math</span>\<span class="function">cores</span>() <span class="operator">.</span> <span class="string">"\n"</span>;
 </div>
                 </div>
+
+                <div class="highlight">
+                    <p>For the avoidance of any doubt; The <em>design and features</em> of the extension are <em>production-ready</em>: The code is in heavy development and releases will be announced.</p>
+                </div>
             </div>
 
             <div id="critics" class="tab-content">
@@ -604,13 +608,13 @@ extension=ort.so
                     <div class="criticism-card">
                         <h4>"PHP isn't suitable for HPC"</h4>
                         <div class="response">Response:</div>
-                        <p>The thing that makes Python suitable for ML isn't the interpreter or whether or not they have an effective JIT compiler (they don't) — it's the ecosystem and libraries built around it.</p>
+                        <p>The thing that makes Python suitable for ML isn't the interpreter or whether or not they have an effective JIT compiler (they don't); it's the ecosystem and libraries built around it.</p>
                     </div>
 
                     <div class="criticism-card">
                         <h4>"Type requirements too complex"</h4>
                         <div class="response">Response:</div>
-                        <p>We extract schemas from NumPy runtime. No guesswork, no compatibility issues — strict adherence to proven standards.</p>
+                        <p>We extract schemas from NumPy runtime. No guesswork, no compatibility issues; strict adherence to proven standards.</p>
                     </div>
 
                     <div class="criticism-card">
@@ -654,7 +658,7 @@ extension=ort.so
                 </div>
 
                 <h3>The Scope</h3>
-                <p>This focuses specifically on <em>inference</em>, not the entire ML stack. It's not trying to replace Python for training—just enabling inference where PHP already dominates.</p>
+                <p>This focuses specifically on <em>inference</em>, not the entire ML stack. It's not trying to replace Python for training, just enabling inference where PHP already dominates.</p>
                 <h3>The Track Record</h3>
                 <p>This was developed by the same person who delivered numerous core improvements, and many complex features by extension to PHP including threading; You may already depend on infrastructure they developed!</p>
                 <br />
@@ -663,7 +667,7 @@ extension=ort.so
 
             <div id="future" class="tab-content">
                 <h2>The Path Forward</h2>
-                <p>Success doesn't require changing the world overnight—it requires building the foundation for sustainable growth.</p>
+                <p>Success doesn't require changing the world overnight, it requires building the foundation for sustainable growth.</p>
 
                 <h3>Realistic Timeline</h3>
                 <div class="ecosystem-timeline">
@@ -714,13 +718,13 @@ extension=ort.so
                 </ul>
 
                 <h3>Join the Evolution</h3>
-                <p>This isn't about revolution—it's about evolution. PHP has always adapted to stay relevant. From simple scripts to enterprise applications, and now to intelligent applications.</p>
+                <p>This isn't about revolution, it's about evolution. PHP has always adapted to stay relevant. From simple scripts to enterprise applications, and now to intelligent applications.</p>
 
                 <div class="highlight">
-                    <strong>The Vision:</strong> Every corner of the web becomes capable of intelligent behavior. PHP developers don't need to choose between staying with PHP and building the future—they can do both.
+                    <strong>The Vision:</strong> Every corner of the web becomes capable of intelligent behavior. PHP developers don't need to choose between staying with PHP and building the future, they can do both.
                 </div>
 
-                <p>Machine learning inference isn't a luxury anymore—it's becoming essential infrastructure. This is PHP's answer to the AI revolution.</p>
+                <p>Machine learning inference isn't a luxury anymore, it's becoming essential infrastructure. This is PHP's answer to the AI revolution.</p>
             </div>
         </div>
     </div>
