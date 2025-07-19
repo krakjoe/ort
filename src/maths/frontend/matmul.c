@@ -39,35 +39,31 @@
         const c_type* va = (const c_type*)a;           \
         const c_type* vb = (const c_type*)b;           \
         c_type* res = (c_type*)result;                 \
-        for (size_t i = 0; i < a_rows; i++) {          \
-            for (size_t j = 0; j < b_cols; j++) {      \
-                int64_t sum = 0;                       \
-                for (size_t k = 0; k < a_cols; k++) {  \
-                    sum += va[                         \
-                        i * a_cols + k                 \
-                    ] * vb[k * b_cols + j];            \
-                }                                      \
-                /* Clamp for small integer types */    \
-                if (sizeof(c_type) == 1) {                                 \
-                    if ((c_type)-128 == (int8_t)-128) { /* int8_t */       \
-                        if (sum > INT8_MAX) sum = INT8_MAX;                \
-                        else if (sum < INT8_MIN) sum = INT8_MIN;           \
-                    } else { /* uint8_t */                                 \
-                        if (sum > UINT8_MAX) sum = UINT8_MAX;              \
-                        else if (sum < 0) sum = 0;                         \
-                    }                                                      \
-                } else if (sizeof(c_type) == 2) {                          \
-                    if ((c_type)-32768 == (int16_t)-32768) { /* int16_t */ \
-                        if (sum > INT16_MAX) sum = INT16_MAX;              \
-                        else if (sum < INT16_MIN) sum = INT16_MIN;         \
-                    } else { /* uint16_t */                                \
-                        if (sum > UINT16_MAX) sum = UINT16_MAX;            \
-                        else if (sum < 0) sum = 0;                         \
-                    }                                                      \
-                }                                                          \
-                res[i * b_cols + j] = (c_type)sum;                         \
-            }                                                              \
-        }                                                                  \
+        for (size_t j = 0; j < b_cols; j++) {          \
+            int64_t sum = 0;                           \
+            for (size_t k = 0; k < a_cols; k++) {      \
+                sum += va[k] * vb[k * b_cols + j];     \
+            }                                          \
+            /* Clamp for small integer types */        \
+            if (sizeof(c_type) == 1) {                                 \
+                if ((c_type)-128 == (int8_t)-128) { /* int8_t */       \
+                    if (sum > INT8_MAX) sum = INT8_MAX;                \
+                    else if (sum < INT8_MIN) sum = INT8_MIN;           \
+                } else { /* uint8_t */                                 \
+                    if (sum > UINT8_MAX) sum = UINT8_MAX;              \
+                    else if (sum < 0) sum = 0;                         \
+                }                                                      \
+            } else if (sizeof(c_type) == 2) {                          \
+                if ((c_type)-32768 == (int16_t)-32768) { /* int16_t */ \
+                    if (sum > INT16_MAX) sum = INT16_MAX;              \
+                    else if (sum < INT16_MIN) sum = INT16_MIN;         \
+                } else { /* uint16_t */                                \
+                    if (sum > UINT16_MAX) sum = UINT16_MAX;            \
+                    else if (sum < 0) sum = 0;                         \
+                }                                                      \
+            }                                                          \
+            res[j] = (c_type)sum;                                      \
+        }                                                              \
     }
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(
@@ -207,18 +203,17 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
 
     size_t chunk;
     size_t num_chunks = ort_pool_chunk(
-        batch_size, type_size, &chunk);
+        a_rows, type_size * b_cols, &chunk);
 
     ort_pool_matmul_ctx_t ctx = {
         .layout = {
             .element = type_size,
-            .total = batch_size,
+            .total = a_rows,
             .chunk = chunk
         },
         .result = result->data,
         .a = a_buf,
         .b = b_buf,
-        .a_rows = a_rows,
         .a_cols = a_cols,
         .b_cols = b_cols,
         .type_size = type_size,

@@ -79,18 +79,17 @@ typedef struct _ort_pool_reduce_axis_ctx_t {
 } ort_pool_reduce_axis_ctx_t;
 
 typedef struct _ort_pool_matmul_ctx_t {
-    ort_pool_ctx_layout_t layout; // chunking info: total = batch_size, chunk = batches per thread
-    void *result;                 // pointer to result buffer (all batches)
-    const void *a;                // pointer to input A buffer (all batches)
-    const void *b;                // pointer to input B buffer (all batches)
-    size_t a_rows;                // rows in A (per batch)
-    size_t a_cols;                // cols in A (per batch)
-    size_t b_cols;                // cols in B (per batch)
+    ort_pool_ctx_layout_t layout; // chunking info: total = number of output rows, chunk = rows per thread
+    void *result;                 // pointer to result buffer (output matrix, row-major)
+    const void *a;                // pointer to input A buffer (row-major, one row per kernel call)
+    const void *b;                // pointer to input B buffer (row-major)
+    size_t a_cols;                // number of columns in A (width of input row)
+    size_t b_cols;                // number of columns in B (width of output row)
     size_t type_size;             // size of one element in bytes
-    size_t matrix_size_a;         // elements in one A matrix
-    size_t matrix_size_b;         // elements in one B matrix
-    size_t matrix_size_result;    // elements in one result matrix
-    void (*op)(void *result, const void *a, const void *b, size_t a_rows, size_t a_cols, size_t b_cols); // matmul kernel
+    size_t matrix_size_a;         // number of elements in one A matrix
+    size_t matrix_size_b;         // number of elements in one B matrix
+    size_t matrix_size_result;    // number of elements in one result matrix 
+    void (*op)(void *result, const void *a, const void *b, size_t a_cols, size_t b_cols); // matmul kernel: computes one output row per call
 } ort_pool_matmul_ctx_t;
 
 typedef struct _ort_pool_cast_ctx_t {

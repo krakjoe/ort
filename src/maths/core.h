@@ -45,7 +45,7 @@ typedef void (*ort_math_unary_op_func_t)(
 typedef void (*ort_math_reduction_op_func_t)(
   void* result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
 typedef void (*ort_math_matmul_op_func_t)(
-  void* result, const void* a, const void* b, size_t a_rows, size_t a_cols, size_t b_cols);
+  void* result, const void* a, const void* b, size_t a_cols, size_t b_cols);
 
 /* {{{ Clamping is required everywhere */
 #define ORT_MATH_CLAMP(val, range, type) \

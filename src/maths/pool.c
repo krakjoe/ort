@@ -229,7 +229,7 @@ void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count) {
 }
 
 void ort_pool_matmul_worker(void *arg, size_t index, size_t count) {
-    ort_pool_matmul_ctx_t *ctx =
+    ort_pool_matmul_ctx_t *ctx = 
         (ort_pool_matmul_ctx_t *)arg;
     size_t chunk = ctx->layout.chunk;
     size_t start = index * chunk;
@@ -237,17 +237,21 @@ void ort_pool_matmul_worker(void *arg, size_t index, size_t count) {
 
     if (end > ctx->layout.total)
         end = ctx->layout.total;
-    
-        for (size_t batch = start; batch < end; ++batch) {
+
+    // Each thread computes a range of output rows
+    for (size_t row = start; row < end; ++row) {
         void *result_ptr =
             (char*)ctx->result +
-                batch * ctx->matrix_size_result * ctx->type_size;
+                row * ctx->b_cols * ctx->type_size;
         const void *a_ptr =
-            (const char*)ctx->a + batch * ctx->matrix_size_a * ctx->type_size;
-        const void *b_ptr =
-            (const char*)ctx->b + batch * ctx->matrix_size_b * ctx->type_size;
-        
-        ctx->op(result_ptr, a_ptr, b_ptr, ctx->a_rows, ctx->a_cols, ctx->b_cols);
+            (const char*)ctx->a +
+                row * ctx->a_cols * ctx->type_size;
+        const void *b_ptr = ctx->b;
+
+        ctx->op(
+            result_ptr,
+            a_ptr, b_ptr,
+            ctx->a_cols, ctx->b_cols);
     }
 }
 

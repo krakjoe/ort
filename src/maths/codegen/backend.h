@@ -39,7 +39,7 @@
 #define ORT_MATH_BACKEND_MATMUL_OP_DECL(type)                      \
     void ORT_MATH_BACKEND_OP_SYMBOL(matmul, type) (                \
         void* result, const void* a, const void* b,                \
-        size_t a_rows, size_t a_cols, size_t b_cols)
+        size_t a_cols, size_t b_cols)
 #define ORT_MATH_BACKEND_REDUCTION_OP_DECL ORT_MATH_BACKEND_UNARY_OP_DECL
 #define ORT_MATH_BACKEND_REDUCTION_AXIS_OP_DECL(op, type)          \
     void ORT_MATH_BACKEND_OP_AXIS_SYMBOL(op, type) (               \
