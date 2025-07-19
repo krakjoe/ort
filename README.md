@@ -81,9 +81,8 @@ echo "Cores: " . ORT\Math\cores() . "\n";
 - **Reduction**: `sum`, `mean`, `min`, `max`, `softmax`
 
 ### ONNX Integration
-- `ORT\Model` - Load and manage ORT models
-- `ORT\Runtime` - Execute model inference
-- 'ORT\Options' - Inference Options
+- `ORT\Model` - Load and manage ONNX models
+- `ORT\Runtime` - Execute ONNX model inference
 
 ## Configuration
 
