@@ -10,7 +10,7 @@ $tensor = new ONNX\Tensor\Persistent(
     [[1.123456789, 2.987654321, 3.141592653]],
     ONNX\Tensor::DOUBLE
 );
-echo "Type: " . $tensor->getType();
+echo "Type: " . $tensor->getTypeName();
 ?>
 --EXPECT--
-Type: 11
+Type: DOUBLE

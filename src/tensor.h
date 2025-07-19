@@ -32,7 +32,6 @@ typedef struct _ort_tensor_t ort_tensor_t;
 struct _ort_tensor_t {
     uint32_t                  refcount;
     php_ort_owner_t           owner;
-    OrtValue*                 value;
     ort_tensor_t*             parent;
     zend_string*              name;
     ONNXTensorElementDataType type;
@@ -40,6 +39,9 @@ struct _ort_tensor_t {
     size_t                    dimensions;
     size_t                    elements;
     void*                     data;
+#ifdef HAVE_ONNXRUNTIME
+    OrtValue*                 value;
+#endif
 };
 
 typedef struct _php_ort_tensor_t {
@@ -60,11 +62,13 @@ static zend_always_inline size_t php_ort_tensor_sizeof(ort_tensor_t *tensor) {
 }
 
 void ort_tensor_release(ort_tensor_t *tensor);
-
-OrtValue*     php_ort_tensor_value(php_ort_tensor_t* ort);
-ort_tensor_t* php_ort_tensor_object(OrtValue* value);
 void          php_ort_tensor_store(
     ONNXTensorElementDataType type, void* target, zval* node);
+
+#ifdef HAVE_ONNXRUNTIME
+OrtValue*     php_ort_tensor_value(php_ort_tensor_t* ort);
+ort_tensor_t* php_ort_tensor_object(OrtValue* value);
+#endif
 
 PHP_MINIT_FUNCTION(ORT_TENSOR);
 PHP_MSHUTDOWN_FUNCTION(ORT_TENSOR);

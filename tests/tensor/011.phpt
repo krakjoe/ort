@@ -10,7 +10,7 @@ $tensor = new ONNX\Tensor\Persistent(
     [[255, 0], [128, 64]],
     ONNX\Tensor::UINT8
 );
-echo "Type: " . $tensor->getType();
+echo "Type: " . $tensor->getTypeName();
 ?>
 --EXPECT--
-Type: 2
+Type: UINT8

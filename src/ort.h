@@ -19,8 +19,6 @@
 #ifndef HAVE_ORT_CORE
 #define HAVE_ORT_CORE
 
-#include <onnxruntime_c_api.h>
-
 #include <php.h>
 
 #ifdef HAVE_CONFIG_H
@@ -31,6 +29,25 @@
 # define ORT_TLS __declspec(thread)
 #else
 # define ORT_TLS __thread
+#endif
+
+#ifdef HAVE_ONNXRUNTIME
+# include <onnxruntime_c_api.h>
+#else
+typedef enum {
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED = 0,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT = 1,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL
+} ONNXTensorElementDataType;
 #endif
 
 typedef enum {
@@ -159,7 +176,9 @@ static zend_always_inline zend_string* php_ort_string_copy(zend_string *source) 
     return dest;
 }
 
+#ifdef HAVE_ONNXRUNTIME
 extern const OrtApi* api;
+#endif
 
 PHP_MINIT_FUNCTION(ORT_CORE);
 PHP_MSHUTDOWN_FUNCTION(ORT_CORE);

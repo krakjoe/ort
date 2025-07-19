@@ -420,6 +420,7 @@ static void ort_tensor_free(ort_tensor_t *tensor) {
         pefree(tensor->shape, persistent);
     }
 
+#ifdef HAVE_ONNXRUNTIME
     if (!tensor->parent && tensor->data && !tensor->value) {
         ort_free(tensor->data);
     }
@@ -427,6 +428,11 @@ static void ort_tensor_free(ort_tensor_t *tensor) {
     if (tensor->value) {
         api->ReleaseValue(tensor->value);
     }
+#else
+    if (!tensor->parent && tensor->data) {
+        ort_free(tensor->data);
+    }
+#endif
 
     if (tensor->name && !persistent) {
         zend_string_free(tensor->name);
@@ -479,6 +485,7 @@ static zend_bool php_ort_tensor_construct_transient(ort_tensor_t *tensor, zval *
     return 1;
 }
 
+#ifdef HAVE_ONNXRUNTIME
 OrtValue* php_ort_tensor_value(php_ort_tensor_t* ort) {
     OrtMemoryInfo* mi;
     OrtValue* value = NULL;
@@ -599,6 +606,7 @@ ort_tensor_t* php_ort_tensor_object(OrtValue* value) {
 
     return tensor;
 }
+#endif
 
 static zend_always_inline size_t php_ort_tensor_indexof(ort_tensor_t *tensor, int64_t *coords) {
     // For scalar tensors, always return index 0

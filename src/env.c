@@ -19,26 +19,35 @@
 
 #include "env.h"
 
+#ifdef HAVE_ONNXRUNTIME
 static OrtEnv* __php_ort_environment = NULL;
 
 OrtEnv* php_ort_environment(void) {
     return __php_ort_environment;
 }
+#else
+void* php_ort_environment(void) {
+    return NULL;
+}
+#endif
 
 PHP_MINIT_FUNCTION(ORT_ENV) 
 {
+#ifdef HAVE_ONNXRUNTIME
     return api->CreateEnv(
         ORT_LOGGING_LEVEL_WARNING, 
         "[ORT PHP]", &__php_ort_environment) ?
         FAILURE : SUCCESS;
+#endif
 }
 
 PHP_MSHUTDOWN_FUNCTION(ORT_ENV) 
 {
+#ifdef HAVE_ONNXRUNTIME
     if (__php_ort_environment != NULL) {
         api->ReleaseEnv(
             __php_ort_environment);
     }
-
+#endif
     return SUCCESS;
 }

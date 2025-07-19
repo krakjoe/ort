@@ -10,7 +10,7 @@ $tensor = new ONNX\Tensor\Persistent(
     [[1, 2], [3, 4]],
     ONNX\Tensor::INT32
 );
-echo $tensor->getType();
+echo $tensor->getTypeName();
 ?>
 --EXPECT--
-6
+INT32

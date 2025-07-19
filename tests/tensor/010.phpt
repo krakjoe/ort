@@ -10,7 +10,7 @@ $tensor = new ONNX\Tensor\Persistent(
     [[true, false], [false, true]],
     ONNX\Tensor::BOOL
 );
-echo "Type: " . $tensor->getType();
+echo "Type: " . $tensor->getTypeName();
 ?>
 --EXPECT--
-Type: 9
+Type: BOOL

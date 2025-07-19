@@ -24,12 +24,24 @@ PHP_ARG_ENABLE([ort-neon],
   [whether to enable NEON support],
   [AS_HELP_STRING([--enable-ort-neon], [Enable NEON support])], no, no)
 
-AS_VAR_IF([PHP_ORT], [no],, [
-  dnl Check for ONNX Runtime library using pkg-config
-  PKG_CHECK_MODULES([ONNX], [libonnxruntime >= 1.16])
+PHP_ARG_WITH([ort-onnx],
+  [whether to enable ONNX Runtime support],
+  [AS_HELP_STRING([--with-ort-onnx], [Enable ONNX Runtime support])], no, no)
 
-  PHP_EVAL_INCLINE([$ONNX_CFLAGS])
-  PHP_EVAL_LIBLINE([$ONNX_LIBS], [ORT_SHARED_LIBADD])
+AS_VAR_IF([PHP_ORT], [no],, [
+  AC_MSG_CHECKING([for onnxruntime support])
+  AS_VAR_IF([PHP_ORT_ONNX], [no], [
+    AC_MSG_RESULT([no])
+  ], [
+    dnl Check for ONNX Runtime library using pkg-config
+    PKG_CHECK_MODULES([ONNXRUNTIME], [libonnxruntime >= 1.16])
+
+    PHP_EVAL_INCLINE([$ONNXRUNTIME_CFLAGS])
+    PHP_EVAL_LIBLINE([$ONNXRUNTIME_LIBS], [ORT_SHARED_LIBADD])
+    AC_DEFINE(HAVE_ONNXRUNTIME, 1,
+      [Defined to 1 where we should link against onnxruntime])
+    AC_MSG_RESULT([$ONNXRUNTIME_LIBS])
+  ])
 
   AC_MSG_CHECKING([for __atomic_add_fetch])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([], [[
@@ -47,16 +59,22 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ORT_CORE_IMPL=m4_normalize("
     $PHP_ORT_SRC_DIR/ort.c
     $PHP_ORT_SRC_DIR/env.c
-    $PHP_ORT_SRC_DIR/runtime.c
-    $PHP_ORT_SRC_DIR/model.c
     $PHP_ORT_SRC_DIR/tensor.c
     $PHP_ORT_SRC_DIR/status.c
-    $PHP_ORT_SRC_DIR/options.c
-    $PHP_ORT_SRC_DIR/iterator.c
     $PHP_ORT_SRC_DIR/maths.c
     $PHP_ORT_SRC_DIR/alloc.c
     $PHP_ORT_SRC_DIR/generators.c
   ")
+
+  AS_VAR_IF([PHP_ORT_ONNX], [no], [], [
+    PHP_ORT_CORE_IMPL=m4_normalize("
+      $PHP_ORT_CORE_IMPL
+      $PHP_ORT_SRC_DIR/options.c
+      $PHP_ORT_SRC_DIR/runtime.c
+      $PHP_ORT_SRC_DIR/model.c
+      $PHP_ORT_SRC_DIR/iterator.c
+    ")
+  ])
 
   PHP_ORT_MATHS_DIR=$PHP_ORT_SRC_DIR/maths
   PHP_ORT_MATHS_FRONTEND_DIR=$PHP_ORT_MATHS_DIR/frontend

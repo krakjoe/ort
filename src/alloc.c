@@ -31,6 +31,7 @@ struct _ort_alloc_t {
     size_t alignment;
 };
 
+#ifdef HAVE_ONNXRUNTIME
 static OrtMemoryInfo* minfo;
 
 const OrtMemoryInfo* __ort_alloc_default_info_for_onnx(
@@ -89,6 +90,11 @@ static void __ort_alloc_default_startup(ort_alloc_t* allocator) {
         exit(EXIT_FAILURE);
     }
 }
+#else
+static void __ort_alloc_default_startup(ort_alloc_t* allocator) {
+    (void)allocator;
+}
+#endif
 
 static void* __ort_alloc_default_alloc(size_t size, size_t count, size_t alignment) {
     assert(

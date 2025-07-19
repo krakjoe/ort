@@ -21,7 +21,11 @@
  
 #include <php.h>
 
+#ifdef HAVE_ONNXRUNTIME
 OrtEnv* php_ort_environment(void);
+#else
+void* php_ort_environment(void);
+#endif
 
 PHP_MINIT_FUNCTION(ORT_ENV);
 PHP_MSHUTDOWN_FUNCTION(ORT_ENV);
