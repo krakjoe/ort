@@ -85,7 +85,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
     int32_t *res = (int32_t *)result;
     for (size_t j = 0; j < b_cols; j++) {
         int32x4_t ma, mb, mr;
-        int32_t sum = 0;
+        int64_t sum = 0;
         const size_t mw = 4;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
@@ -105,7 +105,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
         }
-        res[j] = sum;
+        res[j] = ORT_MATH_CLAMP(sum, INT32, int32_t);
     }
 }
 
@@ -115,7 +115,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
     uint32_t *res = (uint32_t *)result;
     for (size_t j = 0; j < b_cols; j++) {
         uint32x4_t ma, mb, mr;
-        uint32_t sum = 0;
+        int64_t sum = 0;
         const size_t mw = 4;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
@@ -135,7 +135,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
         }
-        res[j] = sum;
+        res[j] = ORT_MATH_CLAMP_MAX(sum, UINT32, uint32_t);
     }
 }
 
@@ -171,13 +171,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
         }
 
-        // Clamp to int16_t range
-        if (sum > INT16_MAX) {
-            sum = INT16_MAX;
-        } else if (sum < INT16_MIN) {
-            sum = INT16_MIN;
-        }
-        res[j] = (int16_t)sum;
+        res[j] = ORT_MATH_CLAMP(sum, INT16, int16_t);
     }
 }
 
@@ -212,12 +206,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];
         }
-
-        // Clamp to uint16_t range
-        if (sum > UINT16_MAX) {
-            sum = UINT16_MAX;
-        }
-        res[j] = (uint16_t)sum;
+        
+        res[j] = ORT_MATH_CLAMP_MAX(sum, UINT16, uint16_t);
     }
 }
 
@@ -262,14 +252,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
         }
 
-        // Clamp to int8_t range
-        if (sum > INT8_MAX) {
-            sum = INT8_MAX;
-        } else if (sum < INT8_MIN) {
-            sum = INT8_MIN;
-        }
-
-        res[j] = (int8_t)sum;
+        res[j] = ORT_MATH_CLAMP(sum, INT8, int8_t);
     }
 }
 
@@ -313,10 +296,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];
         }
-        // Clamp to uint8_t range
-        if (sum > UINT8_MAX) {
-            sum = UINT8_MAX;
-        }
-        res[j] = (uint8_t)sum;
+
+        res[j] = ORT_MATH_CLAMP_MAX(sum, UINT8, uint8_t);
     }
 }

@@ -106,12 +106,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
         for (; k < a_cols; k++) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
         }
-        if (sum > INT16_MAX) {
-            sum = INT16_MAX;
-        } else if (sum < INT16_MIN) {
-            sum = INT16_MIN;
-        }
-        res[j] = (int16_t)sum;
+
+        res[j] = ORT_MATH_CLAMP(sum, INT16, int16_t);
     }
 }
 
@@ -141,9 +137,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];
         }
-        if (sum > UINT16_MAX) {
-            sum = UINT16_MAX;
-        }
-        res[j] = (uint16_t)sum;
+
+        res[j] = ORT_MATH_CLAMP_MAX(sum, UINT16, uint16_t);
     }
 }

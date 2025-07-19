@@ -115,13 +115,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
             }
         }
 
-        // Clamp to int16_t range
-        if (sum > INT16_MAX) {
-            sum = INT16_MAX;
-        } else if (sum < INT16_MIN) {
-            sum = INT16_MIN;
-        }
-        res[j] = (int16_t)sum;
+        res[j] = ORT_MATH_CLAMP(sum, INT16, int16_t);
     }
 }
 
@@ -155,12 +149,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
             }
         }
 
-        // Clamp to uint16_t range
-        if (sum > UINT16_MAX) {
-            sum = UINT16_MAX;
-        }
-
-        res[j] = (uint16_t) sum;
+        res[j] = ORT_MATH_CLAMP_MAX(sum, UINT16, uint16_t);
     }
 }
 
@@ -193,7 +182,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                 sum += va[k] * vb[k * b_cols + j];
             }
         }
-        res[j] = sum;
+        res[j] = ORT_MATH_CLAMP(sum, INT32, int32_t);
     }
 }
 
@@ -226,6 +215,6 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                 sum += va[k] * vb[k * b_cols + j];
             }
         }
-        res[j] = sum;
+        res[j] = ORT_MATH_CLAMP_MAX(sum, UINT32, uint32_t);
     }
 }

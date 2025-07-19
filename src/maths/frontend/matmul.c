@@ -34,36 +34,37 @@
 #include "maths/schema/matmul.h"
 
 // Matrix multiplication for a single batch (C = A x B)
-#define ORT_MATH_MATMUL_IMPL_FOR_TYPE(c_type, unused)  \
-    ORT_MATH_FRONTEND_MATMUL_OP_DECL(c_type) {         \
-        const c_type* va = (const c_type*)a;           \
-        const c_type* vb = (const c_type*)b;           \
-        c_type* res = (c_type*)result;                 \
-        for (size_t j = 0; j < b_cols; j++) {          \
-            int64_t sum = 0;                           \
-            for (size_t k = 0; k < a_cols; k++) {      \
-                sum += va[k] * vb[k * b_cols + j];     \
-            }                                          \
-            /* Clamp for small integer types */        \
-            if (sizeof(c_type) == 1) {                                 \
-                if ((c_type)-128 == (int8_t)-128) { /* int8_t */       \
-                    if (sum > INT8_MAX) sum = INT8_MAX;                \
-                    else if (sum < INT8_MIN) sum = INT8_MIN;           \
-                } else { /* uint8_t */                                 \
-                    if (sum > UINT8_MAX) sum = UINT8_MAX;              \
-                    else if (sum < 0) sum = 0;                         \
-                }                                                      \
-            } else if (sizeof(c_type) == 2) {                          \
-                if ((c_type)-32768 == (int16_t)-32768) { /* int16_t */ \
-                    if (sum > INT16_MAX) sum = INT16_MAX;              \
-                    else if (sum < INT16_MIN) sum = INT16_MIN;         \
-                } else { /* uint16_t */                                \
-                    if (sum > UINT16_MAX) sum = UINT16_MAX;            \
-                    else if (sum < 0) sum = 0;                         \
-                }                                                      \
-            }                                                          \
-            res[j] = (c_type)sum;                                      \
-        }                                                              \
+#define ORT_MATH_MATMUL_IMPL_FOR_TYPE(c_type, onnx_type)  \
+    ORT_MATH_FRONTEND_MATMUL_OP_DECL(c_type) {            \
+        const c_type* va = (const c_type*)a;              \
+        const c_type* vb = (const c_type*)b;              \
+        c_type* res = (c_type*)result;                    \
+        for (size_t j = 0; j < b_cols; j++) {             \
+            int64_t sum = 0;                              \
+            for (size_t k = 0; k < a_cols; k++) {         \
+                sum += va[k] * vb[k * b_cols + j];        \
+            }                                             \
+            if ((onnx_type ==                             \
+                    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8)) {       \
+                sum = ORT_MATH_CLAMP(sum, INT8, int8_t);         \
+            } else if ((onnx_type ==                             \
+                    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8)) {      \
+                sum = ORT_MATH_CLAMP_MAX(sum, UINT8, uint8_t);   \
+            } else if ((onnx_type ==                             \
+                    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16)) {      \
+                sum = ORT_MATH_CLAMP(sum, INT16, int16_t);       \
+            } else if ((onnx_type ==                             \
+                    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16)) {     \
+                sum = ORT_MATH_CLAMP_MAX(sum, UINT16, uint16_t); \
+            }  else if ((onnx_type ==                            \
+                    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32)) {      \
+                sum = ORT_MATH_CLAMP(sum, INT32, int32_t);       \
+            } else if ((onnx_type ==                             \
+                    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32)) {     \
+                sum = ORT_MATH_CLAMP_MAX(sum, UINT32, uint32_t); \
+            }                                                    \
+            res[j] = sum;                                        \
+        }                                                        \
     }
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(
