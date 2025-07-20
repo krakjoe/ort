@@ -534,28 +534,40 @@
                 <h2>Technical Excellence</h2>
                 <p>This isn't a proof of concept, it's production-ready infrastructure built to exacting standards.</p>
 
-                <h3>Four-Layer Architecture</h3>
+                <h3>Core Architecture</h3>
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #3498db; border-radius: 4px;">
-                        <strong>PHP API Layer</strong> - Clean, intuitive interface
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #2c3e50; border-radius: 4px;">
+                        <strong>PHP API Layer</strong> - Clean, decoupled API:
+                            <span class="class">ORT\Tensor</span>,
+                            <span class="class">ORT\Math</span> functional namespace,
+                            <span class="class">ORT\Model</span>,
+                            <span class="class">ORT\Runtime</span>
                     </div>
-                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #27ae60; border-radius: 4px;">
-                        <strong>Frontend</strong> - Comprehensive maths library supporting 9 data types: real, double, int8 - int64, uint8 - uiint32
-                    </div>
-                    <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #f39c12; border-radius: 4px;">
-                        <strong>Backend</strong> - NEON, AVX2, SSE4.1, SSE2
+                    <div style="display: flex; gap: 10px; margin: 10px 0;">
+                        <div style="background: white; padding: 15px; flex: 1; border-left: 4px solid #27ae60; border-radius: 4px;">
+                            <strong>Math Library</strong><br>
+                            <small>Frontend: Dispatch, scheduling, and scalar fallbacks (always available)</small><br>
+                            <small>Backend: Silent SIMD optimizations (NEON, AVX2, SSE4.1, SSE2)</small>
+                        </div>
+                        <div style="background: white; padding: 15px; flex: 1; border-left: 4px solid #9b59b6; border-radius: 4px;">
+                            <strong>ONNX Integration</strong><br>
+                            <small>ORT\Model: Loading, metadata, and management</small><br>
+                            <small>ORT\Runtime: Inference</small>
+                        </div>
                     </div>
                     <div style="background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #e74c3c; border-radius: 4px;">
-                        <strong>Extension Core</strong> - Orechestration and (optional) tight ONNX Runtime integration
+                        <strong>ORT\Tensor</strong> - Immutable API; always available
                     </div>
                 </div>
 
                 <h3>Key Technical Innovations</h3>
                 <ul class="padded-list">
-                    <li><strong>Type System:</strong> Schemas extracted from NumPy runtime; no guesswork</li>
-                    <li><strong>Memory Management:</strong> Aligned allocator and optimized memcpy for each backend provides maximum performance in potential</li>
-                    <li><strong>Thread Pool:</strong> Alignment aware work-stealing implementation</li>
-                    <li><strong>SIMD Optimization:</strong> Sophisticated guarding (runtime detection of features) and pinning (disallowing thread migration) ensures stability and predictability at scale</li>
+                    <li><strong>Type System:</strong> Schemas extracted from NumPy runtime; no guesswork, perfect compatibility</li>
+                    <li><strong>Memory Management:</strong> Aligned allocator and optimized memcpy for maximum performance potential</li>
+                    <li><strong>Thread Pool:</strong> Work-stealing implementation with alignment awareness</li>
+                    <li><strong>SIMD Optimization:</strong> Runtime detection with thread pinning ensures stability and predictability at scale</li>
+                    <li><strong>Dispatch Table Design:</strong> Backend silently overwrites frontend operations for zero-overhead optimization</li>
+                    <li><strong>Modular Design:</strong> Math and ONNX systems are independent - use either or both as needed</li>
                 </ul>
 
                 <h3>Performance Benchmarks</h3>
