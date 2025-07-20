@@ -425,6 +425,7 @@ PHP_METHOD(Generator_RandomInt, __construct) {
 zend_function_entry php_ort_generator_random_methods[] = {
     PHP_ME(Generator_RandomInt, __construct,
         php_ort_generator_random__construct_arginfo, ZEND_ACC_PUBLIC)
+    PHP_FE_END
 };
 
 PHP_MINIT_FUNCTION(ORT_GENERATORS_RANDOM)

@@ -168,6 +168,7 @@ zend_function_entry php_ort_generator_internal_methods[] = {
     PHP_ME(Generator, __invoke,
         php_ort_generator_invoke_arginfo,
         ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
+    PHP_FE_END
 };
 
 PHP_MINIT_FUNCTION(ORT_GENERATORS) 
