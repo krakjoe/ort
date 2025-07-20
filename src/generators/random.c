@@ -58,6 +58,24 @@
 #include <ext/standard/php_mt_rand.h>
 #endif
 
+#if PHP_VERSION_ID < 80300
+const char* zend_zval_value_name(const zval* arg) {
+    if (Z_ISUNDEF_P(arg)) {
+        return "null";
+    }
+
+    if (Z_TYPE_P(arg) == IS_OBJECT) {
+        return ZSTR_VAL(Z_OBJCE_P(arg)->name);
+    } else if (Z_TYPE_P(arg) == IS_FALSE) {
+        return "false";
+    } else if  (Z_TYPE_P(arg) == IS_TRUE) {
+        return "true";
+    }
+
+    return zend_get_type_by_const(Z_TYPE_P(arg));
+}
+#endif
+
 zend_class_entry* php_ort_generator_random_ce;
 
 typedef struct _php_ort_generator_random_context_t{
