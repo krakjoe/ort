@@ -52,7 +52,11 @@
 #include "generators.h"
 #include "generators/random.h"
 
+#if PHP_VERSION_ID >= 80200
 #include <ext/random/php_random.h>
+#else
+#include <ext/standard/php_random.h>
+#endif
 
 zend_class_entry* php_ort_generator_random_ce;
 
