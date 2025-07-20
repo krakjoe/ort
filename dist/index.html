@@ -999,7 +999,7 @@ function showInnovationDetail(innovationId) {
                    <li><strong>Schema extraction:</strong> Python scripts generate C promotion tables from actual NumPy behavior</li>
                    <li><strong>Perfect compatibility:</strong> No guesswork about edge cases or version differences</li>
                    <li><strong>Comprehensive coverage:</strong> 9 data types × all operations = hundreds of promotion rules</li>
-                   <li><strong>Introspection API:</strong> <code>ORT\\Math\\Schema</code> allows runtime type behavior queries</li>
+                   <li><strong>Introspection API:</strong> <span class="class">ORT\\Math\\Schema</span> allows runtime type behavior queries</li>
                </ul>
                <p>This ensures that workflows (almost entirely documented in python) adapted to PHP behave predictably, as predictably as they would in python.</p>
                <br />
@@ -1021,7 +1021,7 @@ function showInnovationDetail(innovationId) {
                    <li><strong>Context-dependent:</strong> Promotion depends on the operation, not just the data types</li>
                    <li><strong>Lazy evaluation:</strong> Conversion happens just-in-time, not eagerly</li>
                    <li><strong>Parallelized conversion:</strong> Large type conversions use the thread pool automatically</li>
-                   <li><strong>Explicit control:</strong> <code>ORT\\Math\\cast()</code> for when you want explicit conversion</li>
+                   <li><strong>Explicit control:</strong> <span class="class">ORT\\Math\\cast()</span> for when you want explicit conversion</li>
                </ul>
                <p>Enables mixing different numeric types naturally while maintaining NumPy compatibility.</p>
            `
@@ -1044,7 +1044,7 @@ function showInnovationDetail(innovationId) {
            title: 'Call Site Scaling Control',
            content: `
                <h4>Fine-Grained Threading Control</h4>
-               <p><code>ORT\\Math\\scale()</code> provides explicit control over parallelization:</p>
+               <p><span class="class">ORT\\Math\\scale()</span> provides explicit control over parallelization:</p>
                <ul class="padded-list">
                    <li><strong>Operation-specific tuning:</strong> Different operations have different optimal thread counts</li>
                    <li><strong>Resource management:</strong> Prevent over-subscription in complex workflows</li>
@@ -1060,7 +1060,7 @@ function showInnovationDetail(innovationId) {
                <h4>Independent Component Design</h4>
                <p>All components are designed to be independent:</p>
                <ul class="padded-list">
-                   <li><strong>Optional dependencies:</strong> Can build with <span class="class">ORT\Math</span> standalone</li>
+                   <li><strong>Optional dependencies:</strong> Can built with <span class="class">ORT\\Math</span> standalone</li>
                    <li><strong>API independence:</strong> No cross-contamination and minimal intersection between component APIs</li>
                    <li><strong>Rapid Development:</strong> Modularisation of component parts allows rapid development of adjacent or redevelopment of individual component parts</li>
                </ul>
@@ -1071,7 +1071,7 @@ function showInnovationDetail(innovationId) {
            title: 'Flexible Tensor Generation',
            content: `
                <h4>Lazy and Dynamic Tensor Creation</h4>
-               <p><code>ORT\\Tensor\\Generator</code> enables sophisticated tensor initialization:</p>
+               <p><span class="class">ORT\\Tensor\\Generator</span> enables sophisticated tensor initialization:</p>
                <ul class="padded-list">
                    <li><strong>Memory efficiency:</strong> Avoid storing large arrays before tensor creation</li>
                    <li><strong>Dynamic generation:</strong> Random, computed, or recursive data generation</li>
