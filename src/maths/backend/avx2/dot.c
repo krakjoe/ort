@@ -38,7 +38,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, float) {
             __m256 mr = _mm256_mul_ps(ma, mb);
             vsum = _mm256_add_ps(vsum, mr);
         }
-        sum = ort_math_backend_hsum_float(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(hsum, float32x8, float)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -65,7 +65,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, double) {
             __m256d mr = _mm256_mul_pd(ma, mb);
             vsum = _mm256_add_pd(vsum, mr);
         }
-        sum = ort_math_backend_hsum_double(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(hsum, float64x4, double)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -92,7 +92,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int16_t) {
             __m256i mr = _mm256_mullo_epi16(ma, mb);
             vsum = _mm256_add_epi16(vsum, mr);
         }
-        sum = ort_math_backend_hsum_epi16_to_int32(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -121,7 +121,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int32_t) {
             __m256i mr = _mm256_mullo_epi32(ma, mb);
             vsum = _mm256_add_epi32(vsum, mr);
         }
-        sum = ort_math_backend_hsum_int64_t(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(hsum, int32x8, int64_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -148,7 +148,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint16_t) {
             __m256i mr = _mm256_mullo_epi16(ma, mb);
             vsum = _mm256_add_epi16(vsum, mr);
         }
-        sum = (uint32_t)ort_math_backend_hsum_epi16_to_int32(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -177,7 +177,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint32_t) {
             __m256i mr = _mm256_mullo_epi32(ma, mb);
             vsum = _mm256_add_epi32(vsum, mr);
         }
-        sum = (uint64_t)ort_math_backend_hsum_int64_t(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(hsum, int32x8, int64_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {

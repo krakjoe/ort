@@ -26,6 +26,11 @@
 
 #include "maths/codegen/common.h"
 
+#define ORT_MATH_BACKEND_UTIL(util, generic, scalar)                \
+        ort_math_backend_##util##_##generic##_to_##scalar
+#define ORT_MATH_BACKEND_UTIL_DECL(util, generic, scalar, specific) \
+    static zend_always_inline scalar                                \
+        ORT_MATH_BACKEND_UTIL(util, generic, scalar)(specific v)
 #define ORT_MATH_BACKEND_OP_SYMBOL(op, type) \
     ort_math_backend_##op##_##type
 #define ORT_MATH_BACKEND_OP_AXIS_SYMBOL(op, type) \
@@ -49,5 +54,4 @@
     void ORT_MATH_BACKEND_OP_AXIS_SYMBOL(serial_##op, type) (      \
         void* result, const void* a,                               \
         size_t outer, size_t axis, size_t inner)
-
 #endif

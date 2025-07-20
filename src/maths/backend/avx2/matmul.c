@@ -39,7 +39,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                 vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mul_ps(ma, mb);
-            sum += ort_math_backend_hsum_float(mr);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, float32x8, float)(mr);
         }
         /* Fallback for leftovers */
         for (; k < a_cols; k++) {
@@ -65,7 +66,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                 vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mul_pd(ma, mb);
-            sum += ort_math_backend_hsum_double(mr);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, float64x4, double)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -92,7 +94,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                 vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mullo_epi32(ma, mb);
-            sum += ort_math_backend_hsum_int32_t(mr);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -119,7 +122,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                 vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mullo_epi32(ma, mb);
-            sum += (uint32_t)ort_math_backend_hsum_int32_t((__m256i)mr);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -150,7 +154,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             // Multiply and horizontally add pairs to 32-bit
             __m256i prod = _mm256_madd_epi16(ma, mb);
-            sum += ort_math_backend_hsum_int32_t(prod);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod);
         }
         for (; k < a_cols; k++) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
@@ -182,7 +187,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             // Multiply and horizontally add pairs to 32-bit
             __m256i prod = _mm256_madd_epi16(ma, mb);
-            sum += (uint32_t)ort_math_backend_hsum_int32_t(prod);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod);
         }
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];
@@ -224,7 +230,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
             __m256i prod = _mm256_maddubs_epi16(ma, mb);
             // Now horizontally add pairs to 32-bit
             __m256i prod32 = _mm256_madd_epi16(prod, _mm256_set1_epi16(1));
-            sum += ort_math_backend_hsum_8xint32_t(prod32);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod32);
         }
         for (; k < a_cols; k++) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
@@ -266,7 +273,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
             __m256i prod = _mm256_maddubs_epi16(ma, mb);
             // Now horizontally add pairs to 32-bit
             __m256i prod32 = _mm256_madd_epi16(prod, _mm256_set1_epi16(1));
-            sum += (uint32_t)ort_math_backend_hsum_8xint32_t(prod32);
+
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod32);
         }
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];

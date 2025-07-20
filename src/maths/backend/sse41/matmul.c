@@ -17,6 +17,7 @@
  */
 
 #include "maths/backend/impl.h"
+#include "maths/backend/sse41/util.h"
 
 #include <smmintrin.h> /* SSE4.1 */
 
@@ -39,9 +40,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                     vb[(k+1) * b_cols + j],
                     vb[k * b_cols + j]);
                 mr = _mm_mul_ps(ma, mb);
-                float tmp[4];
-                _mm_storeu_ps(tmp, mr);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, float32x4, float)(mr);
             }
         }
         if (mc < a_cols) {
@@ -71,9 +71,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                     vb[(k+1) * b_cols + j],
                     vb[k * b_cols + j]);
                 mr = _mm_mul_pd(ma, mb);
-                double tmp[2];
-                _mm_storeu_pd(tmp, mr);
-                for (int s = 0; s < 2; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, float64x2, double)(mr);
             }
         }
         if (mc < a_cols) {
@@ -104,9 +103,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 // Multiply and horizontally add pairs to 32-bit
                 __m128i prod = _mm_madd_epi16(ma, mb);
-                int32_t tmp[4];
-                _mm_storeu_si128((__m128i *)tmp, prod);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
             }
         }
         if (mc < a_cols) {
@@ -138,9 +136,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 // Multiply and horizontally add pairs to 32-bit
                 __m128i prod = _mm_madd_epi16(ma, mb);
-                uint32_t tmp[4];
-                _mm_storeu_si128((__m128i *)tmp, prod);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
             }
         }
         if (mc < a_cols) {
@@ -172,9 +169,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                     vb[(k+1) * b_cols + j],
                     vb[k * b_cols + j]);
                 mr = _mm_mullo_epi32(ma, mb);
-                int32_t tmp[4];
-                _mm_storeu_si128((__m128i *)tmp, mr);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(mr);
             }
         }
         if (mc < a_cols) {
@@ -205,9 +201,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                     vb[(k+1) * b_cols + j],
                     vb[k * b_cols + j]);
                 mr = _mm_mullo_epi32(ma, mb);
-                uint32_t tmp[4];
-                _mm_storeu_si128((__m128i *)tmp, mr);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(mr);
             }
         }
         if (mc < a_cols) {

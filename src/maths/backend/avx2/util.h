@@ -20,8 +20,8 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-static zend_always_inline float
-    ort_math_backend_hsum_float(__m256 v) {
+ORT_MATH_BACKEND_UTIL_DECL(
+    hsum, float32x8, float, __m256) {
     __m128 low = _mm256_castps256_ps128(v);
     __m128 high = _mm256_extractf128_ps(v, 1);
     __m128 sum128 = _mm_add_ps(low, high);
@@ -32,8 +32,8 @@ static zend_always_inline float
     return _mm_cvtss_f32(sum128);
 }
 
-static zend_always_inline double
-    ort_math_backend_hsum_double(__m256d v) {
+ORT_MATH_BACKEND_UTIL_DECL(
+    hsum, float64x4, double, __m256d) {
     __m128d low = _mm256_castpd256_pd128(v);
     __m128d high = _mm256_extractf128_pd(v, 1);
     __m128d sum128 = _mm_add_pd(low, high);
@@ -43,9 +43,8 @@ static zend_always_inline double
     return _mm_cvtsd_f64(sum128);
 }
 
-static zend_always_inline int32_t
-    ort_math_backend_hsum_epi16_to_int32(__m256i v) {
-
+ORT_MATH_BACKEND_UTIL_DECL(
+    hsum, int16x8, int32_t, __m256i) {
     __m128i low = _mm256_castsi256_si128(v);
     __m128i high = _mm256_extracti128_si256(v, 1);
     __m256i low32 = _mm256_cvtepi16_epi32(low);
@@ -55,44 +54,33 @@ static zend_always_inline int32_t
     __m128i sum_low = _mm256_castsi256_si128(sum256);
     __m128i sum_high = _mm256_extracti128_si256(sum256, 1);
     __m128i sum128 = _mm_add_epi32(sum_low, sum_high);
+    
     sum128 = _mm_hadd_epi32(sum128, sum128);
     sum128 = _mm_hadd_epi32(sum128, sum128);
 
     return _mm_cvtsi128_si32(sum128);
 }
 
-static zend_always_inline int32_t
-    ort_math_backend_hsum_int32_t(__m256i v) {
+ORT_MATH_BACKEND_UTIL_DECL(
+    hsum, int32x8, int32_t, __m256i) {
     __m128i sum_low = _mm256_castsi256_si128(v);
     __m128i sum_high = _mm256_extracti128_si256(v, 1);
     __m128i sum128 = _mm_add_epi32(sum_low, sum_high);
+
     sum128 = _mm_hadd_epi32(sum128, sum128);
     sum128 = _mm_hadd_epi32(sum128, sum128);
+
     return _mm_cvtsi128_si32(sum128);
 }
 
-static zend_always_inline int64_t
-    ort_math_backend_hsum_int64_t(__m256i v) {
+ORT_MATH_BACKEND_UTIL_DECL(
+    hsum, int32x8, int64_t, __m256i) {
     __m128i low = _mm256_castsi256_si128(v);
     __m128i high = _mm256_extracti128_si256(v, 1);
     __m128i sum128 = _mm_add_epi32(low, high);
-    
+
     sum128 = _mm_hadd_epi32(sum128, sum128);
     sum128 = _mm_hadd_epi32(sum128, sum128);
-    
+
     return (int64_t)_mm_cvtsi128_si32(sum128);
-}
-
-static zend_always_inline int32_t ort_math_backend_hsum_8xint32_t(__m256i v) {
-    int32_t tmp[8];
-
-    _mm256_storeu_si256(
-        (__m256i *)tmp, v);
-    int32_t sum = 0;
-
-    for (int i = 0; i < 8; ++i) {
-        sum += tmp[i];
-    }
-    
-    return sum;
 }

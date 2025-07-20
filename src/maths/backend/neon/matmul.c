@@ -17,6 +17,7 @@
  */
 
 #include "maths/backend/impl.h"
+#include "maths/backend/neon/util.h"
 
 #include <arm_neon.h>  /* NEON */
 
@@ -39,10 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                 vb[(k+3) * b_cols + j]
             };
             mr = vmulq_f32(ma, mb);
-            // Horizontal add of the 4 elements
-            float32x2_t sum_pair = vadd_f32(
-                vget_low_f32(mr), vget_high_f32(mr));
-            sum += vget_lane_f32(vpadd_f32(sum_pair, sum_pair), 0);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, float32x4, float)(mr);
         }
         /* Fallback for leftovers */
         for (; k < a_cols; k++) {
@@ -69,8 +67,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                 vb[(k+1) * b_cols + j]
             };
             mr = vmulq_f64(ma, mb);
-            // Horizontal add of the 2 elements
-            sum += vgetq_lane_f64(mr, 0) + vgetq_lane_f64(mr, 1);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, float64x2, double)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -98,9 +95,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                 vb[(k+3) * b_cols + j]
             };
             mr = vmulq_s32(ma, mb);
-            // Horizontal add of the 4 elements
-            sum += vgetq_lane_s32(mr, 0) + vgetq_lane_s32(mr, 1) + 
-                    vgetq_lane_s32(mr, 2) + vgetq_lane_s32(mr, 3);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -128,9 +123,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                 vb[(k+3) * b_cols + j]
             };
             mr = vmulq_u32(ma, mb);
-            // Horizontal add of the 4 elements
-            sum += vgetq_lane_u32(mr, 0) + vgetq_lane_u32(mr, 1) + 
-                    vgetq_lane_u32(mr, 2) + vgetq_lane_u32(mr, 3);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, uint32x4, uint32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -163,9 +156,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                 vget_high_s16(ma), vget_high_s16(mb));
             int32x4_t total = vaddq_s32(low, high);
             
-            // Sum all elements using constant indices
-            sum += vgetq_lane_s32(total, 0) + vgetq_lane_s32(total, 1) +
-                    vgetq_lane_s32(total, 2) + vgetq_lane_s32(total, 3);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(total);
         }
         for (; k < a_cols; k++) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
@@ -199,9 +190,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                 vget_high_u16(ma), vget_high_u16(mb));
             uint32x4_t total = vaddq_u32(low, high);
             
-            // Sum all elements using constant indices
-            sum += vgetq_lane_u32(total, 0) + vgetq_lane_u32(total, 1) +
-                    vgetq_lane_u32(total, 2) + vgetq_lane_u32(total, 3);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, uint32x4, uint32_t)(total);
         }
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];
@@ -244,9 +233,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
             int32x4_t acc_high = vpaddlq_s16(prod_high);
             int32x4_t total = vaddq_s32(acc_low, acc_high);
             
-            // Sum the final 4 int32_t values using constant indices
-            sum += vgetq_lane_s32(total, 0) + vgetq_lane_s32(total, 1) + 
-                    vgetq_lane_s32(total, 2) + vgetq_lane_s32(total, 3);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(total);
         }
         for (; k < a_cols; k++) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
@@ -289,9 +276,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
             uint32x4_t acc_high = vpaddlq_u16(prod_high);
             uint32x4_t total = vaddq_u32(acc_low, acc_high);
             
-            // Sum the final 4 uint32_t values using constant indices
-            sum += vgetq_lane_u32(total, 0) + vgetq_lane_u32(total, 1) + 
-                    vgetq_lane_u32(total, 2) + vgetq_lane_u32(total, 3);
+            sum += ORT_MATH_BACKEND_UTIL(hsum, uint32x4, uint32_t)(total);
         }
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];

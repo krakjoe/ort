@@ -17,6 +17,7 @@
  */
 
 #include "maths/backend/impl.h"
+#include "maths/backend/sse2/util.h"
 
 #include <emmintrin.h> /* SSE2 */
 
@@ -39,9 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                     vb[(k+1) * b_cols + j],
                     vb[k * b_cols + j]);
                 mr = _mm_mul_ps(ma, mb);
-                float tmp[4];
-                _mm_storeu_ps(tmp, mr);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+                sum += ORT_MATH_BACKEND_UTIL(hsum, float32x4, float)(mr);
             }
         }
         for (; k < a_cols; k++) {
@@ -68,9 +67,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                     vb[(k+1) * b_cols + j],
                     vb[k * b_cols + j]);
                 mr = _mm_mul_pd(ma, mb);
-                double tmp[2];
-                _mm_storeu_pd(tmp, mr);
-                for (int s = 0; s < 2; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, float64x2, double)(mr);
             }
         }
         for (; k < a_cols; k++) {
@@ -98,9 +96,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                     vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 __m128i prod = _mm_madd_epi16(ma, mb);
-                int32_t tmp[4];
-                _mm_storeu_si128((__m128i *)tmp, prod);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
             }
         }
         for (; k < a_cols; k++) {
@@ -129,9 +126,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                     vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 __m128i prod = _mm_madd_epi16(ma, mb);
-                uint32_t tmp[4];
-                _mm_storeu_si128((__m128i *)tmp, prod);
-                for (int s = 0; s < 4; ++s) sum += tmp[s];
+
+                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
             }
         }
         for (; k < a_cols; k++) {
