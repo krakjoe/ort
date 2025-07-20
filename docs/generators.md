@@ -51,7 +51,9 @@ and
 
 ### Performance Considerations
 
-While generators offer flexibility and efficiency (in some cases where the alternative is a very large static array which is essentially duplicated on construction), they may introduce some overhead due to lazy evaluation. Users should consider performance implications when choosing between using an array initializer or a generator.
+While generators offer flexibility and efficiency (in some cases where the alternative is a very large static array which is essentially duplicated on construction), they may introduce some overhead as side effects of lazy evaluation (ie. re-entry to userspace, allocation of call frames etc).
+
+Users should consider performance implications when choosing between using an array initializer or a generator.
 
 At some time, we may provide internal implementations of the most commonly required generators (random numbers and so on), today it's not high priority.
 
@@ -61,4 +63,4 @@ The best UX demands that `Tensor\Generator` is an interface because composition 
 
 However, the best performance demands that `Tensor\Generator` is an abstract class: When `Tensor\Generator` is abstract, we can use a custom shaped object which contains the fci/fcc for the call, this means we only initialize the fci/fcc once per generator rather than once per call. In addition it provides us a place (the custom shaped object) to store internal pointers required for efficient internal implementation of generators that do not have to allocate call frames for invocation.
 
-In this instance, performance has to prioritised over purity, so an abstract class is what we have.
+In this instance, performance has to be prioritised over purity, so an abstract class is what we have.
