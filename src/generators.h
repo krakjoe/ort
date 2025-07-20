@@ -45,8 +45,24 @@
 #include "tensor.h"
 
 extern zend_class_entry* php_ort_generator_ce;
+extern zend_class_entry* php_ort_generator_internal_ce;
+extern zend_object_handlers php_ort_generator_handlers;
 
-extern void php_ort_generator_invoke(
+typedef struct _php_ort_generator_t php_ort_generator_t;
+struct _php_ort_generator_t {
+    void* context;
+    void (*invoke)(
+        php_ort_generator_t* generator, zval* zv);
+    zend_object           std;
+};
+
+static zend_always_inline php_ort_generator_t*
+    php_ort_generator_fetch(zend_object* obj) {
+    return (php_ort_generator_t*)
+        ((char*) obj - XtOffsetOf(php_ort_generator_t, std));
+}
+
+extern zend_bool php_ort_generator_invoke(
     zval* generator,
     ONNXTensorElementDataType type,
     void* target);

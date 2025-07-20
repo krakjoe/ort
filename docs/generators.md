@@ -49,13 +49,21 @@ and
 
 ```Tensor Tensor\Persistent(string $name, array $shape, Tensor\Generator $generator)```
 
+### Internal Generators
+
+`php-ort` ships with the following built-in generators:
+
+  - `Tensor\Generator Tensor\Generator\Random(int $type)`
+  - `Tensor\Generator Tensor\Generator\Random(int $type, int $min)`
+  - `Tensor\Generator Tensor\Generator\Random(int $type, int $min, int $max)`
+
+These are equivalent to calling `mt_rand()` with the given parameters, however no zend functions are invoked during generation.
+
 ### Performance Considerations
 
 While generators offer flexibility and efficiency (in some cases where the alternative is a very large static array which is essentially duplicated on construction), they may introduce some overhead as side effects of lazy evaluation (ie. re-entry to userspace, allocation of call frames etc).
 
 Users should consider performance implications when choosing between using an array initializer or a generator.
-
-At some time, we may provide internal implementations of the most commonly required generators (random numbers and so on), today it's not high priority.
 
 ### UX Considerations
 

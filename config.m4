@@ -64,6 +64,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_SRC_DIR/maths.c
     $PHP_ORT_SRC_DIR/alloc.c
     $PHP_ORT_SRC_DIR/generators.c
+    $PHP_ORT_SRC_DIR/generators/random.c
   ")
 
   AS_VAR_IF([PHP_ORT_ONNX], [no], [], [
