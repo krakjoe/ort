@@ -7,7 +7,7 @@ ort
 use ORT\Tensor;
 
 $generated = new Tensor\Transient([], new class
-    implements Tensor\Generator {
+    extends Tensor\Generator {
     public function __invoke() : int {
         return 42;
     }
@@ -16,10 +16,10 @@ $generated = new Tensor\Transient([], new class
 printf("GENERATED SCALAR: %d\n", $generated->getData()[0]);
 
 $generated = new Tensor\Transient([], new class
-    implements Tensor\Generator {
+    extends Tensor\Generator {
     public function __invoke() : Tensor\Generator {
         return new class 
-            implements Tensor\Generator {
+            extends Tensor\Generator {
             public function __invoke() : int {
                 return 42;
             }
@@ -30,7 +30,7 @@ $generated = new Tensor\Transient([], new class
 printf("TURTLES: %d\n", $generated->getData()[0]);
 
 $generator = new class
-    implements Tensor\Generator {
+    extends Tensor\Generator {
 
     public $counter = 0;
 

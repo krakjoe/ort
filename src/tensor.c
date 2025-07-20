@@ -38,7 +38,7 @@ zend_object_handlers php_ort_tensor_handlers;
 static inline zend_bool php_ort_tensor_validate_next(ONNXTensorElementDataType type, zend_long rank, zend_long *dimensions, zval *node, zend_long depth) {
     if (Z_TYPE_P(node) == IS_OBJECT &&
             instanceof_function(
-                Z_OBJCE_P(node), php_ort_generator_interface_ce)) {
+                Z_OBJCE_P(node), php_ort_generator_ce)) {
         return 1;
     }
 
@@ -102,7 +102,7 @@ static zend_always_inline zend_bool php_ort_tensor_validate(zval *shape, zend_st
     // Skip generator validation
     if (Z_TYPE_P(data) == IS_OBJECT && 
             instanceof_function(
-                Z_OBJCE_P(data), php_ort_generator_interface_ce)) {
+                Z_OBJCE_P(data), php_ort_generator_ce)) {
         return 1;
     }
 
@@ -212,7 +212,7 @@ void php_ort_tensor_store(ONNXTensorElementDataType type, void* target, zval* no
     // Enter into generator objects
     if (Z_TYPE_P(node) == IS_OBJECT && 
             instanceof_function(
-                Z_OBJCE_P(node), php_ort_generator_interface_ce)) {
+                Z_OBJCE_P(node), php_ort_generator_ce)) {
         php_ort_generator_invoke(
             node, type, target);
         return;
@@ -282,7 +282,7 @@ static zend_always_inline zval* php_ort_tensor_flatten_next(ort_tensor_t* tensor
     // Special case for generators
     if (Z_TYPE_P(node) == IS_OBJECT &&
             instanceof_function(
-                Z_OBJCE_P(node), php_ort_generator_interface_ce)) {
+                Z_OBJCE_P(node), php_ort_generator_ce)) {
         return node;
     }
 

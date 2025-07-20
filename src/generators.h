@@ -44,7 +44,7 @@
 #include "ort.h"
 #include "tensor.h"
 
-extern zend_class_entry* php_ort_generator_interface_ce;
+extern zend_class_entry* php_ort_generator_ce;
 
 extern void php_ort_generator_invoke(
     zval* generator,
