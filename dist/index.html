@@ -560,15 +560,24 @@
                     </div>
                 </div>
 
-                <h3>Key Technical Innovations</h3>
+                 <h3>Key Technical Innovations</h3>
                 <ul class="padded-list">
-                    <li><strong>Type System:</strong> Schemas extracted from NumPy runtime; no guesswork, perfect compatibility</li>
-                    <li><strong>Memory Management:</strong> Aligned allocator and optimized memcpy for maximum performance potential</li>
-                    <li><strong>Thread Pool:</strong> Work-stealing implementation with alignment awareness</li>
-                    <li><strong>SIMD Optimization:</strong> Runtime detection with thread pinning ensures stability and predictability at scale</li>
-                    <li><strong>Dispatch Table Design:</strong> Backend silently overwrites frontend operations for zero-overhead optimization</li>
-                    <li><strong>Modular Design:</strong> Math and ONNX systems are independent - use either or both as needed</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('immutable-tensors'); return false;">Immutable Tensors:</a></strong> Zero-copy, lock-free data sharing, efficient memory usage, and predictable performance</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('dual-storage'); return false;">Dual Storage Class Tensors:</a></strong> <span class="class">ORT\Tensor\Persistent</span> survive request cycles (and may be shared among threads, ie FrankenPHP), <span class="class">ORT\Tensor\Transient</span> are request local</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('memory-management'); return false;">Memory Management:</a></strong> Aligned allocator and optimized memcpy for maximum performance potential</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('thread-pool'); return false;">Thread Pool:</a></strong> Work-stealing implementation with alignment awareness</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('simd-optimization'); return false;">SIMD Optimization:</a></strong> Runtime detection with thread pinning ensures stability and predictability at scale</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('type-system'); return false;">Type System:</a></strong> Schemas extracted from NumPy runtime; no guesswork, perfect compatibility</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('type-promotion'); return false;">Type Promotion:</a></strong> Automatic conversion between types for seamless integration and maximum predictability</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('zero-overhead'); return false;">Zero Overhead Optimizations:</a></strong> Backend silently (opaque to the frontend) optimizes dispatch</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('call-site-scaling'); return false;">Call Site Scaling:</a></strong> <span class="class">ORT\Math\scale</span> provides a high degree of control over scaling at the call site</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('modular-design'); return false;">Modular Design:</a></strong> Math and ONNX systems are independent - use either or both as needed</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('tensor-generation'); return false;">Flexible Tensor Generation:</a></strong> <span class="class">ORT\Tensor\Generator</span> provides flexible generation (lazy loading, random, etc)</li>
                 </ul>
+
+                <div id="innovation-details" style="display: none; background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <div id="innovation-content"></div>
+                </div>
 
                 <h3>Performance Benchmarks</h3>
                 <div id="benchmark-slideshow" style="text-align:center; margin: 30px 0;">
@@ -882,6 +891,204 @@ extension=ort.so
     document.addEventListener('DOMContentLoaded', function() {
         showSlide(0);
     });
+</script>
+<script>
+function showInnovationDetail(innovationId) {
+   const details = document.getElementById('innovation-details');
+   const content = document.getElementById('innovation-content');
+   
+   const innovations = {
+       'immutable-tensors': {
+           title: 'Immutable Tensors',
+           content: `
+               <h4>Immutable Tensors</h4>
+               <p>Once created, tensor data cannot be modified. This design choice enables several critical optimizations:</p>
+               <ul class="padded-list">
+                   <li><strong>Zero-copy operations:</strong> Multiple references to the same tensor share the underlying data without duplication</li>
+                   <li><strong>Lock-free threading:</strong> Since data cannot change, multiple threads can safely read without synchronization overhead</li>
+                   <li><strong>Predictable memory usage:</strong> No hidden allocations or data mutations during computation</li>
+                   <li><strong>Cache efficiency:</strong> Immutable data will theoretically lead to less cache invalidation</li>
+               </ul>
+               <p>This isn't just a safety feature - it's a performance optimization that enables the entire threading architecture.</p>
+               <br />
+               <em>These are performance optimizations but since they were architectural decisions that predated the ability 
+                    to measure anything, and since there's no version of the extension without these characteristics, there's nothing to compare 
+                    too even though we can measure today.</em>
+                <br />
+                <br />
+                <em>To be absolutely clear, we can't show numbers, they're not optimizations in that sense; They're architectural decisions that allow
+                    us to stack other optimizations on top (which we may or may not be able to measure).</em>
+           `
+       },
+       'dual-storage': {
+           title: 'Dual Storage Class Tensors',
+           content: `
+               <h4>Dual Storage Class Tensors</h4>
+               <p>Two concrete tensor implementations solve different use cases:</p>
+               <ul class="padded-list">
+                   <li><strong>Persistent Tensors:</strong> Named tensors that survive request cycles. In threaded environments like FrankenPHP, they're shared across all threads. Perfect for models, weights, or lookup tables that don't change between requests.</li>
+                   <li><strong>Transient Tensors:</strong> Request-local tensors that are subject to normal garbage collection. Used for computation results and temporary data.</li>
+               </ul>
+               <p>This design acknowledges how and where PHP is deployed, and is defined in order to accommodate performance and deployability at scale.</p>
+               <br />
+               <em>None of this breaks the very well established and robust shared-nothing architecture of PHP; When we talk about share nothing in PHP, we mean specifically that memory
+                should not leak into userland where it will be manipulated (specifically, written) concurrently. PHP already does share minimal read only context between threads when it must.</em>
+                <br />
+                <br />
+               <em>Previous decisions (immutable tensors) allow us to stick to the rules, and therefore preserve shared-nothing and the resulting stability.</em>
+           `
+       },
+       'memory-management': {
+           title: 'Memory Management',
+           content: `
+               <h4>Advanced Memory Management</h4>
+               <p>Custom memory allocation strategies optimized for numerical computation:</p>
+               <ul class="padded-list">
+                   <li><strong>Aligned allocation:</strong> Data is aligned to SIMD boundaries (16, 32, or 64 bytes) to maximize vectorization efficiency</li>
+                   <li><strong>Optimized memcpy:</strong> Backend-specific memory copy routines that take advantage of available instruction sets</li>
+               </ul>
+               <p>Keeping memory in check, and perfectly aligned everywhere allows us to eliminate defensive programming in hot paths, and make maximally effective use of ISA extensions (ie, using aligned load/store intrinsics).</p>
+               <br />
+               <em>Seasoned developers might find the code a little worrying to read; The lack of defensive programming in literature is stark and obvious.</em>
+               <br />
+               <em>You can't litter hot paths with null checks, and alignment checks, and still expect to achieve maximum performance;
+                 the defense in this kind of code is encoded in the design and rigorous attention to detail (ie, architectural specific requirements/behavior).</em>
+               <br />
+               <em>Defensive programming in literature, at the level of the line of code, makes no sense in high performance computing; It's not an omission, it's actually a kind of beauty.</em>
+           `
+       },
+       'thread-pool': {
+           title: 'Thread Pool Architecture',
+           content: `
+               <h4>Work-Stealing Thread Pool</h4>
+               <p>A sophisticated pool designed primarily for numerical workloads:</p>
+               <ul class="padded-list">
+                   <li><strong>Work stealing:</strong> Threads wait for work to steal from the current task being executed by the pool</li>
+                   <li><strong>Alignment awareness:</strong> Work is chunked on aligned boundaries (contractually obliged by the backend)</li>
+                   <li><strong>Flexibility:</strong> The frontend will schedule other expensive operations (such as casting) using the pool</li>
+               </ul>
+               <p>This isn't PHP threading - these are native threads operating below the interpreter level.</p>
+           `
+       },
+       'simd-optimization': {
+           title: 'SIMD Optimization Strategy',
+           content: `
+               <h4>Intelligent SIMD Acceleration</h4>
+               <p>Multi-layered approach to vectorized computation:</p>
+               <ul>
+                   <li><strong>Runtime detection:</strong> CPU capabilities are detected at thread startup, never during hot paths</li>
+                   <li><strong>Thread pinning:</strong> Prevents thread migration that could invalidate instruction set assumptions</li>
+                   <li><strong>Vector width optimization:</strong> Operations are optimized for specific instruction set vector widths</li>
+               </ul>
+               <p>This provides 4-8x performance improvements (in lab conditions) for supported operations while maintaining stability across diverse hardware.</p>
+               <br />
+               <em>It is worth noting that the current SIMD kernels are not optimized to the maximum degree, rather they are supposed to be numerically stable (correct) at this point.</em>
+               <br />
+               <em>There is a balance to be struck in this new code; This is complex subject matter and we need contributors to step up.
+                If we pursue a maniacal optimization strategy the complexity of the code becomes a barrier to entry for those potential contributors</em>
+                <br />
+                <em>It's smarter to be correct, and as easy to understand as possible, at this time in development. According to benchmarks, this is doing no harm.</em>
+           `
+       },
+       'type-system': {
+           title: 'NumPy-Compatible Type System',
+           content: `
+               <h4>Rigorous Type Compatibility</h4>
+               <p>Type behavior extracted directly from NumPy runtime, not documentation:</p>
+               <ul class="padded-list">
+                   <li><strong>Schema extraction:</strong> Python scripts generate C promotion tables from actual NumPy behavior</li>
+                   <li><strong>Perfect compatibility:</strong> No guesswork about edge cases or version differences</li>
+                   <li><strong>Comprehensive coverage:</strong> 9 data types × all operations = hundreds of promotion rules</li>
+                   <li><strong>Introspection API:</strong> <code>ORT\\Math\\Schema</code> allows runtime type behavior queries</li>
+               </ul>
+               <p>This ensures that workflows (almost entirely documented in python) adapted to PHP behave predictably, as predictably as they would in python.</p>
+               <br />
+               <em>PHP has a rather simple type system when it comes to representing integers (just one type) and real numbers (double).
+                Tensor math, to be maximally efficient (and fit for purpose) must support a wide range of types.</em>
+                <br />
+                <em>NumPy has solved this problem; rather than taking years to develop a stable type system we export that hard work from the python runtime.</em>
+                <br />
+                <br />
+                <em>Special thanks to the python/numpy teams, for all their hard work ;)</em>
+           `
+       },
+       'type-promotion': {
+           title: 'Automatic Type Promotion',
+           content: `
+               <h4>Seamless Type Conversion</h4>
+               <p>Automatic type promotion following NumPy semantics:</p>
+               <ul class="padded-list">
+                   <li><strong>Context-dependent:</strong> Promotion depends on the operation, not just the data types</li>
+                   <li><strong>Lazy evaluation:</strong> Conversion happens just-in-time, not eagerly</li>
+                   <li><strong>Parallelized conversion:</strong> Large type conversions use the thread pool automatically</li>
+                   <li><strong>Explicit control:</strong> <code>ORT\\Math\\cast()</code> for when you want explicit conversion</li>
+               </ul>
+               <p>Enables mixing different numeric types naturally while maintaining NumPy compatibility.</p>
+           `
+       },
+       'zero-overhead': {
+           title: 'Zero Overhead Optimization',
+           content: `
+               <h4>Transparent Performance Acceleration</h4>
+               <p>Backend optimizations that are completely invisible to the frontend:</p>
+               <ul class="padded-list">
+                   <li><strong>Dispatch table replacement:</strong> Backend silently overwrites function pointers with optimized versions</li>
+                   <li><strong>No branching in hot paths:</strong> Zero runtime overhead for feature detection</li>
+                   <li><strong>Fallback integration:</strong> Backend calls frontend for operations it can't accelerate (ie, not enough elements or left over elements after saturation of simd lanes)</li>
+                   <li><strong>Build-time configuration:</strong> Optimization level determined at compile time, not runtime</li>
+               </ul>
+               <p>This architecture ensures that you get maximum performance when available, with graceful degradation where prerequisites of optimization are unsatisfiable in the current thread.</p>
+           `
+       },
+       'call-site-scaling': {
+           title: 'Call Site Scaling Control',
+           content: `
+               <h4>Fine-Grained Threading Control</h4>
+               <p><code>ORT\\Math\\scale()</code> provides explicit control over parallelization:</p>
+               <ul class="padded-list">
+                   <li><strong>Operation-specific tuning:</strong> Different operations have different optimal thread counts</li>
+                   <li><strong>Resource management:</strong> Prevent over-subscription in complex workflows</li>
+                   <li><strong>Nested scaling:</strong> Properly handles nested parallel operations</li>
+                   <li><strong>Performance profiling:</strong> Enables precise measurement of threading benefits</li>
+               </ul>
+               <p>Essential for production deployments where you need predictable resource usage.</p>
+           `
+       },
+       'modular-design': {
+           title: 'Modular Architecture',
+           content: `
+               <h4>Independent Component Design</h4>
+               <p>All components are designed to be independent:</p>
+               <ul class="padded-list">
+                   <li><strong>Optional dependencies:</strong> Can build with <span class="class">ORT\Math</span> standalone</li>
+                   <li><strong>API independence:</strong> No cross-contamination and minimal intersection between component APIs</li>
+                   <li><strong>Rapid Development:</strong> Modularisation of component parts allows rapid development of adjacent or redevelopment of individual component parts</li>
+               </ul>
+               <p>This design prevents feature creep and maintains clean separation of concerns, and allows development to go at breakneck speed ... watch your neck!</p>
+           `
+       },
+       'tensor-generation': {
+           title: 'Flexible Tensor Generation',
+           content: `
+               <h4>Lazy and Dynamic Tensor Creation</h4>
+               <p><code>ORT\\Tensor\\Generator</code> enables sophisticated tensor initialization:</p>
+               <ul class="padded-list">
+                   <li><strong>Memory efficiency:</strong> Avoid storing large arrays before tensor creation</li>
+                   <li><strong>Dynamic generation:</strong> Random, computed, or recursive data generation</li>
+                   <li><strong>Streaming data:</strong> Generate tensor data from external sources on demand</li>
+                   <li><strong>Custom patterns:</strong> Implement domain-specific initialization strategies</li>
+               </ul>
+               <p>Critical for large tensors where storing initialization data would double memory usage.</p>
+           `
+       }
+   };
+   
+   if (innovations[innovationId]) {
+       content.innerHTML = innovations[innovationId].content;
+       details.style.display = 'block';
+       details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+   }
+}
 </script>
 </body>
 </html>
