@@ -304,8 +304,21 @@ static void ort_pool_pin(size_t index) {
         ((DWORD_PTR)1) << (DWORD)index;
     SetThreadAffinityMask(
         GetCurrentThread(), mask);
+    /* The windows scheduler can ignore us ...*/
+    uint32_t max = 100;
     while (GetCurrentProcessorNumber() != (DWORD) index) {
-        SwitchToThread();
+        Sleep(0);
+        if (--max) {
+            /* So we ignore it right back ... */
+
+            /*
+              This is a platform limitation, the scheduler does not
+              have to migrate the thread.
+
+              We stick around a little, to give it a chance, then move on
+            */
+            break;
+        }
     }
 #else
     cpu_set_t set;
@@ -338,7 +351,7 @@ static zend_always_inline size_t
 static void *ort_pool_worker(void *arg) {
     ort_pool_t *pool = (ort_pool_t *)arg;
 
-    /* Pin this thread to the core it is currently running on */
+    /* Pin this thread to the target core */
     ort_pool_pin(
         ort_pool_worker_indexof(
             pool, ort_pool_thread_self()));
