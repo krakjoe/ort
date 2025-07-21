@@ -975,7 +975,7 @@ function showInnovationDetail(innovationId) {
            content: `
                <h4>Intelligent SIMD Acceleration</h4>
                <p>Multi-layered approach to vectorized computation:</p>
-               <ul>
+               <ul class="padded-list">
                    <li><strong>Runtime detection:</strong> CPU capabilities are detected at thread startup, never during hot paths</li>
                    <li><strong>Thread pinning:</strong> Prevents thread migration that could invalidate instruction set assumptions</li>
                    <li><strong>Vector width optimization:</strong> Operations are optimized for specific instruction set vector widths</li>
@@ -1060,7 +1060,7 @@ function showInnovationDetail(innovationId) {
                <h4>Independent Component Design</h4>
                <p>All components are designed to be independent:</p>
                <ul class="padded-list">
-                   <li><strong>Optional dependencies:</strong> Can built with <span class="class">ORT\\Math</span> standalone</li>
+                   <li><strong>Optional dependencies:</strong> Can build with <span class="class">ORT\\Math</span> standalone</li>
                    <li><strong>API independence:</strong> No cross-contamination and minimal intersection between component APIs</li>
                    <li><strong>Rapid Development:</strong> Modularisation of component parts allows rapid development of adjacent or redevelopment of individual component parts</li>
                </ul>
