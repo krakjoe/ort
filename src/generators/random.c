@@ -184,7 +184,7 @@ do {                                                                  \
     }                                                                 \
 } while(0)
 
-PHP_METHOD(Generator_RandomInt, __construct) {
+PHP_METHOD(Generator_Random, __construct) {
     php_ort_generator_t* generator =
         php_ort_generator_fetch(
             Z_OBJ_P(getThis()));
@@ -423,7 +423,7 @@ PHP_METHOD(Generator_RandomInt, __construct) {
 #undef ORT_GENERATOR_RANDOM_CHECK_TYPE
 
 zend_function_entry php_ort_generator_random_methods[] = {
-    PHP_ME(Generator_RandomInt, __construct,
+    PHP_ME(Generator_Random, __construct,
         php_ort_generator_random__construct_arginfo, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
