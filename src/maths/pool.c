@@ -46,6 +46,8 @@
 #define ort_pool_cond_broadcast(cond) \
     WakeAllConditionVariable(cond)
 #define ort_pool_cond_destroy(cond)
+#define ort_pool_thread_self() \
+    GetCurrentThread()
 #else
 # include <pthread.h>
 # include <sched.h>
@@ -71,6 +73,8 @@
     pthread_cond_broadcast(cond)
 #define ort_pool_cond_destroy(cond) \
     pthread_cond_destroy(cond)
+#define ort_pool_thread_self() \
+    pthread_self()
 #endif
 
 typedef struct _ort_task_t {
@@ -287,34 +291,57 @@ void ort_pool_cast_worker(void *arg, size_t index, size_t count) {
 }
 
 /*
- * Pin the current thread to the core it is currently running on.
- * This guarantees no migration, regardless of platform.
+ * Pin the current thread to the target core.
+ *
+ * We don't leave it to the scheduler to decide how to distribute threads, beause this leads to non-determinisic behavior.
+ * 
+ * Instead, we pin each thread to the target core (determined by topology or ORT_POOL_CORES), this distributes the threads evenly.
  */
-static void ort_pool_pin(void) {
+static void ort_pool_pin(size_t index) {
+    /* We set affinity and wait for the scheduler to migrate the thread (if necessary) */
 #ifdef _WIN32
-    DWORD cpu =
-        GetCurrentProcessorNumber();
     DWORD_PTR mask =
-        ((DWORD_PTR)1) << cpu;
+        ((DWORD_PTR)1) << (DWORD)index;
     SetThreadAffinityMask(
         GetCurrentThread(), mask);
+    while (GetCurrentProcessorNumber() != (DWORD) index) {
+        SwitchToThread();
+    }
 #else
     cpu_set_t set;
     CPU_ZERO(&set);
-    int cpu = sched_getcpu();
-    if (cpu >= 0) {
-        CPU_SET(cpu, &set);
+    CPU_SET(index, &set);
         pthread_setaffinity_np(
             pthread_self(), sizeof(set), &set);
+
+    while (sched_getcpu() != index) {
+        sched_yield();
     }
 #endif
+    /* The thread is now executing on the target core, as determined by topology or ORT_POOL_CORES */
+}
+
+static zend_always_inline size_t
+    ort_pool_worker_indexof(
+        ort_pool_t* pool, ort_thread_t thread) {
+    for (size_t i = 0; i < pool->size; ++i) {
+        if (pool->threads[i] == thread) {
+            return i;
+        }
+    }
+
+    assert(0);
+    /* This is unreachable */
+    return SIZE_MAX;
 }
 
 static void *ort_pool_worker(void *arg) {
     ort_pool_t *pool = (ort_pool_t *)arg;
 
     /* Pin this thread to the core it is currently running on */
-    ort_pool_pin();
+    ort_pool_pin(
+        ort_pool_worker_indexof(
+            pool, ort_pool_thread_self()));
 
     /* Startup the allocator for this thread */
     PHP_MINIT_FUNCTION(ORT_ALLOC);
@@ -407,34 +434,48 @@ size_t ort_pool_max(void) {
     return __ort_pool.size;
 }
 
+/* {{{ Retrieve the actual number of cores available (regardless of env) */
+static zend_always_inline size_t ort_pool_threads(void) {
+    size_t threads = 0;
+
+#if defined(_WIN32)
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+
+    threads = (size_t)
+        sysinfo.dwNumberOfProcessors;
+#else
+    threads = (size_t) sysconf(
+        _SC_NPROCESSORS_ONLN);
+#endif
+
+    return threads;
+} /* }}} */
+
 size_t ort_pool_cores(void) {
     if (__ort_pool_cores > 0) {
         return __ort_pool_cores;
     }
 
-#if defined(_WIN32)
     __ort_pool_cores = ort_pool_cores_env();
     if (__ort_pool_cores > 0) {
+        /*
+         We prohibit over subscription
+        */
+        size_t check = ort_pool_threads();
+
+        /* We silently clamp this, and will document this behavior; It is too early in startup 
+            to raise a graceful error in all cases. */
+        if (__ort_pool_cores > check) {
+            __ort_pool_cores = check;
+        }
+
         return __ort_pool_cores;
     }
 
-    SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
-
     __ort_pool_cores =
-        (size_t)sysinfo.dwNumberOfProcessors;
-#else
-    __ort_pool_cores = ort_pool_cores_env();
-    if (__ort_pool_cores > 0) {
-        return __ort_pool_cores;
-    }
+        ort_pool_threads();
 
-    long n = sysconf(
-        _SC_NPROCESSORS_ONLN);
-
-    __ort_pool_cores =
-        (n > 0) ? (size_t)n : 1;
-#endif
     return __ort_pool_cores;
 }
 
@@ -454,6 +495,8 @@ size_t ort_pool_scale(size_t cores) {
 }
 
 int ort_pool_init(size_t size) {
+    ort_pool_pin(0);
+
     memset(&__ort_pool, 0, sizeof(__ort_pool));
     if (size == 0)
         size = ort_pool_cores();

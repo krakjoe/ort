@@ -38,6 +38,10 @@ The world isn't perfect ... the point of this architecture is not to make sure t
 
 Modern processors use a hybrid layout of performance and efficiency cores; often efficiency cores do not implement AVX2 (or others), and if they execute it, they are doing so via emulation which may be slower than compiler optimized (for release builds) scalar code.
 
+Where `ORT_POOL_CORES` exceeds the number of physical cores available, `ORT_POOL_CORES` will effectively be clamped to the number of physical cores, this is done silently: The reason is that it may be too early in startup to raise errors/warnings gracefully. The alternative, to allow over subscription would create an unpredictable execution environment. This can only be misconfiguration, under normal conditions, omit to set `ORT_POOL_CORES`, the maximum will be detected.
+
+When pools are started, we don't allow the scheduler to decide which core to execute the threads on, we assign them to cores explicitly, and in order: This means that if you set `ORT_POOL_CORES=6`, the first 6 logical processors will be used, only. If you omit to set `ORT_POOL_CORES` we saturate the entire package, and importantly, don't allow the scheduler to run two pool threads on the same core, so while there may be contention for resources (there almost certainly will be, other interpreters have pools too), the contention doesn't come from within that interpreter (it comes from others competing for the same resources).
+
 ## [1] Interpreters
 
 In a threaded environment, such as FrankenPHP, an interpreter is a thread.
