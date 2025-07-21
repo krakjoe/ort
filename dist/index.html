@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHP-ORT: Machine Learning Inference for the Web</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -357,6 +358,28 @@
 
         .padded-list {
             padding-left: 20px;
+        }
+
+        .diagram-section {
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+
+        .diagram-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .mermaid {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
         }
 
         @media (max-width: 768px) {
@@ -963,11 +986,92 @@ function showInnovationDetail(innovationId) {
                <h4>Work-Stealing Thread Pool</h4>
                <p>A sophisticated pool designed primarily for numerical workloads:</p>
                <ul class="padded-list">
+                   <li><strong>Pinning:</strong> Threads are pinned to target cores to maximize stablity and predictability at scale</li>
                    <li><strong>Work stealing:</strong> Threads wait for work to steal from the current task being executed by the pool</li>
                    <li><strong>Alignment awareness:</strong> Work is chunked on aligned boundaries (contractually obliged by the backend)</li>
                    <li><strong>Flexibility:</strong> The frontend will schedule other expensive operations (such as casting) using the pool</li>
                </ul>
-               <p>This isn't PHP threading - these are native threads operating below the interpreter level.</p>
+               <p>This isn't PHP threading - these are native threads operating below the interpreter level:</p>
+               <div class="diagram-section">
+                <div class="diagram-title">Pinning</div>
+                <div class="mermaid">
+                sequenceDiagram
+                    participant Main as Main Thread
+                    participant Pool as Pool Manager
+                    participant OS as OS Scheduler
+                    participant Threads as Worker Threads
+
+                    Main->>Pool: ort_pool_init(size)
+                    Note over Pool: Determines core count via ORT_POOL_CORES env or system detection (ort_pool_cores())
+                    Pool->>Pool: Allocate thread array (size = cores)
+                    Pool->>Pool: Initialize mutex & condition variable
+                    Pool->>Threads: Create threads (CreateThread/pthread_create)
+                    Note over Threads: Each thread executes ort_pool_worker()
+
+                    Threads->>Threads: ort_pool_pin(index)
+                    Note over Threads: Pins thread to specific CPU core to prevent scheduler migration<br>Uses SetThreadAffinityMask (Win) or pthread_setaffinity_np (POSIX)
+                    Threads->>OS: Set affinity to core[index]
+                    Threads->>Threads: Wait until scheduled on core[index]
+                    Note over Threads: Ensures deterministic performance by avoiding core hopping
+                    Threads->>Threads: Initialize thread-local allocator (PHP_MINIT_FUNCTION)
+                    Threads->>Threads: Initialize math backend (ort_math_startup)
+                    Threads->>Threads: Enter worker loop
+                </div>
+            </div>
+            <div class="diagram-section">
+                <div class="diagram-title">Work Stealing</div>
+                <div class="mermaid">
+                sequenceDiagram
+                    participant Client as Client Code
+                    participant Pool as Pool Manager
+                    participant Task as Task Object
+                    participant T0 as Thread 0
+                    participant T1 as Thread 1
+                    participant T2 as Thread 2
+
+                    Client->>Pool: ort_pool_submit(func, arg, count=1000)
+                    Pool->>Task: Create task (refcount=1)
+                    Task->>Task: next=0, completed=0
+                    Pool->>Pool: Set pool.task = task
+                    Pool->>Pool: Broadcast to all workers
+                    
+                    par Work Stealing
+                        Pool-->>T0: Wake up
+                        T0->>T0: Take task reference (refcount++)
+                        T0->>Task: index = atomic_increment(next) = 0
+                        T0->>T0: Execute func(arg, 0, 1000)
+                        T0->>Task: atomic_increment(completed)
+                        
+                        Pool-->>T1: Wake up
+                        T1->>T1: Take task reference (refcount++)
+                        T1->>Task: index = atomic_increment(next) = 1
+                        T1->>T1: Execute func(arg, 1, 1000)
+                        T1->>Task: atomic_increment(completed)
+                        
+                        Pool-->>T2: Wake up
+                        T2->>T2: Take task reference (refcount++)
+                        T2->>Task: index = atomic_increment(next) = 2
+                        T2->>T2: Execute func(arg, 2, 1000)
+                        T2->>Task: atomic_increment(completed)
+                    end
+
+                    Note over T0,T2: Threads continue stealing work<br/>until next >= count
+
+                    alt Last work unit completed
+                        T1->>Task: completed == count
+                        T1->>Task: Signal completion
+                        T1->>Pool: Release task reference
+                    else More work available
+                        T0->>Task: index = atomic_increment(next)
+                        T0->>T0: Continue if index < count
+                        T0->>Pool: Release task reference when done
+                    end
+
+                    Task->>Client: Wake up waiting client
+                    Client->>Pool: Clear pool.task = NULL
+                    Client->>Task: Release final reference
+                </div>
+            </div>
            `
        },
        'simd-optimization': {
@@ -1083,12 +1187,44 @@ function showInnovationDetail(innovationId) {
        }
    };
    
-   if (innovations[innovationId]) {
-       content.innerHTML = innovations[innovationId].content;
-       details.style.display = 'block';
-       details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-   }
+    if (innovations[innovationId]) {
+        content.innerHTML = innovations[innovationId].content;
+        details.style.display = 'block';
+        details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (window.mermaid) {
+            mermaid.run();
+        }
+    }
 }
+
+mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    themeVariables: {
+        primaryColor: '#3498db',
+        primaryTextColor: '#2c3e50',
+        primaryBorderColor: '#2980b9',
+        lineColor: '#34495e',
+        secondaryColor: '#ecf0f1',
+        tertiaryColor: '#f8f9fa'
+    },
+    flowchart: {
+        nodeSpacing: 50,
+        rankSpacing: 80,
+        curve: 'basis'
+    },
+    sequence: {
+        diagramMarginX: 50,
+        diagramMarginY: 10,
+        actorMargin: 50,
+        width: 150,
+        height: 65,
+        boxMargin: 10,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageMargin: 35
+    }
+});
 </script>
 </body>
 </html>
