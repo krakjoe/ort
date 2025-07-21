@@ -123,9 +123,6 @@ static zend_always_inline ONNXTensorElementDataType ort_math_promotion_schema_re
                 tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8 ||
                 tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16 ||
                 tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32) {
-                // Use float if available, else double
-                if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
-                    return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
                 return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
             }
             return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
