@@ -314,7 +314,7 @@ static void ort_pool_pin(size_t index) {
    uint32_t max = 100;
    while (GetCurrentProcessorNumber() != (DWORD) index) {
        Sleep(0);
-       if (--max) {
+       if (--max == 0) {
            /* So we ignore it right back ... */
 
            /*

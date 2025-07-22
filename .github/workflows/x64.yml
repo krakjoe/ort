@@ -135,7 +135,7 @@ jobs:
 
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 ORT_SCALE_THRESHOLD=10000 make ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
