@@ -75,7 +75,17 @@ static const OrtAllocator __ort_alloc_default_for_onnx = {
     .version = ORT_API_VERSION,
 };
 
+static volatile zend_bool __ort_alloc_default_initialized = 0;
+
 static void __ort_alloc_default_startup(ort_alloc_t* allocator) {
+    if (__ort_alloc_default_initialized) {
+        return;
+    }
+
+    /* The allocator will be started in every thread:
+        short circuit this registration in other threads */
+    __ort_alloc_default_initialized = 1;
+
     OrtStatus* status =
         api->RegisterAllocator(
             php_ort_environment(),
@@ -189,20 +199,16 @@ void ort_free(void* ptr) {
     __ort_allocator.free(ptr);
 }
 
-PHP_MINIT_FUNCTION(ORT_ALLOC) 
+void ort_alloc_startup()
 {
     if (__ort_allocator.startup) {
         __ort_allocator.startup(&__ort_allocator);
     }
-
-    return SUCCESS;
 }
 
-PHP_MSHUTDOWN_FUNCTION(ORT_ALLOC)
+void ort_alloc_shutdown()
 {
     if (__ort_allocator.shutdown) {
         __ort_allocator.shutdown(&__ort_allocator);
     }
-
-    return SUCCESS;
 }

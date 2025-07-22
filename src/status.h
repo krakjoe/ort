@@ -29,6 +29,8 @@ extern zend_class_entry* php_ort_status_error_ce;
 extern zend_class_entry* php_ort_status_safetyerror_ce;
 #endif
 
+extern zend_class_entry* php_ort_status_scaling_error_ce;
+
 extern zend_class_entry* php_ort_status_tensor_notfound_ce;
 extern zend_class_entry* php_ort_status_tensor_invalidtype_ce;
 extern zend_class_entry* php_ort_status_tensor_invalidshape_ce;

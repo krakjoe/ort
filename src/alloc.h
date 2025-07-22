@@ -97,6 +97,7 @@ size_t ort_alloc_alignment(void);
 */
 zend_bool ort_alloc_aligned(void* ptr);
 
-PHP_MINIT_FUNCTION(ORT_ALLOC);
-PHP_MSHUTDOWN_FUNCTION(ORT_ALLOC);
+/* {{{ */
+void ort_alloc_startup();
+void ort_alloc_shutdown(); /* }}} */
 #endif

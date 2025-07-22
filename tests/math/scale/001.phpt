@@ -1,23 +1,23 @@
 --TEST--
-ORT Math cores configuration
+ORT\Math\scale\cores
 --EXTENSIONS--
 ort
 --ENV--
-ORT_POOL_CORES=2
+ORT_SCALE_CORES=2
 --FILE--
 <?php
 use ORT\Math;
 
-$max = Math\cores();
+$max = Math\scale\cores();
 if ($max != 2) {
     echo "Failed to set cores from environment variable\n";
     exit;
 }
 
-$scale = (int) (Math\cores()/2);
+$scale = (int) (Math\scale\cores()/2);
 $result = Math\scale($scale, function(){
-    return [Math\cores(),
-            Math\cores(true)];
+    return [Math\scale\cores(),
+            Math\scale\cores(true)];
 });
 
 if ($result[0] != $scale) {

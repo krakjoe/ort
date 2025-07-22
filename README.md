@@ -87,7 +87,7 @@ echo "Cores: " . ORT\Math\cores() . "\n";
 ## Configuration
 
 ### Environment Variables
-- `ORT_POOL_CORES` - Set thread pool size (default: CPU cores)
+- `ORT_SCALE_CORES` - Set thread pool size (default: CPU cores)
 
 ### Build Options
 - `--enable-ort-backend`  - Enable SIMD optimizations (default: yes)

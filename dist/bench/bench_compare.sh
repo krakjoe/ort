@@ -34,7 +34,7 @@ for BENCH_FUNCTION in $BENCH_FUNCTION_LIST; do
     for BENCH_SIZE in $BENCH_SIZE_LIST; do
       echo "Benchmarking $PHP function: $BENCH_FUNCTION with $BENCH_CORES cores and size $BENCH_SIZE"
       # PHP/ort: process isolation, JSON output, extract all relevant fields
-      PHP_JSON_OUT=$(ORT_POOL_CORES=$BENCH_CORES $PHP -dmemory_limit=16G "$BENCH_PHP" "$BENCH_FUNCTION" "$BENCH_SIZE" "$BENCH_REPEAT" --json 2>/dev/null)
+      PHP_JSON_OUT=$(ORT_SCALE_CORES=$BENCH_CORES $PHP -dmemory_limit=16G "$BENCH_PHP" "$BENCH_FUNCTION" "$BENCH_SIZE" "$BENCH_REPEAT" --json 2>/dev/null)
       if echo "$PHP_JSON_OUT" | grep -q '"trimmed_mean_time"'; then
         PHP_CSV_LINE=$(python3 -c "import sys, json; d=json.load(sys.stdin); print(f'{d.get('mean_time','')},{d.get('trimmed_mean_time','')},{d.get('mops','')},{d.get('trimmed_mops','')}')" <<< "$PHP_JSON_OUT")
         printf "%s,%s,%s,%s\n" "$BENCH_CORES" "$BENCH_SIZE" "$BENCH_FUNCTION" "$PHP_CSV_LINE" >> $BENCH_OUT_PHP

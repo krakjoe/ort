@@ -25,6 +25,8 @@ zend_class_entry* php_ort_status_error_ce;
 zend_class_entry* php_ort_status_safetyerror_ce;
 #endif
 
+zend_class_entry* php_ort_status_scaling_error_ce;
+
 zend_class_entry* php_ort_status_tensor_notfound_ce;
 zend_class_entry* php_ort_status_tensor_invalidshape_ce;
 zend_class_entry* php_ort_status_tensor_invalidtype_ce;
@@ -64,8 +66,14 @@ PHP_MINIT_FUNCTION(ORT_STATUS)
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status", "SafetyError", NULL);
     php_ort_status_safetyerror_ce =
         zend_register_internal_class_ex(
-            &ce, zend_ce_error);
+            &ce, php_ort_status_error_ce);
 #endif
+
+    /** ---------------------------------------------- **/
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status", "ScalingError", NULL);
+    php_ort_status_error_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_error_ce);
 
     /** ----------------------------------------------------------------- **/
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "NotFound", NULL);

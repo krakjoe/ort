@@ -1,6 +1,6 @@
 # Hybrid Parallelism
 
-In order to saturate the CPU, `ORT\Math` uses a pool of workers (per interpreter[1]). The number of workers will default to the number of available cores. This can be overridden by setting the environment variable `ORT_POOL_CORES` explicitly.
+In order to saturate the CPU, `ORT\Math` uses a pool of workers (per interpreter[1]). The number of workers will default to the number of available cores. This can be overridden by setting the environment variable `ORT_SCALE_CORES` explicitly.
 
 Both vectorized operations (provided by various backends, see `docs/backend.md`) and non-vectorized operations (provided by the frontend where vectorization isn't possible/applicable) are distributed across the pool transparently.
 
@@ -38,9 +38,33 @@ The world isn't perfect ... the point of this architecture is not to make sure t
 
 Modern processors use a hybrid layout of performance and efficiency cores; often efficiency cores do not implement AVX2 (or others), and if they execute it, they are doing so via emulation which may be slower than compiler optimized (for release builds) scalar code.
 
-Where `ORT_POOL_CORES` exceeds the number of physical cores available, `ORT_POOL_CORES` will effectively be clamped to the number of physical cores, this is done silently: The reason is that it may be too early in startup to raise errors/warnings gracefully. The alternative, to allow over subscription would create an unpredictable execution environment. This can only be misconfiguration, under normal conditions, omit to set `ORT_POOL_CORES`, the maximum will be detected.
+Where `ORT_SCALE_CORES` exceeds the number of physical cores available, `ORT_SCALE_CORES` will effectively be clamped to the number of physical cores, this is done silently: The reason is that it may be too early in startup to raise errors/warnings gracefully. The alternative, to allow over subscription would create an unpredictable execution environment. This can only be misconfiguration, under normal conditions, omit to set `ORT_SCALE_CORES`, the maximum will be detected.
 
-When pools are started, we don't allow the scheduler to decide which core to execute the threads on, we assign them to cores explicitly, and in order: This means that if you set `ORT_POOL_CORES=6`, the first 6 logical processors will be used, only. If you omit to set `ORT_POOL_CORES` we saturate the entire package, and importantly, don't allow the scheduler to run two pool threads on the same core, so while there may be contention for resources (there almost certainly will be, other interpreters have pools too), the contention doesn't come from within that interpreter (it comes from others competing for the same resources).
+When pools are started, we don't allow the scheduler to decide which core to execute the threads on, we assign them to cores explicitly, and in order: This means that if you set `ORT_SCALE_CORES=6`, the first 6 logical processors will be used, only. If you omit to set `ORT_SCALE_CORES` we saturate the entire package, and importantly, don't allow the scheduler to run two pool threads on the same core, so while there may be contention for resources (there almost certainly will be, other interpreters have pools too), the contention doesn't come from within that interpreter (it comes from others competing for the same resources).
+
+Further control can be gained by adjusting `ORT_SCALE_THRESHOLD`. By default this is set to 300k, this means that any operation smaller than 300k elements will be executed serially, larger ones will be distributed across the pool. This threshold can be adjusted to suit your needs, on a system wide basis.
+
+# Call Site Scaling
+
+In order to hand over complete control of scaling at the call site, `ORT\Math\scale` may be used:
+
+  - `mixed ORT\Math\scale(int $cores, callable $code [, int $threshold])`
+
+For example:
+
+```php
+<?php
+$result = Math\scale(Math\scale\cores()/2, function(){
+    /* Math code in here runs on half as many cores
+        as default, with twice the normal threshold */
+
+    /* Anything I return is returned ... */
+}, Math\scale\threshold()*2);
+?>
+```
+
+This minimal API surface allows the user to scale individual computations, or groups of them, and develop their own strategies for scaling their workloads.
+
 
 ## [1] Interpreters
 

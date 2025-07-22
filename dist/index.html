@@ -588,7 +588,7 @@
                     <li><strong><a href="#" onclick="showInnovationDetail('immutable-tensors'); return false;">Immutable Tensors:</a></strong> Zero-copy, lock-free data sharing, efficient memory usage, and predictable performance</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('dual-storage'); return false;">Dual Storage Class Tensors:</a></strong> <span class="class">ORT\Tensor\Persistent</span> survive request cycles (and may be shared among threads, ie FrankenPHP), <span class="class">ORT\Tensor\Transient</span> are request local</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('memory-management'); return false;">Memory Management:</a></strong> Aligned allocator and optimized memcpy for maximum performance potential</li>
-                    <li><strong><a href="#" onclick="showInnovationDetail('thread-pool'); return false;">Thread Pool:</a></strong> Work-stealing implementation with alignment awareness</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('thread-pool'); return false;">Thread Pool:</a></strong> Dedicated Slot scheduling implementation with alignment awareness</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('simd-optimization'); return false;">SIMD Optimization:</a></strong> Runtime detection with thread pinning ensures stability and predictability at scale</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('type-system'); return false;">Type System:</a></strong> Schemas extracted from NumPy runtime; no guesswork, perfect compatibility</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('type-promotion'); return false;">Type Promotion:</a></strong> Automatic conversion between types for seamless integration and maximum predictability</li>
@@ -983,11 +983,11 @@ function showInnovationDetail(innovationId) {
        'thread-pool': {
            title: 'Thread Pool Architecture',
            content: `
-               <h4>Work-Stealing Thread Pool</h4>
+               <h4>Slot Scheduling Thread Pool</h4>
                <p>A sophisticated pool designed primarily for numerical workloads:</p>
                <ul class="padded-list">
-                   <li><strong>Pinning:</strong> Threads are pinned to target cores to maximize stablity and predictability at scale</li>
-                   <li><strong>Work stealing:</strong> Threads wait for work to steal from the current task being executed by the pool</li>
+                   <li><strong>Pinning:</strong> Threads are pinned to target cores to maximize stability and predictability at scale</li>
+                   <li><strong>Slot Scheduler:</strong> Each thread has its own task slot, padded to cache line size (64 bytes)</li>
                    <li><strong>Alignment awareness:</strong> Work is chunked on aligned boundaries (contractually obliged by the backend)</li>
                    <li><strong>Flexibility:</strong> The frontend will schedule other expensive operations (such as casting) using the pool</li>
                </ul>
@@ -1002,74 +1002,83 @@ function showInnovationDetail(innovationId) {
                     participant Threads as Worker Threads
 
                     Main->>Pool: ort_pool_init(size)
-                    Note over Pool: Determines core count via ORT_POOL_CORES env or system detection (ort_pool_cores())
+                    Note over Pool: Determines core count via ORT_SCALE_CORES env or system detection (ort_pool_cores())
                     Pool->>Pool: Allocate thread array (size = cores)
                     Pool->>Pool: Initialize mutex & condition variable
                     Pool->>Threads: Create threads (CreateThread/pthread_create)
-                    Note over Threads: Each thread executes ort_pool_worker()
+                    Note over Threads: Each new thread begins executing its worker function.
 
                     Threads->>Threads: ort_pool_pin(index)
-                    Note over Threads: Pins thread to specific CPU core to prevent scheduler migration<br>Uses SetThreadAffinityMask (Win) or pthread_setaffinity_np (POSIX)
+                    Note over Threads: Thread pins itself to a specific CPU core to prevent scheduler migration.<br>Uses SetThreadAffinityMask (Win) or pthread_setaffinity_np (POSIX).
                     Threads->>OS: Set affinity to core[index]
                     Threads->>Threads: Wait until scheduled on core[index]
-                    Note over Threads: Ensures deterministic performance by avoiding core hopping
-                    Threads->>Threads: Initialize thread-local allocator (PHP_MINIT_FUNCTION)
-                    Threads->>Threads: Initialize math backend (ort_math_startup)
+                    Note over Threads: Ensures deterministic performance by avoiding core hopping.
+                    Threads->>Threads: Initialize thread-local state
+                    Note over Threads: Sets up per-thread resources like allocators and the math backend.
                     Threads->>Threads: Enter worker loop
                 </div>
             </div>
             <div class="diagram-section">
-                <div class="diagram-title">Work Stealing</div>
+                <div class="diagram-title">Slot Scheduling</div>
                 <div class="mermaid">
                 sequenceDiagram
                     participant Client as Client Code
                     participant Pool as Pool Manager
-                    participant Task as Task Object
+                    participant Slots as Task Slots
                     participant T0 as Thread 0
                     participant T1 as Thread 1
                     participant T2 as Thread 2
+                    participant T3 as Thread 3
 
-                    Client->>Pool: ort_pool_submit(func, arg, count=1000)
-                    Pool->>Task: Create task (refcount=1)
-                    Task->>Task: next=0, completed=0
-                    Pool->>Pool: Set pool.task = task
+                    Client->>Pool: ort_pool_submit(func, arg, count=4)
+                    Pool->>Slots: Clear all slots
+                    Pool->>Slots: slots[0] = {func, arg, count}
+                    Pool->>Slots: slots[1] = {func, arg, count}  
+                    Pool->>Slots: slots[2] = {func, arg, count}
+                    Pool->>Slots: slots[3] = {func, arg, count}
+                    Pool->>Pool: activated = 4
                     Pool->>Pool: Broadcast to all workers
                     
-                    par Work Stealing
+                    par Dedicated Slot Execution
                         Pool-->>T0: Wake up
-                        T0->>T0: Take task reference (refcount++)
-                        T0->>Task: index = atomic_increment(next) = 0
-                        T0->>T0: Execute func(arg, 0, 1000)
-                        T0->>Task: atomic_increment(completed)
+                        T0->>Slots: Read slots[0] (my dedicated slot)
+                        T0->>T0: Execute func(arg, 0, count)
+                        T0->>Slots: slots[0].completed = 1
+                        T0->>Pool: atomic_decrement(activated)
                         
-                        Pool-->>T1: Wake up
-                        T1->>T1: Take task reference (refcount++)
-                        T1->>Task: index = atomic_increment(next) = 1
-                        T1->>T1: Execute func(arg, 1, 1000)
-                        T1->>Task: atomic_increment(completed)
+                        Pool-->>T1: Wake up  
+                        T1->>Slots: Read slots[1] (my dedicated slot)
+                        T1->>T1: Execute func(arg, 1, count)
+                        T1->>Slots: slots[1].completed = 1
+                        T1->>Pool: atomic_decrement(activated)
                         
                         Pool-->>T2: Wake up
-                        T2->>T2: Take task reference (refcount++)
-                        T2->>Task: index = atomic_increment(next) = 2
-                        T2->>T2: Execute func(arg, 2, 1000)
-                        T2->>Task: atomic_increment(completed)
+                        T2->>Slots: Read slots[2] (my dedicated slot)
+                        T2->>T2: Execute func(arg, 2, count)
+                        T2->>Slots: slots[2].completed = 1
+                        T2->>Pool: atomic_decrement(activated)
+                        
+                        Pool-->>T3: Wake up
+                        T3->>Slots: Read slots[3] (my dedicated slot)
+                        T3->>T3: Execute func(arg, 3, count)
+                        T3->>Slots: slots[3].completed = 1
+                        T3->>Pool: atomic_decrement(activated)
                     end
 
-                    Note over T0,T2: Threads continue stealing work<br/>until next >= count
+                    Note over T0,T3: Each thread works on its<br/>pre-assigned slot only
 
-                    alt Last work unit completed
-                        T1->>Task: completed == count
-                        T1->>Task: Signal completion
-                        T1->>Pool: Release task reference
-                    else More work available
-                        T0->>Task: index = atomic_increment(next)
-                        T0->>T0: Continue if index < count
-                        T0->>Pool: Release task reference when done
+                    alt Last thread completes
+                        T3->>Pool: activated == 0
+                        T3->>Pool: Signal completion to client
+                    else Other threads finish
+                        T0->>Pool: Return to sleep
+                        T1->>Pool: Return to sleep
+                        T2->>Pool: Return to sleep
                     end
 
-                    Task->>Client: Wake up waiting client
-                    Client->>Pool: Clear pool.task = NULL
-                    Client->>Task: Release final reference
+                    Pool->>Client: Wake up waiting client
+                    Client->>Slots: Clear all slots
+                    Client->>Pool: Return from submit
                 </div>
             </div>
            `

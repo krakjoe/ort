@@ -117,12 +117,28 @@ void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count);
 
 void ort_pool_matmul_worker(void *arg, size_t index, size_t count);
 
+/* {{{ Scaling stuff */
+#define ORT_SCALE_THRESHOLD 300000
+
+typedef enum {
+    ORT_POOL_SCALE_CORES     = 1,
+    ORT_POOL_SCALE_THRESHOLD = 2,
+    ORT_POOL_SCALE_ERROR     = 16,
+} ort_pool_scale_kind_t;
+
+typedef struct _ort_pool_scale_t {
+    ort_pool_scale_kind_t kind;
+    zend_long             cores; // number of cores to use
+    zend_long             threshold; // threshold for parallelization
+} ort_pool_scale_t;
+
 /**
- * Sets the scale (number of threads) to use for scheduling
- * @returns the scale (number of threads) at call time, or zero on error
+ * Sets the scale to use for scheduling
+ * @returns the scale at call time
  * @note the caller must restore the scale
  */
-size_t ort_pool_scale(size_t cores);
+ort_pool_scale_t ort_pool_scale(ort_pool_scale_t* scale);
+/* }}} */
 
 /**
  * Get the scale (number of threads) to use for scheduling
@@ -135,6 +151,12 @@ size_t ort_pool_cores(void);
  * @returns the maximum number of threads supported by the pool
  */
 size_t ort_pool_max(void);
+
+/**
+ * Get the current parallelization threshold
+ * @returns the threshold at call time
+ */
+size_t ort_pool_threshold();
 
 /*
  * Compute chunk size and number of chunks for parallel work, ensuring
@@ -150,6 +172,15 @@ static zend_always_inline size_t ort_pool_chunk(
     size_t size,
     size_t *chunk
 ) {
+    // Apply threshold
+    if (total <= ort_pool_threshold()) {
+        if (chunk) {
+            *chunk = total; // No parallelization needed,
+                            // use all elements as one chunk
+        }
+        return 1; // Only one chunk needed
+    }
+
     // Elements per alignment boundary
     size_t elements = ort_alloc_alignment() / size;
     if (elements == 0)

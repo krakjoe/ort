@@ -394,45 +394,72 @@ PHP_FUNCTION(cores)
         ort_pool_cores());
 }
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_threshold_arginfo, 0, 0, IS_LONG, 0)
+    ZEND_ARG_TYPE_INFO(0, default, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+PHP_FUNCTION(threshold)
+{
+    zend_bool _default = false;
+
+    ZEND_PARSE_PARAMETERS_START(0, 1);
+        Z_PARAM_OPTIONAL
+        Z_PARAM_BOOL(_default)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if (_default) {
+        RETURN_LONG(ORT_SCALE_THRESHOLD);
+    }
+
+    RETURN_LONG(
+        ort_pool_threshold());
+}
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_scale_arginfo, 0, 2, IS_MIXED, 0)
     ZEND_ARG_TYPE_INFO(0, cores, IS_LONG, 0)
     ZEND_ARG_CALLABLE_INFO(0, code, 0)
+    ZEND_ARG_TYPE_INFO(0, threshold, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 PHP_FUNCTION(scale)
 {
-    zend_long cores;
+    ort_pool_scale_t scale =
+        (ort_pool_scale_t) {
+            .kind = ORT_POOL_SCALE_CORES
+    };
+
     zval *code;
     zend_fcall_info fci = empty_fcall_info;
     zend_fcall_info_cache fcc = empty_fcall_info_cache;
 
-    ZEND_PARSE_PARAMETERS_START(2, 2)
-        Z_PARAM_LONG(cores)
+    ZEND_PARSE_PARAMETERS_START(2, 3);
+        Z_PARAM_LONG(scale.cores)
         Z_PARAM_FUNC(fci, fcc)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_LONG(scale.threshold)
     ZEND_PARSE_PARAMETERS_END();
 
-    /*
-    if (cores <= 0) {
-        php_ort_status_throw(
-            php_ort_status_math_invalidscale_ce,
-            "Scale must be greater than zero");
-        return;
+    if (ZEND_NUM_ARGS() > 2) {
+        /* Request threshold scaling */
+        scale.kind |=
+            ORT_POOL_SCALE_THRESHOLD;
     }
 
-    if (zend_is_callable(code, 0, NULL) == FAILURE) {
-        php_ort_status_throw(
-            php_ort_status_math_invalidcallable_ce,
-            "Invalid callable provided for scaling");
-        return;
-    }
-    */
+    scale = ort_pool_scale(&scale);
 
-    size_t scale =
-        ort_pool_scale(cores);
+    php_ort_status_flow(
+        (scale.kind & ORT_POOL_SCALE_ERROR),
+        {
+            return;
+        },
+        php_ort_status_scaling_error_ce,
+        "Scaling error occured, please review API usage");
+
     fci.retval = return_value;
     zend_call_function(
         &fci, &fcc);
-    ort_pool_scale(scale);
+
+    ort_pool_scale(&scale);
 }
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_cast_arginfo, 0, 2, ORT\\Tensor, 0)
@@ -528,10 +555,12 @@ static const zend_function_entry php_ort_math_functions[] = {
 
     ZEND_NS_FE("ORT\\Math\\reduce", dot, php_ort_math_dot_arginfo)
 
-    ZEND_NS_FE("ORT\\Math", backend, php_ort_math_backend_arginfo)
-    ZEND_NS_FE("ORT\\Math", cores,   php_ort_math_cores_arginfo)
-    ZEND_NS_FE("ORT\\Math", scale,   php_ort_math_scale_arginfo)
-    ZEND_NS_FE("ORT\\Math", cast,    php_ort_math_cast_arginfo)
+    ZEND_NS_FE("ORT\\Math", backend,   php_ort_math_backend_arginfo)
+    ZEND_NS_FE("ORT\\Math", cast,      php_ort_math_cast_arginfo)
+
+    ZEND_NS_FE("ORT\\Math", scale,            php_ort_math_scale_arginfo)
+    ZEND_NS_FE("ORT\\Math\\scale", cores,     php_ort_math_cores_arginfo)
+    ZEND_NS_FE("ORT\\Math\\scale", threshold, php_ort_math_threshold_arginfo)
     ZEND_FE_END
 };
 
@@ -683,6 +712,8 @@ PHP_METHOD(ONNX_Math_Schema, resolve)
     ZEND_PARSE_PARAMETERS_START(1, -1)
         Z_PARAM_VARIADIC('+', types, count)
     ZEND_PARSE_PARAMETERS_END();
+
+    /* TODO(krakjoe) exceptions */
 
     if (count == 0) {
         /* throw */
