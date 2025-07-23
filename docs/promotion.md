@@ -22,7 +22,7 @@ Type promotions in `php-ort` are context dependent: This means that coercion wil
 
 `python3 dist/extract/extract.py -f sqrt -n sqrt -u`
 
-Will extract the promotion schema for `np.sqrt` (which is a unary function). The script will output the C code for the schema, which should be copy/pasted into the appropriate schema header in `src/maths/schema` and included from the applicable frontend unit (in this case `sqrt.c`).
+Will extract the promotion schema for `np.sqrt` (which is a unary function). By default the schema will be written to stdout, once verified, pass `-w` to write the schema in `src/maths/schema`  ready for inclusion from the applicable frontend unit (in this case `sqrt.c`).
 
 ## Introspection
 
