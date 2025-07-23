@@ -14,6 +14,7 @@ foreach ([
     "arcsinh",
     "arctan",
     "arctanh",
+    "argmax",
     "asin",
     "atan",
     "cbrt",

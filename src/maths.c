@@ -34,6 +34,7 @@
 #include "maths/schema/arcsinh.h"
 #include "maths/schema/arctan.h"
 #include "maths/schema/arctanh.h"
+#include "maths/schema/argmax.h"
 #include "maths/schema/atan.h"
 #include "maths/schema/add.h"
 #include "maths/schema/asin.h"
@@ -601,6 +602,8 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         ort->schema = &ort_math_promotion_schema_arctan;
     } else if (zend_string_equals_literal_ci(symbol, "arctanh")) {
         ort->schema = &ort_math_promotion_schema_arctanh;
+    } else if (zend_string_equals_literal_ci(symbol, "argmax")) {
+        ort->schema = &ort_math_promotion_schema_argmax;
     } else if (zend_string_equals_literal_ci(symbol, "asin")) {
         ort->schema = &ort_math_promotion_schema_asin;
     } else if (zend_string_equals_literal_ci(symbol, "atan")) {

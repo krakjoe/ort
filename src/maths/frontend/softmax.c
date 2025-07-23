@@ -30,7 +30,6 @@
 #include "maths/result.h"
 #include "maths/schema/softmax.h"
 
-
 #define ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(softmax, c_type) { \
         c_type* va = (c_type*)a; \
