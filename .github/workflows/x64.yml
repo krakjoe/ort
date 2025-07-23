@@ -67,7 +67,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          make test
+          make test TEST_PHP_ARGS=--show-diff
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -135,7 +135,7 @@ jobs:
 
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 ORT_SCALE_THRESHOLD=10000 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 ORT_SCALE_THRESHOLD=10000 make ort-test-coverage-html TEST_PHP_ARGS=--show-diff
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
