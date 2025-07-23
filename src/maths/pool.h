@@ -21,6 +21,7 @@
 
 #include "ort.h"
 #include "alloc.h"
+#include "maths/core.h"
 
 typedef void (*ort_task_func_t)(
     void *arg, size_t index, size_t count);
@@ -36,14 +37,14 @@ typedef struct _ort_pool_binary_ctx_t {
     void *result;
     void *a;
     void *b;
-    void (*op)(void *result, const void *a, const void *b, size_t n);
+    ort_math_kernel_binary_t op;
 } ort_pool_binary_ctx_t;
 
 typedef struct _ort_pool_unary_ctx_t {
     ort_pool_ctx_layout_t layout;
     void *result;
     void *a;
-    void (*op)(void *result, const void *a, size_t n);
+    ort_math_kernel_unary_t op;
 } ort_pool_unary_ctx_t;
 
 typedef struct _ort_pool_scalar_ctx_t {
@@ -51,7 +52,7 @@ typedef struct _ort_pool_scalar_ctx_t {
     void *result;
     void *a;
     void *b;
-    void (*op)(void *result, const void *a, const void *b, size_t n);
+    ort_math_kernel_scalar_t op;
 } ort_pool_scalar_ctx_t;
 
 typedef struct _ort_pool_reduce_tensor_ctx_t {
@@ -59,23 +60,19 @@ typedef struct _ort_pool_reduce_tensor_ctx_t {
     void *result;
     const void *a;
     size_t elements;
-    void (*op)(void *result, const void *a, size_t n);
+    ort_math_kernel_reduce_tensor_t op;
 } ort_pool_reduce_tensor_ctx_t;
 
-typedef struct _ort_reduce_axis_layout_t {
-    size_t element;      // size of one element in bytes
-    size_t total;        // total number of output elements (outer * inner)
-    size_t chunk;        // chunk size for thread pool
-    size_t axis_size;    // length of reduction axis
-    size_t outer;        // product of dims before axis
-    size_t inner;        // product of dims after axis
-} ort_reduce_axis_layout_t;
-
 typedef struct _ort_pool_reduce_axis_ctx_t {
-    ort_reduce_axis_layout_t layout; // all scheduling/precomputed info
-    void *result;                    // output data pointer
-    const void *a;                   // input data pointer
-    void (*op)(void *result, const void *a, size_t outer, size_t axis, size_t inner); // reduction kernel
+    ort_pool_ctx_layout_t layout;     // chunking info: element size, total, chunk
+    void *result;                     // output data pointer
+    const void *a;                    // input data pointer
+    const size_t *input_shape;        // input shape
+    size_t input_dims;                // input dimensions
+    const size_t *output_shape;       // output shape
+    size_t output_dims;               // output dimensions
+    size_t axis;                      // axis to reduce
+    ort_math_kernel_reduce_axis_t op; // reduction kernel
 } ort_pool_reduce_axis_ctx_t;
 
 typedef struct _ort_pool_matmul_ctx_t {
@@ -89,7 +86,7 @@ typedef struct _ort_pool_matmul_ctx_t {
     size_t matrix_size_a;         // number of elements in one A matrix
     size_t matrix_size_b;         // number of elements in one B matrix
     size_t matrix_size_result;    // number of elements in one result matrix 
-    void (*op)(void *result, const void *a, const void *b, size_t a_cols, size_t b_cols); // matmul kernel: computes one output row per call
+    ort_math_kernel_matmul_t op;  // matmul kernel: computes one output row per call
 } ort_pool_matmul_ctx_t;
 
 typedef struct _ort_pool_cast_ctx_t {

@@ -25,16 +25,13 @@
 #include "maths/validate.h"
 #include "maths/pool.h"
 
-/* Stack allocation threshold for math optimizations */
-#define ORT_MATH_RESULT_STACK_DIMENSIONS 8
-
 static zend_always_inline ort_tensor_t* 
     ort_math_result_element_wise_binary_fast(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
-    ort_math_element_op_func_t operation,
-    const char* operation_name
+    ort_math_kernel_binary_t kernel,
+    const char* operator
 ) {
     /* Create result tensor with same shape and type as inputs */
     ort_tensor_t* result = ort_math_result_tensor(
@@ -42,7 +39,7 @@ static zend_always_inline ort_tensor_t*
         tensor_a->dimensions,
         promotion ? 
             promotion->result_type :
-                tensor_a->type, operation_name);
+                tensor_a->type, operator);
 
     /* Chunk work for pool */
     size_t chunk;
@@ -60,7 +57,7 @@ static zend_always_inline ort_tensor_t*
         .result = result->data,
         .a = ort_math_operation_upcast(result, promotion, tensor_a->data),
         .b = ort_math_operation_upcast(result, promotion, tensor_b->data),
-        .op = operation
+        .op = kernel
     };
 
     ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
@@ -85,13 +82,13 @@ ort_tensor_t* ort_math_result_element_wise_binary(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
-    ort_math_element_op_func_t operation,
-    const char* operation_name
+    ort_math_kernel_binary_t kernel,
+    const char* operator
 ) {
     /* Fast path: identical shapes and types */
     if (ort_math_validate_identity(tensor_a, tensor_b)) {
         return ort_math_result_element_wise_binary_fast(
-            promotion, tensor_a, tensor_b, operation, operation_name);
+            promotion, tensor_a, tensor_b, kernel, operator);
     }
 
     /* General path: use centralized upcast/broadcast logic */
@@ -107,13 +104,13 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         },
         php_ort_status_math_invalidshape_ce,
         "%s: tensor shapes are not broadcast compatible",
-        operation_name
+        operator
     );
 
     /* Create result tensor */
     ort_tensor_t* result = ort_math_result_tensor(
         binfo->result_shape, binfo->result_dimensions,
-        promotion->result_type, operation_name);
+        promotion->result_type, operator);
 
     /* Upcast and broadcast both inputs to result buffer */
     void* a_buf = ort_alloc(
@@ -146,7 +143,7 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         .result = result->data,
         .a = a_buf,
         .b = b_buf,
-        .op = operation
+        .op = kernel
     };
 
     ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
@@ -161,14 +158,15 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     zval* scalar,
-    ort_math_scalar_op_func_t operation,
-    const char* operation_name
+    ort_math_kernel_scalar_t kernel,
+    const char* operator
 ) {
     /* Create result tensor with same shape and promoted type as input */
     ort_tensor_t* result = ort_math_result_tensor(
         tensor->shape,
         tensor->dimensions,
-        promotion ? promotion->result_type : tensor->type, operation_name);
+        promotion ?
+            promotion->result_type : tensor->type, operator);
 
     /* Upcast input if needed */
     void* a_buf = ort_math_operation_upcast(result, promotion, tensor->data);
@@ -210,7 +208,7 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
         default:
             php_ort_status_throw(php_ort_status_math_invalidtype_ce,
                 "%s: unsupported tensor type for scalar operation",
-                operation_name);
+                operator);
             ort_tensor_release(result);
             if (a_buf != tensor->data) 
                 ort_free(a_buf);
@@ -232,7 +230,7 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
         .result = result->data,
         .a = a_buf,
         .b = scalar_data,
-        .op = operation
+        .op = kernel
     };
 
     ort_pool_submit(ort_pool_scalar_worker, &ctx, num_chunks);
@@ -244,15 +242,15 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
 ort_tensor_t* ort_math_result_element_wise_unary(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
-    ort_math_unary_op_func_t operation,
-    const char* operation_name
+    ort_math_kernel_unary_t kernel,
+    const char* operator
 ) {
     /* Create result tensor with same shape and promoted type as input */
     ort_tensor_t* result = ort_math_result_tensor(
         tensor->shape,
         tensor->dimensions,
         promotion ? promotion->result_type : tensor->type, 
-        operation_name);
+        operator);
     if (!result) {
         return NULL;
     }
@@ -275,7 +273,7 @@ ort_tensor_t* ort_math_result_element_wise_unary(
         },
         .result = result->data,
         .a = a_buf,
-        .op = operation
+        .op = kernel
     };
 
     ort_pool_submit(ort_pool_unary_worker, &ctx, num_chunks);
@@ -288,8 +286,8 @@ ort_tensor_t* ort_math_result_element_wise_unary(
 ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
     ort_math_promotion_t *promotion,
     ort_tensor_t* tensor,
-    void (*operation)(void *result, const void *a, size_t n),
-    const char* operation_name
+    ort_math_kernel_reduce_tensor_t kernel,
+    const char* operator
 ) {
     // Output is always a scalar (0-dim tensor)
     ort_tensor_t* result = ort_math_result_tensor(
@@ -297,7 +295,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
         promotion ?
             promotion->result_type :
                 tensor->type,
-        operation_name);
+        operator);
     if (!result) {
         return NULL;
     }
@@ -305,7 +303,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
     void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
     /* Call the operation directly, no threading */
-    operation(result->data, buffer, tensor->elements);
+    kernel(result->data, buffer, tensor->elements);
 
     /* Free upcasted buffer if necessary */
     if (promotion && promotion->upcast.count) {
@@ -318,8 +316,8 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
 ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
     ort_math_promotion_t *promotion,
     ort_tensor_t* tensor,
-    void (*operation)(void *result, const void *a, size_t n),
-    const char* operation_name
+    ort_math_kernel_reduce_tensor_t kernel,
+    const char* operator
 ) {
     // Output is always a scalar (0-dim tensor)
     ort_tensor_t* result = ort_math_result_tensor(
@@ -327,7 +325,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
         promotion ?
             promotion->result_type :
                 tensor->type,
-        operation_name);
+        operator);
     if (!result) {
         return NULL;
     }
@@ -341,7 +339,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
         .result   = result->data,
         .a        = ort_math_operation_upcast(result, promotion, tensor->data),
         .elements = tensor->elements,
-        .op       = operation
+        .op       = kernel
     };
 
     // Only one chunk/thread needed for scalar reduction
@@ -360,8 +358,8 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
     ort_tensor_t* tensor,
     size_t axis,
     zend_bool keepdims,
-    void (*operation)(void *result, const void *a, size_t outer, size_t as, size_t inner),
-    const char* operation_name,
+    ort_math_kernel_reduce_axis_t kernel,
+    const char* operator,
     int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
 ) {
     // Calculate output shape
@@ -375,39 +373,29 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
         promotion ?
             promotion->result_type :
                 tensor->type,
-        operation_name);
+        operator);
     efree(result_shape);
-
-    // Compute reduction layout (robust for all axis values)
-    size_t outer = 1, inner = 1;
-    if (axis > 0) {
-        for (size_t i = 0; i < axis; ++i)
-            outer *= tensor->shape[i];
-    }
-    if (axis + 1 < tensor->dimensions) {
-        for (size_t i = axis + 1; i < tensor->dimensions; ++i)
-            inner *= tensor->shape[i];
-    }
 
     /* Chunk work for pool */
     size_t chunk;
     size_t num_chunks = ort_pool_chunk(
-        outer * inner,
-        php_ort_type_sizeof(
-            result->type), &chunk);
+        result->elements,
+        php_ort_type_sizeof(result->type), &chunk);
 
     ort_pool_reduce_axis_ctx_t ctx = {
         .layout = {
             .element = php_ort_type_sizeof(result->type),
-            .total   = outer * inner,
-            .chunk   = chunk,
-            .axis_size = tensor->shape[axis],
-            .outer = outer,
-            .inner = inner
+            .total   = result->elements,
+            .chunk   = chunk
         },
         .result = result->data,
         .a      = ort_math_operation_upcast(result, promotion, tensor->data),
-        .op     = operation
+        .op     = kernel,
+        .input_shape = tensor->shape,
+        .input_dims = tensor->dimensions,
+        .output_shape = result->shape,
+        .output_dims = result->dimensions,
+        .axis = axis
     };
 
     ort_pool_submit(ort_pool_reduce_axis_worker, &ctx, num_chunks);
@@ -424,8 +412,8 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     ort_tensor_t* tensor,
     size_t axis,
     zend_bool keepdims,
-    void (*operation)(void *result, const void *a, size_t outer, size_t axis, size_t inner),
-    const char* operation_name,
+    ort_math_kernel_reduce_axis_t kernel,
+    const char* operator,
     int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
 ) {
     // Calculate output shape
@@ -439,24 +427,16 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
         promotion ?
             promotion->result_type :
                 tensor->type,
-        operation_name);
+        operator);
     efree(result_shape);
-
-    // Compute reduction layout (robust for all axis values)
-    size_t outer = 1, inner = 1;
-    if (axis > 0) {
-        for (size_t i = 0; i < axis; ++i)
-            outer *= tensor->shape[i];
-    }
-    if (axis + 1 < tensor->dimensions) {
-        for (size_t i = axis + 1; i < tensor->dimensions; ++i)
-            inner *= tensor->shape[i];
-    }
 
     void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
-    operation(
-        result->data, buffer, outer, tensor->shape[axis], inner);
+    kernel(
+        result->data, buffer,
+        tensor->shape, tensor->dimensions,
+        result->shape, result->dimensions,
+        axis);
 
     if (promotion && promotion->upcast.count) {
         ort_free((void*)buffer);

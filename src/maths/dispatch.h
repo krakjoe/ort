@@ -26,66 +26,66 @@ typedef struct _ort_math_dispatch_t {
     ONNXTensorElementDataType type;
 
     /* Binary element-wise operations */
-    ort_math_element_op_func_t add_func;
-    ort_math_element_op_func_t sub_func;
-    ort_math_element_op_func_t mul_func;
-    ort_math_element_op_func_t div_func;
-    ort_math_element_op_func_t pow_func;
-    ort_math_element_op_func_t mod_func;
-    ort_math_element_op_func_t dot_func;
-    ort_math_matmul_op_func_t  matmul_func;
+    ort_math_kernel_binary_t add_func;
+    ort_math_kernel_binary_t sub_func;
+    ort_math_kernel_binary_t mul_func;
+    ort_math_kernel_binary_t div_func;
+    ort_math_kernel_binary_t pow_func;
+    ort_math_kernel_binary_t mod_func;
+    ort_math_kernel_binary_t dot_func;
+    ort_math_kernel_matmul_t  matmul_func;
 
     /* Scalar operations */
-    ort_math_scalar_op_func_t add_scalar_func;
-    ort_math_scalar_op_func_t sub_scalar_func;
-    ort_math_scalar_op_func_t mul_scalar_func;
-    ort_math_scalar_op_func_t div_scalar_func;
-    ort_math_scalar_op_func_t pow_scalar_func;
-    ort_math_scalar_op_func_t mod_scalar_func;
+    ort_math_kernel_scalar_t add_scalar_func;
+    ort_math_kernel_scalar_t sub_scalar_func;
+    ort_math_kernel_scalar_t mul_scalar_func;
+    ort_math_kernel_scalar_t div_scalar_func;
+    ort_math_kernel_scalar_t pow_scalar_func;
+    ort_math_kernel_scalar_t mod_scalar_func;
 
     /* Unary operations */
-    ort_math_unary_op_func_t neg_func;
-    ort_math_unary_op_func_t sqrt_func;
-    ort_math_unary_op_func_t sin_func;
-    ort_math_unary_op_func_t cos_func;
-    ort_math_unary_op_func_t tan_func;
-    ort_math_unary_op_func_t asin_func;
-    ort_math_unary_op_func_t acos_func;
-    ort_math_unary_op_func_t atan_func;
-    ort_math_unary_op_func_t sinh_func;
-    ort_math_unary_op_func_t cosh_func;
-    ort_math_unary_op_func_t tanh_func;
-    ort_math_unary_op_func_t log_func;
-    ort_math_unary_op_func_t log10_func;
-    ort_math_unary_op_func_t exp_func;
-    ort_math_unary_op_func_t floor_func;
-    ort_math_unary_op_func_t ceil_func;
-    ort_math_unary_op_func_t round_func;
-    ort_math_unary_op_func_t trunc_func;
-    ort_math_unary_op_func_t exp2_func;
-    ort_math_unary_op_func_t log2_func;
-    ort_math_unary_op_func_t log1p_func;
-    ort_math_unary_op_func_t cbrt_func;
-    ort_math_unary_op_func_t abs_func;
-    ort_math_unary_op_func_t sign_func;
-    ort_math_unary_op_func_t recip_func;
+    ort_math_kernel_unary_t neg_func;
+    ort_math_kernel_unary_t sqrt_func;
+    ort_math_kernel_unary_t sin_func;
+    ort_math_kernel_unary_t cos_func;
+    ort_math_kernel_unary_t tan_func;
+    ort_math_kernel_unary_t asin_func;
+    ort_math_kernel_unary_t acos_func;
+    ort_math_kernel_unary_t atan_func;
+    ort_math_kernel_unary_t sinh_func;
+    ort_math_kernel_unary_t cosh_func;
+    ort_math_kernel_unary_t tanh_func;
+    ort_math_kernel_unary_t log_func;
+    ort_math_kernel_unary_t log10_func;
+    ort_math_kernel_unary_t exp_func;
+    ort_math_kernel_unary_t floor_func;
+    ort_math_kernel_unary_t ceil_func;
+    ort_math_kernel_unary_t round_func;
+    ort_math_kernel_unary_t trunc_func;
+    ort_math_kernel_unary_t exp2_func;
+    ort_math_kernel_unary_t log2_func;
+    ort_math_kernel_unary_t log1p_func;
+    ort_math_kernel_unary_t cbrt_func;
+    ort_math_kernel_unary_t abs_func;
+    ort_math_kernel_unary_t sign_func;
+    ort_math_kernel_unary_t recip_func;
 
-    ort_math_unary_op_func_t sum_func;
-    ort_math_reduction_op_func_t sum_axis_func;
+    ort_math_kernel_reduce_tensor_t sum_func;
+    ort_math_kernel_reduce_axis_t sum_axis_func;
 
-    ort_math_unary_op_func_t mean_func;
-    ort_math_reduction_op_func_t mean_axis_func;
+    ort_math_kernel_reduce_tensor_t mean_func;
+    ort_math_kernel_reduce_axis_t mean_axis_func;
 
-    ort_math_unary_op_func_t min_func;
-    ort_math_reduction_op_func_t min_axis_func;
+    ort_math_kernel_reduce_tensor_t min_func;
+    ort_math_kernel_reduce_axis_t min_axis_func;
 
-    ort_math_unary_op_func_t max_func;
-    ort_math_reduction_op_func_t max_axis_func;
+    ort_math_kernel_reduce_tensor_t max_func;
+    ort_math_kernel_reduce_axis_t max_axis_func;
 
-    ort_math_reduction_op_func_t softmax_axis_func;
+    ort_math_kernel_reduce_axis_t softmax_axis_func;
 
-    ort_math_unary_op_func_t argmax_func;
-    ort_math_reduction_op_func_t argmax_axis_func;
+    ort_math_kernel_reduce_tensor_t argmax_func;
+    ort_math_kernel_reduce_axis_t argmax_axis_func;
 } ort_math_dispatch_t;
 
 static zend_always_inline int16_t ort_math_dispatch_indexof(ONNXTensorElementDataType type) {

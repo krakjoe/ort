@@ -20,29 +20,29 @@
 
 #include "maths/validate.h"
 
-zend_bool ort_math_validate_input(ort_tensor_t* tensor, const char* operation_name) {
+zend_bool ort_math_validate_input(ort_tensor_t* tensor, const char* operator) {
     php_ort_status_flow(
         (!tensor || !tensor->data),
         return 0,
         php_ort_status_tensor_invaliddata_ce,
-        "%s: tensor has no data", operation_name);
+        "%s: tensor has no data", operator);
 
     php_ort_status_flow(
         (tensor->elements == 0),
         return 0,
         php_ort_status_tensor_invalidshape_ce,
-        "%s: tensor is empty", operation_name);
+        "%s: tensor is empty", operator);
 
     php_ort_status_flow(
         (tensor->type == ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64),
         return 0,
         php_ort_status_tensor_invalidtype_ce,
-        "%s: UINT64 tensor type is not supported", operation_name);
+        "%s: UINT64 tensor type is not supported", operator);
     
     return 1;
 }
 
-zend_bool ort_math_validate_axis(ort_tensor_t* tensor, zend_long* axis, const char* operation_name) {
+zend_bool ort_math_validate_axis(ort_tensor_t* tensor, zend_long* axis, const char* operator) {
     if ((*axis) < 0) {
         (*axis) += tensor->dimensions;
     }
@@ -52,7 +52,7 @@ zend_bool ort_math_validate_axis(ort_tensor_t* tensor, zend_long* axis, const ch
         return 0,
         php_ort_status_math_invalidshape_ce,
         "%s: axis %ld is out of bounds for tensor with %zu dimensions",
-        operation_name, (*axis), tensor->dimensions);
+        operator, (*axis), tensor->dimensions);
 
     return 1;
 }

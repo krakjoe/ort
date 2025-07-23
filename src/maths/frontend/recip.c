@@ -33,7 +33,7 @@ ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, float, 1.0f /)
 ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, double, 1.0 /)
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_unary_op_func_t, recip)
+    ort_math_kernel_unary_t, recip)
 
 ORT_MATH_RESULT_UNARY_IMPL(recip,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(recip),

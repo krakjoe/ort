@@ -22,9 +22,9 @@
 #include "tensor.h"
 
 zend_bool ort_math_validate_input(
-    ort_tensor_t* tensor, const char* operation_name);
+    ort_tensor_t* tensor, const char* operator);
 zend_bool ort_math_validate_axis(
-    ort_tensor_t* tensor, zend_long* axis, const char* operation_name);
+    ort_tensor_t* tensor, zend_long* axis, const char* operator);
 
 static zend_always_inline zend_bool ort_math_validate_identity(
     const ort_tensor_t* tensor_a, const ort_tensor_t* tensor_b) {

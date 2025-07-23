@@ -72,7 +72,7 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 #undef ORT_MATH_MATMUL_IMPL_FOR_TYPE
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_element_op_func_t, matmul)
+    ort_math_kernel_binary_t, matmul)
 
 ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matrix_b) {
     if (!ort_math_validate_input(matrix_a, "matmul") || !ort_math_validate_input(matrix_b, "matmul")) {
@@ -148,8 +148,8 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     efree(result_shape);
 
     // Get the correct matmul kernel for the promoted type
-    ort_math_matmul_op_func_t operation = 
-        (ort_math_matmul_op_func_t)
+    ort_math_kernel_matmul_t operation = 
+        (ort_math_kernel_matmul_t)
             ort_math_frontend_dispatch_matmul(
                 &promotion,
                 &ort_math_promotion_schema_matmul);

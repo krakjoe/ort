@@ -114,9 +114,9 @@ ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, double) {
 }
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_element_op_func_t, pow)
+    ort_math_kernel_binary_t, pow)
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_scalar_op_func_t, pow_scalar)
+    ort_math_kernel_scalar_t, pow_scalar)
 
 ORT_MATH_RESULT_BINARY_IMPL(pow,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(pow),

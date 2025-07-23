@@ -43,7 +43,7 @@ ORT_MATH_FOREACH_REAL_TYPE(
 #undef ORT_MATH_FRONTEND_SQRT_IMPL
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_unary_op_func_t, sqrt)
+    ort_math_kernel_unary_t, sqrt)
 
 ORT_MATH_RESULT_UNARY_IMPL(sqrt,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(sqrt),

@@ -44,9 +44,9 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, zend_bool, &&)
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_element_op_func_t, mul)
+    ort_math_kernel_binary_t, mul)
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_scalar_op_func_t, mul_scalar)
+    ort_math_kernel_scalar_t, mul_scalar)
 
 ORT_MATH_RESULT_BINARY_IMPL(multiply,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(mul),

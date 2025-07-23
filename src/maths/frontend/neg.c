@@ -38,7 +38,7 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 ORT_MATH_FRONTEND_UNARY_OP_IMPL(neg, zend_bool, !)
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_unary_op_func_t, neg)
+    ort_math_kernel_unary_t, neg)
 
 ORT_MATH_RESULT_UNARY_IMPL(neg,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(neg),

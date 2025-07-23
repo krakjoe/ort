@@ -72,12 +72,12 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(func_name, c_type) {                \
 #define ORT_MATH_REAL_EXPORT_WITH_DISPATCH(func_name, math_func_f, math_func_d)       \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(float, func_name, math_func_f)                      \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)                     \
-    ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(ort_math_unary_op_func_t, func_name)
+    ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(ort_math_kernel_unary_t, func_name)
 
 #define ORT_MATH_REAL_EXPORT_WITHOUT_DISPATCH(func_name, math_func_f, math_func_d) \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(float, func_name, math_func_f)                   \
     ORT_MATH_REAL_EXPORT_FOR_TYPE(double, func_name, math_func_d)                  \
-    ORT_MATH_FRONTEND_DISPATCH_DECL(ort_math_unary_op_func_t, func_name) {         \
+    ORT_MATH_FRONTEND_DISPATCH_DECL(ort_math_kernel_unary_t, func_name) {         \
     switch (promotion->result_type) {                                              \
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:                                  \
             return ORT_MATH_FRONTEND_OP_SYMBOL(func_name, float);                  \

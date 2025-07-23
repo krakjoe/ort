@@ -36,16 +36,22 @@ void ort_math_activate(void);
 void ort_math_deactivate(void); /* }}} */
 
 /* Core mathematical operation function pointers */
-typedef void (*ort_math_element_op_func_t)(
+typedef void (*ort_math_kernel_binary_t)(
   void* result, const void* a, const void* b, size_t count);
-typedef void (*ort_math_scalar_op_func_t)(
+typedef void (*ort_math_kernel_scalar_t)(
   void* result, const void* a, const void* b, size_t count);
-typedef void (*ort_math_unary_op_func_t)(
+typedef void (*ort_math_kernel_unary_t)(
   void* result, const void* input, size_t count);
-typedef void (*ort_math_reduction_op_func_t)(
-  void* result, const void* a, size_t outer_size, size_t axis_size, size_t inner_size);
-typedef void (*ort_math_matmul_op_func_t)(
+typedef void (*ort_math_kernel_matmul_t)(
   void* result, const void* a, const void* b, size_t a_cols, size_t b_cols);
+
+typedef ort_math_kernel_unary_t ort_math_kernel_reduce_tensor_t;
+typedef void (*ort_math_kernel_reduce_axis_t)(
+    void *result,
+    const void *a,
+    const size_t *input_shape, size_t input_dims,
+    const size_t *output_shape, size_t output_dims,
+    size_t axis);
 
 /* {{{ Clamping is required everywhere */
 #define ORT_MATH_CLAMP(val, range, type)  \

@@ -42,9 +42,9 @@ ORT_MATH_FOREACH_REAL_TYPE(
 #undef ORT_MATH_FRONTEND_DIV_SCALAR_IMPL
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_element_op_func_t, div)
+    ort_math_kernel_binary_t, div)
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_scalar_op_func_t, div_scalar)
+    ort_math_kernel_scalar_t, div_scalar)
 
 ORT_MATH_RESULT_BINARY_IMPL(divide,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(div),

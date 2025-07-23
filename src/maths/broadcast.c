@@ -65,8 +65,6 @@ ort_math_broadcast_info_t* ort_math_broadcast_calculate(
     return info;
 }
 
-#define ORT_MATH_RESULT_STACK_DIMENSIONS 8
-
 // Centralized upcast + broadcast routine for elementwise ops
 void* ort_math_broadcast_perform(
     const ort_tensor_t* result,

@@ -42,9 +42,9 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 #undef ORT_MATH_FRONTEND_SUB_SCALAR_IMPL
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_element_op_func_t, sub)
+    ort_math_kernel_binary_t, sub)
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_scalar_op_func_t, sub_scalar)
+    ort_math_kernel_scalar_t, sub_scalar)
 
 ORT_MATH_RESULT_BINARY_IMPL(subtract,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(sub),

@@ -71,7 +71,7 @@ ORT_MATH_FOREACH_UNSIGNED_TYPE(
 #undef ORT_MATH_SIGN_IMPL_FOR_UNSIGNED
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_unary_op_func_t, sign)
+    ort_math_kernel_unary_t, sign)
 
 ORT_MATH_RESULT_UNARY_IMPL(sign,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(sign),

@@ -23,13 +23,15 @@
 #include "maths/core.h"
 #include "maths/promotion.h"
 
+#define ORT_MATH_RESULT_STACK_DIMENSIONS 32
+
 /* Element-wise binary operation */
 ort_tensor_t* ort_math_result_element_wise_binary(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor_a,
     ort_tensor_t* tensor_b,
-    ort_math_element_op_func_t operation,
-    const char* operation_name
+    ort_math_kernel_binary_t kernel,
+    const char* operator
 );
 
 /* Element-wise scalar operation */
@@ -37,41 +39,40 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     zval* scalar,
-    ort_math_scalar_op_func_t operation,
-    const char* operation_name
+    ort_math_kernel_scalar_t kernel,
+    const char* operator
 );
 
 /* Element-wise unary operation */
 ort_tensor_t* ort_math_result_element_wise_unary(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
-    ort_math_unary_op_func_t operation,
-    const char* operation_name
+    ort_math_kernel_unary_t kernel,
+    const char* operator
 );
 
 /* Element wise reduction */
 ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
-    void (*operation)(void *result, const void *a, size_t n),
-    const char* operation_name
+    ort_math_kernel_reduce_tensor_t kernel,
+    const char* operator
 );
 
 ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
-    void (*operation)(void *result, const void *a, size_t n),
-    const char* operation_name
+    ort_math_kernel_reduce_tensor_t kernel,
+    const char* operator
 );
 
-/* Element-wise reduction along axis */
 ort_tensor_t* ort_math_result_element_wise_reduce_axis(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     size_t axis,
     zend_bool keepdims,
-    void (*operation)(void *result, const void *a, size_t outer, size_t axis, size_t inner),
-    const char* operation_name,
+    ort_math_kernel_reduce_axis_t kernel,
+    const char* operator,
     int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
 );
 
@@ -80,8 +81,8 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     ort_tensor_t* tensor,
     size_t axis,
     zend_bool keepdims,
-    void (*operation)(void *result, const void *a, size_t outer, size_t axis, size_t inner),
-    const char* operation_name,
+    ort_math_kernel_reduce_axis_t kernel,
+    const char* operator,
     int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
 );
 
@@ -100,9 +101,9 @@ static zend_always_inline int64_t* ort_math_result_reduce(
         keepdims ?
             tensor->dimensions : 
                 tensor->dimensions - 1;
-    
+
     int64_t* result_shape = ecalloc(out_dims, sizeof(int64_t));
-    
+
     size_t j = 0;
     for (size_t i = 0; i < tensor->dimensions; i++) {
         if (i == axis) {

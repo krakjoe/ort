@@ -84,9 +84,9 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 #undef ORT_MATH_FRONTEND_MOD_SCALAR_IMPL
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_element_op_func_t, mod)
+    ort_math_kernel_binary_t, mod)
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_scalar_op_func_t, mod_scalar)
+    ort_math_kernel_scalar_t, mod_scalar)
 
 ORT_MATH_RESULT_BINARY_IMPL(mod,
     ORT_MATH_FRONTEND_DISPATCH_SYMBOL(mod),
