@@ -720,7 +720,7 @@ PHP_METHOD(ONNX_Math_Schema, resolve)
         RETURN_LONG(-1);
     }
 
-    if (ort->schema->kind == ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY) {
+    if (ort->schema->kind == ORT_MATH_PROMOTION_SCHEMA_KIND_BINARY) {
         if (count != 2) {
             /* throw */
             RETURN_LONG(-1);
@@ -737,7 +737,7 @@ PHP_METHOD(ONNX_Math_Schema, resolve)
                 (ONNXTensorElementDataType) Z_LVAL(types[0]),
                 (ONNXTensorElementDataType) Z_LVAL(types[1]));
         RETURN_LONG(result);
-    } else if (ort->schema->kind == ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY) {
+    } else if (ort->schema->kind == ORT_MATH_PROMOTION_SCHEMA_KIND_UNARY) {
         if (count != 1) {
             RETURN_LONG(-1);
         }
@@ -780,11 +780,11 @@ PHP_MINIT_FUNCTION(ORT_MATH)
     zend_declare_class_constant_long(
         php_ort_math_schema_ce,
         ZEND_STRL("BINARY"),
-        ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY);
+        ORT_MATH_PROMOTION_SCHEMA_KIND_BINARY);
     zend_declare_class_constant_long(
         php_ort_math_schema_ce,
         ZEND_STRL("UNARY"),
-        ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY);
+        ORT_MATH_PROMOTION_SCHEMA_KIND_UNARY);
 
     memcpy(&php_ort_math_schema_handlers,
         zend_get_std_object_handlers(), sizeof(zend_object_handlers));

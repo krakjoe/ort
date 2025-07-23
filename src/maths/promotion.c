@@ -167,10 +167,15 @@ ort_math_promotion_t ort_math_promotion_perform_binary(
         promotion.result_type = resolved;
         promotion.is_valid = 1;
 
+        if (schema->operands == ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE) {
+            return promotion;
+        }
+
         if (tensor_a->type != promotion.result_type) {
             promotion.upcast.inputs[0] = tensor_a;
             promotion.upcast.count++;
         }
+
         if (tensor_b->type != promotion.result_type) {
             promotion.upcast.inputs[1] = tensor_b;
             promotion.upcast.count++;
@@ -202,6 +207,10 @@ ort_math_promotion_t ort_math_promotion_perform_unary(
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
         promotion.result_type = resolved;
         promotion.is_valid = 1;
+
+        if (schema->operands == ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE) {
+            return promotion;
+        }
 
         if (tensor->type != promotion.result_type) {
             promotion.upcast.inputs[0] = tensor;
@@ -236,6 +245,10 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
         promotion.result_type = resolved;
         promotion.is_valid = 1;
+
+        if (schema->operands == ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE) {
+            return promotion;
+        }
 
         if (tensor->type != promotion.result_type) {
             promotion.upcast.inputs[0] = tensor;

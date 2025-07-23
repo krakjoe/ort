@@ -179,6 +179,8 @@ def main():
     template = ex_emit_name(args.name, template)
     template = ex_emit_extract(args.name, sys.argv, template)
 
+    np.seterr(divide='ignore')
+
     if args.binary:
         template = ex_emit_binary(args.name,
             size, types, callable, template)
@@ -189,12 +191,12 @@ def main():
 
     template = ex_emit_indices(args.name, size, types, template)
     template = ex_emit_struct(args.name, size,
-        'ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY'
+        'ORT_MATH_PROMOTION_SCHEMA_KIND_BINARY'
             if args.binary else
-                'ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY',
-        'ORT_MATH_TYPE_PROMOTION_SCHEMA_OPERANDS_PROMOTE'
+                'ORT_MATH_PROMOTION_SCHEMA_KIND_UNARY',
+        'ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PROMOTE'
             if not args.preserve else
-                'ORT_MATH_TYPE_PROMOTION_SCHEMA_OPERANDS_PRESERVE',
+                'ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE',
         template)
 
     if args.write:

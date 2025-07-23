@@ -32,14 +32,14 @@ typedef struct _ort_math_promotion_t {
 } ort_math_promotion_t;
 
 typedef enum _ort_math_promotion_schema_kind_t {
-    ORT_MATH_TYPE_PROMOTION_SCHEMA_INVALID = 0,
-    ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY  = 1,
-    ORT_MATH_TYPE_PROMOTION_SCHEMA_UNARY   = 2
+    ORT_MATH_PROMOTION_SCHEMA_INVALID = 0,
+    ORT_MATH_PROMOTION_SCHEMA_KIND_BINARY  = 1,
+    ORT_MATH_PROMOTION_SCHEMA_KIND_UNARY   = 2
 } ort_math_promotion_schema_kind_t;
 
 typedef enum _ort_math_promotion_schema_operands_t {
-    ORT_MATH_TYPE_PROMOTION_SCHEMA_OPERANDS_PROMOTE,
-    ORT_MATH_TYPE_PROMOTION_SCHEMA_OPERANDS_PRESERVE
+    ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PROMOTE,
+    ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE
 } ort_math_promotion_schema_operands_t;
 
 typedef struct _ort_math_promotion_schema_t {

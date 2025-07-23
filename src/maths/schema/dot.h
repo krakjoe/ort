@@ -20,142 +20,131 @@
 
 #include "maths/promotion.h"
 
-/* {{{ 
-@extract python3 tests/fixtures/extract.py -f multiply -n dot -b
-/* }}} */
+/* {{{
+@extract %python% %extract.py% -f multiply -n dot -b -w }}} */
+
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_dot[11*11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 multiply float16 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 multiply float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float16 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 multiply int8 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 multiply int16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float16 multiply int32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float16 multiply int64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 multiply uint8 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 multiply uint16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float16 multiply uint32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float16 multiply bool -> float16
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 multiply float16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 multiply float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float32 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 multiply int8 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 multiply int16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float32 multiply int32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float32 multiply int64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 multiply uint8 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 multiply uint16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float32 multiply uint32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // float32 multiply bool -> float32
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply float16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply float32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply int8 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply int16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply int32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply int64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply uint8 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply uint16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply uint32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // float64 multiply bool -> float64
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // int8 multiply float16 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // int8 multiply float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int8 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,         // int8 multiply int8 -> int8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // int8 multiply int16 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int8 multiply int32 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int8 multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // int8 multiply uint8 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int8 multiply uint16 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int8 multiply uint32 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,         // int8 multiply bool -> int8
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // int16 multiply float16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // int16 multiply float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int16 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // int16 multiply int8 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // int16 multiply int16 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int16 multiply int32 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int16 multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // int16 multiply uint8 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int16 multiply uint16 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int16 multiply uint32 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // int16 multiply bool -> int16
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int32 multiply float16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int32 multiply float32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int32 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int32 multiply int8 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int32 multiply int16 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int32 multiply int32 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int32 multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int32 multiply uint8 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int32 multiply uint16 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int32 multiply uint32 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // int32 multiply bool -> int32
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int64 multiply float16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int64 multiply float32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // int64 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply int8 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply int16 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply int32 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply uint8 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply uint16 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply uint32 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // int64 multiply bool -> int64
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // uint8 multiply float16 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // uint8 multiply float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint8 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // uint8 multiply int8 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // uint8 multiply int16 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // uint8 multiply int32 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // uint8 multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,        // uint8 multiply uint8 -> uint8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,       // uint8 multiply uint16 -> uint16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // uint8 multiply uint32 -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,        // uint8 multiply bool -> uint8
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // uint16 multiply float16 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // uint16 multiply float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint16 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // uint16 multiply int8 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // uint16 multiply int16 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // uint16 multiply int32 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // uint16 multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,       // uint16 multiply uint8 -> uint16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,       // uint16 multiply uint16 -> uint16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // uint16 multiply uint32 -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,       // uint16 multiply bool -> uint16
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint32 multiply float16 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint32 multiply float32 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // uint32 multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // uint32 multiply int8 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // uint32 multiply int16 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // uint32 multiply int32 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // uint32 multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // uint32 multiply uint8 -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // uint32 multiply uint16 -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // uint32 multiply uint32 -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // uint32 multiply bool -> uint32
-
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // bool multiply float16 -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,        // bool multiply float32 -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,       // bool multiply float64 -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,         // bool multiply int8 -> int8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,        // bool multiply int16 -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,        // bool multiply int32 -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,        // bool multiply int64 -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,        // bool multiply uint8 -> uint8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,       // bool multiply uint16 -> uint16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,       // bool multiply uint32 -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,         // bool multiply bool -> bool
-
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float16, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float16, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float16, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float16, int8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float16, int16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float16, int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float16, int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float16, uint8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float16, uint16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float16, uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float16, bool) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float32, float16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float32, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float32, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float32, int8) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float32, int16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float32, int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float32, int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float32, uint8) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float32, uint16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float32, uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(float32, bool) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, int8) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, int16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, uint8) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, uint16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(float64, bool) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(int8, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(int8, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int8, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// dot(int8, int8) -> int8
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(int8, int16) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int8, int32) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int8, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(int8, uint8) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int8, uint16) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int8, uint32) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// dot(int8, bool) -> int8
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(int16, float16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(int16, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int16, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(int16, int8) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(int16, int16) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int16, int32) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int16, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(int16, uint8) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int16, uint16) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int16, uint32) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(int16, bool) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int32, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int32, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int32, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int32, int8) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int32, int16) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int32, int32) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int32, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int32, uint8) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int32, uint16) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int32, uint32) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(int32, bool) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int64, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int64, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(int64, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, int8) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, int16) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, int32) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, uint8) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, uint16) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, uint32) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(int64, bool) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(uint8, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(uint8, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(uint8, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(uint8, int8) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(uint8, int16) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(uint8, int32) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(uint8, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,	// dot(uint8, uint8) -> uint8
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// dot(uint8, uint16) -> uint16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// dot(uint8, uint32) -> uint32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,	// dot(uint8, bool) -> uint8
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(uint16, float16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(uint16, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(uint16, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(uint16, int8) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(uint16, int16) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(uint16, int32) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(uint16, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// dot(uint16, uint8) -> uint16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// dot(uint16, uint16) -> uint16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// dot(uint16, uint32) -> uint32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// dot(uint16, bool) -> uint16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(uint32, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(uint32, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(uint32, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(uint32, int8) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(uint32, int16) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(uint32, int32) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(uint32, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// dot(uint32, uint8) -> uint32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// dot(uint32, uint16) -> uint32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// dot(uint32, uint32) -> uint32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// dot(uint32, bool) -> uint32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(bool, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// dot(bool, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// dot(bool, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// dot(bool, int8) -> int8
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// dot(bool, int16) -> int16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// dot(bool, int32) -> int32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// dot(bool, int64) -> int64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,	// dot(bool, uint8) -> uint8
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// dot(bool, uint16) -> uint16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// dot(bool, uint32) -> uint32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL,	// dot(bool, bool) -> bool
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_dot[11] = {
@@ -173,10 +162,14 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_indices_dot[11]
 };
 
 static const ort_math_promotion_schema_t ort_math_promotion_schema_dot = {
-    .kind    = ORT_MATH_TYPE_PROMOTION_SCHEMA_BINARY,
-    .table   = ort_math_promotion_schema_table_dot,
-    .indices = ort_math_promotion_schema_indices_dot,
-    .size    = 11
+    .kind     = ORT_MATH_PROMOTION_SCHEMA_KIND_BINARY,
+    .operands = ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PROMOTE,
+    .table    = ort_math_promotion_schema_table_dot,
+    .indices  = ort_math_promotion_schema_indices_dot,
+    .size     = 11
 };
 
+/* {{{
+    !!THIS FILE IS AUTOMATICALLY GENERATED: DO NOT EDIT!!
+}}} */
 #endif

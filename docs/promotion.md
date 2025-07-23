@@ -4,20 +4,23 @@ Type promotions in `php-ort` are context dependent: This means that coercion wil
 
 # Extracting Promotion Schema
 
-  - Script: `tests/fixtures/extract.py`
+  - Script: `dist/extract/extract.py`
   - Arguments:
+    - `-n`/`--name`:     The suffix of the name of the struct (optional, default=function).
     - `-f`/`--function`: The name of the function you want to extract the schema for.
     - `-c`/`--code`:     Code to execute instead of `function` [1]
     - `-u`/`--unary`:    The function must be invoked as a unary function.
     - `-b`/`--binary`:   The function must be invoked as a binary function.
-    - `-n`/`--name`:     The suffix of the name of the struct (should usually be function name).
+    - `-p`/`--preserve`: Preserve operands during promotion (default=False)
+    - `-t`/`--template`: Template file to use when generating the schema (default='template.h')
+    - `-w`/`--write`:    Write the resulting schema to schema directory in source tree (default=False)
   - Exclusivity:
     - `f`/`c`: Only one of `function` or `code` may be used.
     - `u`/`b`: Only one of `unary` or `binary` may be used.
 
 ## Example
 
-`python3 tests/fixtures/extract.py -f sqrt -n sqrt -u`
+`python3 dist/extract/extract.py -f sqrt -n sqrt -u`
 
 Will extract the promotion schema for `np.sqrt` (which is a unary function). The script will output the C code for the schema, which should be copy/pasted into the appropriate schema header in `src/maths/schema` and included from the applicable frontend unit (in this case `sqrt.c`).
 
