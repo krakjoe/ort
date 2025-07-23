@@ -70,10 +70,9 @@ ORT_MATH_FOREACH_UNSIGNED_TYPE(
     ORT_MATH_SIGN_IMPL_FOR_UNSIGNED)
 #undef ORT_MATH_SIGN_IMPL_FOR_UNSIGNED
 
-static ort_math_unary_op_func_t ort_math_frontend_get_sign_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->sign_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_unary_op_func_t, sign)
 
-ORT_MATH_RESULT_UNARY_IMPL(sign, ort_math_frontend_get_sign_func, &ort_math_promotion_schema_sign)
+ORT_MATH_RESULT_UNARY_IMPL(sign,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(sign),
+    &ort_math_promotion_schema_sign)

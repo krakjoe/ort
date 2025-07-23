@@ -198,6 +198,13 @@ ORT_MATH_FOREACH_ALL_TYPES(_ORT_MATH_FRONTEND_MAX_OP_DECL)
 ORT_MATH_FOREACH_REAL_TYPE(ORT_MATH_FRONTEND_SOFTMAX_OP_DECL)
 #undef ORT_MATH_FRONTEND_SOFTMAX_OP_DECL /* }}} */
 
+/* {{{ Frontend Forward Declarations of Argmax Operations */
+#define ORT_MATH_FRONTEND_ARGMAX_OP_DECL(type, unused) \
+        ORT_MATH_FRONTEND_REDUCTION_OP_DECL(argmax, type); \
+        ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(argmax, type);
+ORT_MATH_FOREACH_ALL_TYPES(ORT_MATH_FRONTEND_ARGMAX_OP_DECL)
+#undef ORT_MATH_FRONTEND_ARGMAX_OP_DECL /* }}} */
+
 /* {{{ Frontend Forward Declarations of Mean Operations */
 #define ORT_MATH_FRONTEND_MEAN_OP_DECL(type, unused) \
         ORT_MATH_FRONTEND_REDUCTION_OP_DECL(mean, type); \

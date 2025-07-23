@@ -14,7 +14,7 @@ For convenience, there are a number of macros focused on code generation that sh
  - `ORT_MATH_BACKEND_BINARY_OP_DECL(op, type)`  - Generates backend binary op function signature.
  - `ORT_MATH_BACKEND_UNARY_OP_DECL(op, type)`   - Generates backend unary op function signature.
 
-*See: `src/maths/codegen.h` for more information about these and other macros.*
+*See: `src/maths/codegen/*.h` for more information about these and other macros.*
 
 # Function signatures:
 

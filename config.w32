@@ -74,7 +74,7 @@ if (PHP_ORT != 'no') {
 
     ADD_SOURCES(
         configure_module_dirname + "\\src\\maths\\frontend",
-        "add.c div.c dot.c neg.c mul.c recip.c sign.c sub.c mod.c pow.c real.c sqrt.c sum.c mean.c min.c max.c softmax.c matmul.c",
+        "add.c div.c dot.c neg.c mul.c recip.c sign.c sub.c mod.c pow.c real.c sqrt.c sum.c mean.c min.c max.c softmax.c matmul.c argmax.c",
         "ort",
         "frontend"
     );

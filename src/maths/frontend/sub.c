@@ -35,25 +35,20 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
     ORT_MATH_FRONTEND_SUB_IMPL)
 #undef ORT_MATH_FRONTEND_SUB_IMPL
 
-static ort_math_element_op_func_t 
-    ort_math_frontend_get_sub_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->sub_func;
-}
-
 #define ORT_MATH_FRONTEND_SUB_SCALAR_IMPL(c_type, onnx_type) \
     ORT_MATH_FRONTEND_SCALAR_OP_IMPL(sub, c_type, -)
 ORT_MATH_FOREACH_NUMERIC_TYPE(
     ORT_MATH_FRONTEND_SUB_SCALAR_IMPL)
 #undef ORT_MATH_FRONTEND_SUB_SCALAR_IMPL
 
-static ort_math_scalar_op_func_t 
-    ort_math_frontend_get_sub_scalar_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->sub_scalar_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_element_op_func_t, sub)
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_scalar_op_func_t, sub_scalar)
 
-ORT_MATH_RESULT_BINARY_IMPL(subtract, ort_math_frontend_get_sub_func, &ort_math_promotion_schema_sub)
-ORT_MATH_RESULT_SCALAR_IMPL(subtract, ort_math_frontend_get_sub_scalar_func, &ort_math_promotion_schema_sub)
+ORT_MATH_RESULT_BINARY_IMPL(subtract,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(sub),
+    &ort_math_promotion_schema_sub)
+ORT_MATH_RESULT_SCALAR_IMPL(subtract,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(sub_scalar),
+    &ort_math_promotion_schema_sub)

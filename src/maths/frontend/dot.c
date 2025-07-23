@@ -58,13 +58,8 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
     ORT_MATH_FRONTEND_DOT_IMPL)
 #undef ORT_MATH_FRONTEND_DOT_IMPL
 
-static ort_math_element_op_func_t
-    ort_math_frontend_get_dot_func(
-        ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->dot_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_element_op_func_t, dot)
 
 ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
     if (!ort_math_validate_input(a, "dot") || !ort_math_validate_input(b, "dot")) {
@@ -90,7 +85,10 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         return NULL;
     }
 
-    ort_math_element_op_func_t operation = ort_math_frontend_get_dot_func(promotion.result_type);
+    ort_math_element_op_func_t operation =
+        ort_math_frontend_dispatch_dot(
+            &promotion,
+            &ort_math_promotion_schema_dot);
     if (!operation) {
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,
             "dot: unsupported data type for dot product");

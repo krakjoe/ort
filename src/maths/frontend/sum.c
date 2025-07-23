@@ -68,25 +68,33 @@ ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE(double)
 ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE(int64_t)
 #undef ORT_MATH_FRONTEND_SUM_IMPL_FOR_TYPE
 
-static ort_math_unary_op_func_t ort_math_frontend_get_reduce_tensor_sum(ONNXTensorElementDataType type) {
+static ort_math_unary_op_func_t
+    ort_math_frontend_dispatch_reduce_tensor_sum(
+        ort_math_promotion_t *promotion,
+        const ort_math_promotion_schema_t *schema) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
+        ort_math_dispatch_type(
+            promotion->result_type);
     return dispatch->sum_func;
 }
 
 ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(sum,
-    ort_math_frontend_get_reduce_tensor_sum,
+    ort_math_frontend_dispatch_reduce_tensor_sum,
     ort_math_validate_input,
     &ort_math_promotion_schema_sum);
 
-static ort_math_reduction_op_func_t ort_math_frontend_get_reduce_axis_sum(ONNXTensorElementDataType type) {
+static ort_math_reduction_op_func_t
+    ort_math_frontend_dispatch_reduce_axis_sum(
+        ort_math_promotion_t *promotion,
+        const ort_math_promotion_schema_t *schema) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
+        ort_math_dispatch_type(
+            promotion->result_type);
     return dispatch->sum_axis_func;
 }
 
 ORT_MATH_RESULT_REDUCE_AXIS_IMPL(sum,
-    ort_math_frontend_get_reduce_axis_sum,
+    ort_math_frontend_dispatch_reduce_axis_sum,
     ort_math_validate_input,
     ort_math_validate_axis,
     ort_math_result_reduce,

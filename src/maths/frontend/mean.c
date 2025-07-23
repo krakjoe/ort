@@ -66,29 +66,33 @@ ORT_MATH_FOREACH_REAL_TYPE(
     ORT_MATH_FRONTEND_MEAN_IMPL_FOR_TYPE)
 #undef ORT_MATH_FRONTEND_MEAN_IMPL_FOR_TYPE
 
-static ort_math_unary_op_func_t
-    ort_math_frontend_get_reduce_tensor_mean(
-        ONNXTensorElementDataType type) {
+static zend_always_inline ort_math_unary_op_func_t
+    ort_math_frontend_dispatch_reduce_tensor_mean(
+        ort_math_promotion_t* promotion,
+        const ort_math_promotion_schema_t* schema) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
+        ort_math_dispatch_type(
+            promotion->result_type);
     return dispatch->mean_func;
 }
 
 ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(mean,
-    ort_math_frontend_get_reduce_tensor_mean,
+    ort_math_frontend_dispatch_reduce_tensor_mean,
     ort_math_validate_input,
     &ort_math_promotion_schema_mean);
 
 static ort_math_reduction_op_func_t
-    ort_math_frontend_get_reduce_axis_mean(
-        ONNXTensorElementDataType type) {
+    ort_math_frontend_dispatch_reduce_axis_mean(
+        ort_math_promotion_t* promotion,
+        const ort_math_promotion_schema_t* schema) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
+        ort_math_dispatch_type(
+            promotion->result_type);
     return dispatch->mean_axis_func;
 }
 
 ORT_MATH_RESULT_REDUCE_AXIS_IMPL(mean,
-    ort_math_frontend_get_reduce_axis_mean,
+    ort_math_frontend_dispatch_reduce_axis_mean,
     ort_math_validate_input,
     ort_math_validate_axis,
     ort_math_result_reduce,

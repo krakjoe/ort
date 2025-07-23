@@ -71,13 +71,8 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
     ORT_MATH_MATMUL_IMPL_FOR_TYPE)
 #undef ORT_MATH_MATMUL_IMPL_FOR_TYPE
 
-static ort_math_element_op_func_t
-    ort_math_frontend_get_matmul_func(
-        ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return (void*) dispatch->matmul_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_element_op_func_t, matmul)
 
 ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matrix_b) {
     if (!ort_math_validate_input(matrix_a, "matmul") || !ort_math_validate_input(matrix_b, "matmul")) {
@@ -155,7 +150,9 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     // Get the correct matmul kernel for the promoted type
     ort_math_matmul_op_func_t operation = 
         (ort_math_matmul_op_func_t)
-            ort_math_frontend_get_matmul_func(promoted_type);
+            ort_math_frontend_dispatch_matmul(
+                &promotion,
+                &ort_math_promotion_schema_matmul);
 
     // Prepare pointers for each batch, with type casting if needed (cast all matrices up front)
     size_t matrix_size_a = a_rows * a_cols;

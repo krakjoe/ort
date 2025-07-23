@@ -92,29 +92,33 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(max, zend_bool) {
     res[0] = max;
 }
 
-static ort_math_unary_op_func_t
-    ort_math_frontend_get_reduce_tensor_max(
-        ONNXTensorElementDataType type) {
+static zend_always_inline ort_math_unary_op_func_t
+    ort_math_frontend_dispatch_reduce_tensor_max(
+        ort_math_promotion_t* promotion,
+        const ort_math_promotion_schema_t* schema) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
+        ort_math_dispatch_type(
+            promotion->result_type);
     return dispatch->max_func;
 }
 
 ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(max,
-    ort_math_frontend_get_reduce_tensor_max,
+    ort_math_frontend_dispatch_reduce_tensor_max,
     ort_math_validate_input,
     &ort_math_promotion_schema_max);
 
 static ort_math_reduction_op_func_t
-    ort_math_frontend_get_reduce_axis_max(
-        ONNXTensorElementDataType type) {
+    ort_math_frontend_dispatch_reduce_axis_max(
+        ort_math_promotion_t* promotion,
+        const ort_math_promotion_schema_t* schema) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
+        ort_math_dispatch_type(
+            promotion->result_type);
     return dispatch->max_axis_func;
 }
 
 ORT_MATH_RESULT_REDUCE_AXIS_IMPL(max,
-    ort_math_frontend_get_reduce_axis_max,
+    ort_math_frontend_dispatch_reduce_axis_max,
     ort_math_validate_input,
     ort_math_validate_axis,
     ort_math_result_reduce,

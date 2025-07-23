@@ -424,7 +424,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     ort_tensor_t* tensor,
     size_t axis,
     zend_bool keepdims,
-    void (*operation)(void *result, const void *a, size_t outer, size_t as, size_t inner),
+    void (*operation)(void *result, const void *a, size_t outer, size_t axis, size_t inner),
     const char* operation_name,
     int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
 ) {
@@ -456,7 +456,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
     operation(
-        result->data, buffer, outer, axis, inner);
+        result->data, buffer, outer, tensor->shape[axis], inner);
 
     if (promotion && promotion->upcast.count) {
         ort_free((void*)buffer);

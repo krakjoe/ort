@@ -42,11 +42,9 @@ ORT_MATH_FOREACH_REAL_TYPE(
     ORT_MATH_FRONTEND_SQRT_IMPL)
 #undef ORT_MATH_FRONTEND_SQRT_IMPL
 
-static zend_always_inline ort_math_unary_op_func_t
-    ort_math_frontend_get_sqrt_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->sqrt_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_unary_op_func_t, sqrt)
 
-ORT_MATH_RESULT_UNARY_IMPL(sqrt, ort_math_frontend_get_sqrt_func, &ort_math_promotion_schema_sqrt)
+ORT_MATH_RESULT_UNARY_IMPL(sqrt,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(sqrt),
+    &ort_math_promotion_schema_sqrt)

@@ -35,27 +35,21 @@ ORT_MATH_FOREACH_REAL_TYPE(
     ORT_MATH_FRONTEND_DIV_IMPL)
 #undef ORT_MATH_FRONTEND_DIV_IMPL
 
-static ort_math_element_op_func_t 
-    ort_math_frontend_get_div_func(
-        ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->div_func;
-}
-
 #define ORT_MATH_FRONTEND_DIV_SCALAR_IMPL(c_type, onnx_type) \
     ORT_MATH_FRONTEND_SCALAR_OP_IMPL(div, c_type, /)
 ORT_MATH_FOREACH_REAL_TYPE(
     ORT_MATH_FRONTEND_DIV_SCALAR_IMPL)
 #undef ORT_MATH_FRONTEND_DIV_SCALAR_IMPL
 
-static ort_math_scalar_op_func_t 
-    ort_math_frontend_get_div_scalar_func(
-        ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->div_scalar_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_element_op_func_t, div)
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_scalar_op_func_t, div_scalar)
 
-ORT_MATH_RESULT_BINARY_IMPL(divide,   ort_math_frontend_get_div_func, &ort_math_promotion_schema_div)
-ORT_MATH_RESULT_SCALAR_IMPL(divide,   ort_math_frontend_get_div_scalar_func, &ort_math_promotion_schema_div)
+ORT_MATH_RESULT_BINARY_IMPL(divide,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(div),
+    &ort_math_promotion_schema_div)
+
+ORT_MATH_RESULT_SCALAR_IMPL(divide,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(div_scalar),
+    &ort_math_promotion_schema_div)

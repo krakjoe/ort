@@ -95,12 +95,6 @@ ORT_MATH_FOREACH_INTEGER_TYPE(
     ORT_MATH_FRONTEND_POW_SCALAR_IMPL)
 #undef ORT_MATH_FRONTEND_POW_SCALAR_IMPL
 
-static ort_math_element_op_func_t ort_math_frontend_get_pow_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->pow_func;
-}
-
 ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, float) {
     float* res = (float*)result;
     const float* va = (const float*)a;
@@ -119,13 +113,14 @@ ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, double) {
     }
 }
 
-static ort_math_scalar_op_func_t 
-    ort_math_frontend_get_pow_scalar_func(
-        ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->pow_scalar_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_element_op_func_t, pow)
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_scalar_op_func_t, pow_scalar)
 
-ORT_MATH_RESULT_BINARY_IMPL(pow, ort_math_frontend_get_pow_func, &ort_math_promotion_schema_pow)
-ORT_MATH_RESULT_SCALAR_IMPL(pow, ort_math_frontend_get_pow_scalar_func, &ort_math_promotion_schema_pow)
+ORT_MATH_RESULT_BINARY_IMPL(pow,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(pow),
+    &ort_math_promotion_schema_pow)
+ORT_MATH_RESULT_SCALAR_IMPL(pow,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(pow_scalar),
+    &ort_math_promotion_schema_pow)

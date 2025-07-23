@@ -29,6 +29,10 @@ typedef struct _ort_math_promotion_t {
         ort_tensor_t* inputs[2];
         size_t        count;
     } upcast;
+    struct {
+        ort_tensor_t* lhs;
+        ort_tensor_t* rhs;
+    } inputs;
 } ort_math_promotion_t;
 
 typedef enum _ort_math_promotion_schema_kind_t {

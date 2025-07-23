@@ -69,14 +69,6 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
     ORT_MATH_FRONTEND_MOD_IMPL)
 #undef ORT_MATH_FRONTEND_MOD_IMPL
 
-static ort_math_element_op_func_t
-    ort_math_frontend_get_mod_func(
-        ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->mod_func;
-}
-
 #define ORT_MATH_FRONTEND_MOD_SCALAR_IMPL(c_type, onnx_type)                 \
     ORT_MATH_FRONTEND_SCALAR_OP_DECL(mod, c_type) {                 \
     c_type* res = (c_type*)result;                                  \
@@ -91,13 +83,15 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
     ORT_MATH_FRONTEND_MOD_SCALAR_IMPL)
 #undef ORT_MATH_FRONTEND_MOD_SCALAR_IMPL
 
-static ort_math_scalar_op_func_t
-    ort_math_frontend_get_mod_scalar_func(
-        ONNXTensorElementDataType type) {
-    ort_math_dispatch_t* dispatch =
-        (ort_math_dispatch_t*)ort_math_dispatch_type(type);
-    return dispatch->mod_scalar_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_element_op_func_t, mod)
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_scalar_op_func_t, mod_scalar)
 
-ORT_MATH_RESULT_BINARY_IMPL(mod, ort_math_frontend_get_mod_func, &ort_math_promotion_schema_mod)
-ORT_MATH_RESULT_SCALAR_IMPL(mod, ort_math_frontend_get_mod_scalar_func, &ort_math_promotion_schema_mod)
+ORT_MATH_RESULT_BINARY_IMPL(mod,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(mod),
+    &ort_math_promotion_schema_mod)
+
+ORT_MATH_RESULT_SCALAR_IMPL(mod,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(mod_scalar),
+    &ort_math_promotion_schema_mod)

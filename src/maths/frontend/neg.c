@@ -37,10 +37,9 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 
 ORT_MATH_FRONTEND_UNARY_OP_IMPL(neg, zend_bool, !)
 
-static ort_math_unary_op_func_t ort_math_frontend_get_neg_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->neg_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_unary_op_func_t, neg)
 
-ORT_MATH_RESULT_UNARY_IMPL(neg, ort_math_frontend_get_neg_func, &ort_math_promotion_schema_neg)
+ORT_MATH_RESULT_UNARY_IMPL(neg,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(neg),
+    &ort_math_promotion_schema_neg)

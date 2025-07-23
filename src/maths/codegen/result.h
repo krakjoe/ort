@@ -30,140 +30,159 @@
 
 #include "maths/codegen/common.h"
 
-#define ORT_MATH_RESULT_BINARY_IMPL(func_name, getter_func, schema) \
-ort_tensor_t* ort_math_result_##func_name(                              \
-        ort_tensor_t* tensor_a, ort_tensor_t* tensor_b) {               \
-    if (!ort_math_validate_input(tensor_a, #func_name) ||               \
-        !ort_math_validate_input(tensor_b, #func_name)) {               \
-        return NULL;                                                    \
-    }                                                                   \
-                                                                        \
-    ort_math_promotion_t promotion =                               \
-        ort_math_promotion_perform_binary(schema, tensor_a, tensor_b); \
-    if (!promotion.is_valid) {                                          \
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,        \
-            #func_name ": incompatible types for operation");           \
-        return NULL;                                                    \
-    }                                                                   \
-                                                                        \
-    ort_math_element_op_func_t op_func =                                \
-        getter_func(promotion.result_type);                             \
-    if (!op_func) {                                                     \
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,        \
-            #func_name ": unsupported data type for tensor operation"); \
-        return NULL;                                                    \
-    }                                                                   \
-                                                                        \
-    return ort_math_result_element_wise_binary(                         \
-        &promotion, tensor_a, tensor_b, op_func, #func_name);           \
+#define ORT_MATH_RESULT_BINARY_IMPL(fname, fdispatch, fschema)              \
+ort_tensor_t* ort_math_result_##fname(                                      \
+        ort_tensor_t* tensor_a, ort_tensor_t* tensor_b) {                   \
+    if (!ort_math_validate_input(tensor_a, #fname) ||                       \
+        !ort_math_validate_input(tensor_b, #fname)) {                       \
+        return NULL;                                                        \
+    }                                                                       \
+                                                                            \
+    ort_math_promotion_t promotion =                                        \
+        ort_math_promotion_perform_binary(fschema, tensor_a, tensor_b);     \
+    if (!promotion.is_valid) {                                              \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,            \
+            #fname ": incompatible types for operation");                   \
+        return NULL;                                                        \
+    }                                                                       \
+                                                                            \
+    ort_math_element_op_func_t operation = fdispatch(&promotion, fschema);  \
+    if (!operation) {                                                       \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,            \
+            #fname ": unsupported data type for tensor operation");         \
+        return NULL;                                                        \
+    }                                                                       \
+                                                                            \
+    return ort_math_result_element_wise_binary(                             \
+        &promotion, tensor_a, tensor_b, operation, #fname);                 \
 }
 
-#define ORT_MATH_RESULT_SCALAR_IMPL(func_name, getter_func, schema) \
-ort_tensor_t* ort_math_result_##func_name##_scalar(                     \
-    ort_tensor_t* tensor, zval* scalar) {                               \
-    if (!ort_math_validate_input(tensor, #func_name)) {                 \
-        return NULL;                                                    \
-    }                                                                   \
-    ort_math_promotion_t promotion =                               \
-        ort_math_promotion_perform_scalar(schema, tensor, scalar);    \
-    if (!promotion.is_valid) {                                          \
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,        \
-            #func_name ": incompatible types for operation");           \
-        return NULL;                                                    \
-    }                                                                   \
-    ort_math_scalar_op_func_t op_func = getter_func(promotion.result_type); \
-    if (!op_func) {                                                     \
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,        \
-            #func_name ": unsupported data type for tensor operation"); \
-        return NULL;                                                    \
-    }                                                                   \
-                                                                        \
-    return ort_math_result_element_wise_scalar(                         \
-        &promotion, tensor, scalar, op_func, #func_name);               \
+#define ORT_MATH_RESULT_SCALAR_IMPL(fname, fdispatch, fschema)              \
+ort_tensor_t* ort_math_result_##fname##_scalar(                             \
+    ort_tensor_t* tensor, zval* scalar) {                                   \
+    if (!ort_math_validate_input(tensor, #fname)) {                         \
+        return NULL;                                                        \
+    }                                                                       \
+    ort_math_promotion_t promotion =                                        \
+        ort_math_promotion_perform_scalar(fschema, tensor, scalar);         \
+    if (!promotion.is_valid) {                                              \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,            \
+            #fname ": incompatible types for operation");                   \
+        return NULL;                                                        \
+    }                                                                       \
+    ort_math_scalar_op_func_t operation = fdispatch(&promotion, fschema);   \
+    if (!operation) {                                                       \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,            \
+            #fname ": unsupported data type for tensor operation");         \
+        return NULL;                                                        \
+    }                                                                       \
+                                                                            \
+    return ort_math_result_element_wise_scalar(                             \
+        &promotion, tensor, scalar, operation, #fname);                     \
 }
 
-#define ORT_MATH_RESULT_UNARY_IMPL(func_name, getter_func, schema)           \
-ort_tensor_t* ort_math_result_##func_name(                                   \
-    ort_tensor_t* tensor) {                                                  \
-    if (!ort_math_validate_input(tensor, #func_name)) {                      \
-        return NULL;                                                         \
-    }                                                                        \
-    ort_math_promotion_t promotion =                                    \
-        ort_math_promotion_perform_unary(schema, tensor);                  \
-    ort_math_unary_op_func_t op_func = getter_func(promotion.result_type);   \
-    if (!op_func) {                                                          \
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,             \
-            #func_name ": unsupported data type for mathematical function"); \
-        return NULL;                                                         \
-    }                                                                        \
-    return ort_math_result_element_wise_unary(&promotion, tensor, op_func, #func_name);  \
-}
-
-#define ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(                                    \
-    func_name, getter_func, validate_tensor_func, schema)                      \
-ort_tensor_t* ort_math_result_reduce_tensor_##func_name(                       \
-    ort_tensor_t* tensor) {                                                    \
-    if (!validate_tensor_func(tensor, #func_name)) {                           \
-        return NULL;                                                           \
-    }                                                                          \
+#define ORT_MATH_RESULT_UNARY_IMPL(fname, fdispatch, fschema)             \
+ort_tensor_t* ort_math_result_##fname(                                    \
+    ort_tensor_t* tensor) {                                               \
+    if (!ort_math_validate_input(tensor, #fname)) {                       \
+        return NULL;                                                      \
+    }                                                                     \
     ort_math_promotion_t promotion =                                      \
-        ort_math_promotion_perform_unary(schema, tensor);                    \
-    ort_math_unary_op_func_t op_func = getter_func(promotion.result_type);     \
-    if (!op_func) {                                                            \
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,               \
-            #func_name ": unsupported data type for mathematical function");   \
-        return NULL;                                                           \
-    }                                                                          \
-    return ort_math_result_element_wise_reduce_tensor(                         \
-        &promotion, tensor, op_func, #func_name);                              \
+        ort_math_promotion_perform_unary(fschema, tensor);                \
+    ort_math_unary_op_func_t operation = fdispatch(&promotion, fschema);  \
+    if (!operation) {                                                     \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,          \
+            #fname ": unsupported data type for mathematical function");  \
+        return NULL;                                                      \
+    }                                                                     \
+    return ort_math_result_element_wise_unary(                            \
+        &promotion, tensor, operation, #fname);                           \
 }
 
-#define ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(                   \
-    func_name, getter_func, validate_tensor_func,validate_axis_func, shape_func, schema) \
-ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
+#define ORT_MATH_RESULT_SERIAL_REDUCE_TENSOR_IMPL(                         \
+    fname, fdispatch, fvalidate, fschema)                                  \
+ort_tensor_t* ort_math_result_reduce_tensor_##fname(                       \
+    ort_tensor_t* tensor) {                                                \
+    if (!fvalidate(tensor, #fname)) {                                      \
+        return NULL;                                                       \
+    }                                                                      \
+    ort_math_promotion_t promotion =                                       \
+        ort_math_promotion_perform_unary(fschema, tensor);                 \
+    ort_math_unary_op_func_t operation = fdispatch(&promotion, fschema);   \
+    if (!operation) {                                                      \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,           \
+            #fname ": unsupported data type for mathematical function");   \
+        return NULL;                                                       \
+    }                                                                      \
+    return ort_math_result_serial_element_wise_reduce_tensor(              \
+        &promotion, tensor, operation, #fname);                            \
+}
+
+#define ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(                                 \
+    fname, fdispatch, fvalidate, fschema)                                   \
+ort_tensor_t* ort_math_result_reduce_tensor_##fname(                        \
+    ort_tensor_t* tensor) {                                                 \
+    if (!fvalidate(tensor, #fname)) {                                       \
+        return NULL;                                                        \
+    }                                                                       \
+    ort_math_promotion_t promotion =                                        \
+        ort_math_promotion_perform_unary(fschema, tensor);                  \
+    ort_math_unary_op_func_t operation = fdispatch(&promotion, fschema);    \
+    if (!operation) {                                                       \
+        php_ort_status_throw(php_ort_status_math_invalidtype_ce,            \
+            #fname ": unsupported data type for mathematical function");    \
+        return NULL;                                                        \
+    }                                                                       \
+    return ort_math_result_element_wise_reduce_tensor(                      \
+        &promotion, tensor, operation, #fname);                             \
+}
+
+#define ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(                               \
+    fname, fdispatch, fvalidate, fvalidatea, fshape, fschema)                  \
+ort_tensor_t* ort_math_result_reduce_axis_##fname(                             \
     ort_tensor_t* tensor, zend_long axis, zend_bool keepdims) {                \
-    if (!validate_tensor_func(tensor, #func_name)) {                           \
+    if (!fvalidate(tensor, #fname)) {                                          \
         return NULL;                                                           \
     }                                                                          \
-    if (!validate_axis_func(tensor, &axis, #func_name)) {                      \
+    if (!fvalidatea(tensor, &axis, #fname)) {                                  \
         return NULL;                                                           \
     }                                                                          \
-    ort_math_promotion_t promotion =                                      \
-        ort_math_promotion_perform_unary(schema, tensor);                    \
-    ort_math_reduction_op_func_t op_func = getter_func(promotion.result_type); \
-    if (!op_func) {                                                            \
+    ort_math_promotion_t promotion =                                           \
+        ort_math_promotion_perform_unary(fschema, tensor);                     \
+    ort_math_reduction_op_func_t operation = fdispatch(&promotion, fschema);   \
+    if (!operation) {                                                          \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,               \
-            #func_name ": unsupported data type for mathematical function");   \
+            #fname ": unsupported data type for mathematical function");       \
         return NULL;                                                           \
     }                                                                          \
     return ort_math_result_serial_element_wise_reduce_axis(                    \
         &promotion,                                                            \
         tensor, axis, keepdims,                                                \
-        op_func, #func_name, shape_func);                                      \
+        operation, #fname, fshape);                                            \
 }
 
-#define ORT_MATH_RESULT_REDUCE_AXIS_IMPL(                          \
-    func_name, getter_func, validate_tensor_func,validate_axis_func, shape_func, schema) \
-ort_tensor_t* ort_math_result_reduce_axis_##func_name(                         \
+#define ORT_MATH_RESULT_REDUCE_AXIS_IMPL(                                      \
+    fname, fdispatch, fvalidate, fvalidatea, fshape, fschema)                  \
+ort_tensor_t* ort_math_result_reduce_axis_##fname(                             \
     ort_tensor_t* tensor, zend_long axis, zend_bool keepdims) {                \
-    if (!validate_tensor_func(tensor, #func_name)) {                           \
+    if (!fvalidate(tensor, #fname)) {                                          \
         return NULL;                                                           \
     }                                                                          \
-    if (!validate_axis_func(tensor, &axis, #func_name)) {                      \
+    if (!fvalidatea(tensor, &axis, #fname)) {                                  \
         return NULL;                                                           \
     }                                                                          \
-    ort_math_promotion_t promotion =                                      \
-        ort_math_promotion_perform_unary(schema, tensor);                    \
-    ort_math_reduction_op_func_t op_func = getter_func(promotion.result_type); \
-    if (!op_func) {                                                            \
+    ort_math_promotion_t promotion =                                           \
+        ort_math_promotion_perform_unary(fschema, tensor);                     \
+    ort_math_reduction_op_func_t operation = fdispatch(&promotion, fschema);   \
+    if (!operation) {                                                          \
         php_ort_status_throw(php_ort_status_math_invalidtype_ce,               \
-            #func_name ": unsupported data type for mathematical function");   \
+            #fname ": unsupported data type for mathematical function");       \
         return NULL;                                                           \
     }                                                                          \
     return ort_math_result_element_wise_reduce_axis(                           \
         &promotion,                                                            \
         tensor, axis, keepdims,                                                \
-        op_func, #func_name, shape_func);                                      \
+        operation, #fname, fshape);                                            \
 }
 
 #endif

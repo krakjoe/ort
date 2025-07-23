@@ -304,6 +304,9 @@ ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(sum)
 
 ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(softmax)
 
+ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(argmax)
+ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(argmax)
+
 /* Dot reduction function */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ORT\\Tensor, 0)
     ZEND_ARG_OBJ_INFO(0, tensor_a, ORT\\Tensor, 0)
@@ -551,6 +554,8 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   mean, php_ort_math_reduce_axis_mean,   php_ort_math_reduce_axis_mean_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\tensor", sum, php_ort_math_reduce_tensor_sum, php_ort_math_reduce_tensor_sum_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   sum, php_ort_math_reduce_axis_sum,   php_ort_math_reduce_axis_sum_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\tensor", argmax, php_ort_math_reduce_tensor_argmax, php_ort_math_reduce_tensor_argmax_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   argmax, php_ort_math_reduce_axis_argmax,   php_ort_math_reduce_axis_argmax_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   softmax, php_ort_math_reduce_axis_softmax,   php_ort_math_reduce_axis_softmax_arginfo)
 
     ZEND_NS_FE("ORT\\Math\\reduce", dot, php_ort_math_dot_arginfo)

@@ -36,13 +36,6 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 #undef ORT_MATH_FRONTEND_MUL_IMPL
 ORT_MATH_FRONTEND_BINARY_OP_IMPL(mul, zend_bool, &&)
 
-static ort_math_element_op_func_t 
-    ort_math_frontend_get_mul_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->mul_func;
-}
-
 #define ORT_MATH_FRONTEND_MUL_SCALAR_IMPL(c_type, onnx_type) \
     ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, c_type, *)
 ORT_MATH_FOREACH_NUMERIC_TYPE(
@@ -50,12 +43,14 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 #undef ORT_MATH_FRONTEND_MUL_SCALAR_IMPL
 ORT_MATH_FRONTEND_SCALAR_OP_IMPL(mul, zend_bool, &&)
 
-static ort_math_scalar_op_func_t 
-    ort_math_frontend_get_mul_scalar_func(ONNXTensorElementDataType type) {
-    const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
-    return dispatch->mul_scalar_func;
-}
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_element_op_func_t, mul)
+ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
+    ort_math_scalar_op_func_t, mul_scalar)
 
-ORT_MATH_RESULT_BINARY_IMPL(multiply, ort_math_frontend_get_mul_func, &ort_math_promotion_schema_mul)
-ORT_MATH_RESULT_SCALAR_IMPL(multiply, ort_math_frontend_get_mul_scalar_func, &ort_math_promotion_schema_mul)
+ORT_MATH_RESULT_BINARY_IMPL(multiply,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(mul),
+    &ort_math_promotion_schema_mul)
+ORT_MATH_RESULT_SCALAR_IMPL(multiply,
+    ORT_MATH_FRONTEND_DISPATCH_SYMBOL(mul_scalar),
+    &ort_math_promotion_schema_mul)

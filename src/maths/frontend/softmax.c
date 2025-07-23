@@ -42,24 +42,28 @@
          * inner: product of dims after axis
          */ \
         for (size_t outer_idx = 0; outer_idx < outer; ++outer_idx) { \
-            for (size_t inner_idx = 0; inner_idx < inner; ++inner_idx) { \
-                /* Find max for numerical stability */ \
-                c_type max = va[outer_idx * axis * inner + 0 * inner + inner_idx]; \
-                for (size_t axis_idx = 1; axis_idx < axis; ++axis_idx) { \
-                    size_t idx = outer_idx * axis * inner + axis_idx * inner + inner_idx; \
-                    if (va[idx] > max) max = va[idx]; \
-                } \
-                /* Compute exp and sum */ \
-                c_type sum = 0; \
-                for (size_t axis_idx = 0; axis_idx < axis; ++axis_idx) { \
-                    size_t idx = outer_idx * axis * inner + axis_idx * inner + inner_idx; \
-                    res[idx] = (c_type)exp((double)va[idx] - (double)max); \
-                    sum += res[idx]; \
-                } \
-                /* Normalize */ \
-                for (size_t axis_idx = 0; axis_idx < axis; ++axis_idx) { \
-                    size_t idx = outer_idx * axis * inner + axis_idx * inner + inner_idx; \
-                    res[idx] /= sum; \
+            for (size_t axis_idx = 0; axis_idx < axis; ++axis_idx) { \
+                for (size_t inner_idx = 0; inner_idx < inner; ++inner_idx) { \
+                    size_t base = outer_idx * axis * inner + axis_idx * inner + inner_idx; \
+                    /* Find max for numerical stability */ \
+                    c_type max = va[outer_idx * axis * inner + inner_idx]; \
+                    for (size_t j = 1; j < axis; ++j) { \
+                        size_t idx = outer_idx * axis * inner + j * inner + inner_idx; \
+                        if (va[idx] > max) max = va[idx]; \
+                    } \
+                    /* Compute exp and sum */ \
+                    c_type sum = 0; \
+                    for (size_t j = 0; j < axis; ++j) { \
+                        size_t idx = outer_idx * axis * inner + j * inner + inner_idx; \
+                        res[idx] = (c_type)exp((double)va[idx] - (double)max); \
+                        sum += res[idx]; \
+                    } \
+                    /* Normalize */ \
+                    for (size_t j = 0; j < axis; ++j) { \
+                        size_t idx = outer_idx * axis * inner + j * inner + inner_idx; \
+                        res[idx] /= sum; \
+                    } \
+                    break; /* Only need to process each axis slice once per inner_idx */ \
                 } \
             } \
         } \
@@ -70,15 +74,17 @@ ORT_MATH_FOREACH_REAL_TYPE(
 #undef ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE
 
 static ort_math_reduction_op_func_t
-    ort_math_frontend_get_reduce_axis_softmax(
-        ONNXTensorElementDataType type) {
+    ort_math_frontend_dispatch_reduce_axis_softmax(
+        ort_math_promotion_t *promotion,
+        const ort_math_promotion_schema_t *schema) {
     const ort_math_dispatch_t* dispatch =
-        ort_math_dispatch_type(type);
+        ort_math_dispatch_type(
+            promotion->result_type);
     return dispatch->softmax_axis_func;
 }
 
 ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(softmax,
-    ort_math_frontend_get_reduce_axis_softmax,
+    ort_math_frontend_dispatch_reduce_axis_softmax,
     ort_math_validate_input,
     ort_math_validate_axis,
     ort_math_result_reduce,

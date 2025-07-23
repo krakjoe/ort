@@ -83,6 +83,9 @@ typedef struct _ort_math_dispatch_t {
     ort_math_reduction_op_func_t max_axis_func;
 
     ort_math_reduction_op_func_t softmax_axis_func;
+
+    ort_math_unary_op_func_t argmax_func;
+    ort_math_reduction_op_func_t argmax_axis_func;
 } ort_math_dispatch_t;
 
 static zend_always_inline int16_t ort_math_dispatch_indexof(ONNXTensorElementDataType type) {

@@ -151,12 +151,16 @@ ort_math_promotion_t ort_math_promotion_perform_binary(
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
         .is_valid = 0,
+        .inputs = {
+            .lhs = tensor_a,
+            .rhs = tensor_b,
+        },
         .upcast = {
             .inputs = { 
                 NULL, NULL
             },
             .count = 0
-        }
+        },
     };
 
     ONNXTensorElementDataType resolved =
@@ -193,6 +197,10 @@ ort_math_promotion_t ort_math_promotion_perform_unary(
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
         .is_valid = 0,
+        .inputs = {
+            .lhs = tensor,
+            .rhs = NULL,
+        },
         .upcast = {
             .inputs = { 
                 NULL, NULL
@@ -230,6 +238,10 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
         .is_valid = 0,
+        .inputs = {
+            .lhs = tensor,
+            .rhs = (void*) scalar,
+        },
         .upcast = {
             .inputs = { 
                 NULL, NULL

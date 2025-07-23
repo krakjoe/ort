@@ -80,4 +80,19 @@
         res[i] = va[i] operator sb;                                   \
     }                                                                 \
 }
+
+#define ORT_MATH_FRONTEND_DISPATCH_SYMBOL(op_name)        \
+    ort_math_frontend_dispatch_##op_name
+#define ORT_MATH_FRONTEND_DISPATCH_DECL(op_kind, op_name) \
+    static zend_always_inline op_kind                     \
+        ORT_MATH_FRONTEND_DISPATCH_SYMBOL(op_name)(       \
+            ort_math_promotion_t* promotion,              \
+            const ort_math_promotion_schema_t* schema)
+#define ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(op_kind, op_name) \
+    ORT_MATH_FRONTEND_DISPATCH_DECL(op_kind, op_name) {               \
+        const ort_math_dispatch_t* dispatch =                         \
+            ort_math_dispatch_type(                                   \
+                promotion->result_type);                              \
+        return (op_kind) dispatch->op_name##_func;                    \
+    }
 #endif
