@@ -2,6 +2,7 @@
 
 ARG_ENABLE('ort',         'Enable ort extension', 'yes');
 ARG_ENABLE('ort-backend', 'Enable backend optimizations', 'yes');
+ARG_ENABLE('ort-pool',    'Enable pooling (threads)', 'yes');
 ARG_ENABLE('ort-sse2',    'Enable SSE2 support', 'yes');
 ARG_ENABLE('ort-sse41',   'Enable SSE4.1 support', 'yes');
 ARG_ENABLE('ort-avx2',    'Enable AVX2 support', 'yes');
@@ -56,6 +57,10 @@ if (PHP_ORT != 'no') {
             "ort.c alloc.c env.c status.c tensor.c maths.c generators.c",
             "ort"
         );
+    }
+
+    if (PHP_ORT_POOL != 'no') {
+        AC_DEFINE('HAVE_ORT_POOL', 1)
     }
 
     ADD_SOURCES(
