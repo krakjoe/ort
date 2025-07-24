@@ -199,14 +199,14 @@ void ort_free(void* ptr) {
     __ort_allocator.free(ptr);
 }
 
-void ort_alloc_startup()
+void ort_alloc_startup(void)
 {
     if (__ort_allocator.startup) {
         __ort_allocator.startup(&__ort_allocator);
     }
 }
 
-void ort_alloc_shutdown()
+void ort_alloc_shutdown(void)
 {
     if (__ort_allocator.shutdown) {
         __ort_allocator.shutdown(&__ort_allocator);

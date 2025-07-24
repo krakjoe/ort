@@ -8,6 +8,10 @@ PHP_ARG_ENABLE([ort-backend],
   [whether to enable backend optimizations],
   [AS_HELP_STRING([--enable-ort-backend], [Enable backend optimizations, default=yes])], yes, no)
 
+PHP_ARG_ENABLE([ort-pool],
+  [whether to enable pooling (threads)],
+  [AS_HELP_STRING([--enable-ort-pool], [Enable pooling (threads), default=yes])], yes, no)
+
 PHP_ARG_ENABLE([ort-sse2],
   [whether to enable SSE2 support],
   [AS_HELP_STRING([--enable-ort-sse2], [Enable SSE2 support])], yes, no)
@@ -52,6 +56,15 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AC_DEFINE(HAVE_BUILTIN_ATOMIC_CPP11, 1, [Define to 1 if supports __atomic_add_fetch()])
   ], [
     AC_MSG_RESULT([no])
+  ])
+
+  AC_MSG_CHECKING([for pooling support])
+  AS_VAR_IF([PHP_ORT_POOL], [no], [
+    AC_MSG_RESULT([no])
+  ], [
+    AC_DEFINE(HAVE_ORT_POOL, 1,
+      [Defined to 1 where we should use pooling (threads)])
+    AC_MSG_RESULT([enabled])
   ])
 
   PHP_ORT_SRC_DIR="src"
@@ -306,7 +319,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
       $ext_builddir/$PHP_ORT_BACKEND_DIR
     ])
   fi
-
+  
   PHP_SUBST([ORT_SHARED_LIBADD])
   PHP_ADD_MAKEFILE_FRAGMENT(Makefile.frag)
 ])

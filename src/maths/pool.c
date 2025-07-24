@@ -24,6 +24,7 @@
 #include "maths/pool.h"
 #include "maths/result.h"
 
+#ifdef HAVE_ORT_POOL
 #if defined(_WIN32)
 # include <windows.h>
  typedef HANDLE ort_thread_t;
@@ -76,6 +77,7 @@
 #define ort_pool_thread_self() \
    pthread_self()
 #endif
+#endif
 
 #define _ORT_POOL_PAD(TYPE, CACHE, SIZE) \
     TYPE pad[CACHE - (SIZE)]
@@ -105,12 +107,14 @@ typedef struct _ort_task_t {
 } ort_task_t;
 
 typedef struct _ort_pool_t {
+#ifdef HAVE_ORT_POOL
    ort_thread_t *threads;
+   ort_mutex_t mutex;
+   ort_cond_t cond;
+#endif
    size_t     size;
    ort_task_t *slots;
    volatile size_t activated;
-   ort_mutex_t mutex;
-   ort_cond_t cond;
    int stop;
 } ort_pool_t;
 
@@ -294,6 +298,7 @@ void ort_pool_cast_worker(void *arg, size_t index, size_t count) {
    }
 }
 
+#ifdef HAVE_ORT_POOL
 /*
 * Pin the current thread to the target core.
 *
@@ -337,7 +342,14 @@ static void ort_pool_pin(size_t index) {
 #endif
    /* The thread is now executing on the target core, as determined by topology or ORT_SCALE_CORES */
 }
+#else
+static inline void ort_pool_pin(size_t index) {
+   /* No pooling, so no pinning */
+   (void)index;
+}
+#endif
 
+#ifdef HAVE_ORT_POOL
 static zend_always_inline size_t
    ort_pool_worker_indexof(
        ort_pool_t* pool, ort_thread_t thread) {
@@ -414,6 +426,7 @@ static void *ort_pool_worker(void *arg) {
    return NULL;
 #endif
 }
+#endif
 
 static inline size_t ort_pool_cores_env() {
    const char *env = getenv("ORT_SCALE_CORES");
@@ -439,10 +452,17 @@ static inline size_t ort_pool_threshold_env() {
    return 0; // No valid environment variable set
 }
 
+#ifdef HAVE_ORT_POOL
 size_t ort_pool_max(void) {
    return __ort_pool.size;
 }
+#else
+size_t ort_pool_max(void) {
+   return 1;
+}
+#endif
 
+#ifdef HAVE_ORT_POOL
 /* {{{ Retrieve the actual number of cores available (regardless of env) */
 static zend_always_inline size_t ort_pool_threads(void) {
    size_t threads = 0;
@@ -460,7 +480,13 @@ static zend_always_inline size_t ort_pool_threads(void) {
 
    return threads;
 } /* }}} */
+#else
+static zend_always_inline size_t ort_pool_threads(void) {
+   return 1; // No pooling, so only one thread
+}
+#endif
 
+#ifdef HAVE_ORT_POOL
 size_t ort_pool_cores(void) {
    if (__ort_pool_cores > 0) {
        return __ort_pool_cores;
@@ -502,6 +528,14 @@ size_t ort_pool_threshold(void) {
 
    return __ort_pool_threshold;
 }
+#else
+size_t ort_pool_cores(void) {
+   return 1; // No pooling, so only one thread
+}
+size_t ort_pool_threshold(void) {
+   return ORT_SCALE_THRESHOLD; // No pooling, so use default threshold
+}
+#endif
 
 ort_pool_scale_t ort_pool_scale(ort_pool_scale_t* scale) {
    if (scale->kind & ORT_POOL_SCALE_ERROR) {
@@ -549,6 +583,7 @@ ort_pool_scale_t ort_pool_scale(ort_pool_scale_t* scale) {
    return restore;
 }
 
+#ifdef HAVE_ORT_POOL
 int ort_pool_init(size_t size) {
    ort_pool_pin(0);
 
@@ -589,7 +624,15 @@ int ort_pool_init(size_t size) {
    }
    return SUCCESS;
 }
+#else
+int ort_pool_init(size_t size) {
+   /* No-op if pooling is not enabled */
+   (void)size; // Avoid unused parameter warning
+   return SUCCESS;
+}
+#endif
 
+#ifdef HAVE_ORT_POOL
 void ort_pool_destroy() {
    ort_pool_mutex_lock(&__ort_pool.mutex);
    __ort_pool.stop = 1;
@@ -610,7 +653,13 @@ void ort_pool_destroy() {
    free(__ort_pool.threads);
    free(__ort_pool.slots);
 }
+#else
+void ort_pool_destroy() {
+    /* No-op if pooling is not enabled */
+}
+#endif
 
+#ifdef HAVE_ORT_POOL
 void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
    /* Prepare task slots for each thread */
    ort_pool_mutex_lock(&__ort_pool.mutex);
@@ -647,3 +696,8 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
 
    ort_pool_mutex_unlock(&__ort_pool.mutex);
 }
+#else
+void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
+   func(arg, 0, count);
+}
+#endif

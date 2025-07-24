@@ -169,6 +169,7 @@ static zend_always_inline size_t ort_pool_chunk(
     size_t size,
     size_t *chunk
 ) {
+#ifdef HAVE_ORT_POOL
     // Apply threshold
     if (total <= ort_pool_threshold()) {
         if (chunk) {
@@ -201,6 +202,13 @@ static zend_always_inline size_t ort_pool_chunk(
         *chunk = chunking;
 
     return (total + chunking - 1) / chunking;
+#else
+    // No pooling, so no chunking
+    if (chunk) {
+        *chunk = total; // Use all elements as one chunk
+    }
+    return 1; // Only one chunk needed
+#endif
 }
 
 #endif
