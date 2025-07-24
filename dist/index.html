@@ -491,8 +491,7 @@
                 <p>PHP-ORT brings first-class machine learning inference to PHP through rigorous engineering and performance optimization.</p>
                 <br />
                 <p>PHP-ORT is foundational infrastructure for AI in PHP, enabling developers to build intelligent applications with familiarity, and ease.</p>
-                <br />
-                <p>The combination of a core Tensor API, a high performance Math library and optional integration with ONNX, PHP-ORT opens the door to direct inference in PHP, at scale.</p>
+                <div class="highlight">The combination of a core Tensor API, a high performance Math library and optional integration with ONNX, PHP-ORT opens the door to direct inference in PHP, at scale.</div>
 
                 <h3>Try It Now</h3>
 
@@ -718,7 +717,7 @@ if (extension_loaded('ort')) {
                                 'ort_eval_string',
                                 'number',
                                 ['string', 'number'],
-                                [code, code.length]
+                                [code, liveDemoModule.lengthBytesUTF8(code)]
                             );
 
                             const result = liveDemoModule.UTF8ToString(address);
