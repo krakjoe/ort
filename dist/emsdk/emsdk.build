@@ -179,7 +179,7 @@ ls -lash .
 
 emcc -o php-ort.js \
     -s EXPORTED_FUNCTIONS='["_php_embed_init","_php_embed_shutdown", "_ort_eval_string", "_malloc","_free"]' \
-    -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString","stringToUTF8"]' \
+    -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString","stringToUTF8", "lengthBytesUTF8"]' \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s INITIAL_MEMORY=128MB \
     -s WASM=1 \
