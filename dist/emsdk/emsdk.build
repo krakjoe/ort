@@ -151,13 +151,19 @@ emconfigure ./configure                                \
 
 emmake make -j$(nproc)
 
-emcc -Imain -IZend -ITSRM -Iext/standard -I. -c stub.emsdk.c -o stub.emsdk.o
+echo "Working in $PWD on stub ..."
+ls -lash .
+
+emcc -Imain -IZend -ITSRM -Iext/standard -I. -c stub.emsdk.c -o ./stub.emsdk.o
 
 if [ $? -ne 0 ];
 then
 	echo "Could not compile stub with emsdk ..."
 	exit 1
 fi
+
+echo "Working in $PWD on build ..."
+ls -lash .
 
 emcc -o php-ort.js \
     -s EXPORTED_FUNCTIONS='["_php_embed_init","_php_embed_shutdown", "_ort_eval_string", "_malloc","_free"]' \
@@ -168,4 +174,4 @@ emcc -o php-ort.js \
     -s MODULARIZE=1 \
     -s EXPORT_NAME="createPHPModule" \
     .libs/libphp.a \
-    stub.emsdk.o
+    ./stub.emsdk.o
