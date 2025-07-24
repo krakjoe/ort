@@ -41,6 +41,11 @@ jobs:
           path: ~/.emscripten_cache
           key: ${{ runner.os }}-emscripten-${{ hashFiles('**/dist/emsdk.build') }}
 
+      - name: Install PHP-SRC deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bison re2c autoconf pkg-config
+
       - name: Build PHP-ORT WASM
         run: |
           cp php-ort/dist/emsdk/emsdk.build php-src
