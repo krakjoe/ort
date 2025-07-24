@@ -1778,6 +1778,111 @@ __php_ort_tensor_debug_return:
     return debug;
 }
 
+static void php_ort_tensor_write(zend_object* object, zval* offset, zval* value) {
+    php_ort_status_flow(!SUCCESS, {
+        return;
+    },
+    php_ort_status_tensor_invalidaccess_ce,
+    "Tensors are immutable, illegal write operation cannot be performed");
+}
+
+static zval* php_ort_tensor_read(zend_object* object, zval* offset, int type, zval* rv) {
+    php_ort_tensor_t *ort = php_ort_tensor_fetch(object);
+    zend_long index;
+
+    if (Z_TYPE_P(offset) != IS_LONG) {
+        php_ort_status_flow(!SUCCESS, {
+                ZVAL_UNDEF(rv);
+                return rv;
+            },
+            php_ort_status_tensor_invalidoffset_ce,
+            "Tensor element must be an integer");
+        return NULL;
+    }
+
+    index = Z_LVAL_P(offset);
+
+    if (index < 0) {
+        // Negative index means offset from the end
+
+        index += ort->object->elements;
+    }
+
+    php_ort_status_flow(
+        (index >= ort->object->elements),
+        {
+            ZVAL_UNDEF(rv);
+            return rv;
+        },
+        php_ort_status_tensor_invalidoffset_ce,
+        "Tensor element %zd out of range [0, %zd]",
+        index, ort->object->elements);
+
+    switch (ort->object->type) {
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
+            ZVAL_DOUBLE(rv,
+                ((float*)ort->object->data)[index]);
+        break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+            ZVAL_DOUBLE(rv,
+                ((double*)ort->object->data)[index]);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
+            ZVAL_LONG(rv,
+                ((int8_t*)ort->object->data)[index]);
+            break;
+        
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
+            ZVAL_LONG(rv,
+                ((int16_t*)ort->object->data)[index]);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
+            ZVAL_LONG(rv,
+                ((int32_t*)ort->object->data)[index]);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
+            ZVAL_LONG(rv,
+                ((int64_t*)ort->object->data)[index]);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
+            ZVAL_LONG(rv,
+                ((uint8_t*)ort->object->data)[index]);
+            break;
+        
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
+            ZVAL_LONG(rv,
+                ((uint16_t*)ort->object->data)[index]);
+            break;
+        
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
+            ZVAL_LONG(rv,
+                ((uint32_t*)ort->object->data)[index]);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
+            ZVAL_BOOL(rv,
+                ((zend_bool*)ort->object->data)[index] ? 1 : 0);
+            break;
+
+        default:
+            /* unreachable */
+    }
+    return rv;
+}
+
+static zend_result php_ort_tensor_count(zend_object* object, zend_long *count) {
+    php_ort_tensor_t *ort =
+        php_ort_tensor_fetch(object);
+    *count =
+        ort->object->elements;
+    return SUCCESS;
+}
+
 void php_ort_tensor_destroy(zend_object *o) {
     php_ort_tensor_t *ort =
         php_ort_tensor_fetch(o);
@@ -1804,6 +1909,9 @@ PHP_MINIT_FUNCTION(ORT_TENSOR)
     php_ort_tensor_handlers.offset = XtOffsetOf(php_ort_tensor_t, std);
     php_ort_tensor_handlers.get_debug_info = php_ort_tensor_debug;
     php_ort_tensor_handlers.free_obj = php_ort_tensor_destroy;
+    php_ort_tensor_handlers.read_dimension = php_ort_tensor_read;
+    php_ort_tensor_handlers.write_dimension = php_ort_tensor_write;
+    php_ort_tensor_handlers.count_elements = php_ort_tensor_count;
     php_ort_tensor_handlers.clone_obj = NULL;
 
     // Register the interface

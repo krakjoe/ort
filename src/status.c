@@ -27,11 +27,14 @@ zend_class_entry* php_ort_status_safetyerror_ce;
 
 zend_class_entry* php_ort_status_scaling_error_ce;
 
+zend_class_entry* php_ort_status_tensor_error_ce;
 zend_class_entry* php_ort_status_tensor_notfound_ce;
 zend_class_entry* php_ort_status_tensor_invalidshape_ce;
 zend_class_entry* php_ort_status_tensor_invalidtype_ce;
 zend_class_entry* php_ort_status_tensor_invaliddata_ce;
 zend_class_entry* php_ort_status_tensor_invalidmemory_ce;
+zend_class_entry* php_ort_status_tensor_invalidoffset_ce;
+zend_class_entry* php_ort_status_tensor_invalidaccess_ce;
 
 // Mathematical operation exceptions
 zend_class_entry* php_ort_status_math_error_ce;
@@ -41,6 +44,8 @@ zend_class_entry* php_ort_status_math_invalidbroadcast_ce;
 zend_class_entry* php_ort_status_math_invalidoperation_ce;
 zend_class_entry* php_ort_status_math_divisionbyzero_ce;
 
+// Model exceptions
+zend_class_entry* php_ort_status_model_error_ce;
 zend_class_entry* php_ort_status_model_invalidmemory_ce;
 zend_class_entry* php_ort_status_model_invalidoptions_ce;
 zend_class_entry* php_ort_status_model_invalidmodel_ce;
@@ -76,30 +81,45 @@ PHP_MINIT_FUNCTION(ORT_STATUS)
             &ce, php_ort_status_error_ce);
 
     /** ----------------------------------------------------------------- **/
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "Error", NULL);
+    php_ort_status_tensor_error_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_error_ce);
+
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "NotFound", NULL);
     php_ort_status_tensor_notfound_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_tensor_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "InvalidType", NULL);
     php_ort_status_tensor_invalidtype_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_tensor_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "InvalidShape", NULL);
     php_ort_status_tensor_invalidshape_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_tensor_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "InvalidData", NULL);
     php_ort_status_tensor_invaliddata_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_tensor_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "InvalidMemory", NULL);
     php_ort_status_tensor_invalidmemory_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_tensor_error_ce);
+
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "InvalidOffset", NULL);
+    php_ort_status_tensor_invalidoffset_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_tensor_error_ce);
+
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Tensor", "InvalidAccess", NULL);
+    php_ort_status_tensor_invalidaccess_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_tensor_error_ce);
 
     /** Mathematical operation exceptions --------------------------------- **/
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Math", "Error", NULL);
@@ -133,45 +153,51 @@ PHP_MINIT_FUNCTION(ORT_STATUS)
             &ce, php_ort_status_math_error_ce);
 
     /** ----------------------------------------------------------------- **/
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "Error", NULL);
+    php_ort_status_model_error_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_error_ce);
+
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "InvalidMemory", NULL);
     php_ort_status_model_invalidmemory_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "InvalidOptions", NULL);
     php_ort_status_model_invalidoptions_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "InvalidModel", NULL);
     php_ort_status_model_invalidmodel_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "InvalidInput", NULL);
     php_ort_status_model_invalidinput_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "InvalidOutput", NULL);
     php_ort_status_model_invalidoutput_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "InvalidIndex", NULL);
     php_ort_status_model_invalidindex_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "InvalidFile", NULL);
     php_ort_status_model_invalidfile_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
+    /** @TODO(krakjoe) this doesn't fit new Runtime exceptions */
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "RuntimeException", NULL);
     php_ort_status_model_runtimeexception_ce =
         zend_register_internal_class_ex(
-            &ce, php_ort_status_error_ce);
+            &ce, php_ort_status_model_error_ce);
 
     return SUCCESS;
 }

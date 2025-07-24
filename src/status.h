@@ -31,11 +31,14 @@ extern zend_class_entry* php_ort_status_safetyerror_ce;
 
 extern zend_class_entry* php_ort_status_scaling_error_ce;
 
+extern zend_class_entry* php_ort_status_tensor_error_ce;
 extern zend_class_entry* php_ort_status_tensor_notfound_ce;
 extern zend_class_entry* php_ort_status_tensor_invalidtype_ce;
 extern zend_class_entry* php_ort_status_tensor_invalidshape_ce;
 extern zend_class_entry* php_ort_status_tensor_invaliddata_ce;
 extern zend_class_entry* php_ort_status_tensor_invalidmemory_ce;
+extern zend_class_entry* php_ort_status_tensor_invalidoffset_ce;
+extern zend_class_entry* php_ort_status_tensor_invalidaccess_ce;
 
 // Mathematical operation exceptions
 extern zend_class_entry* php_ort_status_math_error_ce;
@@ -45,6 +48,8 @@ extern zend_class_entry* php_ort_status_math_invalidbroadcast_ce;
 extern zend_class_entry* php_ort_status_math_invalidoperation_ce;
 extern zend_class_entry* php_ort_status_math_divisionbyzero_ce;
 
+// Model exceptions
+extern zend_class_entry* php_ort_status_model_error_ce;
 extern zend_class_entry* php_ort_status_model_invalidmemory_ce;
 extern zend_class_entry* php_ort_status_model_invalidoptions_ce;
 extern zend_class_entry* php_ort_status_model_invalidmodel_ce;
