@@ -147,7 +147,19 @@ emconfigure ./configure                            \
 	--disable-ort-pool                             \
 	$@
 
+if [ $? -ne 0 ];
+then
+    echo "Failed to configure PHP"
+    exit 1
+fi
+
 emmake make -j$(nproc)
+
+if [ $? -ne 0 ];
+then
+    echo "Failed to build PHP"
+    exit 1
+fi
 
 echo "Working in $PWD on stub ..."
 ls -lash .
