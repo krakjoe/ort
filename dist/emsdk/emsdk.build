@@ -132,6 +132,8 @@ uintptr_t EMSCRIPTEN_KEEPALIVE ort_eval_string(const char* code, size_t length) 
 #endif
 EOF
 
+export EXTRA_LIBS=stub.emsdk.o
+
 emconfigure ./configure                            \
 	--disable-all                                  \
 	--disable-cgi                                  \
@@ -153,23 +155,23 @@ then
     exit 1
 fi
 
+echo "Working in $PWD on stub ..."
+ls -lash .
+
+emcc -Imain -IZend -ITSRM -Iext/standard -I. -c stub.emsdk.c -o stub.emsdk.o
+
+if [ $? -ne 0 ];
+then
+	echo "Could not compile stub with emsdk ..."
+	exit 1
+fi
+
 emmake make -j$(nproc)
 
 if [ $? -ne 0 ];
 then
     echo "Failed to build PHP"
     exit 1
-fi
-
-echo "Working in $PWD on stub ..."
-ls -lash .
-
-emcc -Imain -IZend -ITSRM -Iext/standard -I. -c stub.emsdk.c -o ./stub.emsdk.o
-
-if [ $? -ne 0 ];
-then
-	echo "Could not compile stub with emsdk ..."
-	exit 1
 fi
 
 echo "Working in $PWD on build ..."
@@ -184,4 +186,10 @@ emcc -o php-ort.js \
     -s MODULARIZE=1 \
     -s EXPORT_NAME="createPHPModule" \
     .libs/libphp.a \
-    ./stub.emsdk.o
+    stub.emsdk.o
+
+if [ $? -ne 0 ];
+then
+    echo "Failed to build web assembly"
+    exit 1
+fi
