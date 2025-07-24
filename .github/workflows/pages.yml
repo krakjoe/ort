@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          path: php-ort
 
       - name: Checkout PHP source
         uses: actions/checkout@v4
@@ -26,7 +28,7 @@ jobs:
 
       - name: Copy ORT extension to PHP
         run: |
-          cp -r . php-src/ext/ort
+          cp -r php-ort php-src/ext/ort
 
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v12
@@ -42,13 +44,13 @@ jobs:
       - name: Build PHP-ORT WASM
         run: |
           cd php-src
-          cp ../dist/emsdk/emsdk.build .
+          cp ../php-ort/dist/emsdk/emsdk.build .
           chmod +x ./emsdk.build
           ./emsdk.build
 
       - name: Prepare dist directory
         run: |
-          cp php-src/php-ort.{js,wasm} ../dist
+          cp php-src/php-ort.{js,wasm} php-ort/dist
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
