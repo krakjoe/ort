@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHP-ORT: Machine Learning Inference for the Web</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <script src="php-ort.js"></script>
     <style>
         * {
             margin: 0;
@@ -488,26 +489,80 @@
             <div id="solution" class="tab-content">
                 <h2>The Solution: Production-Ready ML Inference</h2>
                 <p>PHP-ORT brings first-class machine learning inference to PHP through rigorous engineering and performance optimization.</p>
+                <br />
+                <p>PHP-ORT is foundational infrastructure for AI in PHP, enabling developers to build intelligent applications with familiarity, and ease.</p>
+                <br />
+                <p>The combination of a core Tensor API, a high performance Math library and optional integration with ONNX, PHP-ORT opens the door to direct inference in PHP, at scale.</p>
 
-                <h3>What It Actually Does</h3>
-                <div class="demo-container">
-                    <div class="code"><span class="php-tag">&lt;?php</span>
-<span class="comment">// Now this is possible in PHP:</span>
-<span class="keyword">use</span> <span class="class">ORT\Tensor\Transient</span>;
-<span class="keyword">use</span> <span class="class">ORT\Math</span>;
+                <h3>Try It Now</h3>
 
-<span class="comment">// High-performance tensor operations</span>
-<span class="variable">$image</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">224</span>, <span class="number">224</span>, <span class="number">3</span>], <span class="variable">$pixel_data</span>, <span class="class">ORT\Tensor</span>::<span class="keyword">FLOAT</span>);
-<span class="variable">$features</span> <span class="operator">=</span> <span class="class">Math</span>\<span class="function">matmul</span>(<span class="variable">$weights</span>, <span class="variable">$image</span>);
+                <div id="live-demo-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Loading PHP with Tensor Support...</p>
+                </div>
 
-<span class="comment">// ML inference in your web application</span>
-<span class="variable">$prediction</span> <span class="operator">=</span> <span class="variable">$model</span>-><span class="function">run</span>([<span class="variable">$features</span>]);
+                <div id="live-demo-container" style="display: none; background: #f8f9fa; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #dee2e6;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div style="background: #1e1e1e; border-radius: 8px; overflow: hidden;">
+                            <div style="background: #2d2d30; color: #cccccc; padding: 10px; font-weight: 600; border-bottom: 1px solid #3e3e42;">
+                                PHP Code Editor
+                            </div>
+                            <textarea id="demo-php-code" style="background: #1e1e1e; color: #d4d4d4; border: none; padding: 15px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; line-height: 1.4; resize: none; width: 100%; height: 100%; outline: none;"><?php
+// Real PHP + ORT Extension Demo
+echo "=== PHP-ORT Tensor Demo ===\n\n";
 
-<span class="comment">// Real-world applications:</span>
-<span class="variable">$sentiment</span> <span class="operator">=</span> <span class="variable">$nlp_model</span>-><span class="function">analyzeSentiment</span>(<span class="variable">$user_comment</span>);
-<span class="variable">$recommendation</span> <span class="operator">=</span> <span class="variable">$rec_model</span>-><span class="function">predict</span>(<span class="variable">$user_profile</span>);
-<span class="variable">$classification</span> <span class="operator">=</span> <span class="variable">$vision_model</span>-><span class="function">classify</span>(<span class="variable">$uploaded_image</span>);
-</div>
+// Check if extension is loaded
+if (extension_loaded('ort')) {
+    echo "✅ ORT Extension Loaded!\n\n";
+    
+    // Create tensors
+    $a = ORT\Tensor\Transient::from([
+        [1, 2, 3], 
+        [4, 5, 6]
+    ], ORT\Tensor::FLOAT);
+    
+    $b = ORT\Tensor\Transient::from([
+        [7, 8, 9], 
+        [10, 11, 12]
+    ], ORT\Tensor::FLOAT);
+    
+    echo "Tensor A:\n";
+    var_dump($a->getData());
+    
+    echo "\nTensor B:\n";
+    var_dump($b->getData());
+    
+    // Real tensor math!
+    $sum = ORT\Math\add($a, $b);
+    echo "\nA + B (tensor addition):\n";
+    var_dump($sum->getData());
+    
+} else {
+    echo "❌ ORT Extension not found\n";
+}
+?></textarea>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; border-radius: 8px; overflow: hidden; border: 1px solid #dee2e6;">
+                            <div style="background: #28a745; color: white; padding: 10px; font-weight: 600;">
+                                Live Output
+                            </div>
+                            <div id="demo-output" style="padding: 15px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; line-height: 1.5; white-space: pre-wrap; min-height: 230px; background: #ffffff; color: #333;">Click "Run PHP" to see real tensor operations!</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <button class="button" onclick="runLiveDemo()" style="margin-right: 10px;">🚀 Run PHP</button>
+                        <button class="button" onclick="loadTensorExample('matrix')" style="background: #9b59b6;">Matrix Ops</button>
+                        <button class="button" onclick="loadTensorExample('math')" style="background: #e67e22;">Tensor Math</button>
+                        <button class="button" onclick="clearDemoOutput()">Clear Output</button>
+                    </div>
+                    
+                    <div class="highlight">
+                        On display here is a WebAssembly of PHP and PHP-ORT, running in your browser to demonstrate real tensor operations.
+                        <br />
+                        There are some limitations that come with WebAssembly, so only some of the features are on display here, see the technical tab.
+                    </div>
                 </div>
 
                 <h3>Performance That Matters</h3>
@@ -529,16 +584,6 @@
                     </div>
                 </div>
 
-                <h3>Interactive Demo</h3>
-                <div class="interactive-demo">
-                    <p>See PHP-ORT in action:</p>
-                    <button class="button" onclick="demoMatrixMultiply()">Matrix Multiplication</button>
-                    <button class="button" onclick="demoSIMDOperations()">SIMD Operations</button>
-                    <button class="button" onclick="demoThreadPool()">Thread Pool</button>
-                    <button class="button" onclick="demoTypePromotion()">Type Promotion</button>
-                    
-                    <div class="output code" id="demo-output">Click a button above to see PHP-ORT in action...</div>
-                </div>
                 <div class="complement">
                 <h3>Complementary, Not Competitive</h3>
                 <p>This is about finding PHP a place in an AI-first software engineering world, 
@@ -551,6 +596,152 @@
                 </ul>
                 <p><em>This isn't about replacing Python for training!</em></p>
                 </div>
+
+                <script>
+                    let liveDemoModule = null;
+                    let liveDemoReady = false;
+
+                    const tensorExamples = {
+                        matrix: `<?php
+// Matrix Operations Demo
+echo "=== Matrix Operations ===\\n\\n";
+
+if (extension_loaded('ort')) {
+    // Create 3x3 matrices
+    $matrix1 = ORT\\Tensor\\Transient::from([
+        [1.5, 2.0, 3.2],
+        [4.1, 5.7, 6.0],
+        [7.3, 8.1, 9.9]
+    ], ORT\\Tensor::FLOAT);
+    
+    $matrix2 = ORT\\Tensor\\Transient::from([
+        [0.5, 1.0, 0.8],
+        [1.2, 0.3, 2.1],
+        [0.7, 1.5, 0.2]
+    ], ORT\\Tensor::FLOAT);
+    
+    echo "Matrix 1 (3x3):\\n";
+    print_r($matrix1->getData());
+    
+    echo "\\nMatrix 2 (3x3):\\n"; 
+    print_r($matrix2->getData());
+    
+    // Matrix multiplication
+    $product = ORT\\Math\\matmul($matrix1, $matrix2);
+    echo "\\nMatrix Multiplication Result:\\n";
+    print_r($product->getData());
+    
+} else {
+    echo "ORT Extension not available\\n";
+}
+?>`,
+
+                        math: `<?php
+// Advanced Tensor Math
+echo "=== Tensor Mathematics ===\\n\\n";
+
+if (extension_loaded('ort')) {
+    // Create test vectors
+    $vector1 = ORT\\Tensor\\Transient::from([
+        [2.0, 4.0, 6.0, 8.0]
+    ], ORT\\Tensor::FLOAT);
+    
+    $vector2 = ORT\\Tensor\\Transient::from([
+        [1.0, 2.0, 3.0, 4.0]
+    ], ORT\\Tensor::FLOAT);
+    
+    echo "Vector 1: ";
+    print_r($vector1->getData()[0]);
+    echo "Vector 2: ";
+    print_r($vector2->getData()[0]);
+    
+    // Element-wise operations
+    $sum = ORT\\Math\\add($vector1, $vector2);
+    echo "\\nAddition: ";
+    print_r($sum->getData()[0]);
+    
+    $product = ORT\\Math\\multiply($vector1, $vector2);
+    echo "Element-wise Multiply: ";
+    print_r($product->getData()[0]);
+    
+    $diff = ORT\\Math\\subtract($vector1, $vector2);
+    echo "Subtraction: ";
+    print_r($diff->getData()[0]);
+    
+    echo "\\n✨ All operations use optimized SIMD when available!\\n";
+} else {
+    echo "ORT Extension not available\\n";
+}
+?>`,
+                    };
+
+                    async function initLiveDemo() {
+                        const initBtn = document.getElementById('demo-init-btn');
+                        const loadingDiv = document.getElementById('live-demo-loading');
+                        const demoContainer = document.getElementById('live-demo-container');
+                        
+                        loadingDiv.style.display = 'block';
+                        
+                        try {
+                            // Load the PHP WASM module
+                            liveDemoModule = await createPHPModule();
+                            
+                            // Initialize PHP
+                            const result = liveDemoModule.ccall(
+                                'php_embed_init', 
+                                'number', 
+                                ['number', 'number'], 
+                                [0, 0]
+                            );
+                            
+                            liveDemoReady = true;
+                            loadingDiv.style.display = 'none';
+                            demoContainer.style.display = 'block';
+                            
+                            console.log('Live demo ready!');
+                        } catch (error) {
+                            console.error('Failed to load demo:', error);
+                            loadingDiv.innerHTML =
+                                '<p style="color: red;">Failed to load demo. Please refresh and try again.</p>';
+                        }
+                    }
+
+                    function runLiveDemo() {
+                        if (!liveDemoReady) return;
+                        
+                        const code = document.getElementById('demo-php-code').value;
+                        const output = document.getElementById('demo-output');
+                        
+                        try {
+                            // Execute PHP code
+                            const address = liveDemoModule.ccall(
+                                'ort_eval_string',
+                                'number',
+                                ['string', 'number'],
+                                [code, code.length]
+                            );
+
+                            const result = liveDemoModule.UTF8ToString(address);
+                        
+                            output.textContent = result;
+
+                            // Free memory
+                            liveDemoModule._free(address);
+                        } catch (error) {
+                            output.textContent = 'Error: ' + error.message;
+                        }
+                    }
+
+                    function clearDemoOutput() {
+                        document.getElementById('demo-output').textContent = 'Output cleared. Ready for new code!';
+                    }
+
+                    function loadTensorExample(type) {
+                        if (tensorExamples[type]) {
+                            document.getElementById('demo-php-code').value = tensorExamples[type];
+                        }
+                    }
+                </script>
             </div>
 
             <div id="technical" class="tab-content">
@@ -793,6 +984,11 @@ extension=ort.so
             
             // Add active class to clicked button
             event.target.classList.add('active');
+
+            // Auto-initialize live demo when Solution tab is opened
+            if (tabName === 'solution' && !liveDemoReady) {
+                initLiveDemo();
+            }
         }
 
         function demoMatrixMultiply() {
