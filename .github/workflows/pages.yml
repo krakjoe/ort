@@ -17,10 +17,43 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Checkout PHP source
+        uses: actions/checkout@v4
+        with:
+          repository: php/php-src
+          ref: PHP-8.2  # Or whatever version you're using
+          path: php-src
+
+      - name: Copy ORT extension to PHP
+        run: |
+          cp -r . php-src/ext/ort
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: 4.0.11
+
+      - name: Cache Emscripten
+        uses: actions/cache@v3
+        with:
+          path: ~/.emscripten_cache
+          key: ${{ runner.os }}-emscripten-${{ hashFiles('**/dist/emsdk.build') }}
+
+      - name: Build PHP-ORT WASM
+        run: |
+          cd php-src
+          cp ../dist/emsdk/emsdk.build .
+          chmod +x ./emsdk.build
+          ./emsdk.build
+
+      - name: Prepare dist directory
+        run: |
+          cp php-src/php-ort.{js,wasm} ../dist
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload dist/index.html as artifact
+      - name: Upload dist as artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
