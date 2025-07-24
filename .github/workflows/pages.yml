@@ -43,10 +43,9 @@ jobs:
 
       - name: Build PHP-ORT WASM
         run: |
-          cd php-src
-          cp ../php-ort/dist/emsdk/emsdk.build .
-          chmod +x ./emsdk.build
-          ./emsdk.build
+          cp php-ort/dist/emsdk/emsdk.build php-src
+          chmod +x php-src/emsdk.build
+          cd php-src && ./buildconf --force && ./emsdk.build
 
       - name: Prepare dist directory
         run: |
@@ -58,7 +57,7 @@ jobs:
       - name: Upload dist as artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: php-ort/dist
 
       - name: Deploy to GitHub Pages
         id: deployment
