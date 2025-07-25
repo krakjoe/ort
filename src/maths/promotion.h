@@ -24,7 +24,6 @@
 
 typedef struct _ort_math_promotion_t {
     ONNXTensorElementDataType result_type;
-    zend_bool is_valid;
     struct {
         ort_tensor_t* inputs[2];
         size_t        count;

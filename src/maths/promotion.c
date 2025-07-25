@@ -150,7 +150,6 @@ ort_math_promotion_t ort_math_promotion_perform_binary(
     ort_math_promotion_t promotion = {
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
-        .is_valid = 0,
         .inputs = {
             .lhs = tensor_a,
             .rhs = tensor_b,
@@ -169,7 +168,6 @@ ort_math_promotion_t ort_math_promotion_perform_binary(
 
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
         promotion.result_type = resolved;
-        promotion.is_valid = 1;
 
         if (schema->operands == ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE) {
             return promotion;
@@ -196,7 +194,6 @@ ort_math_promotion_t ort_math_promotion_perform_unary(
     ort_math_promotion_t promotion = {
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
-        .is_valid = 0,
         .inputs = {
             .lhs = tensor,
             .rhs = NULL,
@@ -214,7 +211,6 @@ ort_math_promotion_t ort_math_promotion_perform_unary(
 
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
         promotion.result_type = resolved;
-        promotion.is_valid = 1;
 
         if (schema->operands == ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE) {
             return promotion;
@@ -237,7 +233,6 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
     ort_math_promotion_t promotion = {
         .result_type =
             ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,
-        .is_valid = 0,
         .inputs = {
             .lhs = tensor,
             .rhs = (void*) scalar,
@@ -256,7 +251,6 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
 
     if (resolved != ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED) {
         promotion.result_type = resolved;
-        promotion.is_valid = 1;
 
         if (schema->operands == ORT_MATH_PROMOTION_SCHEMA_OPERANDS_PRESERVE) {
             return promotion;
