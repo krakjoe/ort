@@ -551,10 +551,10 @@ if (extension_loaded('ort')) {
                     </div>
                     
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <button class="button" onclick="runLiveDemo()" style="margin-right: 10px;">🚀 Run PHP</button>
-                        <button class="button" onclick="loadTensorExample('matrix')" style="background: #9b59b6;">Matrix Ops</button>
-                        <button class="button" onclick="loadTensorExample('math')" style="background: #e67e22;">Tensor Math</button>
-                        <button class="button" onclick="clearDemoOutput()">Clear Output</button>
+                        <button class="button" onclick="emRun()" style="margin-right: 10px;">🚀 Run PHP</button>
+                        <button class="button" onclick="emLoad('matrix')" style="background: #9b59b6;">Matrix Ops</button>
+                        <button class="button" onclick="emLoad('math')" style="background: #e67e22;">Tensor Math</button>
+                        <button class="button" onclick="emClear()">Clear Output</button>
                     </div>
                     
                     <div class="highlight">
@@ -597,10 +597,10 @@ if (extension_loaded('ort')) {
                 </div>
 
                 <script>
-                    let liveDemoModule = null;
-                    let liveDemoReady = false;
+                    let em = null;
+                    let emReady = false;
 
-                    const tensorExamples = {
+                    const emExamples = {
                         matrix: `<?php
 // Matrix Operations Demo
 echo "=== Matrix Operations ===\\n\\n";
@@ -674,7 +674,7 @@ if (extension_loaded('ort')) {
 ?>`,
                     };
 
-                    async function initLiveDemo() {
+                    async function emInit() {
                         const initBtn = document.getElementById('demo-init-btn');
                         const loadingDiv = document.getElementById('live-demo-loading');
                         const demoContainer = document.getElementById('live-demo-container');
@@ -683,19 +683,17 @@ if (extension_loaded('ort')) {
                         
                         try {
                             // Load the PHP WASM module
-                            liveDemoModule = await createPHPModule();
+                            em = await createPHPModule();
                             
                             // Initialize PHP
-                            const result = liveDemoModule.ccall(
+                            const result = em.ccall(
                                 'em_startup', 
                                 'number'
                             );
                             
-                            liveDemoReady = true;
+                            emReady = true;
                             loadingDiv.style.display = 'none';
                             demoContainer.style.display = 'block';
-                            
-                            console.log('Live demo ready!');
                         } catch (error) {
                             console.error('Failed to load demo:', error);
                             loadingDiv.innerHTML =
@@ -703,52 +701,52 @@ if (extension_loaded('ort')) {
                         }
                     }
 
-                    function runLiveDemo() {
-                        if (!liveDemoReady) return;
+                    function emRun() {
+                        if (!emReady) return;
                         
                         const code = document.getElementById('demo-php-code').value;
                         const output = document.getElementById('demo-output');
                         
                         try {
                             // run the code
-                            const address = liveDemoModule.ccall(
+                            const address = em.ccall(
                                 'em_run_string',
                                 'number',
                                 ['string', 'number'],
-                                [code, liveDemoModule.lengthBytesUTF8(code)]
+                                [code, em.lengthBytesUTF8(code)]
                             );
 
                             // get the length of the buffer
-                            const length = liveDemoModule.ccall(
+                            const length = em.ccall(
                                 'em_run_length',
                                 'number'
                             );
 
-                            // panic, I dunno where the content went ...
                             if (!length) {
-                                output.textContent = "em experienced an error";
+                                output.textContent =
+                                    "em ran your code, there was no output!";
                             } else {
                                 // handle nulls in output
-                                const bytes = liveDemoModule.HEAPU8.subarray(
+                                const bytes = em.HEAPU8.subarray(
                                     address, address + length);
                                 const result = new TextDecoder().decode(bytes);
                                 output.textContent = result;
 
                                 // Free memory
-                                liveDemoModule._free(address);
+                                em._free(address);
                             }
                         } catch (error) {
                             output.textContent = 'em exception: ' + error.message;
                         }
                     }
 
-                    function clearDemoOutput() {
+                    function emClear() {
                         document.getElementById('demo-output').textContent = 'Output cleared. Ready for new code!';
                     }
 
-                    function loadTensorExample(type) {
-                        if (tensorExamples[type]) {
-                            document.getElementById('demo-php-code').value = tensorExamples[type];
+                    function emLoad(type) {
+                        if (emExamples[type]) {
+                            document.getElementById('demo-php-code').value = emExamples[type];
                         }
                     }
                 </script>
@@ -996,100 +994,9 @@ extension=ort.so
             event.target.classList.add('active');
 
             // Auto-initialize live demo when Solution tab is opened
-            if (tabName === 'solution' && !liveDemoReady) {
-                initLiveDemo();
+            if (tabName === 'solution' && !emReady) {
+                emInit();
             }
-        }
-
-        function demoMatrixMultiply() {
-            const output = document.getElementById('demo-output');
-            output.innerHTML = `<span class="php-tag">&lt;?php</span>
-<span class="comment">// Matrix multiplication demo</span>
-<span class="variable">$a</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_a</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
-<span class="variable">$b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000</span>, <span class="number">1000</span>], <span class="variable">$data_b</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
-
-<span class="variable">$start</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>);
-<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">matmul</span>(<span class="variable">$a</span>, <span class="variable">$b</span>);
-<span class="variable">$duration</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>) <span class="operator">-</span> <span class="variable">$start</span>;
-
-<span class="keyword">echo</span> <span class="string">"Matrix multiplication completed in: {<span class="variable">$duration</span>}s"</span>;
-<span class="keyword">echo</span> <span class="string">"Backend: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">backend</span>(); <span class="comment">// AVX2</span>
-<span class="keyword">echo</span> <span class="string">"Used cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>(); <span class="comment">// 8</span>
-
-<span class="comment">// Output:</span>
-<span class="comment">// Matrix multiplication completed in: 0.0023s</span>
-<span class="comment">// Backend: AVX2</span>
-<span class="comment">// Used cores: 8</span>`;
-        }
-
-        function demoSIMDOperations() {
-            const output = document.getElementById('demo-output');
-            output.innerHTML = `<span class="php-tag">&lt;?php</span>
-<span class="comment">// SIMD vectorization demo</span>
-<span class="variable">$large_array</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">1000000</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
-<span class="variable">$scalar</span> <span class="operator">=</span> <span class="number">2.5</span>;
-
-<span class="variable">$start</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>);
-<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">multiply</span>(<span class="variable">$large_array</span>, <span class="variable">$scalar</span>);
-<span class="variable">$duration</span> <span class="operator">=</span> <span class="function">microtime</span>(<span class="keyword">true</span>) <span class="operator">-</span> <span class="variable">$start</span>;
-
-<span class="keyword">echo</span> <span class="string">"SIMD operation completed in: {<span class="variable">$duration</span>}s"</span>;
-<span class="keyword">echo</span> <span class="string">"Elements processed: "</span> <span class="operator">.</span> <span class="variable">$large_array</span>-><span class="function">getShape</span>()[<span class="number">0</span>];
-<span class="keyword">echo</span> <span class="string">"AVX2 vectors used: "</span> <span class="operator">.</span> (<span class="variable">$large_array</span>-><span class="function">getShape</span>()[<span class="number">0</span>] <span class="operator">/</span> <span class="number">8</span>);
-
-<span class="comment">// Output:</span>
-<span class="comment">// SIMD operation completed in: 0.0008s</span>
-<span class="comment">// Elements processed: 1000000</span>
-<span class="comment">// AVX2 vectors used: 125000</span>`;
-        }
-
-        function demoThreadPool() {
-            const output = document.getElementById('demo-output');
-            output.innerHTML = `<span class="php-tag">&lt;?php</span>
-<span class="comment">// Thread pool demonstration</span>
-<span class="variable">$big_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">10000</span>, <span class="number">10000</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
-
-<span class="keyword">echo</span> <span class="string">"Available cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>();
-<span class="keyword">echo</span> <span class="string">"Max cores: "</span> <span class="operator">.</span> <span class="class">Math</span>\\<span class="function">cores</span>(<span class="keyword">true</span>);
-
-<span class="comment">// Scale to 4 cores for this operation</span>
-<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">scale</span>(<span class="number">4</span>, <span class="keyword">function</span>() <span class="keyword">use</span> (<span class="variable">$big_tensor</span>) {
-    <span class="keyword">return</span> <span class="class">Math</span>\\<span class="function">reduce</span>\\<span class="function">tensor</span>\\<span class="function">sum</span>(<span class="variable">$big_tensor</span>);
-});
-
-<span class="keyword">echo</span> <span class="string">"Reduction completed using 4 cores"</span>;
-<span class="keyword">echo</span> <span class="string">"Result: "</span> <span class="operator">.</span> <span class="variable">$result</span>-><span class="function">getData</span>()[<span class="number">0</span>];
-
-<span class="comment">// Output:</span>
-<span class="comment">// Available cores: 8</span>
-<span class="comment">// Max cores: 8</span>
-<span class="comment">// Reduction completed using 4 cores</span>
-<span class="comment">// Result: 4.7832e+08</span>`;
-        }
-
-        function demoTypePromotion() {
-            const output = document.getElementById('demo-output');
-            output.innerHTML = `<span class="php-tag">&lt;?php</span>
-<span class="comment">// Type promotion system</span>
-<span class="variable">$schema</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Math</span>\\<span class="class">Schema</span>(<span class="string">"add"</span>);
-
-<span class="variable">$float_int</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">INT32</span>);
-<span class="variable">$double_float</span> <span class="operator">=</span> <span class="variable">$schema</span>-><span class="function">resolve</span>(<span class="class">ORT\\Tensor</span>::<span class="keyword">DOUBLE</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
-
-<span class="keyword">echo</span> <span class="string">"FLOAT + INT32 = "</span> <span class="operator">.</span> <span class="variable">$float_int</span>; <span class="comment">// Promotes to FLOAT</span>
-<span class="keyword">echo</span> <span class="string">"DOUBLE + FLOAT = "</span> <span class="operator">.</span> <span class="variable">$double_float</span>; <span class="comment">// Promotes to DOUBLE</span>
-
-<span class="comment">// Automatic type promotion in operations</span>
-<span class="variable">$float_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">FLOAT</span>);
-<span class="variable">$int_tensor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Transient</span>([<span class="number">100</span>], <span class="variable">$data</span>, <span class="class">ORT\\Tensor</span>::<span class="keyword">INT32</span>);
-
-<span class="variable">$result</span> <span class="operator">=</span> <span class="class">Math</span>\\<span class="function">add</span>(<span class="variable">$float_tensor</span>, <span class="variable">$int_tensor</span>);
-<span class="keyword">echo</span> <span class="string">"Result type: "</span> <span class="operator">.</span> <span class="variable">$result</span>-><span class="function">getType</span>(); <span class="comment">// FLOAT</span>
-
-<span class="comment">// Output:</span>
-<span class="comment">// FLOAT + INT32 = 1</span>
-<span class="comment">// DOUBLE + FLOAT = 11</span>
-<span class="comment">// Result type: 1</span>`;
         }
     </script>
     <script>
