@@ -72,7 +72,7 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 #undef ORT_MATH_MATMUL_IMPL_FOR_TYPE
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
-    ort_math_kernel_binary_t, matmul)
+    ort_math_kernel_matmul_t, matmul)
 
 ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matrix_b) {
     if (!ort_math_validate_input(matrix_a, "matmul") || !ort_math_validate_input(matrix_b, "matmul")) {

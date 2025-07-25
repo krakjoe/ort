@@ -265,6 +265,8 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
     return promotion;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
 char* ort_math_promotion_explain(
     const ort_math_promotion_t* promotion,
     const ort_math_promotion_schema_t* schema) {
@@ -293,6 +295,7 @@ char* ort_math_promotion_explain(
 
     return explain;
 }
+#pragma GCC diagnostic pop
 
 void* ort_math_operation_upcast(
     const ort_tensor_t* result,

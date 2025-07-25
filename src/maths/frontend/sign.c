@@ -46,7 +46,6 @@ ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, double) {
     ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, c_type) {    \
         c_type* va = (c_type*)a;                       \
         c_type* res = (c_type*)result;                 \
-        c_type sum = 0;                                \
         for (size_t idx = 0; idx < count; idx++) {     \
             res[idx] = (va[idx] > 0) ?                 \
                 1 :  (va[idx] < 0) ? -1 : 0;           \
@@ -60,7 +59,6 @@ ORT_MATH_FOREACH_SIGNED_TYPE(
     ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, c_type) {     \
         c_type* va = (c_type*)a;                        \
         c_type* res = (c_type*)result;                  \
-        c_type sum = 0;                                 \
         for (size_t idx = 0; idx < count; idx++) {      \
             res[idx] = (va[idx] > 0) ? 1 : 0;           \
         }                                               \
