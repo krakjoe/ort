@@ -687,10 +687,8 @@ if (extension_loaded('ort')) {
                             
                             // Initialize PHP
                             const result = liveDemoModule.ccall(
-                                'php_embed_init', 
-                                'number', 
-                                ['number', 'number'], 
-                                [0, 0]
+                                'em_startup', 
+                                'number'
                             );
                             
                             liveDemoReady = true;
@@ -712,22 +710,35 @@ if (extension_loaded('ort')) {
                         const output = document.getElementById('demo-output');
                         
                         try {
-                            // Execute PHP code
+                            // run the code
                             const address = liveDemoModule.ccall(
-                                'ort_eval_string',
+                                'em_run_string',
                                 'number',
                                 ['string', 'number'],
                                 [code, liveDemoModule.lengthBytesUTF8(code)]
                             );
 
-                            const result = liveDemoModule.UTF8ToString(address);
-                        
-                            output.textContent = result;
+                            // get the length of the buffer
+                            const length = liveDemoModule.ccall(
+                                'em_run_length',
+                                'number'
+                            );
 
-                            // Free memory
-                            liveDemoModule._free(address);
+                            // panic, I dunno where the content went ...
+                            if (!length) {
+                                output.textContent = "em experienced an error";
+                            } else {
+                                // handle nulls in output
+                                const bytes = liveDemoModule.HEAPU8.subarray(
+                                    address, address + length);
+                                const result = new TextDecoder().decode(bytes);
+                                output.textContent = result;
+
+                                // Free memory
+                                liveDemoModule._free(address);
+                            }
                         } catch (error) {
-                            output.textContent = 'Error: ' + error.message;
+                            output.textContent = 'em exception: ' + error.message;
                         }
                     }
 

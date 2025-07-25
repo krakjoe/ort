@@ -1,6 +1,7 @@
 #!/bin/bash
 ####################################################################
-# Copy to the root of php-src tree, and execute, if all is well:
+# Copy this and emsdk.*.c to the root of php-src tree, and execute;
+# If all is well:
 #  - php-ort.js
 #  - php-ort.wasm
 # Will exist.
@@ -12,127 +13,8 @@ export CXX=em++
 export AR=emar
 export RANLIB=emranlib
 export CFLAGS="-DEMSCRIPTEN -DHAVE_REALLOCARRAY -O2"
-
-cat > stub.emsdk.c << 'EOF'
-#ifdef EMSCRIPTEN
-#include <php.h>
-#include <emscripten.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <spawn.h>
-#include <ucontext.h>
-#include <stdlib.h>
-
-int getdtablesize(void) {
-    return 1024; // reasonable default
-}
-
-int posix_spawnp(pid_t *pid, const char *file,
-                const posix_spawn_file_actions_t *file_actions,
-                const posix_spawnattr_t *attrp,
-                char *const argv[], char *const envp[]) {
-    return -1; // not supported in WASM
-}
-
-void *reallocarray(void *ptr, size_t nmemb, size_t size) {
-    if (nmemb && size && SIZE_MAX / nmemb < size) {
-        return NULL;
-    }
-    return realloc(ptr, nmemb * size);
-}
-
-int getcontext(ucontext_t *ucp) {
-    return -1; // not supported, but fibers should handle this gracefully
-}
-
-void makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...) {
-    // stub - fibers will fall back to alternative implementation
-}
-
-int swapcontext(ucontext_t *oucp, const ucontext_t *ucp) {
-    return -1; // not supported
-}
-
-typedef struct _ort_eval_string_t {
-    char* value;
-    size_t length;
-} ort_eval_string_t;
-
-static long ort_eval_string_read(void *handle, char *buf, size_t len) {
-    ort_eval_string_t* string =
-    	(ort_eval_string_t*)handle;
- 
-    if (len > string->length) {
-    	len = string->length;
-    }
-
-    memcpy(buf, string->value, len);
-    return len;
-}
-
-static size_t ort_eval_string_length(void *handle) {
-    ort_eval_string_t* string =
-    	(ort_eval_string_t*) handle;
-    return string->length;
-}
-
-uintptr_t EMSCRIPTEN_KEEPALIVE ort_eval_string(const char* code, size_t length) {
-    zval retval;
-    char* result = NULL;
-
-    ort_eval_string_t string =
-    	(ort_eval_string_t) {
-    	    .value   = (char*) code,
-    	    .length  = length
-    };
-
-    // Create a file handle
-    zend_file_handle fh;
-    zend_stream_init_filename(
-    	&fh, "virtual://script.php");
-    fh.type = ZEND_HANDLE_STREAM;
-    fh.handle.stream.handle = (void*)&string;
-    fh.handle.stream.reader = ort_eval_string_read;
-    fh.handle.stream.closer = NULL;
-    fh.handle.stream.fsizer = ort_eval_string_length;
-    
-    // Start buffering
-    php_output_start_default();
-    
-    ZVAL_UNDEF(&retval);
-
-    // Execute script
-    if (zend_execute_scripts(ZEND_REQUIRE, &retval, 1, &fh) == SUCCESS) {
-        // Cleanup unused return
-        zval_ptr_dtor(&retval);
-    }
-
-    // Get output buffer
-    zval buffer;
-
-    if (php_output_get_contents(&buffer) != FAILURE) {
-        result = (char*) calloc(
-    	    sizeof(char), Z_STRLEN(buffer) + 1);
-        strncpy(result,
-    	    Z_STRVAL(buffer),
-    	    Z_STRLEN(buffer));
-        result[Z_STRLEN(buffer)] = 0;
-    }
-
-    // Destroy output buffer
-    zval_ptr_dtor(&buffer);
-
-    // Clean buffers
-    php_output_clean_all();
-
-    zend_destroy_file_handle(&fh);
-
-    return (uintptr_t) result;
-}
-#endif
-EOF
-
-export EXTRA_LIBS=stub.emsdk.o
+export EXTRA_LIBS=emsdk.stub.o
+export __CFLAGS="-Imain -IZend -ITSRM -Iext/standard -I."
 
 emconfigure ./configure                            \
 	--disable-all                                  \
@@ -156,40 +38,46 @@ then
 fi
 
 echo "Working in $PWD on stub ..."
-ls -lash .
-
-emcc -Imain -IZend -ITSRM -Iext/standard -I. -c stub.emsdk.c -o stub.emsdk.o
-
+$CC $__CFLAGS -c emsdk.stub.c -o emsdk.stub.o
 if [ $? -ne 0 ];
 then
-	echo "Could not compile stub with emsdk ..."
-	exit 1
+    echo "Could not compile stub with emsdk ..."
+    exit 1
 fi
 
 emmake make -j$(nproc)
-
 if [ $? -ne 0 ];
 then
     echo "Failed to build PHP"
     exit 1
 fi
 
-echo "Working in $PWD on build ..."
-ls -lash .
+echo "Working in $PWD on api ..."
+$CC $__CFLAGS -c emsdk.api.c -o emsdk.api.o
+if [ $? -ne 0 ];
+then
+    echo "Could not compile api with emsdk ..."
+    exit 1
+fi
 
-emcc -o php-ort.js \
-    -s EXPORTED_FUNCTIONS='["_php_embed_init","_php_embed_shutdown", "_ort_eval_string", "_malloc","_free"]' \
-    -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString","stringToUTF8", "lengthBytesUTF8"]' \
+echo "Working in $PWD on build ..."
+$CC -o php-ort.js \
+    -s EXPORTED_FUNCTIONS='["_em_startup", "_em_run_string", "_em_run_length", "_em_shutdown", "_malloc","_free"]' \
+    -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString","stringToUTF8", "lengthBytesUTF8", "HEAPU8"]' \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s INITIAL_MEMORY=128MB \
     -s WASM=1 \
     -s MODULARIZE=1 \
     -s EXPORT_NAME="createPHPModule" \
     .libs/libphp.a \
-    stub.emsdk.o
+    emsdk.stub.o \
+    emsdk.api.o
 
 if [ $? -ne 0 ];
 then
     echo "Failed to build web assembly"
     exit 1
+else
+    echo "Web assembly built successfully"
+    ls -lash php-ort.{js,wasm}
 fi
