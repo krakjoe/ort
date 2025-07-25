@@ -754,10 +754,12 @@ if (extension_loaded('ort')) {
                                 const bytes = em.HEAPU8.subarray(
                                     address, address + length);
                                 const result = new TextDecoder().decode(bytes);
+
+                                // display the output
                                 output.textContent = result;
 
-                                // Free memory
-                                em._free(address);
+                                // free memory
+                                em.ccall('em_run_free');
                             }
                         } catch (error) {
                             output.textContent = 'em exception: ' + error.message;

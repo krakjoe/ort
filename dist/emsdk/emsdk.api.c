@@ -72,11 +72,20 @@ em_string_t __em_buffer = (em_string_t) {
     .max    = 0,
 };
 
-void em_clear(void) {
+void em_clear(bool _free) {
     if (__em_buffer.value) {
-        memset(
-            __em_buffer.value,
-            0, __em_buffer.max);
+        if (_free) {
+            efree(__em_buffer.value);
+
+            __em_buffer.value = NULL;
+            __em_buffer.max   = 0;
+        } else {
+            memset(
+                __em_buffer.value,
+                0, __em_buffer.max);
+        }
+    } else {
+        __em_buffer.max = 0;
     }
     __em_buffer.length = 0;
 }
@@ -93,6 +102,8 @@ size_t em_buffer(const char* buf, size_t len) {
         __em_buffer.length,
     buf, len);
     __em_buffer.length += len;
+    __em_buffer.value[
+        __em_buffer.length] = 0;
 
     return len;
 } /* }}} */
@@ -128,7 +139,7 @@ static zend_always_inline zend_result
         return FAILURE;
     }
 
-    em_clear();
+    em_clear(false);
 
     return SUCCESS;
 }
@@ -264,6 +275,10 @@ uintptr_t EMSCRIPTEN_KEEPALIVE em_run_string(const char* code, size_t length) {
 
 size_t EMSCRIPTEN_KEEPALIVE em_run_length(void) {
     return __em_buffer.length;
+}
+
+void EMSCRIPTEN_KEEPALIVE em_run_free(void) {
+    em_clear(true);
 }
 
 void em_shutdown() {

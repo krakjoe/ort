@@ -62,7 +62,7 @@ fi
 
 echo "Working in $PWD on build ..."
 $CC -o php-ort.js \
-    -s EXPORTED_FUNCTIONS='["_em_startup", "_em_run_string", "_em_run_length", "_em_shutdown", "_malloc","_free"]' \
+    -s EXPORTED_FUNCTIONS='["_em_startup", "_em_run_string", "_em_run_length", "_em_run_free", "_em_shutdown"]' \
     -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString","stringToUTF8", "lengthBytesUTF8", "HEAPU8"]' \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s INITIAL_MEMORY=128MB \
