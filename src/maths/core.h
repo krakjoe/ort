@@ -49,8 +49,8 @@ typedef ort_math_kernel_unary_t ort_math_kernel_reduce_tensor_t;
 typedef void (*ort_math_kernel_reduce_axis_t)(
     void *result,
     const void *a,
-    const size_t *input_shape, size_t input_dims,
-    const size_t *output_shape, size_t output_dims,
+    const int64_t *input_shape, size_t input_dims,
+    const int64_t *output_shape, size_t output_dims,
     size_t axis);
 
 /* {{{ Clamping is required everywhere */
