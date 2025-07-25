@@ -48,7 +48,7 @@ jobs:
 
       - name: Build PHP-ORT WASM
         run: |
-          cp php-ort/dist/emsdk/emsdk.build php-src
+          cp php-ort/dist/emsdk/* php-src
           chmod +x php-src/emsdk.build
           cd php-src && ./buildconf --force && ./emsdk.build
 
