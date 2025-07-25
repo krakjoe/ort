@@ -769,7 +769,7 @@ if (extension_loaded('ort')) {
 
                     function emLoad(type) {
                         if (emExamples[type]) {
-                            editor.setValue(emExamples[type])
+                            editor.setValue(emExamples[type], -1)
                         }
                     }
                 </script>
@@ -1381,7 +1381,7 @@ editor.setOptions({
     showPrintMargin: false,
     wrap: true
 });
-editor.setValue(emExamples['matrix']);
+editor.setValue(emExamples['matrix'], -1);
 </script>
 </body>
 </html>
