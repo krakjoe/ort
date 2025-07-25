@@ -131,7 +131,6 @@ zend_bool php_ort_generator_invoke(
     zval* zv,
     ONNXTensorElementDataType type,
     void* target) {
-    zval rv;
     php_ort_generator_t* generator =
         php_ort_generator_fetch(Z_OBJ_P(zv));
 

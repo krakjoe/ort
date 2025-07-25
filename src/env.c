@@ -39,6 +39,7 @@ PHP_MINIT_FUNCTION(ORT_ENV)
         "[ORT PHP]", &__php_ort_environment) ?
         FAILURE : SUCCESS;
 #endif
+    return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(ORT_ENV) 

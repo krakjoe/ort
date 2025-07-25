@@ -95,11 +95,11 @@ typedef enum {
 
 #define __ORT_MATH_BACKEND_CPU_EXT           (0x6ULL)
 #define __ORT_MATH_BACKEND_CPU_FEATURES(eax, edx, bits) \
-    ((((uint64_t)edx << 32) | eax) & (bits)) == (bits)
+    (((((uint64_t)edx << 32) | eax) & (bits)) == (bits))
 #endif
 
 #define __ORT_MATH_BACKEND_CPU_BITS(reg, bits) \
-    ((reg) & (bits)) == (bits)
+   (((reg) & (bits)) == (bits))
 
 static zend_always_inline zend_bool __ort_math_backend_ecore() {
 #if defined(__x86_64__) || defined(_M_X64)

@@ -428,7 +428,7 @@ static void *ort_pool_worker(void *arg) {
 }
 #endif
 
-static inline size_t ort_pool_cores_env() {
+static inline size_t ort_pool_cores_env(void) {
    const char *env = getenv("ORT_SCALE_CORES");
    if (env) {
        char *endptr;
@@ -440,7 +440,7 @@ static inline size_t ort_pool_cores_env() {
    return 0; // No valid environment variable set
 }
 
-static inline size_t ort_pool_threshold_env() {
+static inline size_t ort_pool_threshold_env(void) {
    const char *env = getenv("ORT_SCALE_THRESHOLD");
    if (env) {
        char *endptr;

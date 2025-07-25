@@ -112,7 +112,6 @@ static HashTable* php_ort_math_schema_debug(zend_object *zo, int *temp) {
             &symbol);
     }
 
-__php_ort_tensor_debug_return:
     *temp = 1;
 
     return debug;
@@ -432,7 +431,6 @@ PHP_NAMED_FUNCTION(php_ort_math_scale)
             .kind = ORT_POOL_SCALE_CORES
     };
 
-    zval *code;
     zend_fcall_info fci = empty_fcall_info;
     zend_fcall_info_cache fcc = empty_fcall_info_cache;
 
@@ -475,7 +473,6 @@ PHP_NAMED_FUNCTION(php_ort_math_cast)
 {
     zend_long type;
     zval *tensor;
-    zend_long count = 0;
 
     ZEND_PARSE_PARAMETERS_START(2, 2)
         Z_PARAM_LONG(type)

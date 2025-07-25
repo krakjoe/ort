@@ -67,9 +67,9 @@ typedef struct _ort_pool_reduce_axis_ctx_t {
     ort_pool_ctx_layout_t layout;     // chunking info: element size, total, chunk
     void *result;                     // output data pointer
     const void *a;                    // input data pointer
-    const size_t *input_shape;        // input shape
+    const int64_t *input_shape;       // input shape
     size_t input_dims;                // input dimensions
-    const size_t *output_shape;       // output shape
+    const int64_t *output_shape;      // output shape
     size_t output_dims;               // output dimensions
     size_t axis;                      // axis to reduce
     ort_math_kernel_reduce_axis_t op; // reduction kernel
@@ -153,7 +153,7 @@ size_t ort_pool_max(void);
  * Get the current parallelization threshold
  * @returns the threshold at call time
  */
-size_t ort_pool_threshold();
+size_t ort_pool_threshold(void);
 
 /*
  * Compute chunk size and number of chunks for parallel work, ensuring

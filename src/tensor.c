@@ -344,7 +344,6 @@ static inline zend_bool php_ort_tensor_flatten(ort_tensor_t* tensor, size_t *off
 
 static zend_always_inline zend_bool php_ort_tensor_allocate_persistent(ort_tensor_t *tensor, zend_string *name, zval *shape, zval *data, ONNXTensorElementDataType type) {
     size_t i = 0, offset = 0;
-    size_t size;
 
     tensor->name       = php_ort_string_copy(name);
     tensor->dimensions = zend_hash_num_elements(Z_ARRVAL_P(shape));
@@ -379,7 +378,6 @@ static zend_always_inline zend_bool php_ort_tensor_allocate_persistent(ort_tenso
 
 static zend_always_inline zend_bool php_ort_tensor_allocate_transient(ort_tensor_t *tensor, zval *shape, zval *data, ONNXTensorElementDataType type) {
     size_t i = 0, offset = 0;
-    size_t size;
 
     tensor->name       = NULL;
     tensor->dimensions = zend_hash_num_elements(Z_ARRVAL_P(shape));
@@ -1551,7 +1549,6 @@ static zend_bool php_ort_infer_shape(zval *data, size_t *shape, size_t max, size
         // Check all elements at this level are arrays or all are scalars
         zend_bool found_array = 0, found_scalar = 0;
         zval *first = NULL;
-        zend_ulong idx = 0;
         ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(level), first) { 
             break; 
         } ZEND_HASH_FOREACH_END();
@@ -1650,7 +1647,6 @@ PHP_METHOD(ONNX_Tensor_Persistent, from)
         zend_get_executed_scope();
     object_init_ex(return_value, scope);
 
-    zval retval;
     zval params[4];
     ZVAL_STR(&params[0], name);
     ZVAL_ARR(&params[1], Z_ARRVAL(param));
@@ -1659,15 +1655,15 @@ PHP_METHOD(ONNX_Tensor_Persistent, from)
 
     zval constructor;
     ZVAL_STRING(&constructor, "__construct");
-    zval result;
+    zval retval;
     if (SUCCESS == call_user_function(
             EG(function_table),
             return_value,
             &constructor,
-            &result,
+            &retval,
             4,
             params)) {
-        zval_ptr_dtor(&result);
+        zval_ptr_dtor(&retval);
     } else {
         zval_ptr_dtor(return_value);
     }
@@ -1713,7 +1709,6 @@ PHP_METHOD(ONNX_Tensor_Transient, from)
         zend_get_executed_scope();
     object_init_ex(return_value, scope);
 
-    zval retval;
     zval params[3];
     ZVAL_ARR(&params[0], Z_ARRVAL(param));
     ZVAL_ARR(&params[1], Z_ARRVAL_P(data));
@@ -1721,15 +1716,15 @@ PHP_METHOD(ONNX_Tensor_Transient, from)
 
     zval constructor;
     ZVAL_STRING(&constructor, "__construct");
-    zval result;
+    zval retval;
     if (SUCCESS == call_user_function(
             EG(function_table),
             return_value,
             &constructor,
-            &result,
+            &retval,
             3,
             params)) {
-        zval_ptr_dtor(&result);
+        zval_ptr_dtor(&retval);
     } else {
         zval_ptr_dtor(return_value);
     }

@@ -98,6 +98,6 @@ size_t ort_alloc_alignment(void);
 zend_bool ort_alloc_aligned(void* ptr);
 
 /* {{{ */
-void ort_alloc_startup();
-void ort_alloc_shutdown(); /* }}} */
+void ort_alloc_startup(void);
+void ort_alloc_shutdown(void); /* }}} */
 #endif
