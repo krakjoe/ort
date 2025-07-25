@@ -215,7 +215,8 @@
             font-size: 13px;
             line-height: 1.5;
             white-space: pre-wrap;
-            height: 250px;
+            min-height: 240px;
+            max-height: 480px;
             background: #ffffff;
             color: #333;
             overflow-y: auto;
@@ -1379,7 +1380,9 @@ editor.session.setMode('ace/mode/php');
 editor.setOptions({
     fontSize: 14,
     showPrintMargin: false,
-    wrap: true
+    wrap: true,
+    minLines: 15,
+    maxLines: 42, // ignored, I dunno ...
 });
 editor.setValue(emExamples['matrix'], -1);
 </script>
