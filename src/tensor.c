@@ -1610,12 +1610,78 @@ static zend_bool php_ort_infer_shape(zval *data, size_t *shape, size_t max, size
     return 1;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_from_arginfo, 0, 2, ORT\\Tensor, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_persistent_from_arginfo, 0, 3, ORT\\Tensor, 0)
+    ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
     ZEND_ARG_TYPE_INFO(0, data, IS_ARRAY, 0)
     ZEND_ARG_TYPE_INFO(0, type, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-PHP_METHOD(ONNX_Tensor, from)
+PHP_METHOD(ONNX_Tensor_Persistent, from)
+{
+    zend_string* name;
+    zval *data;
+    zend_long type;
+    size_t shape[32];
+    size_t dimensions = 0;
+
+    ZEND_PARSE_PARAMETERS_START(3, 3)
+        Z_PARAM_STR(name)
+        Z_PARAM_ARRAY(data)
+        Z_PARAM_LONG(type)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if (!php_ort_infer_shape(data, shape, 32, &dimensions)) {
+        return;
+    }
+
+    php_ort_status_flow(
+        (dimensions == 0),
+        return,
+        php_ort_status_tensor_invaliddata_ce,
+        "empty tensor data provided (no dimensions inferred)");
+
+    zval param;
+    array_init_size(&param, dimensions);
+    for (size_t i = 0; i < dimensions; i++) {
+        add_next_index_long(&param, shape[i]);
+    }
+
+    zend_class_entry *scope =
+        zend_get_executed_scope();
+    object_init_ex(return_value, scope);
+
+    zval retval;
+    zval params[4];
+    ZVAL_STR(&params[0], name);
+    ZVAL_ARR(&params[1], Z_ARRVAL(param));
+    ZVAL_ARR(&params[2], Z_ARRVAL_P(data));
+    ZVAL_LONG(&params[3], type);
+
+    zval constructor;
+    ZVAL_STRING(&constructor, "__construct");
+    zval result;
+    if (SUCCESS == call_user_function(
+            EG(function_table),
+            return_value,
+            &constructor,
+            &result,
+            4,
+            params)) {
+        zval_ptr_dtor(&result);
+    } else {
+        zval_ptr_dtor(return_value);
+    }
+
+    zval_ptr_dtor(&constructor);
+    zval_ptr_dtor(&param);
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_tensor_transient_from_arginfo, 0, 2, ORT\\Tensor, 0)
+    ZEND_ARG_TYPE_INFO(0, data, IS_ARRAY, 0)
+    ZEND_ARG_TYPE_INFO(0, type, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ONNX_Tensor_Transient, from)
 {
     zval *data;
     zend_long type;
@@ -1697,8 +1763,8 @@ zend_function_entry php_ort_tensor_persistent_methods[] = {
     PHP_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo,      ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, transpose,    php_ort_tensor_transpose_arginfo,    ZEND_ACC_PUBLIC)
 
-    PHP_ME(ONNX_Tensor, from,         php_ort_tensor_from_arginfo,         ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
-    PHP_FE_END
+    PHP_ME(ONNX_Tensor_Persistent, from,
+        php_ort_tensor_persistent_from_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)    PHP_FE_END
 };
 
 zend_function_entry php_ort_tensor_transient_methods[] = {
@@ -1713,7 +1779,8 @@ zend_function_entry php_ort_tensor_transient_methods[] = {
     PHP_ME(ONNX_Tensor, getData,      php_ort_tensor_getData_arginfo,      ZEND_ACC_PUBLIC)
     PHP_ME(ONNX_Tensor, transpose,    php_ort_tensor_transpose_arginfo,    ZEND_ACC_PUBLIC)
 
-    PHP_ME(ONNX_Tensor, from,         php_ort_tensor_from_arginfo,         ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+    PHP_ME(ONNX_Tensor_Transient, from,
+        php_ort_tensor_transient_from_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
     PHP_FE_END
 };
 

@@ -1,5 +1,5 @@
 --TEST--
-ORT\Tensor\Transient::from() named constructor: success, error, and edge cases
+ORT\Tensor\Persistent::from() named constructor: success, error, and edge cases
 --EXTENSIONS--
 ort
 --FILE--
@@ -24,42 +24,42 @@ function show_result($label, $cb) {
 
 // 1. Success: 2x2 int64 tensor
 show_result("success 2x2", function() {
-    return ORT\Tensor\Transient::from([[1,2],[3,4]], ORT\Tensor::INT64);
+    return ORT\Tensor\Persistent::from("2x2", [[1,2],[3,4]], ORT\Tensor::INT64);
 });
 
 // 2. Ragged array (should fail)
 show_result("ragged", function() {
-    return ORT\Tensor\Transient::from([[1,2],[3]], ORT\Tensor::INT64);
+    return ORT\Tensor\Persistent::from("ragged", [[1,2],[3]], ORT\Tensor::INT64);
 });
 
 // 3. Mixed types (should fail)
 show_result("mixed types", function() {
-    return ORT\Tensor\Transient::from([[1,2],[3.5,4]], ORT\Tensor::INT64);
+    return ORT\Tensor\Persistent::from("mixed", [[1,2],[3.5,4]], ORT\Tensor::INT64);
 });
 
 // 4. Empty input (should fail)
 show_result("empty", function() {
-    return ORT\Tensor\Transient::from([], ORT\Tensor::INT64);
+    return ORT\Tensor\Persistent::from("empty", [], ORT\Tensor::INT64);
 });
 
 // 5. Scalar (rank-0) tensor
 show_result("scalar", function() {
-    return ORT\Tensor\Transient::from([42], ORT\Tensor::INT64);
+    return ORT\Tensor\Persistent::from("scalar", [42], ORT\Tensor::INT64);
 });
 
 // 6. Boolean tensor
 show_result("bool tensor", function() {
-    return ORT\Tensor\Transient::from([[true,false],[false,true]], ORT\Tensor::BOOL);
+    return ORT\Tensor\Persistent::from("bool", [[true,false],[false,true]], ORT\Tensor::BOOL);
 });
 
 // 7. Type not supported (should fail)
 show_result("unsupported type", function() {
-    return ORT\Tensor\Transient::from([[1,2],[3,4]], 9999);
+    return ORT\Tensor\Persistent::from("unsupported", [[1,2],[3,4]], 9999);
 });
 ?>
 --EXPECTF--
 == success 2x2 ==
-OK: ORT\Tensor\Transient
+OK: ORT\Tensor\Persistent
 array(2) {
   [0]=>
   int(2)
@@ -73,13 +73,13 @@ EX: ORT\Status\Tensor\InvalidData: validation of data according to the shape pro
 == empty ==
 EX: ORT\Status\Tensor\InvalidData: empty array encountered at dimension 0 (ragged or empty tensor)
 == scalar ==
-OK: ORT\Tensor\Transient
+OK: ORT\Tensor\Persistent
 array(1) {
   [0]=>
   int(1)
 }
 == bool tensor ==
-OK: ORT\Tensor\Transient
+OK: ORT\Tensor\Persistent
 array(2) {
   [0]=>
   int(2)
