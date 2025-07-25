@@ -85,6 +85,10 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
     zval* scalar
 );
 
+char* ort_math_promotion_explain(
+    const ort_math_promotion_t* promotion,
+    const ort_math_promotion_schema_t* schema);
+
 void* ort_math_operation_upcast(
     const ort_tensor_t* result,
     const ort_math_promotion_t* promotion,

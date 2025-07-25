@@ -271,6 +271,35 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
     return promotion;
 }
 
+char* ort_math_promotion_explain(
+    const ort_math_promotion_t* promotion,
+    const ort_math_promotion_schema_t* schema) {
+
+    char *explain = NULL;
+
+    switch (schema->kind) {
+        case ORT_MATH_PROMOTION_SCHEMA_KIND_BINARY:
+            asprintf(&explain, "%s, %s -> %s",
+                php_ort_type_name(promotion->inputs.lhs->type),
+                php_ort_type_name(promotion->inputs.rhs->type),
+                php_ort_type_name(promotion->result_type));
+            break;
+
+        case ORT_MATH_PROMOTION_SCHEMA_KIND_UNARY:
+            asprintf(&explain, "%s -> %s",
+                php_ort_type_name(promotion->inputs.lhs->type),
+                php_ort_type_name(promotion->result_type));
+            break;
+
+        default:
+            /* unreachable */
+            explain = strdup("Invalid promotion schema");
+            break;
+    }
+
+    return explain;
+}
+
 void* ort_math_operation_upcast(
     const ort_tensor_t* result,
     const ort_math_promotion_t* promotion,

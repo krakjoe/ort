@@ -122,13 +122,15 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         batch_count *= matrix_a->shape[i];
     }
 
-    ort_math_promotion_t promotion = ort_math_promotion_perform_binary(&ort_math_promotion_schema_matmul, matrix_a, matrix_b);
-    if (!promotion.is_valid) {
-        php_ort_status_throw(php_ort_status_math_error_ce,
-            "matmul: unsupported type promotion (%s x %s)",
-            php_ort_type_name(matrix_a->type), php_ort_type_name(matrix_b->type));
-        return NULL;
-    }
+    ort_math_promotion_t promotion = ort_math_promotion_perform_binary(
+        &ort_math_promotion_schema_matmul, matrix_a, matrix_b);
+    ort_math_kernel_matmul_t kernel =
+        (ort_math_kernel_matmul_t)
+            ort_math_frontend_dispatch_matmul(
+                &promotion,
+                &ort_math_promotion_schema_matmul);
+    ORT_MATH_RESULT_KERNEL_CHECK(matmul, kernel,
+        &promotion, &ort_math_promotion_schema_matmul);
     ONNXTensorElementDataType promoted_type = promotion.result_type;
 
     // Create result shape: same batch dimensions + (a_rows, b_cols)
@@ -146,13 +148,6 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         promoted_type, "matmul_result");
 
     efree(result_shape);
-
-    // Get the correct matmul kernel for the promoted type
-    ort_math_kernel_matmul_t operation = 
-        (ort_math_kernel_matmul_t)
-            ort_math_frontend_dispatch_matmul(
-                &promotion,
-                &ort_math_promotion_schema_matmul);
 
     // Prepare pointers for each batch, with type casting if needed (cast all matrices up front)
     size_t matrix_size_a = a_rows * a_cols;
@@ -219,7 +214,7 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         .matrix_size_a = matrix_size_a,
         .matrix_size_b = matrix_size_b,
         .matrix_size_result = matrix_size_result,
-        .op = operation
+        .op = kernel
     };
 
     ort_pool_submit(ort_pool_matmul_worker, &ctx, num_chunks);

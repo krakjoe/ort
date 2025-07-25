@@ -139,5 +139,5 @@ RESULT: %s
 TYPE: DOUBLE
 SHAPE: [2]
 PASS: Error on invalid axis: softmax: axis 2 is out of bounds for tensor with 2 dimensions
-PASS: Error on integer input: softmax: unsupported data type for mathematical function
-PASS: Error on bool input: softmax: unsupported data type for mathematical function
+PASS: Error on integer input: softmax: unsupported kernel INT32 -> UNKNOWN
+PASS: Error on bool input: softmax: unsupported kernel BOOL -> UNKNOWN

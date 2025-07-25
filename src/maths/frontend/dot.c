@@ -78,22 +78,14 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         return NULL;
     }
 
-    ort_math_promotion_t promotion = ort_math_promotion_perform_binary(&ort_math_promotion_schema_dot, a, b);
-    if (!promotion.is_valid) {
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,
-            "dot: incompatible types for operation");
-        return NULL;
-    }
-
-    ort_math_kernel_binary_t operation =
+    ort_math_promotion_t promotion = ort_math_promotion_perform_binary(
+        &ort_math_promotion_schema_dot, a, b);
+    ort_math_kernel_binary_t kernel =
         ort_math_frontend_dispatch_dot(
             &promotion,
             &ort_math_promotion_schema_dot);
-    if (!operation) {
-        php_ort_status_throw(php_ort_status_math_invalidtype_ce,
-            "dot: unsupported data type for dot product");
-        return NULL;
-    }
+    ORT_MATH_RESULT_KERNEL_CHECK(dot, kernel,
+        &promotion, &ort_math_promotion_schema_dot);
 
     int64_t shape[1] = {1};
     ort_tensor_t* result = ort_math_result_tensor(
@@ -124,7 +116,7 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         b_data = b_buf;
     }
 
-    operation(result->data, a_data, b_data, a->elements);
+    kernel(result->data, a_data, b_data, a->elements);
 
     if (a_buf) {
         ort_free(a_buf);

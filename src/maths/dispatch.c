@@ -286,6 +286,9 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
 
         .pow_func        = ort_math_frontend_pow_int64_t,
         .pow_scalar_func = ort_math_frontend_pow_scalar_int64_t,
+
+        .sum_func        = ort_math_frontend_sum_int64_t,
+        .sum_axis_func   = ort_math_frontend_sum_axis_int64_t,
     },
     /* UINT8 */
     {
