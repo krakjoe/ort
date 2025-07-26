@@ -75,7 +75,7 @@ em_string_t __em_buffer = (em_string_t) {
 void em_clear(bool _free) {
     if (__em_buffer.value) {
         if (_free) {
-            efree(__em_buffer.value);
+            free(__em_buffer.value);
 
             __em_buffer.value = NULL;
             __em_buffer.max   = 0;
@@ -93,8 +93,11 @@ void em_clear(bool _free) {
 size_t em_buffer(const char* buf, size_t len) {
     if (__em_buffer.length + len >= __em_buffer.max) {
         __em_buffer.max = __em_buffer.length + len + 1024;
-        __em_buffer.value = erealloc(
+        __em_buffer.value = realloc(
             __em_buffer.value, __em_buffer.max);
+        if (!__em_buffer.value) {
+            return 0;
+        }
     }
 
     memcpy(
@@ -165,6 +168,8 @@ static size_t em_string_length(void *handle) {
     return string->length;
 }
 
+static void em_string_close(void *handle) { /* no op */ }
+
 static zend_always_inline zend_op_array*
     em_compile(const char* code, size_t length) {
     em_string_t string =
@@ -180,14 +185,14 @@ static zend_always_inline zend_op_array*
     fh.type = ZEND_HANDLE_STREAM;
     fh.handle.stream.handle = (void*)&string;
     fh.handle.stream.reader = em_string_read;
-    fh.handle.stream.closer = NULL;
+    fh.handle.stream.closer = em_string_close;
     fh.handle.stream.fsizer = em_string_length;
+    fh.handle.stream.isatty = 0;
 
     zend_error_func = zend_error_cb;
     zend_error_cb   = em_buffer_error;
 
     zend_op_array* compiled = NULL;
-
     zend_try {
         compiled = zend_compile_file(
             &fh, ZEND_INCLUDE);
