@@ -101,8 +101,8 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(min, zend_bool) {
                 indices[d] = tmp_inner % input_shape[d];
                 tmp_inner /= input_shape[d];
             }
-            zend_bool min = 1;
-            for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) {
+            zend_bool min = va[ort_math_result_flat(indices, input_shape, input_dims)];
+            for (size_t axis_idx = 1; axis_idx < input_shape[axis]; ++axis_idx) {
                 indices[axis] = axis_idx;
                 size_t flat = ort_math_result_flat(indices, input_shape, input_dims);
                 if (!va[flat]) {
@@ -149,8 +149,8 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(min, zend_bool) {
 ORT_MATH_FRONTEND_REDUCTION_OP_DECL(min, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
-    zend_bool min = 1;
-    for (size_t idx = 0; idx < count; idx++) {
+    zend_bool min = va[0];
+    for (size_t idx = 1; idx < count; idx++) {
         min = min && va[idx];
     }
     res[0] = min;

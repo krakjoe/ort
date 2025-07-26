@@ -68,10 +68,10 @@
                         } \
                     } \
                 } else { /* keepdims=false */ \
-                    size_t out_j = 0; \
+                    size_t j = 0; \
                     for (size_t d = 0; d < input_dims; ++d) { \
                         if (d != axis) { \
-                            out_indices[out_j++] = indices[d]; \
+                            out_indices[j++] = indices[d]; \
                         } \
                     } \
                 } \

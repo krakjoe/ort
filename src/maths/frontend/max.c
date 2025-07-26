@@ -68,10 +68,10 @@
                         } \
                     } \
                 } else { /* keepdims=false */ \
-                    size_t out_j = 0; \
+                    size_t j = 0; \
                     for (size_t d = 0; d < input_dims; ++d) { \
                         if (d != axis) { \
-                            out_indices[out_j++] = indices[d]; \
+                            out_indices[j++] = indices[d]; \
                         } \
                     } \
                 } \
@@ -105,20 +105,29 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, zend_bool) {
                 indices[d] = tmp_inner % input_shape[d];
                 tmp_inner /= input_shape[d];
             }
-            zend_bool max = 0;
-            for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) {
+            zend_bool max = va[ort_math_result_flat(indices, input_shape, input_dims)];
+            for (size_t axis_idx = 1; axis_idx < input_shape[axis]; ++axis_idx) {
                 indices[axis] = axis_idx;
                 size_t flat = ort_math_result_flat(indices, input_shape, input_dims);
                 max = max || va[flat];
             }
             /* Write output using output_shape/output_dims */
             int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-            size_t j = 0;
-            for (size_t d = 0; d < input_dims; ++d) {
-                if (d == axis) {
-                    out_indices[j++] = 0;
-                } else {
-                    out_indices[j++] = indices[d];
+            if (output_dims == input_dims) { /* keepdims=true */
+                size_t j = 0;
+                for (size_t d = 0; d < input_dims; ++d) {
+                    if (d == axis) {
+                        out_indices[j++] = 0;
+                    } else {
+                        out_indices[j++] = indices[d];
+                    }
+                }
+            } else { /* keepdims=false */
+                size_t j = 0;
+                for (size_t d = 0; d < input_dims; ++d) {
+                    if (d != axis) {
+                        out_indices[j++] = indices[d];
+                    }
                 }
             }
             size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims);
@@ -145,8 +154,8 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 ORT_MATH_FRONTEND_UNARY_OP_DECL(max, zend_bool) {
     zend_bool* va = (zend_bool*)a;
     zend_bool* res = (zend_bool*)result;
-    zend_bool max = 0;
-    for (size_t idx = 0; idx < count; idx++) {
+    zend_bool max = va[0];
+    for (size_t idx = 1; idx < count; idx++) {
         max = max || va[idx];
     }
     res[0] = max;

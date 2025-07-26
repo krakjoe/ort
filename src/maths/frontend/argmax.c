@@ -70,10 +70,10 @@
                         } \
                     } \
                 } else { /* keepdims=false */ \
-                    size_t out_j = 0; \
+                    size_t j = 0; \
                     for (size_t d = 0; d < input_dims; ++d) { \
                         if (d != axis) { \
-                            out_indices[out_j++] = indices[d]; \
+                            out_indices[j++] = indices[d]; \
                         } \
                     } \
                 } \
@@ -115,12 +115,11 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(argmax, zend_bool) {
             /* Write output using output_shape/output_dims */
             int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
             if (output_dims == input_dims) { /* keepdims=true */
-                size_t j = 0;
-                for (size_t d = 0; d < input_dims; ++d) {
+                for (size_t d = 0; d < output_dims; ++d) {
                     if (d == axis) {
-                        out_indices[j++] = 0;
+                        out_indices[d] = 0;
                     } else {
-                        out_indices[j++] = indices[d];
+                        out_indices[d] = indices[d];
                     }
                 }
             } else { /* keepdims=false */

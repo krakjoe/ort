@@ -62,12 +62,20 @@
                     indices[axis] = axis_idx; \
                     size_t flat = ort_math_result_flat(indices, input_shape, input_dims); \
                     int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS]; \
-                    size_t j = 0; \
-                    for (size_t d = 0; d < input_dims; ++d) { \
-                        if (d == axis) { \
-                            out_indices[j++] = 0; \
-                        } else { \
-                            out_indices[j++] = indices[d]; \
+                    if (output_dims == input_dims) { /* keepdims=true */ \
+                        for (size_t d = 0; d < output_dims; ++d) { \
+                            if (d == axis) { \
+                                out_indices[d] = 0; \
+                            } else { \
+                                out_indices[d] = indices[d]; \
+                            } \
+                        } \
+                    } else { /* keepdims=false */ \
+                        size_t j = 0; \
+                        for (size_t d = 0; d < input_dims; ++d) { \
+                            if (d != axis) { \
+                                out_indices[j++] = indices[d]; \
+                            } \
                         } \
                     } \
                     size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims); \
@@ -77,12 +85,20 @@
                 for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) { \
                     indices[axis] = axis_idx; \
                     int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS]; \
-                    size_t j = 0; \
-                    for (size_t d = 0; d < input_dims; ++d) { \
-                        if (d == axis) { \
-                            out_indices[j++] = 0; \
-                        } else { \
-                            out_indices[j++] = indices[d]; \
+                    if (output_dims == input_dims) { /* keepdims=true */ \
+                        for (size_t d = 0; d < output_dims; ++d) { \
+                            if (d == axis) { \
+                                out_indices[d] = 0; \
+                            } else { \
+                                out_indices[d] = indices[d]; \
+                            } \
+                        } \
+                    } else { /* keepdims=false */ \
+                        size_t j = 0; \
+                        for (size_t d = 0; d < input_dims; ++d) { \
+                            if (d != axis) { \
+                                out_indices[j++] = indices[d]; \
+                            } \
                         } \
                     } \
                     size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims); \
