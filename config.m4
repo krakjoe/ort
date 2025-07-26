@@ -28,6 +28,10 @@ PHP_ARG_ENABLE([ort-neon],
   [whether to enable NEON support],
   [AS_HELP_STRING([--enable-ort-neon], [Enable NEON support])], no, no)
 
+PHP_ARG_ENABLE([ort-wasm],
+  [whether to enable WASM support],
+  [AS_HELP_STRING([--enable-ort-wasm], [Enable WASM support, implies --disable-ort-pool])], no, no)
+
 PHP_ARG_WITH([ort-onnx],
   [whether to enable ONNX Runtime support],
   [AS_HELP_STRING([--with-ort-onnx], [Enable ONNX Runtime support])], no, no)
@@ -56,15 +60,6 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AC_DEFINE(HAVE_BUILTIN_ATOMIC_CPP11, 1, [Define to 1 if supports __atomic_add_fetch()])
   ], [
     AC_MSG_RESULT([no])
-  ])
-
-  AC_MSG_CHECKING([for pooling support])
-  AS_VAR_IF([PHP_ORT_POOL], [no], [
-    AC_MSG_RESULT([no])
-  ], [
-    AC_DEFINE(HAVE_ORT_POOL, 1,
-      [Defined to 1 where we should use pooling (threads)])
-    AC_MSG_RESULT([enabled])
   ])
 
   PHP_ORT_SRC_DIR="src"
@@ -270,8 +265,59 @@ AS_VAR_IF([PHP_ORT], [no],, [
       ])
     fi
 
+  dnl Check for WASM support (msimd128)
+    if test "$PHP_ORT_WASM" != "no"; then
+      AX_CHECK_COMPILE_FLAG([-msimd128], [
+        AC_CHECK_HEADERS([wasm_simd128.h], [
+          PHP_ORT_BACKEND_CFLAGS="-msimd128"
+          PHP_ORT_BACKEND_LEVEL="WASM"
+          PHP_ORT_BACKEND_IMPL=m4_normalize("
+            $PHP_ORT_BACKEND_DIR/wasm/abs.c
+            $PHP_ORT_BACKEND_DIR/wasm/add.c
+            $PHP_ORT_BACKEND_DIR/wasm/ceil.c
+            $PHP_ORT_BACKEND_DIR/wasm/div.c
+            $PHP_ORT_BACKEND_DIR/wasm/floor.c
+            $PHP_ORT_BACKEND_DIR/wasm/matmul.c
+            $PHP_ORT_BACKEND_DIR/wasm/mul.c
+            $PHP_ORT_BACKEND_DIR/wasm/neg.c
+            $PHP_ORT_BACKEND_DIR/wasm/recip.c
+            $PHP_ORT_BACKEND_DIR/wasm/round.c
+            $PHP_ORT_BACKEND_DIR/wasm/sign.c
+            $PHP_ORT_BACKEND_DIR/wasm/sqrt.c
+            $PHP_ORT_BACKEND_DIR/wasm/sub.c
+            $PHP_ORT_BACKEND_DIR/wasm/trunc.c
+            $PHP_ORT_BACKEND_DIR/wasm/impl.c
+          ")
+          PHP_ORT_POOL="no"
+        ], [
+          if test "$PHP_ORT_WASM" = "yes"; then
+            AC_MSG_ERROR([WASM headers not found])
+          fi
+        ])
+      ], [
+        if test "$PHP_ORT_WASM" = "yes"; then
+          AC_MSG_ERROR([WASM support requested but not available])
+        fi
+      ])
+    fi
+
+  AC_MSG_CHECKING([for pooling support])
+  AS_VAR_IF([PHP_ORT_POOL], [no], [
+    AC_MSG_RESULT([no])
+  ], [
+    AC_DEFINE(HAVE_ORT_POOL, 1,
+      [Defined to 1 where we should use pooling (threads)])
+    AC_MSG_RESULT([enabled])
+  ])
+
     AC_MSG_CHECKING([for backend build])
-    if test "$PHP_ORT_BACKEND_LEVEL" = "NEON"; then
+    if test "$PHP_ORT_BACKEND_LEVEL" = "WASM"; then
+      AC_DEFINE(ORT_BACKEND_ENABLED, 1,
+        [ort backend optimizations enabled])
+      AC_DEFINE(ORT_BACKEND_NAME, "WASM",[ort backend name])
+      PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
+      AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
+    elif test "$PHP_ORT_BACKEND_LEVEL" = "NEON"; then
       AC_DEFINE(ORT_BACKEND_ENABLED, 1,
         [ort backend optimizations enabled])
       AC_DEFINE(ORT_BACKEND_NAME, "NEON",[ort backend name])

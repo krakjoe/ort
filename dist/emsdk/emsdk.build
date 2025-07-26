@@ -27,8 +27,11 @@ emconfigure ./configure                            \
 	--with-config-file-path=/opt/phpwasm/lib       \
 	--without-pcre-jit                             \
 	--enable-ort=static                            \
-	--disable-ort-backend                          \
-	--disable-ort-pool                             \
+	--disable-ort-avx2                             \
+	--disable-ort-sse41                            \
+	--disable-ort-sse2                             \
+    --disable-ort-neon                             \
+    --enable-ort-wasm                              \
 	$@
 
 if [ $? -ne 0 ];
