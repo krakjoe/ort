@@ -56,7 +56,7 @@ Where the constructor is called with an unrecoignized symbol, `ORT\Status\Schema
 
 Where `Schema::resolve` is invoked with invalid arguments, `ORT\Status\Schema\InvalidArguments` will be thrown.
 
-Both exceptions extend `ORT\Math\Schema\Error`.
+Both exceptions extend `ORT\Status\Schema\Error`.
 
 ## Casting
 
