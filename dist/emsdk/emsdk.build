@@ -32,6 +32,7 @@ emconfigure ./configure                            \
 	--disable-ort-sse2                             \
     --disable-ort-neon                             \
     --enable-ort-wasm                              \
+    --disable-ort-pool                             \
 	$@
 
 if [ $? -ne 0 ];

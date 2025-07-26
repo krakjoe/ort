@@ -30,7 +30,7 @@ PHP_ARG_ENABLE([ort-neon],
 
 PHP_ARG_ENABLE([ort-wasm],
   [whether to enable WASM support],
-  [AS_HELP_STRING([--enable-ort-wasm], [Enable WASM support, implies --disable-ort-pool])], no, no)
+  [AS_HELP_STRING([--enable-ort-wasm], [Enable WASM support])], no, no)
 
 PHP_ARG_WITH([ort-onnx],
   [whether to enable ONNX Runtime support],
@@ -60,6 +60,15 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AC_DEFINE(HAVE_BUILTIN_ATOMIC_CPP11, 1, [Define to 1 if supports __atomic_add_fetch()])
   ], [
     AC_MSG_RESULT([no])
+  ])
+
+  AC_MSG_CHECKING([for pooling support])
+  AS_VAR_IF([PHP_ORT_POOL], [no], [
+    AC_MSG_RESULT([no])
+  ], [
+    AC_DEFINE(HAVE_ORT_POOL, 1,
+      [Defined to 1 where we should use pooling (threads)])
+    AC_MSG_RESULT([enabled])
   ])
 
   PHP_ORT_SRC_DIR="src"
@@ -288,7 +297,6 @@ AS_VAR_IF([PHP_ORT], [no],, [
             $PHP_ORT_BACKEND_DIR/wasm/trunc.c
             $PHP_ORT_BACKEND_DIR/wasm/impl.c
           ")
-          PHP_ORT_POOL="no"
         ], [
           if test "$PHP_ORT_WASM" = "yes"; then
             AC_MSG_ERROR([WASM headers not found])
@@ -300,15 +308,6 @@ AS_VAR_IF([PHP_ORT], [no],, [
         fi
       ])
     fi
-
-  AC_MSG_CHECKING([for pooling support])
-  AS_VAR_IF([PHP_ORT_POOL], [no], [
-    AC_MSG_RESULT([no])
-  ], [
-    AC_DEFINE(HAVE_ORT_POOL, 1,
-      [Defined to 1 where we should use pooling (threads)])
-    AC_MSG_RESULT([enabled])
-  ])
 
     AC_MSG_CHECKING([for backend build])
     if test "$PHP_ORT_BACKEND_LEVEL" = "WASM"; then
