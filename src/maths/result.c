@@ -478,13 +478,7 @@ ort_tensor_t* ort_math_result_tensor(
     tensor->data = ort_alloc(
         php_ort_tensor_sizeof(tensor),
         tensor->elements);
-
-    if (tensor->type == ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL) {
-        memset(tensor->data,
-            php_ort_tensor_sizeof(tensor),
-            tensor->elements);
-    }
-
+    
     /* Generate name */
     char name_buffer[64];
     snprintf(name_buffer,
