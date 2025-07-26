@@ -12,37 +12,35 @@ By default `php-ort` will attempt to build with the best backend available for y
   - SSE4.1
   - SSE2
 
-To create a build that uses no intrinsics at all, use the configure flag `--disable-ort-backend`.
+To create a build that uses no intrinsics at all, use `--disable-ort-backend`.
 
-To create a build using specific intrinsics, use (combinations of) the following flags:
+To create a build using specific intrinsics, use `--enable-ort-backend` with:
 
-  - To disable AVX2:   `--disable-ort-avx2`  (will results in an SSE4.1 default)
-  - To disable SSE4.1: `--disable-ort-sse41` (will result in an SSE2 default)
-  - To disable SSE2:   `--disable-ort-sse2`  (will result in no intrinsics)
-  - To disable NEON:   `--disable-ort-neon`  (will result in a scalar default on armv8)
-  - To disable WASM:   `--disable-ort-wasm`
+  - wasm
+  - neon
+  - avx2
+  - sse41
+  - sse2
 
 For example:
 
 For an SSE4.1 build:
 
 ```
-./configure --disable-ort-avx2
+./configure --enable-ort-backend=sse41
 ```
 
 For an SSE2 build:
 
 ```
-./configure --disable-ort-avx2 --disable-ort-sse41
+./configure --enable-ort-backend=sse2
 ```
 
 For a NEON build:
 
 ```
-./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2
+./configure --enable-ort-backend=neon
 ```
-
-**TODO(krakjoe) this is less than ergonomic**
 
 # SIMD Acceleration Tables
 

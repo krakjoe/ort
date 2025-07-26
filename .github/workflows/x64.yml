@@ -116,20 +116,7 @@ jobs:
       - name: Install Extension
         run: |
           phpize
-          case "${{ matrix.backend }}" in
-            avx2)
-              ./configure --enable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2 --with-ort-onnx
-              ;;
-            sse41)
-              ./configure --enable-ort-sse41 --disable-ort-avx2 --disable-ort-sse2 --with-ort-onnx
-              ;;
-            sse2)
-              ./configure --enable-ort-sse2 --disable-ort-avx2 --disable-ort-sse41 --with-ort-onnx
-              ;;
-            none)
-              ./configure --disable-ort-backend --with-ort-onnx
-              ;;
-          esac
+          ./configure --enable-ort-backend=${{ matrix.backend }}
           make -j$(nproc)
           sudo make install
 

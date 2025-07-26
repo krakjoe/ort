@@ -83,8 +83,8 @@
     TYPE pad[CACHE - (SIZE)]
 
 typedef struct _ort_task_t {
-    ort_task_func_t func;
-    void *arg;
+    volatile ort_task_func_t func;
+    volatile void *arg;
     size_t count;
     volatile int completed;
     /* 
@@ -109,13 +109,20 @@ typedef struct _ort_task_t {
 typedef struct _ort_pool_t {
 #ifdef HAVE_ORT_POOL
    ort_thread_t *threads;
+#ifdef _WIN32
+    /**
+     On windows we need identifiers from the scheduler
+     because the handles are not directly comparable
+    */
+    DWORD* idx;
+#endif
    ort_mutex_t mutex;
    ort_cond_t cond;
 #endif
    size_t     size;
    ort_task_t *slots;
    volatile size_t activated;
-   int stop;
+   volatile int stop;
 } ort_pool_t;
 
 ORT_TLS ort_pool_t __ort_pool;
@@ -351,17 +358,21 @@ static inline void ort_pool_pin(size_t index) {
 
 #ifdef HAVE_ORT_POOL
 static zend_always_inline size_t
-   ort_pool_worker_indexof(
-       ort_pool_t* pool, ort_thread_t thread) {
-   for (size_t i = 0; i < pool->size; ++i) {
-       if (pool->threads[i] == thread) {
+    ort_pool_worker_indexof(
+        ort_pool_t* pool, ort_thread_t thread) {
+    for (size_t i = 0; i < pool->size; ++i) {
+#ifdef _WIN32
+        if (pool->idx[i] = GetCurrentThreadId()) {
+#else
+        if (pool->threads[i] == thread) {
+#endif
            return i;
-       }
-   }
+        }
+    }
 
-   assert(0);
-   /* This is unreachable */
-   return SIZE_MAX;
+    assert(0);
+    /* This is unreachable */
+    return SIZE_MAX;
 }
 
 static void *ort_pool_worker(void *arg) {
@@ -373,10 +384,8 @@ static void *ort_pool_worker(void *arg) {
 
    /* Pin this thread to the target core */
    ort_pool_pin(idx);
-
    /* Startup the allocator for this thread */
    ort_alloc_startup();
-
    /* Startup math library for this thread */
    ort_math_startup();
 
@@ -392,6 +401,7 @@ static void *ort_pool_worker(void *arg) {
 
        /* Check our task slot */
        ort_task_t *task = &pool->slots[idx];
+
        if (task->func && !task->completed) {
            ort_pool_mutex_unlock(&pool->mutex);
 
@@ -597,6 +607,13 @@ int ort_pool_init(size_t size) {
        __ort_pool.size = 0;
        return FAILURE;
    }
+#ifdef _WIN32
+   __ort_pool.idx = calloc(sizeof(DWORD), size);
+   if (!__ort_pool.idx) {
+       __ort_pool.size = 0;
+       return FAILURE;
+   }
+#endif
    __ort_pool.slots =
        (ort_task_t*)calloc(size, sizeof(ort_task_t));
    if (!__ort_pool.slots) {
@@ -614,12 +631,13 @@ int ort_pool_init(size_t size) {
            NULL, 0,
            (LPTHREAD_START_ROUTINE)ort_pool_worker,
            &__ort_pool, 0, NULL);
+        __ort_pool.idx[i] = GetThreadId(__ort_pool.threads[i]);
 #else
-       pthread_create(
-           &__ort_pool.threads[i],
-           NULL,
-           ort_pool_worker,
-           &__ort_pool);
+        pthread_create(
+            &__ort_pool.threads[i],
+            NULL,
+            ort_pool_worker,
+            &__ort_pool);
 #endif
    }
    return SUCCESS;
@@ -648,6 +666,10 @@ void ort_pool_destroy() {
 #endif
    }
 
+#ifdef _WIN32
+   free(__ort_pool.idx);
+#endif
+
    ort_pool_mutex_destroy(&__ort_pool.mutex);
    ort_pool_cond_destroy(&__ort_pool.cond);
    free(__ort_pool.threads);
@@ -669,11 +691,19 @@ void ort_pool_submit(ort_task_func_t func, void *arg, size_t count) {
 
    /* Distribute work across threads */
    __ort_pool.activated = 0;
-   for (size_t i = 0; i < __ort_pool.size && i < count; ++i) {
-       __ort_pool.slots[i].func = func;
-       __ort_pool.slots[i].arg = arg;
-       __ort_pool.slots[i].count = count;
-       __ort_pool.activated++;
+   for (size_t i = 0; i < __ort_pool.size; ++i) {
+       if (i < count) {
+        __ort_pool.slots[i].func      = func;
+        __ort_pool.slots[i].arg       = arg;
+        __ort_pool.slots[i].count     = count;
+        __ort_pool.slots[i].completed = 0;
+        __ort_pool.activated++;
+       } else {
+        __ort_pool.slots[i].func      = NULL;
+        __ort_pool.slots[i].arg       = NULL;
+        __ort_pool.slots[i].count     = 0;
+        __ort_pool.slots[i].completed = 1;
+       }
    }
    
    /* Wake all threads */
