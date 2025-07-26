@@ -750,15 +750,17 @@ if (extension_loaded('ort')) {
                                 output.textContent =
                                     "em ran your code, there was no output!";
                             } else {
-                                // handle nulls in output
-                                const bytes = em.HEAPU8.subarray(
-                                    address, address + length);
+                                const bytes = new Uint8Array( // into buffer that js owns
+                                    em.HEAPU8.subarray(       // from the heap that em alloc'd
+                                        address,              // start at address returned by run
+                                        address + length));   // up to length returned by run (handle nulls)
+                                
                                 const result = new TextDecoder().decode(bytes);
 
                                 // display the output
                                 output.textContent = result;
 
-                                // free memory
+                                // free memory, js has it's own
                                 em.ccall('em_run_free');
                             }
                         } catch (error) {
