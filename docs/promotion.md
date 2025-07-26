@@ -50,7 +50,13 @@ bool(true)
 
 Because adding `Tensor::FLOAT` and `Tensor::DOUBLE` results in `Tensor::DOUBLE`.
 
-Errors: `resolve` will return `-1` upon encountering error conditions (adjust your API usage).
+### Introspection Errors
+
+Where the constructor is called with an unrecoignized symbol, `ORT\Status\Schema\InvalidSymbol` will be thrown.
+
+Where `Schema::resolve` is invoked with invalid arguments, `ORT\Status\Schema\InvalidArguments` will be thrown.
+
+Both exceptions extend `ORT\Math\Schema\Error`.
 
 ## Casting
 
