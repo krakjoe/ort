@@ -54,6 +54,12 @@ zend_class_entry* php_ort_status_model_invalidoutput_ce;
 zend_class_entry* php_ort_status_model_invalidindex_ce;
 zend_class_entry* php_ort_status_model_invalidfile_ce;
 
+// Schema exceptions
+zend_class_entry* php_ort_status_schema_error_ce;
+zend_class_entry* php_ort_status_schema_invalidsymbol_ce;
+zend_class_entry* php_ort_status_schema_invalidarguments_ce;
+
+// TODO(krakjoe) seriously now, this
 zend_class_entry* php_ort_status_model_runtimeexception_ce;
 
 PHP_MINIT_FUNCTION(ORT_STATUS) 
@@ -192,6 +198,22 @@ PHP_MINIT_FUNCTION(ORT_STATUS)
     php_ort_status_model_invalidfile_ce =
         zend_register_internal_class_ex(
             &ce, php_ort_status_model_error_ce);
+
+    /** ----------------------------------------------------------------- **/
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Schema", "Error", NULL);
+    php_ort_status_schema_error_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_error_ce);
+
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Schema", "InvalidSymbol", NULL);
+    php_ort_status_schema_invalidsymbol_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_schema_error_ce);
+
+    INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Schema", "InvalidArguments", NULL);
+    php_ort_status_schema_invalidarguments_ce =
+        zend_register_internal_class_ex(
+            &ce, php_ort_status_schema_error_ce);
 
     /** @TODO(krakjoe) this doesn't fit new Runtime exceptions */
     INIT_NS_CLASS_ENTRY(ce, "ORT\\Status\\Model", "RuntimeException", NULL);

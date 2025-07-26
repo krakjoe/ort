@@ -1,56 +1,43 @@
 --TEST--
-ORT\Math\Schema: test constructor
+ORT\Math\Schema: test constructor (missing schemas)
+--EXTENSIONS--
+ort
 --FILE--
 <?php
 use ORT\Math;
 
-foreach ([
-    "abs",
-    "acos",
-    "add",
-    "arccos",
-    "arccosh",
-    "arcsin",
-    "arcsinh",
-    "arctan",
-    "arctanh",
-    "argmax",
-    "asin",
-    "atan",
-    "cbrt",
-    "ceil",
-    "cos",
-    "cosh",
-    "div",
-    "dot",
-    "exp",
-    "exp2",
-    "floor",
-    "log",
-    "log2",
-    "log10",
-    "matmul",
-    "max",
-    "mean",
-    "min",
-    "mod",
-    "mul",
-    "neg",
-    "pow",
-    "recip",
-    "round",
-    "sign",
-    "sin",
-    "sinh",
-    "softmax",
-    "sqrt",
-    "sub",
-    "sum",
-    "tan",
-    "tanh",
-    "trunc",
-] as $name)
-    new Math\Schema($name);
+function get_defined_function_name($symbol) {
+    $parts = \explode("\\", $symbol);
+    $name = \end($parts);
+    switch ($name) {
+        case "multiply":
+            return "mul";
+        case "divide":
+            return "div";
+        case "subtract":
+            return "sub"; 
+    }
+    return $name;
+}
+
+foreach (get_defined_functions()["internal"] as $symbol) {
+    if (substr($symbol, 0, 3) != "ort") {
+        continue;
+    }
+
+    if ($symbol == "ort\\math\\backend" ||
+        $symbol == "ort\\math\\cast") {
+        continue;
+    }
+
+    if (substr($symbol, 0,
+            strlen("ort\\math\\scale")) ==
+                "ort\\math\\scale") {
+        continue;
+    }
+
+    new Math\Schema(get_defined_function_name($symbol));
+}
 
 echo "OK";
 ?>

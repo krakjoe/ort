@@ -87,13 +87,13 @@ static zend_always_inline size_t php_ort_type_sizeof(ONNXTensorElementDataType t
     }
 }
 
-static zend_always_inline void php_ort_atomic_addref(uint32_t *refcount) {
+static zend_always_inline uint32_t php_ort_atomic_addref(uint32_t *refcount) {
 #ifdef _WIN32
-    InterlockedAdd(refcount, 1);
+    return InterlockedAdd(refcount, 1);
 #elif defined(HAVE_BUILTIN_ATOMIC_CPP11)
-    __atomic_add_fetch(refcount, 1, __ATOMIC_SEQ_CST);
+    return __atomic_add_fetch(refcount, 1, __ATOMIC_SEQ_CST);
 #else
-    __sync_add_and_fetch(refcount, 1);
+    return __sync_add_and_fetch(refcount, 1);
 #endif
 }
 

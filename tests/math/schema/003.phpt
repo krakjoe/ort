@@ -1,5 +1,7 @@
 --TEST--
 ORT\Math\Schema: getSymbol
+--EXTENSIONS--
+ort
 --FILE--
 <?php
 use ORT\Math;

@@ -22,6 +22,61 @@
 #include "maths/result.h"
 #include "maths/validate.h"
 
+/* {{{ schemas */
+#include "maths/schema/abs.h"
+#include "maths/schema/acos.h"
+#include "maths/schema/arccos.h"
+#include "maths/schema/arccosh.h"
+#include "maths/schema/arcsin.h"
+#include "maths/schema/arcsinh.h"
+#include "maths/schema/arctan.h"
+#include "maths/schema/arctanh.h"
+#include "maths/schema/argmax.h"
+#include "maths/schema/atan.h"
+#include "maths/schema/add.h"
+#include "maths/schema/asin.h"
+#include "maths/schema/cbrt.h"
+#include "maths/schema/ceil.h"
+#include "maths/schema/cos.h"
+#include "maths/schema/cosh.h"
+#include "maths/schema/div.h"
+#include "maths/schema/dot.h"
+#include "maths/schema/exp.h"
+#include "maths/schema/exp2.h"
+#include "maths/schema/floor.h"
+#include "maths/schema/log.h"
+#include "maths/schema/log2.h"
+#include "maths/schema/log10.h"
+#include "maths/schema/matmul.h"
+#include "maths/schema/max.h"
+#include "maths/schema/mean.h"
+#include "maths/schema/min.h"
+#include "maths/schema/mod.h"
+#include "maths/schema/mul.h"
+#include "maths/schema/neg.h"
+#include "maths/schema/pow.h"
+#include "maths/schema/recip.h"
+#include "maths/schema/round.h"
+#include "maths/schema/sign.h"
+#include "maths/schema/sin.h"
+#include "maths/schema/sinh.h"
+#include "maths/schema/softmax.h"
+#include "maths/schema/sqrt.h"
+#include "maths/schema/sub.h"
+#include "maths/schema/sum.h"
+#include "maths/schema/tan.h"
+#include "maths/schema/tanh.h"
+#include "maths/schema/trunc.h"
+/* }}} */
+
+static HashTable __ort_math_promotion_schema =
+    (HashTable) {
+        .nNumOfElements = 0,
+        .gc = {
+            .refcount = 0
+        },
+};
+
 static zend_always_inline int ort_math_promotion_schema_lookup(const ONNXTensorElementDataType* list, int size, ONNXTensorElementDataType type) {
     for (int i = 0; i < size; ++i) {
         if (list[i] == type) {
@@ -330,4 +385,94 @@ void* ort_math_operation_upcast(
     }
 
     return data;
+}
+
+void ort_math_promotion_startup(void) {
+    /* we know that the first caller of this
+        (the main php process) is unable to concurrently
+        re-enter until this call completes. 
+       we know after that call (when pools are started) 
+       many threads will enter concurrently 
+       we must only initialize this table once */
+    if (php_ort_atomic_addref(
+            &__ort_math_promotion_schema.gc.refcount) > 1) {
+        return;
+    }
+
+    zend_hash_init(
+        &__ort_math_promotion_schema, 12,
+        NULL,
+        NULL, /* no destroying these */
+        1);   /* immutable */
+
+#define ORT_MATH_PROMOTION_SCHEMA_ADD(symbol); do {   \
+    zend_hash_str_add_ptr(                            \
+        &__ort_math_promotion_schema,                 \
+        ZEND_STRL(#symbol),                           \
+        (void*) &ort_math_promotion_schema_##symbol); \
+} while (0)
+    ORT_MATH_PROMOTION_SCHEMA_ADD(abs);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(acos);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(add);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(arccos);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(arccosh);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(arcsin);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(arcsinh);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(arctan);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(arctanh);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(argmax);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(asin);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(atan);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(cos);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(cbrt);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(ceil);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(cosh);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(div);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(dot);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(exp);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(exp2);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(floor);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(log);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(log2);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(log10);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(matmul);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(max);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(mean);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(min);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(mod);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(mul);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(neg);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(pow);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(recip);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(round);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(sign);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(sin);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(sinh);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(softmax);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(sqrt);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(sub);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(sum);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(tan);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(tanh);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(trunc);
+#undef ORT_MATH_PROMOTION_SCHEMA_ADD
+}
+
+ort_math_promotion_schema_t*
+    ort_math_promotion_schema_symbol(
+        zend_string* name) {
+    /* php doesn't care about case */
+    zend_string* key = zend_string_tolower(name);
+    ort_math_promotion_schema_t* symbol =
+        zend_hash_find_ptr(
+            &__ort_math_promotion_schema, key);
+    zend_string_release(key);
+    return symbol;
+}
+
+void ort_math_promotion_shutdown(void) {
+    if (php_ort_atomic_delref(
+            &__ort_math_promotion_schema.gc.refcount) == 0) {
+        zend_hash_destroy(&__ort_math_promotion_schema);
+    }
 }

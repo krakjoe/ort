@@ -1,5 +1,7 @@
 --TEST--
 ORT\Math\Schema: getKind
+--EXTENSIONS--
+ort
 --FILE--
 <?php
 use ORT\Math;

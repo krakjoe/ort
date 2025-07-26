@@ -56,6 +56,12 @@ typedef struct _ort_math_promotion_schema_t {
     int size; // length of indices
 } ort_math_promotion_schema_t;
 
+void ort_math_promotion_startup(void);
+ort_math_promotion_schema_t*
+    ort_math_promotion_schema_symbol(
+        zend_string* symbol);
+void ort_math_promotion_shutdown(void);
+
 ONNXTensorElementDataType ort_math_promotion_resolve_binary(
     const ort_math_promotion_schema_t* schema,
     ONNXTensorElementDataType type_a,

@@ -26,51 +26,6 @@
 #include "maths/pool.h"
 #include "maths/promotion.h"
 
-#include "maths/schema/abs.h"
-#include "maths/schema/acos.h"
-#include "maths/schema/arccos.h"
-#include "maths/schema/arccosh.h"
-#include "maths/schema/arcsin.h"
-#include "maths/schema/arcsinh.h"
-#include "maths/schema/arctan.h"
-#include "maths/schema/arctanh.h"
-#include "maths/schema/argmax.h"
-#include "maths/schema/atan.h"
-#include "maths/schema/add.h"
-#include "maths/schema/asin.h"
-#include "maths/schema/cbrt.h"
-#include "maths/schema/ceil.h"
-#include "maths/schema/cos.h"
-#include "maths/schema/cosh.h"
-#include "maths/schema/div.h"
-#include "maths/schema/dot.h"
-#include "maths/schema/exp.h"
-#include "maths/schema/exp2.h"
-#include "maths/schema/floor.h"
-#include "maths/schema/log.h"
-#include "maths/schema/log2.h"
-#include "maths/schema/log10.h"
-#include "maths/schema/matmul.h"
-#include "maths/schema/max.h"
-#include "maths/schema/mean.h"
-#include "maths/schema/min.h"
-#include "maths/schema/mod.h"
-#include "maths/schema/mul.h"
-#include "maths/schema/neg.h"
-#include "maths/schema/pow.h"
-#include "maths/schema/recip.h"
-#include "maths/schema/round.h"
-#include "maths/schema/sign.h"
-#include "maths/schema/sin.h"
-#include "maths/schema/sinh.h"
-#include "maths/schema/softmax.h"
-#include "maths/schema/sqrt.h"
-#include "maths/schema/sub.h"
-#include "maths/schema/sum.h"
-#include "maths/schema/tan.h"
-#include "maths/schema/tanh.h"
-#include "maths/schema/trunc.h"
-
 typedef struct _php_ort_math_schema_t {
     const ort_math_promotion_schema_t* schema;
     zend_string*                            symbol;
@@ -581,98 +536,17 @@ PHP_METHOD(ONNX_Math_Schema, __construct)
         Z_PARAM_STR(symbol)
     ZEND_PARSE_PARAMETERS_END();
 
-    if (zend_string_equals_literal_ci(symbol, "abs")) {
-        ort->schema = &ort_math_promotion_schema_abs;
-    } else if (zend_string_equals_literal_ci(symbol, "acos")) {
-        ort->schema = &ort_math_promotion_schema_acos;
-    } else if (zend_string_equals_literal_ci(symbol, "add")) {
-        ort->schema = &ort_math_promotion_schema_add;
-    } else if (zend_string_equals_literal_ci(symbol, "arccos")) {
-        ort->schema = &ort_math_promotion_schema_arccos;
-    } else if (zend_string_equals_literal_ci(symbol, "arccosh")) {
-        ort->schema = &ort_math_promotion_schema_arccosh;
-    } else if (zend_string_equals_literal_ci(symbol, "arcsin")) {
-        ort->schema = &ort_math_promotion_schema_arcsin;
-    } else if (zend_string_equals_literal_ci(symbol, "arcsinh")) {
-        ort->schema = &ort_math_promotion_schema_arcsinh;
-    } else if (zend_string_equals_literal_ci(symbol, "arctan")) {
-        ort->schema = &ort_math_promotion_schema_arctan;
-    } else if (zend_string_equals_literal_ci(symbol, "arctanh")) {
-        ort->schema = &ort_math_promotion_schema_arctanh;
-    } else if (zend_string_equals_literal_ci(symbol, "argmax")) {
-        ort->schema = &ort_math_promotion_schema_argmax;
-    } else if (zend_string_equals_literal_ci(symbol, "asin")) {
-        ort->schema = &ort_math_promotion_schema_asin;
-    } else if (zend_string_equals_literal_ci(symbol, "atan")) {
-        ort->schema = &ort_math_promotion_schema_atan;
-    } else if (zend_string_equals_literal_ci(symbol, "cos")) {
-        ort->schema = &ort_math_promotion_schema_cos;
-    } else if (zend_string_equals_literal_ci(symbol, "cbrt")) {
-        ort->schema = &ort_math_promotion_schema_cbrt;
-    } else if (zend_string_equals_literal_ci(symbol, "ceil")) {
-        ort->schema = &ort_math_promotion_schema_ceil;
-    } else if (zend_string_equals_literal_ci(symbol, "cosh")) {
-        ort->schema = &ort_math_promotion_schema_cosh;
-    } else if (zend_string_equals_literal_ci(symbol, "div")) {
-        ort->schema = &ort_math_promotion_schema_div;
-    } else if (zend_string_equals_literal_ci(symbol, "dot")) {
-        ort->schema = &ort_math_promotion_schema_dot;
-    } else if (zend_string_equals_literal_ci(symbol, "exp")) {
-        ort->schema = &ort_math_promotion_schema_exp;
-    } else if (zend_string_equals_literal_ci(symbol, "exp2")) {
-        ort->schema = &ort_math_promotion_schema_exp2;
-    } else if (zend_string_equals_literal_ci(symbol, "floor")) {
-        ort->schema = &ort_math_promotion_schema_floor;
-    } else if (zend_string_equals_literal_ci(symbol, "log")) {
-        ort->schema = &ort_math_promotion_schema_log;
-    } else if (zend_string_equals_literal_ci(symbol, "log2")) {
-        ort->schema = &ort_math_promotion_schema_log2;
-    } else if (zend_string_equals_literal_ci(symbol, "log10")) {
-        ort->schema = &ort_math_promotion_schema_log10;
-    } else if (zend_string_equals_literal_ci(symbol, "matmul")) {
-        ort->schema = &ort_math_promotion_schema_matmul;
-    } else if (zend_string_equals_literal_ci(symbol, "max")) {
-        ort->schema = &ort_math_promotion_schema_max;
-    } else if (zend_string_equals_literal_ci(symbol, "mean")) {
-        ort->schema = &ort_math_promotion_schema_mean;
-    } else if (zend_string_equals_literal_ci(symbol, "min")) {
-        ort->schema = &ort_math_promotion_schema_min;
-    } else if (zend_string_equals_literal_ci(symbol, "mod")) {
-        ort->schema = &ort_math_promotion_schema_mod;
-    } else if (zend_string_equals_literal_ci(symbol, "mul")) {
-        ort->schema = &ort_math_promotion_schema_mul;
-    } else if (zend_string_equals_literal_ci(symbol, "neg")) {
-        ort->schema = &ort_math_promotion_schema_neg;
-    } else if (zend_string_equals_literal_ci(symbol, "pow")) {
-        ort->schema = &ort_math_promotion_schema_pow;
-    } else if (zend_string_equals_literal_ci(symbol, "recip")) {
-        ort->schema = &ort_math_promotion_schema_recip;
-    } else if (zend_string_equals_literal_ci(symbol, "round")) {
-        ort->schema = &ort_math_promotion_schema_round;
-    } else if (zend_string_equals_literal_ci(symbol, "sign")) {
-        ort->schema = &ort_math_promotion_schema_sign;
-    } else if (zend_string_equals_literal_ci(symbol, "sin")) {
-        ort->schema = &ort_math_promotion_schema_sin;
-    } else if (zend_string_equals_literal_ci(symbol, "sinh")) {
-        ort->schema = &ort_math_promotion_schema_sinh;
-    } else if (zend_string_equals_literal_ci(symbol, "softmax")) {
-        ort->schema = &ort_math_promotion_schema_softmax;
-    } else if (zend_string_equals_literal_ci(symbol, "sqrt")) {
-        ort->schema = &ort_math_promotion_schema_sqrt;
-    } else if (zend_string_equals_literal_ci(symbol, "sub")) {
-        ort->schema = &ort_math_promotion_schema_sub;
-    } else if (zend_string_equals_literal_ci(symbol, "sum")) {
-        ort->schema = &ort_math_promotion_schema_sum;
-    } else if (zend_string_equals_literal_ci(symbol, "tan")) {
-        ort->schema = &ort_math_promotion_schema_tan;
-    } else if (zend_string_equals_literal_ci(symbol, "tanh")) {
-        ort->schema = &ort_math_promotion_schema_tanh;
-    } else if (zend_string_equals_literal_ci(symbol, "trunc")) {
-        ort->schema = &ort_math_promotion_schema_trunc;
-    } else {
-        /* throw */
-        return;
-    }
+    ort->schema =
+        ort_math_promotion_schema_symbol(symbol);
+
+    php_ort_status_flow(
+        !ort->schema,
+        {
+            RETURN_THROWS();
+        },
+        php_ort_status_schema_invalidsymbol_ce,
+        "the symbol %s cannot be found",
+        ZSTR_VAL(symbol));
 
     ort->symbol = zend_string_copy(symbol);
 }
@@ -718,23 +592,23 @@ PHP_METHOD(ONNX_Math_Schema, resolve)
         Z_PARAM_VARIADIC('+', types, count)
     ZEND_PARSE_PARAMETERS_END();
 
-    /* TODO(krakjoe) exceptions */
-
-    if (count == 0) {
-        /* throw */
-        RETURN_LONG(-1);
-    }
-
     if (ort->schema->kind == ORT_MATH_PROMOTION_SCHEMA_KIND_BINARY) {
-        if (count != 2) {
-            /* throw */
-            RETURN_LONG(-1);
-        }
+        php_ort_status_flow(
+            (count != 2),
+            {
+                RETURN_THROWS();
+            },
+            php_ort_status_schema_invalidarguments_ce,
+            "binary schemas require two arguments for resolution, %zu given",
+            count);
 
-        if (Z_TYPE(types[0]) != IS_LONG || Z_TYPE(types[1]) != IS_LONG) {
-            /* throw */
-            RETURN_LONG(-1);
-        }
+        php_ort_status_flow(
+            (Z_TYPE(types[0]) != IS_LONG || Z_TYPE(types[1]) != IS_LONG),
+            {
+                RETURN_THROWS();
+            },
+            php_ort_status_schema_invalidarguments_ce,
+            "binary schemas require both arguments to be integers");
 
         ONNXTensorElementDataType result =
             ort_math_promotion_resolve_binary(
@@ -743,14 +617,22 @@ PHP_METHOD(ONNX_Math_Schema, resolve)
                 (ONNXTensorElementDataType) Z_LVAL(types[1]));
         RETURN_LONG(result);
     } else if (ort->schema->kind == ORT_MATH_PROMOTION_SCHEMA_KIND_UNARY) {
-        if (count != 1) {
-            RETURN_LONG(-1);
-        }
+        php_ort_status_flow(
+            (count != 1),
+            {
+                RETURN_THROWS();
+            },
+            php_ort_status_schema_invalidarguments_ce,
+            "unary schemas require one argument for resolution, %zu given",
+            count);
 
-        if (Z_TYPE(types[0]) != IS_LONG) {
-            /* throw */
-            RETURN_LONG(-1);
-        }
+        php_ort_status_flow(
+            (Z_TYPE(types[0]) != IS_LONG),
+            {
+                RETURN_THROWS();
+            },
+            php_ort_status_schema_invalidarguments_ce,
+            "unary schemas require an integer argument");
 
         ONNXTensorElementDataType result =
             ort_math_promotion_resolve_unary(

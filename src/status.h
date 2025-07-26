@@ -58,6 +58,12 @@ extern zend_class_entry* php_ort_status_model_invalidoutput_ce;
 extern zend_class_entry* php_ort_status_model_invalidindex_ce;
 extern zend_class_entry* php_ort_status_model_invalidfile_ce;
 
+// Schema exceptions
+extern zend_class_entry* php_ort_status_schema_error_ce;
+extern zend_class_entry* php_ort_status_schema_invalidsymbol_ce;
+extern zend_class_entry* php_ort_status_schema_invalidarguments_ce;
+
+// TODO(krakjoe) this
 extern zend_class_entry* php_ort_status_model_runtimeexception_ce;
 
 static zend_object* php_ort_status_throw(zend_class_entry* ce, const char *format, ...) {
