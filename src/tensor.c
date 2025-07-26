@@ -1931,8 +1931,10 @@ static zval* php_ort_tensor_read(zend_object* object, zval* offset, int type, zv
                 ((zend_bool*)ort->object->data)[index] ? 1 : 0);
             break;
 
-        default:
+        default: {
             /* unreachable */
+        }
+            
     }
     return rv;
 }

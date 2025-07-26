@@ -27,11 +27,6 @@ emconfigure ./configure                            \
 	--with-config-file-path=/opt/phpwasm/lib       \
 	--without-pcre-jit                             \
 	--enable-ort=static                            \
-	--disable-ort-avx2                             \
-	--disable-ort-sse41                            \
-	--disable-ort-sse2                             \
-    --disable-ort-neon                             \
-    --enable-ort-wasm                              \
     --disable-ort-pool                             \
 	$@
 

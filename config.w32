@@ -1,12 +1,8 @@
 // config.w32 for php-ort
 
 ARG_ENABLE('ort',         'Enable ort extension', 'yes');
-ARG_ENABLE('ort-backend', 'Enable backend optimizations', 'yes');
+ARG_ENABLE('ort-backend', 'Backend type (auto,none,avx2,sse41,sse2)', 'yes');
 ARG_ENABLE('ort-pool',    'Enable pooling (threads)', 'yes');
-ARG_ENABLE('ort-sse2',    'Enable SSE2 support', 'yes');
-ARG_ENABLE('ort-sse41',   'Enable SSE4.1 support', 'yes');
-ARG_ENABLE('ort-avx2',    'Enable AVX2 support', 'yes');
-/* TODO(krakjoe) neon build testing on windows */
 ARG_WITH('ort-onnx',      'Enable ONNX Runtime support', 'no');
 
 if (PHP_ORT != 'no') {
@@ -84,34 +80,63 @@ if (PHP_ORT != 'no') {
         "frontend"
     );
 
-    if (PHP_ORT_BACKEND != 'no') {
-        if (PHP_ORT_AVX2 == 'yes') {
-            AC_DEFINE('HAVE_AVX2', 1);
-            AC_DEFINE('ORT_BACKEND_NAME', 'AVX2');
-            AC_DEFINE('ORT_BACKEND_ENABLED', 1);
-            ADD_SOURCES(
-                configure_module_dirname + "\\src\\maths\\backend\\avx2",
-                "abs.c add.c ceil.c div.c dot.c floor.c matmul.c mul.c neg.c recip.c round.c sign.c sqrt.c sub.c trunc.c impl.c",
-                "ort",
-                "backend");
-            ADD_FLAG("CFLAGS_ORT", "/arch:AVX2");
-        } else if (PHP_ORT_SSE41 == 'yes') {
-            AC_DEFINE('ORT_BACKEND_NAME', 'SSE4.1');
-            AC_DEFINE('ORT_BACKEND_ENABLED', 1);
-            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse41",
-                "abs.c add.c ceil.c div.c floor.c matmul.c mul.c neg.c recip.c round.c sign.c sqrt.c sub.c trunc.c impl.c",
-                "ort",
-                "backend");
-            /** No special flag is required for SSE4.1 **/
-            ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");
-        } else if (PHP_ORT_SSE2 == 'yes') {
-            AC_DEFINE('ORT_BACKEND_NAME', 'SSE2');
-            AC_DEFINE('ORT_BACKEND_ENABLED', 1);
-            ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse2",
-                "abs.c add.c div.c matmul.c mul.c neg.c recip.c sign.c sqrt.c sub.c impl.c",
-                "ort",
-                "backend");
-            ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");
-        }
+    // Backend configuration
+    var backend_type = '';
+    if (typeof PHP_ORT_BACKEND === 'undefined' || PHP_ORT_BACKEND === null) {
+        backend_type = 'auto'; // default when not specified
+    } else {
+        backend_type = PHP_ORT_BACKEND.toString().toLowerCase();
+    }
+    
+    var selected_backend = '';
+
+    // Handle backend selection
+    if (backend_type == 'no' || backend_type == 'none') {
+        STDOUT.WriteLine("Backend optimizations disabled");
+        selected_backend = '';
+    } else if (backend_type == 'avx2') {
+        selected_backend = 'avx2';
+    } else if (backend_type == 'sse41' || backend_type == 'sse4.1') {
+        selected_backend = 'sse41';
+    } else if (backend_type == 'sse2') {
+        selected_backend = 'sse2';
+    } else if (backend_type == 'yes' || backend_type == 'auto' || backend_type == '') {
+        // Default to AVX2 for auto-detection on Windows
+        selected_backend = 'avx2';
+    } else {
+        ERROR("Invalid backend type: " + PHP_ORT_BACKEND + ". Valid options: auto, none, avx2, sse41, sse2");
+    }
+
+    // Configure the selected backend
+    if (selected_backend == 'avx2') {
+        STDOUT.WriteLine("Configuring ORT with AVX2 backend");
+        AC_DEFINE('ORT_BACKEND_NAME', 'AVX2');
+        AC_DEFINE('ORT_BACKEND_ENABLED', 1);
+        ADD_SOURCES(
+            configure_module_dirname + "\\src\\maths\\backend\\avx2",
+            "abs.c add.c ceil.c div.c dot.c floor.c matmul.c mul.c neg.c recip.c round.c sign.c sqrt.c sub.c trunc.c impl.c",
+            "ort",
+            "backend");
+        ADD_FLAG("CFLAGS_ORT", "/arch:AVX2");
+    } else if (selected_backend == 'sse41') {
+        STDOUT.WriteLine("Configuring ORT with SSE4.1 backend");
+        AC_DEFINE('ORT_BACKEND_NAME', 'SSE4.1');
+        AC_DEFINE('ORT_BACKEND_ENABLED', 1);
+        ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse41",
+            "abs.c add.c ceil.c div.c floor.c matmul.c mul.c neg.c recip.c round.c sign.c sqrt.c sub.c trunc.c impl.c",
+            "ort",
+            "backend");
+        ADD_FLAG("CFLAGS_ORT", "/arch:SSE2"); // SSE4.1 uses SSE2 arch flag on MSVC
+    } else if (selected_backend == 'sse2') {
+        STDOUT.WriteLine("Configuring ORT with SSE2 backend");
+        AC_DEFINE('ORT_BACKEND_NAME', 'SSE2');
+        AC_DEFINE('ORT_BACKEND_ENABLED', 1);
+        ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse2",
+            "abs.c add.c div.c matmul.c mul.c neg.c recip.c sign.c sqrt.c sub.c impl.c",
+            "ort",
+            "backend");
+        ADD_FLAG("CFLAGS_ORT", "/arch:SSE2");
+    } else {
+        STDOUT.WriteLine("Configuring ORT with no backend optimizations");
     }
 }
