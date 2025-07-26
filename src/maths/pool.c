@@ -406,7 +406,7 @@ static void *ort_pool_worker(void *arg) {
            ort_pool_mutex_unlock(&pool->mutex);
 
            /* Execute the task assigned to this thread */
-           task->func(task->arg, idx, task->count);
+           task->func((void*)task->arg, idx, task->count);
 
            /* Mark task as completed */
 #if defined(_WIN32)

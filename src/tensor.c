@@ -44,11 +44,17 @@ static inline zend_bool php_ort_tensor_validate_next(ONNXTensorElementDataType t
 
     if (depth == rank) {
         // Leaf node — must match scalar type
-
         switch (type) {
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-                return Z_TYPE_P(node) == IS_DOUBLE || Z_TYPE_P(node) == IS_LONG;
+                php_ort_status_flow(
+                    !(Z_TYPE_P(node) == IS_DOUBLE || Z_TYPE_P(node) == IS_LONG),
+                    return 0,
+                    php_ort_status_tensor_invaliddata_ce,
+                    "tensor leaf at depth %zd: expected float/double, got %s",
+                    depth, zend_zval_type_name(node)
+                );
+                break;
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
@@ -56,41 +62,75 @@ static inline zend_bool php_ort_tensor_validate_next(ONNXTensorElementDataType t
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
-                return Z_TYPE_P(node) == IS_LONG;
+                php_ort_status_flow(
+                    (Z_TYPE_P(node) != IS_LONG),
+                    return 0,
+                    php_ort_status_tensor_invaliddata_ce,
+                    "tensor leaf at depth %zd: expected integer, got %s",
+                    depth, zend_zval_type_name(node)
+                );
+                break;
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64:
-                // UINT64 is not supported due to PHP's signed 64-bit integer limitation
                 php_ort_status_flow(!SUCCESS,
-                {
-                    return 0;
-                },
-                php_ort_status_tensor_invalidtype_ce,
-                "UINT64 tensor type is not supported (values exceed PHP integer range)");
+                    return 0,
+                    php_ort_status_tensor_invalidtype_ce,
+                    "UINT64 tensor type is not supported (values exceed PHP integer range)");
+                break;
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
-                return Z_TYPE_P(node) == IS_TRUE || Z_TYPE_P(node) == IS_FALSE;
-            
-                default: php_ort_status_flow(!SUCCESS,
-                {
-                    return 0;
-                },
-                php_ort_status_tensor_invalidtype_ce,
-                "unknown data type (%zd) provided",
-                (zend_long) type);
+                php_ort_status_flow(
+                    !(Z_TYPE_P(node) == IS_TRUE || Z_TYPE_P(node) == IS_FALSE),
+                    return 0,
+                    php_ort_status_tensor_invaliddata_ce,
+                    "tensor leaf at depth %zd: expected bool, got %s",
+                    depth, zend_zval_type_name(node)
+                );
+                break;
+            default:
+                php_ort_status_flow(!SUCCESS,
+                    return 0,
+                    php_ort_status_tensor_invalidtype_ce,
+                    "unknown data type (%zd) provided",
+                    (zend_long) type);
         }
+        return 1;
     }
 
-    if (Z_TYPE_P(node) != IS_ARRAY) {
-        return 0;
-    }
+    php_ort_status_flow(
+        (Z_TYPE_P(node) != IS_ARRAY),
+        return 0,
+        php_ort_status_tensor_invaliddata_ce,
+        "tensor node at depth %zd: expected array, got %s",
+        depth, zend_zval_type_name(node)
+    );
 
     HashTable *ht = Z_ARRVAL_P(node);
-    if (zend_hash_num_elements(ht) != dimensions[depth]) {
-        return 0;
-    }
+    php_ort_status_flow(
+        (depth >= rank),
+        return 0,
+        php_ort_status_tensor_invalidshape_ce,
+        "validator exceeded tensor rank: depth %zd, rank %zd",
+        depth, rank
+    );
+    php_ort_status_flow(
+        (zend_hash_num_elements(ht) != dimensions[depth]),
+        return 0,
+        php_ort_status_tensor_invaliddata_ce,
+        "ragged array: sub-array at dimension %zd has length %zd, expected %zd",
+        depth, zend_hash_num_elements(ht), dimensions[depth]
+    );
 
     for (zend_long i = 0; i < dimensions[depth]; i++) {
         zval *child = zend_hash_index_find(ht, i);
-        if (!child || !php_ort_tensor_validate_next(
+        php_ort_status_flow(
+            (!child),
+            return 0,
+            php_ort_status_tensor_invalidshape_ce,
+            "tensor node at depth %zd: missing element at index %zd",
+            depth, i
+        );
+        if (!php_ort_tensor_validate_next(
                 type, rank, dimensions, child, depth + 1)) {
+            // The recursive call will emit its own exception with details
             return 0;
         }
     }
@@ -199,13 +239,7 @@ static zend_always_inline zend_bool php_ort_tensor_validate(zval *shape, zend_st
         dimensions[index++] = Z_LVAL_P(next);
     } ZEND_HASH_FOREACH_END();
 
-    php_ort_status_flow(
-        !php_ort_tensor_validate_next(type, rank, dimensions, data, 0),
-        return 0,
-        php_ort_status_tensor_invaliddata_ce,
-        "validation of data according to the shape provided has failed");
-
-    return 1;
+    return php_ort_tensor_validate_next(type, rank, dimensions, data, 0);
 }
 
 void php_ort_tensor_store(ONNXTensorElementDataType type, void* target, zval* node) {
@@ -1523,7 +1557,6 @@ PHP_METHOD(ONNX_Tensor, getData)
         "failed to extract tensor data starting at offset %zd, depth %zd", offset, depth);
 }
 
-// Helper: Recursively infer shape from a PHP array
 // Robust recursive shape inference with raggedness and type checks
 static zend_bool php_ort_infer_shape(zval *data, size_t *shape, size_t max, size_t *dimensions) {
     size_t dimension = 0;
@@ -1549,28 +1582,35 @@ static zend_bool php_ort_infer_shape(zval *data, size_t *shape, size_t max, size
         // Check all elements at this level are arrays or all are scalars
         zend_bool found_array = 0, found_scalar = 0;
         zval *first = NULL;
-        ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(level), first) { 
-            break; 
+        zend_bool first_is_array = 0;
+        ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(level), first) {
+            if (Z_TYPE_P(first) == IS_ARRAY) {
+                first_is_array = 1;
+            }
+            break;
         } ZEND_HASH_FOREACH_END();
-        
-        if (first && Z_TYPE_P(first) == IS_ARRAY) {
+
+        if (first && first_is_array) {
             found_array = 1;
         } else {
             found_scalar = 1;
         }
-        
+
+        size_t expected_len =
+            (first && first_is_array) ?
+                zend_hash_num_elements(Z_ARRVAL_P(first)) : 0;
+
         ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(level), zval *sub) {
             if (Z_TYPE_P(sub) == IS_ARRAY) {
                 found_array = 1;
                 php_ort_status_flow(
-                    (zend_hash_num_elements(Z_ARRVAL_P(sub)) !=
-                        zend_hash_num_elements(Z_ARRVAL_P(first))),
+                    (expected_len != 0 && zend_hash_num_elements(Z_ARRVAL_P(sub)) != expected_len),
                     return 0,
                     php_ort_status_tensor_invaliddata_ce,
                     "ragged array: sub-array at dimension %zd has length %zd, expected %zd",
                     dimension+1,
                     zend_hash_num_elements(Z_ARRVAL_P(sub)),
-                    zend_hash_num_elements(Z_ARRVAL_P(first)));
+                    expected_len);
             } else {
                 found_scalar = 1;
             }

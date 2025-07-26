@@ -69,7 +69,7 @@ array(2) {
 == ragged ==
 EX: ORT\Status\Tensor\InvalidData: ragged array: sub-array at dimension 1 has length 1, expected 2
 == mixed types ==
-EX: ORT\Status\Tensor\InvalidData: validation of data according to the shape provided has failed
+EX: ORT\Status\Tensor\InvalidData: tensor leaf at depth 2: expected integer, got float
 == empty ==
 EX: ORT\Status\Tensor\InvalidData: empty array encountered at dimension 0 (ragged or empty tensor)
 == scalar ==

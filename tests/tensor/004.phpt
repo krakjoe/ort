@@ -11,4 +11,4 @@ try {
 }
 ?>
 --EXPECT--
-string(61) "validation of data according to the shape provided has failed"
+string(63) "ragged array: sub-array at dimension 0 has length 0, expected 2"

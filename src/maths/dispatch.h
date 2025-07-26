@@ -33,7 +33,7 @@ typedef struct _ort_math_dispatch_t {
     ort_math_kernel_binary_t pow_func;
     ort_math_kernel_binary_t mod_func;
     ort_math_kernel_binary_t dot_func;
-    ort_math_kernel_matmul_t  matmul_func;
+    ort_math_kernel_matmul_t matmul_func;
 
     /* Scalar operations */
     ort_math_kernel_scalar_t add_scalar_func;

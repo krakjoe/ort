@@ -115,10 +115,10 @@ static void* __ort_alloc_default_alloc(size_t size, size_t count, size_t alignme
         (size * count) + alignment - 1 + sizeof(void*), 1);
 
     uintptr_t address = (uintptr_t)raw + sizeof(void*);
-    
+
     // Ensure we have space for the raw pointer before alignment
     uintptr_t aligned = (address + alignment - 1) & ~(uintptr_t)(alignment - 1);
-    
+
     // If there's not enough space before aligned address, move to next boundary
     if (aligned - (uintptr_t)raw < sizeof(void*)) {
         aligned += alignment;
@@ -126,6 +126,9 @@ static void* __ort_alloc_default_alloc(size_t size, size_t count, size_t alignme
 
     void **start = (void**)aligned;
     start[-1] = raw;
+
+    // zero'd memory is a requirement of the allocator
+    memset((void*)start, 0, size * count);
 
     return (void*)start;
 }

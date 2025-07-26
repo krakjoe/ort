@@ -97,4 +97,4 @@ RESULT: [3]
 TYPE: %d
 SHAPE: []
 PASS: Error on empty tensor: shape information must be an array of positive integers
-PASS: Error on non-binary bool tensor: validation of data according to the shape provided has failed
+PASS: Error on non-binary bool tensor: tensor leaf at depth 2: expected bool, got int
