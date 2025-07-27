@@ -52,7 +52,7 @@ jobs:
 
       - name: Build php-em.wasm
         run: |
-          cd php-src && make -f emsdk.mk
+          cd php-src && EM_EXTRA_CONFIGURE=--enable-ort=static make -f emsdk.mk
 
       - name: Copy artifacts to dist
         run: |

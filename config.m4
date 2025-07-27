@@ -18,22 +18,6 @@ PHP_ARG_WITH([ort-onnx],
   [whether to enable ONNX Runtime support],
   [AS_HELP_STRING([--with-ort-onnx], [Enable ONNX Runtime support])], no, no)
 
-dnl ====================================================
-dnl In tree builds should be switched on automatically
-dnl This isn't idiomatic, but it is pragmatic:
-dnl   There is no reason, at this time, to be configured
-dnl   in-tree, if the user is not expecting a static
-dnl   build.
-dnl ====================================================
-AC_MSG_CHECKING([for ort source location])
-if test -f "$abs_srcdir/../../main/php.h"; then
-  AC_MSG_RESULT([in-tree])
-  PHP_ORT=static
-  AC_MSG_NOTICE([forcing static build for in-tree ort])
-else
-  AC_MSG_RESULT([out-of-tree])
-fi
-
 AS_VAR_IF([PHP_ORT], [no],, [
   dnl ============================================================
   dnl ISA Extension Detection (Prologue)
