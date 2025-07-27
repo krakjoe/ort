@@ -69,10 +69,10 @@ EM_JS(ssize_t, em_io_fetch, (const char* url, uintptr_t abstract), {
         if (xhr.status >= 200 && xhr.status < 300) {
             var response = xhr.responseText;
             var length = lengthBytesUTF8(response) + 1;
-            var buffer = Module._em_io_buffer(abstract, length);
+            var buffer = Module._em_io_buffer(abstract, length - 1);
 
             stringToUTF8(
-                response, buffer,length);
+                response, buffer, length);
 
             if (Module.dispatchEvent) {
                 Module.dispatchEvent(new CustomEvent('io.end', { 
@@ -129,10 +129,17 @@ static ssize_t em_io_read(php_stream *stream, char *buffer, size_t count) {
         (em_io_abstract_t*)
             stream->abstract;
 
+    // Nothing to read, return failure signal
     if (abstract->length <= 0) {
         return abstract->length;
     }
 
+    // Nothing left to read, return EOF
+    if (abstract->position == abstract->length) {
+        return EOF;
+    }
+
+    /// Too much reading
     if (count > abstract->length - abstract->position) {
         count = abstract->length - abstract->position;
     }
