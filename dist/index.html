@@ -350,8 +350,11 @@ if (extension_loaded('ort')) {
 
                 <h3>Getting Started</h3>
                 <div class="terminal code">
-<span class="comment"># Install dependencies</span>
-sudo apt-get install libonnxruntime-dev pkg-config
+<span class="comment"># Install optional dependencies</span>
+wget https://.../v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O onnxruntime-linux-x64-1.22.0.tgz
+sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-x64-1.22.0.tgz
+sudo ldconfig
+sudo apt-get install pkg-config
 
 <span class="comment"># Build extension</span>
 phpize
