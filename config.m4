@@ -18,11 +18,30 @@ PHP_ARG_WITH([ort-onnx],
   [whether to enable ONNX Runtime support],
   [AS_HELP_STRING([--with-ort-onnx], [Enable ONNX Runtime support])], no, no)
 
+dnl ====================================================
+dnl In tree builds should be switched on automatically
+dnl This isn't idiomatic, but it is pragmatic:
+dnl   There is no reason, at this time, to be configured
+dnl   in-tree, if the user is not expecting a static
+dnl   build.
+dnl ====================================================
+AC_MSG_CHECKING([for source location of ort])
+if test "$abs_srcdir" == "$abs_builddir"; then
+  if test "$PHP_ORT" != "static"; then
+    AC_MSG_WARN(
+      [in-tree, enabling static build])
+    PHP_ORT=static
+  fi
+else
+  AC_MSG_RESULT([out-of-tree])
+fi
+
 AS_VAR_IF([PHP_ORT], [no],, [
   dnl ============================================================
   dnl ISA Extension Detection (Prologue)
   dnl ============================================================
   AC_MSG_CHECKING([for ISA extension support])
+  AC_MSG_RESULT([working])
   
   dnl Initialize detection variables
   PHP_ORT_HAS_WASM="no"
@@ -37,35 +56,46 @@ AS_VAR_IF([PHP_ORT], [no],, [
       PHP_ORT_HAS_WASM="yes"
     ], [], [AC_INCLUDES_DEFAULT])
   ], [])
-  
-  dnl Check for NEON support
-  AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd], [
-    AC_CHECK_HEADERS([arm_neon.h], [
-      PHP_ORT_HAS_NEON="yes"
-    ], [], [AC_INCLUDES_DEFAULT])
-  ], [])
-  
-  dnl Check for AVX2 support
-  AX_CHECK_COMPILE_FLAG([-mavx2], [
-    AC_CHECK_HEADERS([immintrin.h], [
-      PHP_ORT_HAS_AVX2="yes"
-    ], [], [AC_INCLUDES_DEFAULT])
-  ], [])
-  
-  dnl Check for SSE4.1 support
-  AX_CHECK_COMPILE_FLAG([-msse4.1], [
-    AC_CHECK_HEADERS([smmintrin.h], [
-      PHP_ORT_HAS_SSE41="yes"
-    ], [], [AC_INCLUDES_DEFAULT])
-  ], [])
-  
-  dnl Check for SSE2 support
-  AX_CHECK_COMPILE_FLAG([-msse2], [
-    AC_CHECK_HEADERS([emmintrin.h], [
-      PHP_ORT_HAS_SSE2="yes"
-    ], [], [AC_INCLUDES_DEFAULT])
-  ], [])
-  
+
+  dnl Check for NEON support (if no wasm)
+  if test "$PHP_ORT_HAS_WASM" == "no"; then
+    AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd], [
+      AC_CHECK_HEADERS([arm_neon.h], [
+        PHP_ORT_HAS_NEON="yes"
+      ], [], [AC_INCLUDES_DEFAULT])
+    ], [])
+  fi
+
+  dnl Check for AVX2 support (if no wasm/neon)
+  if test "$PHP_ORT_HAS_WASM" == "no" &&
+     test "$PHP_ORT_HAS_NEON" == "no"; then
+    AX_CHECK_COMPILE_FLAG([-mavx2], [
+      AC_CHECK_HEADERS([immintrin.h], [
+        PHP_ORT_HAS_AVX2="yes"
+      ], [], [AC_INCLUDES_DEFAULT])
+    ], [])
+  fi
+
+  if test "$PHP_ORT_HAS_WASM" == "no" &&
+     test "$PHP_ORT_HAS_NEON" == "no"; then
+    dnl Check for SSE4.1 support (if no wasm/neon)
+    AX_CHECK_COMPILE_FLAG([-msse4.1], [
+      AC_CHECK_HEADERS([smmintrin.h], [
+        PHP_ORT_HAS_SSE41="yes"
+      ], [], [AC_INCLUDES_DEFAULT])
+    ], [])
+  fi
+
+  if test "$PHP_ORT_HAS_WASM" == "no" &&
+     test "$PHP_ORT_HAS_NEON" == "no"; then
+    dnl Check for SSE2 support (if no wasm/neon)
+    AX_CHECK_COMPILE_FLAG([-msse2], [
+      AC_CHECK_HEADERS([emmintrin.h], [
+        PHP_ORT_HAS_SSE2="yes"
+      ], [], [AC_INCLUDES_DEFAULT])
+    ], [])
+  fi
+
   dnl Report detected ISA extensions
   PHP_ORT_ISA_DETECTED=""
   if test "$PHP_ORT_HAS_WASM" = "yes"; then
@@ -83,11 +113,12 @@ AS_VAR_IF([PHP_ORT], [no],, [
   if test "$PHP_ORT_HAS_SSE2" = "yes"; then
     PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED SSE2"
   fi
-  
+
+  AC_MSG_CHECKING([for detected ISA extensions])
   if test -z "$PHP_ORT_ISA_DETECTED"; then
     AC_MSG_RESULT([none])
   else
-    AC_MSG_RESULT([detected:$PHP_ORT_ISA_DETECTED])
+    AC_MSG_RESULT([$PHP_ORT_ISA_DETECTED])
   fi
 
   dnl ============================================================
@@ -119,18 +150,6 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AC_DEFINE(HAVE_BUILTIN_ATOMIC_CPP11, 1, [Define to 1 if supports __atomic_add_fetch()])
   ], [
     AC_MSG_RESULT([no])
-  ])
-
-  dnl ============================================================
-  dnl Pooling Support
-  dnl ============================================================
-  AC_MSG_CHECKING([for pooling support])
-  AS_VAR_IF([PHP_ORT_POOL], [no], [
-    AC_MSG_RESULT([no])
-  ], [
-    AC_DEFINE(HAVE_ORT_POOL, 1,
-      [Defined to 1 where we should use pooling (threads)])
-    AC_MSG_RESULT([enabled])
   ])
 
   dnl ============================================================
@@ -264,6 +283,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
         if test "$PHP_ORT_HAS_WASM" != "yes"; then
           AC_MSG_ERROR([WASM backend requested but not available])
         fi
+        if test "$abs_srcdir" != "$abs_builddir"; then
+          AC_MSG_ERROR([WASM backend only supports in-tree (source == build dir) builds])
+        fi
         PHP_ORT_BACKEND_CFLAGS="-msimd128"
         PHP_ORT_BACKEND_LEVEL="WASM"
         PHP_ORT_BACKEND_IMPL=m4_normalize("
@@ -283,6 +305,8 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/wasm/trunc.c
           $PHP_ORT_BACKEND_DIR/wasm/impl.c
         ")
+        PHP_ORT_POOL="no"
+        ext_shared=no
       fi
 
       dnl NEON backend
@@ -400,26 +424,32 @@ AS_VAR_IF([PHP_ORT], [no],, [
   ])
 
   dnl ============================================================
+  dnl Pooling Support
+  dnl ============================================================
+  AC_MSG_CHECKING([for pooling support])
+  AS_VAR_IF([PHP_ORT_POOL], [no], [
+    AC_MSG_RESULT([no])
+  ], [
+    AC_DEFINE(HAVE_ORT_POOL, 1,
+      [Defined to 1 where we should use pooling (threads)])
+    AC_MSG_RESULT([enabled])
+  ])
+
+  dnl ============================================================
   dnl Extension Build Configuration
   dnl ============================================================
   dnl Add source files
-  PHP_NEW_EXTENSION(ort, [php_ort.c $PHP_ORT_CORE_IMPL $PHP_ORT_MATHS_IMPL $PHP_ORT_BACKEND_IMPL], $ext_shared,, [${PHP_ORT_BACKEND_CFLAGS}])
+  PHP_NEW_EXTENSION(ort, [php_ort.c $PHP_ORT_CORE_IMPL $PHP_ORT_MATHS_IMPL $PHP_ORT_BACKEND_IMPL], $,, [${PHP_ORT_BACKEND_CFLAGS}])
 
   dnl Add include paths
   PHP_ADD_INCLUDE([$ext_srcdir/src])
 
-  PHP_ADD_INCLUDE([
-    $ext_builddir/$PHP_ORT_MATHS_DIR])
-  PHP_ADD_BUILD_DIR([
-    $ext_builddir/$PHP_ORT_MATHS_DIR])
+  PHP_ADD_INCLUDE([$ext_builddir/$PHP_ORT_MATHS_DIR])
+  PHP_ADD_BUILD_DIR([$ext_builddir/$PHP_ORT_MATHS_DIR])
 
   if test "$PHP_ORT_BACKEND_LEVEL" != "none"; then
-    PHP_ADD_INCLUDE([
-      $ext_builddir/$PHP_ORT_BACKEND_DIR
-    ])
-    PHP_ADD_BUILD_DIR([
-      $ext_builddir/$PHP_ORT_BACKEND_DIR
-    ])
+    PHP_ADD_INCLUDE([$ext_builddir/$PHP_ORT_BACKEND_DIR])
+    PHP_ADD_BUILD_DIR([$ext_builddir/$PHP_ORT_BACKEND_DIR])
   fi
   
   PHP_SUBST([ORT_SHARED_LIBADD])

@@ -41,8 +41,8 @@ html/
 *.gcda
 *.gcno
 *.gcov
-dist/php-ort.js
-dist/php-ort.wasm
+dist/php-em.js
+dist/php-em.wasm
 
 # Ignore libtool object files and dependency files everywhere
 **/*.lo

@@ -33,9 +33,12 @@
 #include <php_main.h>
 #include <zend_exceptions.h>
 
+extern void em_io_activate(void);
+
 static const char EM_INI[] =
+    "allow_url_fopen=1\n"
   	"html_errors=0\n"
-  	"register_argc_argv=1\n"
+  	"register_argc_argv=0\n"
   	"implicit_flush=1\n"
   	"output_buffering=0\n"
   	"max_execution_time=0\n"
@@ -141,6 +144,8 @@ static zend_always_inline zend_result
 
         return FAILURE;
     }
+
+    em_io_activate();
 
     em_clear(false);
 

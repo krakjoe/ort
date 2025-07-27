@@ -4,465 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHP-ORT: Machine Learning Inference for the Web</title>
-    
+    <link rel="stylesheet" href="style.css"></head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.8/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.8/mode-php.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.8/theme-monokai.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
-    <script src="php-ort.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f8f9fa;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 0;
-            text-align: center;
-            margin-bottom: 0;
-        }
-
-        .hero h1 {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.3em;
-            margin-bottom: 20px;
-            opacity: 0.9;
-        }
-
-        .hero-subtitle {
-            font-size: 1.1em;
-            opacity: 0.8;
-            margin-bottom: 30px;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 30px;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-
-        .tabs {
-            background: white;
-            border-radius: 12px 12px 0 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .tab-nav {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 20px;
-            background: none;
-            border: none;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            color: #6c757d;
-        }
-
-        .tab-button:hover {
-            background: #e9ecef;
-        }
-
-        .tab-button.active {
-            background: white;
-            color: #495057;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 40px;
-            min-height: 600px;
-            background: white;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .tab-content h2 {
-            color: #2c3e50;
-            font-size: 2.2em;
-            margin-bottom: 20px;
-        }
-
-        .tab-content h3 {
-            color: #34495e;
-            font-size: 1.4em;
-            margin: 30px 0 15px 0;
-        }
-
-        .demo-container {
-            background: #1e1e1e;
-            border-radius: 8px;
-            padding: 0;
-            margin: 20px 0;
-            color: #d4d4d4;
-            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #333;
-        }
-
-        .demo-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 35px;
-            background: linear-gradient(135deg, #2d2d2d 0%, #1e1e1e 100%);
-            border-radius: 8px 8px 0 0;
-            border-bottom: 1px solid #333;
-        }
-
-        .demo-container::after {
-            content: '●●●';
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            color: #ff5f56;
-            font-size: 14px;
-            letter-spacing: 2px;
-        }
-
-        .demo-layout {
-            margin-bottom: 20px;
-        }
-
-        .demo-editor-container {
-            background: #1e1e1e;
-            border-radius: 8px 8px 0 0;
-            overflow: hidden;
-            margin-bottom: 2px;
-        }
-
-        .demo-editor-header {
-            background: #2d2d30;
-            color: #cccccc;
-            padding: 10px;
-            font-weight: 600;
-            border-bottom: 1px solid #3e3e42;
-        }
-
-        .demo-editor {
-            height: 300px;
-            width: 100%;
-        }
-
-        .demo-output-container {
-            background: #f8f9fa;
-            border-radius: 0 0 8px 8px;
-            overflow: hidden;
-            border: 1px solid #dee2e6;
-        }
-
-        .demo-output-header {
-            background: #28a745;
-            color: white;
-            padding: 10px;
-            font-weight: 600;
-        }
-
-        .demo-output {
-            padding: 15px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 13px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            min-height: 240px;
-            max-height: 480px;
-            background: #ffffff;
-            color: #333;
-            overflow-y: auto;
-        }
-
-        .demo-code {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            border: none;
-            padding: 15px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; 
-            font-size: 13px; 
-            line-height: 1.4;
-            resize: none;
-            width: 100%;
-            max-height: 640px;
-            outline: none;
-        }
-
-        .code {
-            margin-top: 40px;
-            padding: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            font-weight: 400;
-        }
-
-        .comment { color: #6A9955; font-style: italic; }
-        .keyword { color: #569CD6; font-weight: 600; }
-        .string { color: #CE9178; }
-        .number { color: #B5CEA8; }
-        .variable { color: #9CDCFE; }
-        .function { color: #DCDCAA; }
-        .class { color: #4EC9B0; }
-        .operator { color: #D4D4D4; }
-        .php-tag { color: #569CD6; font-weight: bold; }
-
-        .terminal {
-            background: #0d1117;
-            color: #58a6ff;
-            font-family: 'Consolas', monospace;
-            padding: 20px;
-            border-radius: 6px;
-            margin: 20px 0;
-            border: 1px solid #30363d;
-        }
-
-        .terminal::before {
-            content: '$ ';
-            color: #7c3aed;
-            font-weight: bold;
-        }
-
-        .highlight {
-            background: #fff3cd;
-            padding: 25px;
-            border-left: 4px solid #ffc107;
-            margin: 20px 0;
-        }
-
-        .performance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .performance-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #dee2e6;
-        }
-
-        .performance-card h4 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .performance-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #27ae60;
-        }
-
-        .benchmark-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .benchmark-table th,
-        .benchmark-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .benchmark-table th {
-            background: #34495e;
-            color: white;
-        }
-
-        .benchmark-table tr:hover {
-            background: #f5f5f5;
-        }
-
-        .button {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .output {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 20px;
-            border-radius: 6px;
-            margin: 15px 0;
-            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            min-height: 200px;
-            border: 1px solid #333;
-        }
-
-        .criticism-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .criticism-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-        .criticism-card h4 {
-            color: #e74c3c;
-            margin-bottom: 10px;
-        }
-
-        .criticism-card .response {
-            color: #27ae60;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .ecosystem-timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .ecosystem-timeline::before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #3498db;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 30px;
-            padding-left: 30px;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -7px;
-            top: 5px;
-            width: 14px;
-            height: 14px;
-            background: #3498db;
-            border-radius: 50%;
-            border: 3px solid white;
-        }
-
-        .timeline-item.completed::before {
-            background: #27ae60;
-        }
-
-        .padded-list {
-            padding-left: 20px;
-        }
-
-        .diagram-section {
-            margin-bottom: 40px;
-            margin-top: 20px;
-        }
-
-        .diagram-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #34495e;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #3498db;
-        }
-
-        .mermaid {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5em;
-            }
-            
-            .stats {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .tab-nav {
-                flex-direction: column;
-            }
-            
-            .performance-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <script src="php-em.js"></script>
 </head>
 <body>
     <div class="hero">
@@ -621,9 +168,6 @@
                 </div>
 
                 <script>
-                    let em = null;
-                    let emReady = false;
-
                     const emExamples = {
                         matrix: `<?php
 // Matrix Operations Demo
@@ -699,77 +243,39 @@ if (extension_loaded('ort')) {
                     };
 
                     async function emInit() {
-                        const initBtn = document.getElementById('demo-init-btn');
                         const loadingDiv = document.getElementById('live-demo-loading');
                         const demoContainer = document.getElementById('live-demo-container');
-                        
+
                         loadingDiv.style.display = 'block';
-                        
-                        try {
-                            // Load the PHP WASM module
-                            em = await createPHPModule();
-                            
-                            // Initialize PHP
-                            const result = em.ccall(
-                                'em_startup', 
-                                'number'
-                            );
-                            
-                            emReady = true;
-                            loadingDiv.style.display = 'none';
-                            demoContainer.style.display = 'block';
-                        } catch (error) {
-                            console.error('Failed to load demo:', error);
+
+                        if (!Module.ready) {
                             loadingDiv.innerHTML =
                                 '<p style="color: red;">Failed to load demo. Please refresh and try again.</p>';
+                        } else {
+                            loadingDiv.style.display = 'none';
+                            demoContainer.style.display = 'block';
                         }
                     }
 
                     function emRun() {
-                        if (!emReady) return;
+                        if (!Module.ready) return;
                         
                         const code = editor.getValue();
-                        const output = document.getElementById('demo-output');
-                        
+                        const target = document.getElementById('demo-output');
+
                         try {
-                            // run the code
-                            const address = em.ccall(
-                                'em_run_string',
-                                'number',
-                                ['string', 'number'],
-                                [code, em.lengthBytesUTF8(code)]
-                            );
-
-                            // get the length of the buffer
-                            const length = em.ccall(
-                                'em_run_length',
-                                'number'
-                            );
-
-                            if (!length) {
-                                output.textContent =
-                                    "em ran your code, there was no output!";
-                            } else {
-                                const bytes = new Uint8Array( // into buffer that js owns
-                                    em.HEAPU8.subarray(       // from the heap that em alloc'd
-                                        address,              // start at address returned by run
-                                        address + length));   // up to length returned by run (handle nulls)
-                                
-                                const result = new TextDecoder().decode(bytes);
-
-                                // display the output
-                                output.textContent = result;
-
-                                // free memory, js has it's own
-                                em.ccall('em_run_free');
-                            }
+                            Module.invoke(code, target);
                         } catch (error) {
-                            output.textContent = 'em exception: ' + error.message;
+                            target.textContent =
+                                'em exception: ' + error.message;
                         }
                     }
 
                     function emClear() {
-                        document.getElementById('demo-output').textContent = 'Output cleared. Ready for new code!';
+                        const target = document.getElementById('demo-output');
+
+                        target.textContent =
+                            'Output cleared. Ready for new code!';
                     }
 
                     function emLoad(type) {
@@ -1022,7 +528,7 @@ extension=ort.so
             event.target.classList.add('active');
 
             // Auto-initialize live demo when Solution tab is opened
-            if (tabName === 'solution' && !emReady) {
+            if (tabName === 'solution') {
                 emInit();
             }
         }

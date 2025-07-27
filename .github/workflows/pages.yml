@@ -1,4 +1,4 @@
-name: Deploy Pages
+name: pages
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           path: php-ort
@@ -25,10 +25,6 @@ jobs:
           repository: php/php-src
           ref: PHP-8.2  # Or whatever version you're using
           path: php-src
-
-      - name: Copy ORT extension to PHP
-        run: |
-          cp -r php-ort php-src/ext/ort
 
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v12
@@ -41,20 +37,26 @@ jobs:
           path: ~/.emscripten_cache
           key: ${{ runner.os }}-emscripten-${{ hashFiles('**/dist/emsdk.build') }}
 
-      - name: Install PHP-SRC deps
+      - name: Install deps
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential bison re2c autoconf pkg-config
 
-      - name: Build PHP-ORT WASM
+      - name: Copy extension to PHP
+        run: |
+          cp -r php-ort php-src/ext/ort
+
+      - name: Copy emsdk to PHP
         run: |
           cp php-ort/dist/emsdk/* php-src
-          chmod +x php-src/emsdk.build
-          cd php-src && ./buildconf --force && ./emsdk.build
 
-      - name: Prepare dist directory
+      - name: Build php-em.wasm
         run: |
-          cp php-src/php-ort.{js,wasm} php-ort/dist
+          cd php-src && make -f emsdk.mk
+
+      - name: Copy artifacts to dist
+        run: |
+          cp php-src/php-em.{js,wasm} php-ort/dist
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
