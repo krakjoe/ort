@@ -37,12 +37,14 @@ extern void em_io_activate(void);
 
 static const char EM_INI[] =
     "allow_url_fopen=1\n"
-  	"html_errors=0\n"
-  	"register_argc_argv=0\n"
-  	"implicit_flush=1\n"
-  	"output_buffering=0\n"
-  	"max_execution_time=0\n"
-  	"max_input_time=-1\n\0";
+    "html_errors=0\n"
+    "error_reporting=32767\n"
+    "display_errors=1\n"
+    "register_argc_argv=1\n"
+    "implicit_flush=1\n"
+    "output_buffering=0\n"
+    "max_execution_time=0\n"
+    "max_input_time=-1\n\0";
 
 extern sapi_module_struct php_embed_module;
 

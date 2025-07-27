@@ -55,17 +55,7 @@ EM_JS(ssize_t, em_io_fetch, (const char* url, uintptr_t abstract), {
     var xhr = new XMLHttpRequest();
 
     if (Module.dispatchEvent) {
-        Module.dispatchEvent(new CustomEvent('io.open', { 
-            "detail": { 
-                "url": url_str,
-                "xhr": xhr}
-        }));
-    }
-
-    xhr.open('GET', url_str, false);
-
-    if (Module.dispatchEvent) {
-        Module.dispatchEvent(new CustomEvent('io.send', { 
+        Module.dispatchEvent(new CustomEvent('io.begin', { 
             "detail": { 
                 "url": url_str,
                 "xhr": xhr}
@@ -73,7 +63,9 @@ EM_JS(ssize_t, em_io_fetch, (const char* url, uintptr_t abstract), {
     }
 
     try {
+        xhr.open('GET', url_str, false);
         xhr.send();
+
         if (xhr.status >= 200 && xhr.status < 300) {
             var response = xhr.responseText;
             var length = lengthBytesUTF8(response) + 1;
@@ -183,10 +175,18 @@ static php_stream *em_io_opener(php_stream_wrapper *wrapper,
                                   const char *path, const char *mode,
                                   int options, zend_string **opened_path,
                                   php_stream_context *context) {
-    return php_stream_alloc(
-        &em_io_ops,
-        (void*) em_io_abstract(path),
-        0, mode);
+    em_io_abstract_t* abstract = em_io_abstract(path);
+
+    if (!abstract || abstract->length < 0) {
+        if (abstract) {
+            if (abstract->data) {
+                pefree(abstract->data, 1);
+            }
+            pefree(abstract, 1); 
+        }
+        return NULL; 
+    }
+    return php_stream_alloc(&em_io_ops, abstract, 0, mode);
 }
 
 static php_stream_wrapper_ops em_io_wrapper_ops = {
