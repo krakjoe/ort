@@ -53,19 +53,67 @@ void* EMSCRIPTEN_KEEPALIVE em_io_buffer(uintptr_t ab, size_t length) {
 EM_JS(ssize_t, em_io_fetch, (const char* url, uintptr_t abstract), {
     var url_str = UTF8ToString(url);
     var xhr = new XMLHttpRequest();
+
+    if (Module.dispatchEvent) {
+        Module.dispatchEvent(new CustomEvent('io.open', { 
+            "detail": { 
+                "url": url_str,
+                "xhr": xhr}
+        }));
+    }
+
     xhr.open('GET', url_str, false);
+
+    if (Module.dispatchEvent) {
+        Module.dispatchEvent(new CustomEvent('io.send', { 
+            "detail": { 
+                "url": url_str,
+                "xhr": xhr}
+        }));
+    }
 
     try {
         xhr.send();
         if (xhr.status >= 200 && xhr.status < 300) {
             var response = xhr.responseText;
-            var len = lengthBytesUTF8(response) + 1;
-            var ptr = Module._em_io_buffer(abstract, len);
-            stringToUTF8(response, ptr, len);
-            return len;
+            var length = lengthBytesUTF8(response) + 1;
+            var buffer = Module._em_io_buffer(abstract, length);
+
+            stringToUTF8(
+                response, buffer,length);
+
+            if (Module.dispatchEvent) {
+                Module.dispatchEvent(new CustomEvent('io.end', { 
+                    "detail": { 
+                        "url":    url_str,
+                        "xhr":    xhr,
+                        "buffer": buffer,
+                        "length": length}
+                }));
+            }
+
+            return length;
+        } else {
+            if (Module.dispatchEvent) {
+                Module.dispatchEvent(new CustomEvent('io.error', { 
+                    "detail": { 
+                        "url": url_str,
+                        "xhr": xhr}
+                }));
+            }
         }
-    } catch (e) {
-        console.error('Fetch failed:', e);
+    } catch (exception) {
+        if (Module.dispatchEvent) {
+            Module.dispatchEvent(new CustomEvent('io.exception', {
+                "detail": { 
+                    "url":       url_str,
+                    "xhr":       xhr,
+                    "exception": exception,
+                }
+            }));
+        }
+
+        console.error('Fetch failed:', exception);
     }
     return -1;
 });
@@ -135,13 +183,10 @@ static php_stream *em_io_opener(php_stream_wrapper *wrapper,
                                   const char *path, const char *mode,
                                   int options, zend_string **opened_path,
                                   php_stream_context *context) {
-    em_io_abstract_t* abstract = em_io_abstract(path);
-    if (!abstract) {
-        return NULL;
-    }
-
-    php_stream *stream = php_stream_alloc(&em_io_ops, abstract, 0, mode);
-    return stream;
+    return php_stream_alloc(
+        &em_io_ops,
+        (void*) em_io_abstract(path),
+        0, mode);
 }
 
 static php_stream_wrapper_ops em_io_wrapper_ops = {

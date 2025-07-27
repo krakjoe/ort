@@ -160,7 +160,8 @@ Module.invoke = function(input, output = undefined) {
             detail: { 
                 "input": input,
                 "output": output,
-                "result": result }
+                "result": result,
+                "exception": exception }
         }));
 
         throw exception;

@@ -25,9 +25,9 @@ EMCONFIGURE ?= emconfigure
 EMMAKE      ?= emmake
 EMCFLAGS    ?= -Imain -IZend -ITSRM -Iext/standard -I.
 ########################################################################
-EM_EXTRA_PHP     ?=
-EM_EXTRA_COMPILE ?=
-EM_EXTRA_LINK    ?=
+EM_EXTRA_CONFIGURE ?=
+EM_EXTRA_COMPILE   ?=
+EM_EXTRA_LINK      ?=
 ########################################################################
 LIBTOOL     ?= $(realpath libtool)
 ########################################################################
@@ -45,7 +45,7 @@ config.status:
 		--enable-embed=static \
 		--disable-fiber-asm \
 		--without-pcre-jit \
-		$(EM_EXTRA_PHP)
+		$(EM_EXTRA_CONFIGURE)
 
 emsdk.stub.lo: emsdk.stub.c config.status
 	$(LIBTOOL) --silent --mode=compile --tag=CC \

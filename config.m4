@@ -25,13 +25,11 @@ dnl   There is no reason, at this time, to be configured
 dnl   in-tree, if the user is not expecting a static
 dnl   build.
 dnl ====================================================
-AC_MSG_CHECKING([for source location of ort])
-if test "$abs_srcdir" == "$abs_builddir"; then
-  if test "$PHP_ORT" != "static"; then
-    AC_MSG_WARN(
-      [in-tree, enabling static build])
-    PHP_ORT=static
-  fi
+AC_MSG_CHECKING([for ort source location])
+if test -f "$abs_srcdir/../../main/php.h"; then
+  AC_MSG_RESULT([in-tree])
+  PHP_ORT=static
+  AC_MSG_NOTICE([forcing static build for in-tree ort])
 else
   AC_MSG_RESULT([out-of-tree])
 fi
@@ -439,7 +437,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
   dnl Extension Build Configuration
   dnl ============================================================
   dnl Add source files
-  PHP_NEW_EXTENSION(ort, [php_ort.c $PHP_ORT_CORE_IMPL $PHP_ORT_MATHS_IMPL $PHP_ORT_BACKEND_IMPL], $,, [${PHP_ORT_BACKEND_CFLAGS}])
+  PHP_NEW_EXTENSION(ort, [php_ort.c $PHP_ORT_CORE_IMPL $PHP_ORT_MATHS_IMPL $PHP_ORT_BACKEND_IMPL], $ext_shared,, [${PHP_ORT_BACKEND_CFLAGS}])
 
   dnl Add include paths
   PHP_ADD_INCLUDE([$ext_srcdir/src])
