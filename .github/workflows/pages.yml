@@ -54,7 +54,7 @@ jobs:
         run: |
           cd php-src && \
             EM_EXTRA_CONFIGURE=--enable-ort=static \
-              make \
+              make -f emsdk.mk \
                 with-sqlite3 \
                 with-pdo \
                 with-pdo-sqlite \
@@ -62,7 +62,7 @@ jobs:
                 with-phar \
                 with-zlib \
                 with-bz2 \
-              -f emsdk.mk
+              all
 
       - name: Copy artifacts to dist
         run: |
