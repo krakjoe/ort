@@ -49,8 +49,11 @@
 */
 
 #if defined(__aarch64__)
+#if !defined(__APPLE__) && !defined(__MACH__)
 #include <sys/auxv.h>
 #include <asm/hwcap.h>
+#endif
+/* No additional includes needed for macOS ARM64 */
 #elif defined(_WIN32)
 #include <intrin.h>
 #define __cpuid_count(leaf, level, eax, ebx, ecx, edx) do { \
@@ -138,7 +141,16 @@ static zend_always_inline zend_bool
         return 1;
     }
 
-#ifdef __aarch64__
+#if defined(__aarch64__)
+#if defined(__APPLE__) || defined(__MACH__)
+    /* On Apple Silicon (macOS ARM64), NEON is always available */
+    switch(type) {
+        case ORT_MATH_BACKEND_NEON:
+            return 0; /* NEON is always available, so never guard */
+        default:
+            return 1;
+    }
+#else
     unsigned long features = getauxval(
         __ORT_MATH_BACKEND_CPU_FEATURES);
     switch(type) {
@@ -148,6 +160,7 @@ static zend_always_inline zend_bool
         default:
             return 1;
     }
+#endif
 #else
     if (type == ORT_MATH_BACKEND_AVX2 && __ort_math_backend_ecore()) {
         return 1;

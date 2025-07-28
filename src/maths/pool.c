@@ -336,6 +336,13 @@ static void ort_pool_pin(size_t index) {
            break;
        }
    }
+#elif defined(__APPLE__) || defined(__MACH__)
+   /* 
+    * macOS doesn't support CPU affinity functions like pthread_setaffinity_np
+    * and sched_getcpu, so we'll just skip this part on macOS.
+    * This means threads won't be pinned to specific cores on macOS.
+    */
+   (void)index; /* Avoid unused parameter warning */
 #else
    cpu_set_t set;
    CPU_ZERO(&set);

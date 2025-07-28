@@ -22,7 +22,7 @@
 
 struct _ort_alloc_t {
     ort_alloc_func_t alloc;
-    ort_memcpy_func_t memcpy;
+    ort_memcpy_func_t memcpy_fn; /* renamed to avoid conflict with system memcpy macro */
     ort_free_func_t free;
 
     ort_alloc_startup_func_t startup;
@@ -152,7 +152,7 @@ static void __ort_alloc_default_shutdown(ort_alloc_t* allocator) {}
 
 ORT_TLS ort_alloc_t __ort_allocator = {
     .alloc    = __ort_alloc_default_alloc,
-    .memcpy   = __ort_alloc_default_memcpy,
+    .memcpy_fn = __ort_alloc_default_memcpy,
     .free     = __ort_alloc_default_free,
 
     .startup  = __ort_alloc_default_startup,
@@ -180,10 +180,10 @@ zend_bool ort_alloc_aligned(void* ptr) {
 }
 
 ort_memcpy_func_t ort_alloc_memcpy(ort_memcpy_func_t memcpy) {
-    ort_memcpy_func_t fallback = __ort_allocator.memcpy;
+    ort_memcpy_func_t fallback = __ort_allocator.memcpy_fn;
 
     if (memcpy) {
-        __ort_allocator.memcpy = memcpy;
+        __ort_allocator.memcpy_fn = memcpy;
     }
 
     return fallback;
@@ -195,7 +195,7 @@ void* ort_alloc(size_t size, size_t count) {
 }
 
 void* ort_memcpy(void *dest, const void *src, size_t n) {
-    return __ort_allocator.memcpy(dest, src, n);
+    return __ort_allocator.memcpy_fn(dest, src, n);
 }
 
 void ort_free(void* ptr) {
