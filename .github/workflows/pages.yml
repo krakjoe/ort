@@ -48,11 +48,21 @@ jobs:
 
       - name: Copy emsdk to PHP
         run: |
-          cp php-ort/dist/emsdk/* php-src
+          cp -r php-ort/dist/emsdk/* php-src
 
       - name: Build php-em.wasm
         run: |
-          cd php-src && EM_EXTRA_CONFIGURE=--enable-ort=static make -f emsdk.mk
+          cd php-src && \
+            EM_EXTRA_CONFIGURE=--enable-ort=static \
+              make \
+                with-sqlite3 \
+                with-pdo \
+                with-pdo-sqlite \
+                with-mbstring  \
+                with-phar \
+                with-zlib \
+                with-bz2 \
+              -f emsdk.mk
 
       - name: Copy artifacts to dist
         run: |
