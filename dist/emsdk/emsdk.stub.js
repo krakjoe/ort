@@ -22,6 +22,13 @@
 Module.ready = false;
 
 /**
+ * Shall be true when executing under nodejs
+ */
+Module.node = typeof process !== 'undefined' &&
+                     process.versions &&
+                     process.versions.node;
+
+/**
  * Shall startup (MINIT) em
  * @returns bool
  */
@@ -60,8 +67,7 @@ Module.invoke = function(input, output = undefined) {
         input instanceof HTMLTextAreaElement) {
         code = {
             value:  input.value,
-            length: Module.lengthBytesUTF8(
-                input.value),
+            length: Module.lengthBytesUTF8(input.value),
         };
     } else if (typeof input === 'function') {
         code = input();
@@ -81,8 +87,7 @@ Module.invoke = function(input, output = undefined) {
     } else if (typeof input == 'string') {
         code = {
             value:  input,
-            length: Module.lengthBytesUTF8(
-                input),
+            length: Module.lengthBytesUTF8(input),
         };
     } else {
         throw new TypeError(
@@ -141,19 +146,12 @@ Module.invoke = function(input, output = undefined) {
         throw new Error("Unexpected result, no output");
     }
 
-    let heap = null;
     let text = null;
 
     try {
-        heap = new Uint8Array // into a buffer that js owns
-        (                 
-            Module.HEAPU8.subarray(              // from the heap that em alloc'd
-                result.address,                  // start at address returned by run
-                result.address + result.length)  // up to length returned by run (handle nulls)
-        ); 
-
-        // decoded from js owned buffer
-        text = Module.decoder.decode(heap);
+        // FIXED: Use Emscripten's UTF8ToString instead of TextDecoder
+        // This ensures consistent encoding handling
+        text = Module.iou.fromBytes(result.address, result.length);
     } catch (exception) {
         // Fire exception event
         Module.dispatchEvent(new CustomEvent('invoke.exception', { 
@@ -201,6 +199,63 @@ Module.shutdown = function() {
         'em_shutdown');
 };
 
+/**
+ * Shall provide buffer conversion from JS -> PHP and PHP -> JS
+ */
+Module.iou = {
+    // JS → PHP: Convert JS string to raw bytes
+    toBytes: function(jsString, buffer) {
+        let written = 0;
+        for (let i = 0; i < jsString.length; i++) {
+            const code = jsString.charCodeAt(i);
+
+            if (code < 0x80) {
+                // ASCII - direct mapping
+                Module.HEAPU8[buffer + written] = code;
+                written++;
+            } else if (code < 0x800) {
+                // 2-byte UTF-8
+                Module.HEAPU8[buffer + written] = 0xC0 | (code >> 6);
+                Module.HEAPU8[buffer + written + 1] = 0x80 | (code & 0x3F);
+                written += 2;
+            } else {
+                // 3-byte UTF-8
+                Module.HEAPU8[buffer + written] = 0xE0 | (code >> 12);
+                Module.HEAPU8[buffer + written + 1] = 0x80 | ((code >> 6) & 0x3F);
+                Module.HEAPU8[buffer + written + 2] = 0x80 | (code & 0x3F);
+                written += 3;
+            }
+        }
+        return written;
+    },
+    
+    // Calculate byte length for JS string
+    getByteLength: function(jsString) {
+        let bytes = 0;
+        for (let i = 0; i < jsString.length; i++) {
+            const code = jsString.charCodeAt(i);
+            if (code < 0x80) {
+                bytes += 1;
+            } else if (code < 0x800) {
+                bytes += 2;
+            } else {
+                bytes += 3;
+            }
+        }
+        return bytes;
+    },
+
+    // PHP → JS: Convert raw bytes to JS string (Latin-1)
+    fromBytes: function(buffer, length) {
+        let result = '';
+        for(let i = 0; i < length; i++) {
+            result += String.fromCharCode(
+                Module.HEAPU8[buffer + i]);
+        }
+        return result;
+    }
+};
+
 Module['onRuntimeInitialized'] = function() {
     Module.startup();
 
@@ -213,6 +268,27 @@ Module['onRuntimeInitialized'] = function() {
     }
 
     Module.decoder = new TextDecoder();
+
+    if (Module.node) {
+        try {
+            const EventEmitter = require('events');
+            Module.events = new EventEmitter();
+            Module.addEventListener = (type, fn) => Module.events.on(type, fn);
+            Module.dispatchEvent = (event) => Module.events.emit(event.type, event);
+        } catch (e) {
+            Module.events = {};
+            Module.addEventListener = (type, fn) => {
+                if (!Module.events[type]) Module.events[type] = [];
+                Module.events[type].push(fn);
+            };
+            Module.dispatchEvent = (event) => {
+                if (Module.events[event.type]) {
+                    Module.events[event.type].forEach(fn => fn(event));
+                }
+            };
+        }
+        return;
+    }
     Module.events = new EventTarget();
     Module.addEventListener = (type, fn) =>
         Module.events.addEventListener(type, fn);

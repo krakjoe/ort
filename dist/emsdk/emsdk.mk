@@ -13,6 +13,8 @@
 ########################################################################
 # Author: krakjoe                                                      #
 ########################################################################
+# Private, toolchain, unlikely to be necessary to set any of this
+########################################################################
 export CC=emcc
 export CXX=em++
 export AR=emar
@@ -21,21 +23,53 @@ export STRIP=emstrip
 export CFLAGS=-DEMSCRIPTEN -DHAVE_REALLOCARRAY -O2
 export EXTRA_LIBS=emsdk.stub.lo
 ########################################################################
-EMCONFIGURE ?= emconfigure
-EMMAKE      ?= emmake
-EMCFLAGS    ?= -Imain -IZend -ITSRM -Iext/standard -I.
+# Super duper private, probably stuff will break if caller sets these
 ########################################################################
+export EMCONFIGURE ?= emconfigure
+export EMMAKE      ?= emmake
+export EMCFLAGS    ?= -Imain -IZend -ITSRM -Iext/standard -I.
+########################################################################
+# Protected, should probably not be set by caller, may be set by recipes
+########################################################################
+EM_EXTRA_TMP       ?= /tmp
+EM_EXTRA_NPROC     ?= $(nproc)
 EM_EXTRA_CONFIGURE ?=
 EM_EXTRA_COMPILE   ?=
 EM_EXTRA_LINK      ?=
 ########################################################################
+# Public, may be set by caller
+########################################################################
+EM_EXTRA_RECIPE_IN      ?= recipe
+EM_EXTRA_RECIPE_OUT     ?= /tmp
+########################################################################
+# Private, used in recipes
+########################################################################
+EM_EXTRA_RECIPE_TARGETS  ?=
+EM_EXTRA_RECIPE_CLEANERS ?=
+########################################################################
 LIBTOOL     ?= $(realpath libtool)
 ########################################################################
-.PHONY: all clean clean-emsdk clean-wasm strip install
+# Load recipes
+########################################################################
+ifneq ($(filter with-%, $(MAKECMDGOALS)),)
+EM_RECIPES      := $(patsubst with-%,%,$(filter with-%, $(MAKECMDGOALS)))
+EM_RECIPE_PATHS := $(foreach r,$(EM_RECIPES),$(EM_EXTRA_RECIPE_IN)/$(r).mk)
+$(foreach p,$(EM_RECIPE_PATHS), \
+  $(if $(wildcard $(p)), \
+    ,$(error Recipe: $(p) not found in recipe/) \
+  ) \
+)
+include $(EM_RECIPE_PATHS)
+endif
+########################################################################
+.PHONY: all clean clean-emsdk clean-wasm clean-recipes strip install with-%
+########################################################################
+with-%:
+	@true
 ########################################################################
 all: wasm
 
-config.status:
+config.status: $(EM_EXTRA_RECIPE_TARGETS)
 	@./buildconf --force
 	@$(EMCONFIGURE) ./configure \
 		--disable-all \
@@ -53,7 +87,7 @@ emsdk.stub.lo: emsdk.stub.c config.status
 			-c emsdk.stub.c -o emsdk.stub.lo
 
 .libs/libphp.a.stamp: emsdk.stub.lo
-	@$(EMMAKE) make -j$$(nproc)
+	@$(EMMAKE) make -j$(EM_EXTRA_NPROC)
 	@touch $@
 
 .libs/libphp.a: .libs/libphp.a.stamp
@@ -94,6 +128,8 @@ strip: wasm
 install: wasm
 	@$(EMMAKE) make install
 
+clean-recipes: $(EM_EXTRA_RECIPE_CLEANERS)
+
 clean-emsdk:
 	@rm -rf emsdk.*.o
 	@rm -rf emsdk.*.lo
@@ -102,7 +138,9 @@ clean-wasm:
 	@rm -rf php-em.js
 	@rm -rf php-em.wasm
 
-clean: clean-emsdk clean-wasm
+clean-php:
+	@rm -rf config.status
 	@rm -f .libs/libphp.a.stamp
-	@rm -f config.status
+
+clean: clean-recipes clean-emsdk clean-wasm clean-php
 	@$(EMMAKE) make clean

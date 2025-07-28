@@ -68,11 +68,11 @@ EM_JS(ssize_t, em_io_fetch, (const char* url, uintptr_t abstract), {
 
         if (xhr.status >= 200 && xhr.status < 300) {
             var response = xhr.responseText;
-            var length = lengthBytesUTF8(response) + 1;
-            var buffer = Module._em_io_buffer(abstract, length - 1);
+            
+            var length = Module.iou.getByteLength(response);
+            var buffer = Module._em_io_buffer(abstract, length);
 
-            stringToUTF8(
-                response, buffer, length);
+            length = Module.iou.toBytes(response, buffer);
 
             if (Module.dispatchEvent) {
                 Module.dispatchEvent(new CustomEvent('io.end', { 

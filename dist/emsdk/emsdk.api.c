@@ -31,7 +31,10 @@
 #include <SAPI.h>
 
 #include <php_main.h>
+#include <php_variables.h>
 #include <zend_exceptions.h>
+
+extern sapi_module_struct em_sapi_module;
 
 extern void em_io_activate(void);
 
@@ -45,8 +48,6 @@ static const char EM_INI[] =
     "output_buffering=0\n"
     "max_execution_time=0\n"
     "max_input_time=-1\n\0";
-
-extern sapi_module_struct php_embed_module;
 
 typedef void (*zend_error_func_t)(
     int type,
@@ -162,9 +163,12 @@ static long em_string_read(void *handle, char *buf, size_t len) {
     	len = string->length;
     }
 
+    if (len == 0) {
+        return len;
+    }
+
     memcpy(
         buf, string->value, len);
-    buf[len] = 0;
 
     return len;
 }
@@ -247,11 +251,11 @@ int em_startup(void) {
 #endif
 #endif
 
-    sapi_startup(&php_embed_module);
+    sapi_startup(&em_sapi_module);
 
-    php_embed_module.ini_entries = (char*) EM_INI;
+    em_sapi_module.ini_entries = (char*) EM_INI;
 
-  	if (php_embed_module.startup(&php_embed_module) == FAILURE) {
+  	if (em_sapi_module.startup(&em_sapi_module) == FAILURE) {
   		return FAILURE;
   	}
 
@@ -305,3 +309,93 @@ void em_shutdown() {
     tsrm_shutdown();
 #endif
 } /* }}} */
+
+/* {{{ sapi gubbins */
+static int em_sapi_startup(sapi_module_struct *sapi_module)
+{
+    return php_module_startup(sapi_module, NULL);
+}
+
+size_t em_sapi_write(const char* buf, size_t len) {
+	const char *ptr = buf;
+	size_t remaining = len;
+	size_t ret;
+
+	while (remaining > 0) {
+        ret = fwrite(ptr, 1, MIN(remaining, 16384), stdout);
+		if (!ret) {
+			php_handle_aborted_connection();
+		}
+		ptr += ret;
+		remaining -= ret;
+	}
+
+	return ret;
+}
+
+void em_sapi_error(int type, const char *message, ...) {
+    va_list args;
+    va_start(args, message);
+    vfprintf(
+        stderr,
+        message,
+        args);
+    va_end(args);
+}
+
+void em_sapi_log(const char* message, int type) {
+    fprintf(
+        stderr,
+        "em internal error: %s",
+        message);
+}
+
+static void em_sapi_flush(void* ctx) {
+    (void) ctx;
+
+    if (fflush(stdout) == EOF ||
+        fflush(stderr) == EOF) {
+            php_handle_aborted_connection();
+    }
+}
+
+static char* em_sapi_cookies(void)
+{
+	return NULL;
+}
+
+static void em_sapi_header(sapi_header_struct *header, void *ctx)
+{
+    (void) header;
+    (void) ctx;
+}
+
+static void em_sapi_env(zval *vars)
+{
+	php_import_environment_variables(vars);
+}
+
+sapi_module_struct em_sapi_module = {
+    "em",                         /* name */
+    "em SAPI",                    /* pretty name */
+    em_sapi_startup,              /* startup */
+    php_module_shutdown_wrapper,  /* shutdown */
+    NULL,                         /* activate */
+    NULL,                         /* deactivate */
+    em_sapi_write,                /* ub write */
+    em_sapi_flush,                /* flush */
+    NULL,                         /* get uid */
+    NULL,                         /* getenv */
+    em_sapi_error,                /* error handler */
+    NULL,                         /* header handler */
+    NULL,                         /* send headers handler */
+    em_sapi_header,               /* send header handler */
+    NULL,                         /* read post */
+    em_sapi_cookies,              /* read cookies */
+    em_sapi_env,                  /* register server variables */
+    em_sapi_log,                  /* log message */
+    NULL,                         /* get request time */
+    NULL,                         /* terminate process */
+    STANDARD_SAPI_MODULE_PROPERTIES
+};
+/* }}} */

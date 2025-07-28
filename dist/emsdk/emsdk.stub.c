@@ -28,10 +28,17 @@ int getdtablesize(void) {
 }
 
 int posix_spawnp(pid_t *pid, const char *file,
-                const posix_spawn_file_actions_t *file_actions,
-                const posix_spawnattr_t *attrp,
-                char *const argv[], char *const envp[]) {
-    return -1; // not supported in WASM
+                const posix_spawn_file_actions_t *actions,
+                const posix_spawnattr_t *attributes,
+                char *const argv[], char *const env[]) {
+    (void) pid;
+    (void) file;
+    (void) actions;
+    (void) attributes;
+    (void) argv;
+    (void) env;
+
+    return -1; // not supported
 }
 
 void *reallocarray(void *ptr, size_t nmemb, size_t size) {
@@ -42,13 +49,29 @@ void *reallocarray(void *ptr, size_t nmemb, size_t size) {
 }
 
 int getcontext(ucontext_t *ucp) {
+    (void) ucp;
+
     return -1; // not supported, but fibers should handle this gracefully
 }
 
 void makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...) {
+    (void) ucp;
+    (void) func;
+    (void) argc;
+
     // stub - fibers will fall back to alternative implementation
 }
 
 int swapcontext(ucontext_t *oucp, const ucontext_t *ucp) {
+    (void) oucp;
+    (void) ucp;
+
     return -1; // not supported
+}
+
+int munmap(void *addr, size_t length) {
+    (void)addr;    
+    (void)length;  
+
+    return 0; // not supported
 }
