@@ -1,0 +1,13 @@
+{
+  "name": "krakjoe/ort",
+  "type": "php-ext-zend",
+  "license": "The PHP License 3.01",
+  "description": "High performance tensor mathematics for PHP.",
+  "require": {
+    "php": ">=8.0"
+  },
+  "php-ext": {
+    "priority": 90,
+    "configure-options": []
+  }
+}
