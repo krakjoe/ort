@@ -23,50 +23,27 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: php/php-src
-          ref: PHP-8.2  # Or whatever version you're using
+          ref: PHP-8.4
           path: php-src
-
-      - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v12
-        with:
-          version: 4.0.11
-
-      - name: Cache Emscripten
-        uses: actions/cache@v3
-        with:
-          path: ~/.emscripten_cache
-          key: ${{ runner.os }}-emscripten-${{ hashFiles('**/dist/emsdk.build') }}
-
-      - name: Install deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential bison re2c autoconf pkg-config
 
       - name: Copy extension to PHP
         run: |
           cp -r php-ort php-src/ext/ort
 
-      - name: Copy emsdk to PHP
-        run: |
-          cp -r php-ort/dist/emsdk/* php-src
-
-      - name: Build php-em.wasm
-        run: |
-          cd php-src && \
-            EM_EXTRA_CONFIGURE=--enable-ort=static \
-              make -f emsdk.mk \
-                with-sqlite3 \
-                with-pdo \
-                with-pdo-sqlite \
-                with-mbstring  \
-                with-phar \
-                with-zlib \
-                with-bz2 \
-              all
+      - name: Build em
+        id: build-em
+        uses: krakjoe/em@develop
+        with:
+          EM_PHP_DIR: ./php-src
+          EM_PHP_CONFIGURE: --enable-ort=static
+          with: >
+            ctype zlib bz2 sqlite3 pdo pdo-sqlite
+            phar mbstring calendar bcmath opcache
 
       - name: Copy artifacts to dist
         run: |
-          cp php-src/php-em.{js,wasm} php-ort/dist
+          cp "${{ steps.build-em.outputs.js-file }}" php-ort/dist/
+          cp "${{ steps.build-em.outputs.wasm-file }}" php-ort/dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
