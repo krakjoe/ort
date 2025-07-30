@@ -40,10 +40,9 @@ jobs:
             ctype zlib bz2 sqlite3 pdo pdo-sqlite
             phar mbstring calendar bcmath opcache
 
-      - name: Copy artifacts to dist
+      - name: Copy em to dist
         run: |
-          cp "${{ steps.build-em.outputs.js-file }}" php-ort/dist/
-          cp "${{ steps.build-em.outputs.wasm-file }}" php-ort/dist/
+          cp php-em.{js,wasm} php-ort/dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
