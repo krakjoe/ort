@@ -374,6 +374,36 @@ static inline void ort_pool_pin(size_t index) {
 #endif
 
 #ifdef HAVE_ORT_POOL
+typedef enum _ort_pool_worker_status_t {
+    ORT_POOL_WORKER_CONTINUE,
+    ORT_POOL_WORKER_SIGNAL
+} ort_pool_worker_status_t;
+
+static inline ort_pool_worker_status_t
+    ort_pool_worker_complete(
+        ort_pool_t *pool,
+        ort_task_t *task) {
+#if defined(_WIN32)
+    InterlockedExchange(
+        (volatile LONG*)&task->completed, 1);
+#else
+    __sync_lock_test_and_set(
+        &task->completed, 1);
+#endif
+
+    if (
+#if defined(_WIN32)
+    InterlockedDecrement64(
+        (volatile LONGLONG*)&pool->activated) == 0
+#else
+    __sync_fetch_and_sub(&pool->activated, 1) == 1
+#endif
+    ) {
+        return ORT_POOL_WORKER_SIGNAL;
+    }
+    return ORT_POOL_WORKER_CONTINUE;
+}
+
 static void *ort_pool_worker(void *_arg) {
    ort_pool_arg_t *arg =
     (ort_pool_arg_t *) _arg;
@@ -406,17 +436,15 @@ static void *ort_pool_worker(void *_arg) {
            /* Execute the task assigned to this thread */
            task->func((void*)task->arg, idx, task->count);
 
-           /* Mark Completed */
-           ort_pool_mutex_lock(&pool->mutex);
-
-           task->completed = 1;
-
-           if (--pool->activated == 0) {
-               /* Last worker to complete wakes submitter */
-               ort_pool_cond_broadcast(&pool->cond);
+           /* Mark task completed */
+           if (ort_pool_worker_complete(pool, task) ==
+                   ORT_POOL_WORKER_SIGNAL) {
+                /* Last completer must signal to submitter */
+                ort_pool_mutex_lock(&pool->mutex);
+                ort_pool_cond_broadcast(
+                    &pool->cond);
+                ort_pool_mutex_unlock(&pool->mutex);
            }
-
-           ort_pool_mutex_unlock(&pool->mutex);
        } else {
            ort_pool_mutex_unlock(&pool->mutex);
        }
