@@ -106,6 +106,8 @@ typedef struct _ort_task_t {
         sizeof(int));
 } ort_task_t;
 
+typedef struct _ort_pool_arg_t ort_pool_arg_t;
+
 typedef struct _ort_pool_t {
 #ifdef HAVE_ORT_POOL
    ort_thread_t *threads;
@@ -118,12 +120,18 @@ typedef struct _ort_pool_t {
 #endif
    ort_mutex_t mutex;
    ort_cond_t cond;
+   ort_pool_arg_t *arg;
 #endif
    size_t     size;
    ort_task_t *slots;
    volatile size_t activated;
    volatile int stop;
 } ort_pool_t;
+
+typedef struct _ort_pool_arg_t {
+    ort_pool_t *pool;
+    size_t index;
+} _ort_pool_arg_t;
 
 ORT_TLS ort_pool_t __ort_pool;
 ORT_TLS size_t     __ort_pool_cores = 0;
@@ -341,6 +349,8 @@ static void ort_pool_pin(size_t index) {
     * macOS doesn't support CPU affinity functions like pthread_setaffinity_np
     * and sched_getcpu, so we'll just skip this part on macOS.
     * This means threads won't be pinned to specific cores on macOS.
+    * 
+    * They do not need to be, on macosx, NEON is always available.
     */
    (void)index; /* Avoid unused parameter warning */
 #else
@@ -364,30 +374,11 @@ static inline void ort_pool_pin(size_t index) {
 #endif
 
 #ifdef HAVE_ORT_POOL
-static zend_always_inline size_t
-    ort_pool_worker_indexof(
-        ort_pool_t* pool, ort_thread_t thread) {
-    for (size_t i = 0; i < pool->size; ++i) {
-#ifdef _WIN32
-        if (pool->idx[i] = GetCurrentThreadId()) {
-#else
-        if (pool->threads[i] == thread) {
-#endif
-           return i;
-        }
-    }
-
-    assert(0);
-    /* This is unreachable */
-    return SIZE_MAX;
-}
-
-static void *ort_pool_worker(void *arg) {
-   ort_pool_t *pool = (ort_pool_t *)arg;
-
-   /* Retrieve ident of thread */
-   size_t idx = ort_pool_worker_indexof(
-       pool, ort_pool_thread_self());
+static void *ort_pool_worker(void *_arg) {
+   ort_pool_arg_t *arg =
+    (ort_pool_arg_t *) _arg;
+   ort_pool_t *pool = arg->pool;
+   size_t idx = arg->index;
 
    /* Pin this thread to the target core */
    ort_pool_pin(idx);
@@ -628,23 +619,37 @@ int ort_pool_init(size_t size) {
        __ort_pool.size = 0;
        return FAILURE;
    }
+#ifdef HAVE_ORT_POOL
+   __ort_pool.arg = 
+       (ort_pool_arg_t*)calloc(size, sizeof(ort_pool_arg_t));
+   if (!__ort_pool.arg) {
+       free(__ort_pool.threads);
+       free(__ort_pool.slots);
+       __ort_pool.size = 0;
+       return FAILURE;
+   }
+#endif
    ort_pool_mutex_init(&__ort_pool.mutex);
    ort_pool_cond_init(&__ort_pool.cond);
    __ort_pool.stop = 0;
 
    for (size_t i = 0; i < size; ++i) {
+#ifdef HAVE_ORT_POOL
+       __ort_pool.arg[i].pool = &__ort_pool;
+       __ort_pool.arg[i].index = i;
+#endif
 #if defined(_WIN32)
        __ort_pool.threads[i] = CreateThread(
            NULL, 0,
            (LPTHREAD_START_ROUTINE)ort_pool_worker,
-           &__ort_pool, 0, NULL);
+           &__ort_pool.arg[i], 0, NULL);
         __ort_pool.idx[i] = GetThreadId(__ort_pool.threads[i]);
 #else
         pthread_create(
             &__ort_pool.threads[i],
             NULL,
             ort_pool_worker,
-            &__ort_pool);
+            &__ort_pool.arg[i]);
 #endif
    }
    return SUCCESS;
@@ -681,6 +686,7 @@ void ort_pool_destroy() {
    ort_pool_cond_destroy(&__ort_pool.cond);
    free(__ort_pool.threads);
    free(__ort_pool.slots);
+   free(__ort_pool.arg);
 }
 #else
 void ort_pool_destroy() {
