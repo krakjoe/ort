@@ -345,13 +345,17 @@ static void ort_pool_pin(size_t index) {
        }
    }
 #elif defined(__APPLE__) || defined(__MACH__)
-   /* 
-    * macOS doesn't support CPU affinity functions like pthread_setaffinity_np
-    * and sched_getcpu, so we'll just skip this part on macOS.
-    * This means threads won't be pinned to specific cores on macOS.
-    * 
-    * They do not need to be, on macosx, NEON is always available.
-    */
+   /*
+   * macOS doesn't support strict CPU affinity. Threads are not pinned to specific cores.
+   * This is safe because the ISA (including NEON) is consistent across all cores.
+   *
+   * However, we can provide a performance hint to the scheduler using Quality of Service (QoS)
+   * to encourage it to run this thread on a high-performance P-core.
+   *
+   * The scheduler still has final say ...
+   */
+   pthread_set_qos_class_self_np(QOS_CLASS_USER_INITIATED, 0);
+
    (void)index; /* Avoid unused parameter warning */
 #else
    cpu_set_t set;
