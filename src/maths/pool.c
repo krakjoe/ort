@@ -406,17 +406,17 @@ static void *ort_pool_worker(void *_arg) {
            /* Execute the task assigned to this thread */
            task->func((void*)task->arg, idx, task->count);
 
-           /* Mark task as completed */
-#if defined(_WIN32)
-           InterlockedExchange((volatile LONG*)&task->completed, 1);
-           if (InterlockedDecrement64((volatile LONGLONG*)&pool->activated) == 0) {
-#else
-           __sync_lock_test_and_set(&task->completed, 1);
-           if (__sync_fetch_and_sub(&pool->activated, 1) == 1) {
-#endif
-               /* Last thread to complete, signal main thread */
+           /* Mark Completed */
+           ort_pool_mutex_lock(&pool->mutex);
+
+           task->completed = 1;
+
+           if (--pool->activated == 0) {
+               /* Last worker to complete wakes submitter */
                ort_pool_cond_broadcast(&pool->cond);
            }
+
+           ort_pool_mutex_unlock(&pool->mutex);
        } else {
            ort_pool_mutex_unlock(&pool->mutex);
        }
