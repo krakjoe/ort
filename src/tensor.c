@@ -1545,16 +1545,17 @@ PHP_METHOD(ONNX_Tensor, getData)
         "depth %zd out of range [0, %zd)",
         depth, ort->object->dimensions);
 
+    size_t offset_size = (size_t)offset;
     php_ort_status_flow(
         (!php_ort_tensor_data(
             ort->object, 
-            &offset,
+            &offset_size,
             php_ort_tensor_sizeof(ort->object), 
             return_value, 
             (size_t)depth)),
         return,
         php_ort_status_tensor_invaliddata_ce,
-        "failed to extract tensor data starting at offset %zd, depth %zd", offset, depth);
+        "failed to extract tensor data starting at offset %zd, depth %zd", offset_size, depth);
 }
 
 // Robust recursive shape inference with raggedness and type checks
