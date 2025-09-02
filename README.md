@@ -19,15 +19,32 @@ This extension also includes optional integration with Microsoft's ONNX Runtime 
 ### Installation
 
 ```bash
-# Install dependencies
-sudo apt-get install libonnxruntime-dev pkg-config
-
 # Build extension
 phpize
 ./configure --enable-ort
 make
 sudo make install
 ```
+
+### Installation with ONNX Runtime
+
+```bash
+# Fetch onnxruntime from github
+wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz
+
+# Install onnxruntime
+tar -C /usr/local -xvf onnxruntime-linux-x64-1.22.0.tgz --strip-components 1
+
+# Build and install extension
+phpize
+./configure --with-ort-onnx=/usr/local --enable-ort
+make
+sudo make install
+```
+
+<em>Note: Use microsoft provided releases of ONNX, not brew or ppa or apt provided releases.</em>
+
+#### Post Installation
 
 Add to your `php.ini`:
 ```ini
