@@ -25,7 +25,7 @@
 #include "maths/pool.h"
 #include "maths/promotion.h"
 
-void ort_math_startup() {
+void ort_math_startup(void) {
 #ifdef ORT_BACKEND_ENABLED
     ort_math_backend_install(
         ort_math_dispatch_table());
@@ -33,15 +33,15 @@ void ort_math_startup() {
     ort_math_promotion_startup();
 }
 
-void ort_math_activate() {
+void ort_math_activate(void) {
     ort_pool_init(
         ort_pool_cores());
 }
 
-void ort_math_deactivate() {
+void ort_math_deactivate(void) {
     ort_pool_destroy();
 }
 
-void ort_math_shutdown() {
+void ort_math_shutdown(void) {
     ort_math_promotion_shutdown();
 }

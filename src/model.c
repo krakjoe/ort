@@ -45,7 +45,16 @@ static void php_ort_model_free(ort_model_t *model) {
         api->ReleaseSession(model->session);
     }
 
-    zend_string_free(model->file);
+    switch (model->kind) {
+        case ORT_MODEL_SOURCE_FILE:
+            zend_string_free(model->source.file);
+        break;
+
+        case ORT_MODEL_SOURCE_MEMORY:
+            zend_string_free(model->source.memory);
+        break;
+    }
+
     zend_string_free(model->name);
 
     if (model->names.input) {
@@ -100,53 +109,8 @@ static void php_ort_model_del(zval *zv) {
         ((ort_model_t*) Z_PTR_P(zv)));
 }
 
-static zend_bool php_ort_model_construct(ort_model_t *model,  zend_string *name, zend_string *file){
-    OrtSessionOptions* options = NULL;
+static zend_bool php_ort_model_construct_complete(ort_model_t *model) {
     OrtStatus* status;
-    size_t idx;
-
-    model->name = php_ort_string_copy(name);
-    model->file = php_ort_string_copy(file);
-
-    php_ort_status_flow(
-        (status = api->CreateSessionOptions(&options)),
-        {
-            api->ReleaseStatus(status);
-
-            return 0;
-        },
-        php_ort_status_model_invalidoptions_ce,
-        "failed to allocate SessionOptions* for Model: %s",
-        api->GetErrorMessage(status));
-
-    php_ort_status_flow(
-        (status = api->SetSessionGraphOptimizationLevel(options, ORT_ENABLE_ALL)),
-        {
-            api->ReleaseStatus(status);
-
-            return 0;
-        },
-        php_ort_status_model_invalidoptions_ce,
-        "failed to set graph optimization level in SessionOptions* for Model: %s",
-        api->GetErrorMessage(status));
-
-    php_ort_string_temp_t pass = php_ort_string_pass(ZSTR_VAL(file));
-
-    php_ort_status_flow(
-        (status = api->CreateSession(php_ort_environment(),
-            pass, options, &model->session)),
-        {
-            api->ReleaseStatus(status);
-            php_ort_string_free(pass);
-            return 0;
-        },
-        php_ort_status_model_invalidmemory_ce,
-        "failed to allocate OrtSession* for Model: %s",
-        api->GetErrorMessage(status));
-
-    php_ort_string_free(pass);
-
-    api->ReleaseSessionOptions(options);
 
     php_ort_status_flow(
         (status = api->GetAllocatorWithDefaultOptions(&model->allocator)),
@@ -184,6 +148,8 @@ static zend_bool php_ort_model_construct(ort_model_t *model,  zend_string *name,
         php_ort_status_model_invalidmodel_ce,
         "failed to get input counter for Model: %s",
         api->GetErrorMessage(status));
+
+    size_t idx;
 
     model->names.input = pecalloc(model->counters.input, sizeof(char*), 1);
 
@@ -239,9 +205,109 @@ static zend_bool php_ort_model_construct(ort_model_t *model,  zend_string *name,
     return 1;
 }
 
+static zend_bool php_ort_model_construct_from_file(ort_model_t *model,  zend_string *name, zend_string *file){
+    OrtSessionOptions* options = NULL;
+    OrtStatus* status;
+
+    model->kind = ORT_MODEL_SOURCE_FILE;
+    model->name = php_ort_string_copy(name);
+    model->source.file = php_ort_string_copy(file);
+    
+    php_ort_status_flow(
+        (status = api->CreateSessionOptions(&options)),
+        {
+            api->ReleaseStatus(status);
+
+            return 0;
+        },
+        php_ort_status_model_invalidoptions_ce,
+        "failed to allocate SessionOptions* for Model: %s",
+        api->GetErrorMessage(status));
+
+    php_ort_status_flow(
+        (status = api->SetSessionGraphOptimizationLevel(options, ORT_ENABLE_ALL)),
+        {
+            api->ReleaseStatus(status);
+
+            return 0;
+        },
+        php_ort_status_model_invalidoptions_ce,
+        "failed to set graph optimization level in SessionOptions* for Model: %s",
+        api->GetErrorMessage(status));
+
+    php_ort_string_temp_t pass = php_ort_string_pass(ZSTR_VAL(file));
+
+    php_ort_status_flow(
+        (status = api->CreateSession(php_ort_environment(),
+            pass, options, &model->session)),
+        {
+            api->ReleaseStatus(status);
+            php_ort_string_free(pass);
+            return 0;
+        },
+        php_ort_status_model_invalidmemory_ce,
+        "failed to allocate OrtSession* for Model: %s",
+        api->GetErrorMessage(status));
+
+    php_ort_string_free(pass);
+
+    api->ReleaseSessionOptions(options);
+
+    return php_ort_model_construct_complete(model);
+}
+
+static zend_bool php_ort_model_construct_from_array(ort_model_t *model,  zend_string *name, zend_string *file){
+    OrtSessionOptions* options = NULL;
+    OrtStatus* status;
+
+    model->kind = ORT_MODEL_SOURCE_MEMORY;
+    model->name = php_ort_string_copy(name);
+    model->source.memory = php_ort_string_copy(file);
+
+    php_ort_status_flow(
+        (status = api->CreateSessionOptions(&options)),
+        {
+            api->ReleaseStatus(status);
+
+            return 0;
+        },
+        php_ort_status_model_invalidoptions_ce,
+        "failed to allocate SessionOptions* for Model: %s",
+        api->GetErrorMessage(status));
+
+    php_ort_status_flow(
+        (status = api->SetSessionGraphOptimizationLevel(options, ORT_ENABLE_ALL)),
+        {
+            api->ReleaseStatus(status);
+
+            return 0;
+        },
+        php_ort_status_model_invalidoptions_ce,
+        "failed to set graph optimization level in SessionOptions* for Model: %s",
+        api->GetErrorMessage(status));
+
+    php_ort_status_flow(
+        (status = api->CreateSessionFromArray(php_ort_environment(),
+            ZSTR_VAL(model->source.memory),
+            ZSTR_LEN(model->source.memory),
+            options, &model->session)),
+        {
+            api->ReleaseStatus(status);
+            return 0;
+        },
+        php_ort_status_model_invalidmemory_ce,
+        "failed to allocate OrtSession* for Model: %s",
+        api->GetErrorMessage(status));
+
+    api->ReleaseSessionOptions(options);
+
+    return php_ort_model_construct_complete(model);
+}
+
 ZEND_BEGIN_ARG_INFO_EX(php_ort_model_construct_arginfo, 0, 0, 1)
-     ZEND_ARG_TYPE_INFO(0, name,  IS_STRING, 0)
-     ZEND_ARG_TYPE_INFO(0, file,  IS_STRING, 0)
+     ZEND_ARG_TYPE_INFO(0, name,   IS_STRING, 0)
+     ZEND_ARG_TYPE_INFO(0, source,  IS_STRING, 0)
+     ZEND_ARG_TYPE_INFO(0, array,  _IS_BOOL,  0)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(ONNX_Model, __construct)
@@ -249,12 +315,14 @@ PHP_METHOD(ONNX_Model, __construct)
     php_ort_model_t *ort = php_ort_model_fetch(Z_OBJ(EX(This)));
 
     zend_string *name;
-    zend_string *file = NULL;
+    zend_string *source = NULL;
+    zend_bool array = 0;
 
-    ZEND_PARSE_PARAMETERS_START(1, 2);
+    ZEND_PARSE_PARAMETERS_START(1, 3);
         Z_PARAM_STR(name)
         Z_PARAM_OPTIONAL
-        Z_PARAM_STR(file)
+        Z_PARAM_STR(source)
+        Z_PARAM_BOOL(array)
     ZEND_PARSE_PARAMETERS_END();
 
 #ifdef ZTS
@@ -266,34 +334,39 @@ PHP_METHOD(ONNX_Model, __construct)
 #endif
 
     if (!(ort->object = zend_hash_find_ptr(&php_ort_models, name))) {
-        char path[4096];
+        if (!array) {
+            char path[4096];
 
-        php_ort_status_flow(
-            !file,
-            return,
-            php_ort_status_model_invalidfile_ce,
-            "model %s could not be loaded and no file provided",
-            ZSTR_VAL(name));
+            php_ort_status_flow(
+                !source,
+                return,
+                php_ort_status_model_invalidfile_ce,
+                "model %s could not be loaded and no file provided",
+                ZSTR_VAL(name));
 
-        php_ort_status_flow(
-            (ZSTR_LEN(file) > 4096),
-            return,
-            php_ort_status_model_invalidfile_ce,
-            "model %s could not be created: file name too long",
-            ZSTR_VAL(name));
+            php_ort_status_flow(
+                (ZSTR_LEN(source) > 4096),
+                return,
+                php_ort_status_model_invalidfile_ce,
+                "model %s could not be created: file name too long",
+                ZSTR_VAL(name));
 
-        php_ort_status_flow(
-            (NULL == VCWD_REALPATH(ZSTR_VAL(file), path)),
-            return,
-            php_ort_status_model_invalidfile_ce,
-            "model %s could not be found, %s is not a valid path",
-            ZSTR_VAL(name), ZSTR_VAL(file));
+            php_ort_status_flow(
+                (NULL == VCWD_REALPATH(ZSTR_VAL(source), path)),
+                return,
+                php_ort_status_model_invalidfile_ce,
+                "model %s could not be found, %s is not a valid path",
+                ZSTR_VAL(name), ZSTR_VAL(source));
+        }
 
         ort_model_t *model = pecalloc(1, sizeof(ort_model_t), 1);
 
         model->refcount = 1;
 
-        if (!php_ort_model_construct(model, name, file)) {
+        zend_bool result = array ?
+            php_ort_model_construct_from_array(model, name, source) :
+            php_ort_model_construct_from_file(model, name, source) ;
+        if (!result) {
             php_ort_model_free(model);
 #ifdef ZTS
             php_ort_status_flow(
@@ -310,11 +383,11 @@ PHP_METHOD(ONNX_Model, __construct)
             model->name,
             model);
         php_ort_atomic_addref(&ort->object->refcount);
-    } else {
+    } else if (ort->object->kind == ORT_MODEL_SOURCE_FILE) {
 
 #ifdef ZTS
         php_ort_status_flow(
-            file && !zend_string_equals(ort->object->file, file),
+            source && !zend_string_equals(ort->object->source.file, source),
             {
                 php_ort_status_flow(
                     tsrm_mutex_unlock(php_ort_model_mutex) != SUCCESS,
@@ -326,18 +399,23 @@ PHP_METHOD(ONNX_Model, __construct)
             },
             php_ort_status_model_invalidfile_ce,
             "a model with the name %s is already loaded from %s, the file %s does not match",
-            ZSTR_VAL(ort->object->name), ZSTR_VAL(ort->object->file), ZSTR_VAL(file));
+            ZSTR_VAL(ort->object->name), ZSTR_VAL(ort->object->source.file), ZSTR_VAL(source));
 #else
         php_ort_status_flow(
-            file && !zend_string_equals(ort->object->file, file),
+            source && !zend_string_equals(ort->object->source.file, source),
             {
                 ort->object = NULL;
                 return;
             },
             php_ort_status_model_invalidfile_ce,
             "a model with the name %s is already loaded from %s, the file %s does not match",
-            ZSTR_VAL(ort->object->name), ZSTR_VAL(ort->object->file), ZSTR_VAL(file));
+            ZSTR_VAL(ort->object->name), ZSTR_VAL(ort->object->source.file), ZSTR_VAL(source));
 #endif
+        php_ort_atomic_addref(&ort->object->refcount);
+    } else {
+        /* Created from array, we can't validate this in the same way
+            it doesn't make much sense to compare what could be several
+            gb of memory */
         php_ort_atomic_addref(&ort->object->refcount);
     }
 
@@ -373,7 +451,9 @@ PHP_METHOD(ONNX_Model, getFile)
 
     ZEND_PARSE_PARAMETERS_NONE();
 
-    RETURN_STR_COPY(ort->object->file);
+    if (ort->object->kind == ORT_MODEL_SOURCE_FILE) {
+        RETURN_STR_COPY(ort->object->source.file);
+    }
 }
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_model_getInput_arginfo, 0, 1, IS_STRING, 0)
@@ -728,10 +808,10 @@ static HashTable* php_ort_model_debug(zend_object *zo, int *temp) {
         ZSTR_KNOWN(ZEND_STR_NAME), &name);
     }
 
-    if (ort->object->file) {
+    if (ort->object->kind == ORT_MODEL_SOURCE_FILE && ort->object->source.file) {
       zval file;
   
-      ZVAL_STR_COPY(&file, ort->object->file);
+      ZVAL_STR_COPY(&file, ort->object->source.file);
       zend_hash_add(debug,
         ZSTR_KNOWN(ZEND_STR_FILE), &file);
     }

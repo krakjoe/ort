@@ -25,10 +25,19 @@
 
 extern zend_class_entry* php_ort_model_ce;
 
+typedef enum _ort_model_source_kind_t {
+  ORT_MODEL_SOURCE_FILE,
+  ORT_MODEL_SOURCE_MEMORY,
+} ort_model_source_kind_t;
+
 typedef struct _ort_model_t {
   uint32_t                  refcount;
+  ort_model_source_kind_t   kind;
+  union {
+    zend_string*            file;
+    zend_string*            memory;  
+  } source;
   zend_string*              name;
-  zend_string*              file;
   OrtModelMetadata*         metadata;       /* Raw metadata */
   OrtSession*               session;
   OrtAllocator*             allocator;

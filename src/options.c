@@ -26,7 +26,7 @@ zend_object_handlers php_ort_options_handlers;
 
 ort_options_t* __php_ort_options_default = NULL;
 
-ort_options_t* php_ort_options_default() {
+ort_options_t* php_ort_options_default(void) {
     return __php_ort_options_default;
 }
 

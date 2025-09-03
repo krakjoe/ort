@@ -62,6 +62,51 @@ ZEND_BEGIN_ARG_INFO_EX(php_ort_runtime_construct_arginfo, 0, 0, 1)
     ZEND_ARG_OBJ_INFO(0, options, \\ORT\\Options, 1)
 ZEND_END_ARG_INFO()
 
+static void php_ort_runtime_from_file(php_ort_runtime_t *ort) {
+    php_ort_string_temp_t pass =
+        php_ort_string_pass(
+            ZSTR_VAL(ort->model->source.file));
+
+    OrtStatus* status =
+        api->CreateSession(
+            php_ort_environment(),
+            pass,
+            ort->options->options,
+            &ort->session);
+
+    php_ort_status_flow(
+        (status),
+        {
+            php_ort_string_free(pass);  
+            return;
+        },
+        php_ort_status_error_ce,
+        "could not start a runtime session for Model %s: %s",
+        ZSTR_VAL(ort->model->name),
+        api->GetErrorMessage(status));
+
+    php_ort_string_free(pass);
+}
+
+static void php_ort_runtime_from_array(php_ort_runtime_t *ort) {
+    OrtStatus* status =
+        api->CreateSessionFromArray(
+            php_ort_environment(),
+            ZSTR_VAL(ort->model->source.memory),
+            ZSTR_LEN(ort->model->source.memory),
+            ort->options->options, &ort->session);
+
+    php_ort_status_flow(
+        (status),
+        {
+            api->ReleaseStatus(status);
+        },
+        php_ort_status_model_invalidmemory_ce,
+        "could not start a runtime session for Model %s: %s",
+        ZSTR_VAL(ort->model->name),
+        api->GetErrorMessage(status));
+}
+
 PHP_METHOD(ONNX_Runtime, __construct)
 {
     php_ort_runtime_t* ort = php_ort_runtime_fetch(Z_OBJ(EX(This)));
@@ -101,28 +146,10 @@ PHP_METHOD(ONNX_Runtime, __construct)
         &ort->options->refcount);
 
 __php_ort_runtime_construct:
-    {
-        php_ort_string_temp_t pass = php_ort_string_pass(ZSTR_VAL(ort->model->file));
-
-        OrtStatus* status =
-            api->CreateSession(
-                php_ort_environment(),
-                pass,
-                ort->options->options,
-                &ort->session);
-
-        php_ort_status_flow(
-            (status),
-            {
-                php_ort_string_free(pass);  
-                return;
-            },
-            php_ort_status_error_ce,
-            "could not start a runtime session for %s: %s",
-            ZSTR_VAL(ort->model->file),
-            api->GetErrorMessage(status));
-
-        php_ort_string_free(pass);
+    if (ort->model->kind == ORT_MODEL_SOURCE_FILE) {
+        php_ort_runtime_from_file(ort);
+    } else {
+        php_ort_runtime_from_array(ort);
     }
 }
 
@@ -197,9 +224,8 @@ PHP_METHOD(ONNX_Runtime, run)
             return;
         },
         php_ort_status_model_runtimeexception_ce,
-        "failed to run inference on %s from %s: %s",
+        "failed to run inference on %s: %s",
             ZSTR_VAL(ort->model->name),
-            ZSTR_VAL(ort->model->file),
             api->GetErrorMessage(status));
 
     for (idx = 0; idx < 

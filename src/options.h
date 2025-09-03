@@ -45,7 +45,7 @@ static zend_always_inline php_ort_options_t* php_ort_options_from(zval *z) {
 }
 
 extern ort_options_t*
-    php_ort_options_default();
+    php_ort_options_default(void);
 extern void php_ort_options_release(ort_options_t *options);
 
 PHP_MINIT_FUNCTION(ORT_OPTIONS);

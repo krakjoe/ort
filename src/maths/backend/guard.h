@@ -104,7 +104,7 @@ typedef enum {
 #define __ORT_MATH_BACKEND_CPU_BITS(reg, bits) \
    (((reg) & (bits)) == (bits))
 
-static zend_always_inline zend_bool __ort_math_backend_ecore() {
+static zend_always_inline zend_bool __ort_math_backend_ecore(void) {
 #if defined(__x86_64__) || defined(_M_X64)
     unsigned int eax = 0,
                  ebx = 0, 
@@ -241,6 +241,8 @@ static zend_always_inline zend_bool
             return !__ORT_MATH_BACKEND_CPU_BITS(edx,
                 __ORT_MATH_BACKEND_CPU_BIT_SSE2);
         }
+
+        default: {}
     }
 #endif
     /* safety: unknown backends should be guarded */
