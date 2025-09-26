@@ -63,6 +63,7 @@ jobs:
           path: tests/
   BuildCoverallsReport:
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     strategy:
       matrix:
@@ -127,6 +128,7 @@ jobs:
   FinishCoverallsReport:
     if: always()
     runs-on: ubuntu-latest
+    continue-on-error: true
     needs: [BuildCoverallsReport]
     steps:
     - name: Finish Coveralls Reporting
