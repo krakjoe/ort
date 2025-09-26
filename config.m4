@@ -207,6 +207,17 @@ AS_VAR_IF([PHP_ORT], [no],, [
     PHP_ORT_BACKEND_CFLAGS=""
     PHP_ORT_BACKEND_IMPL=""
 
+    dnl Process explicit backend choice
+    AS_CASE([$PHP_ORT_BACKEND],
+      [auto], [],
+      [none], [PHP_ORT_BACKEND="no"],
+      [wasm], [PHP_ORT_WASM="yes"],
+      [neon], [PHP_ORT_NEON="yes"],
+      [avx2], [PHP_ORT_AVX2="yes"],
+      [sse41], [PHP_ORT_SSE41="yes"],
+      [sse2], [PHP_ORT_SSE2="yes"],
+      [AC_MSG_ERROR([Invalid backend TYPE: $PHP_ORT_BACKEND. Valid options: auto, none, wasm, neon, avx2, sse41, sse2])])
+
     dnl Check for conflicting backend flags
     PHP_ORT_BACKEND_COUNT=0
     if test "x$PHP_ORT_WASM" = "xyes"; then
@@ -216,9 +227,6 @@ AS_VAR_IF([PHP_ORT], [no],, [
       PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
     fi
     if test "x$PHP_ORT_AVX2" = "xyes"; then
-      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
-    fi
-    if test "x$PHP_ORT_SSE41" = "xyes"; then
       PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
     fi
     if test "x$PHP_ORT_SSE41" = "xyes"; then
