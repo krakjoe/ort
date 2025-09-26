@@ -118,12 +118,13 @@ jobs:
           path: html/
 
       - name: Send Coveralls Report
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ${{ github.workspace }}/coverage.info
           flag-name: backend-${{ matrix.backend }}
           parallel: true
+          coverage-reporter-version: v0.6.15
   FinishCoverallsReport:
     if: always()
     runs-on: ubuntu-latest
