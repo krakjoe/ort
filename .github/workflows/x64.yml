@@ -63,8 +63,8 @@ jobs:
           path: tests/
   BuildCoverallsReport:
     runs-on: ubuntu-latest
-    needs: [RunBasicTests]
     continue-on-error: true
+    needs: [RunBasicTests]
 
     strategy:
       matrix:
