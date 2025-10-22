@@ -1,16 +1,15 @@
-name: aarch64
+name: riscv64
 
 on:
   workflow_dispatch:
 
 jobs:
   RunBasicTests:
-    runs-on: ubuntu-latest-arm64 
+    runs-on: [self-hosted, linux, riscv64]
     strategy:
       matrix:
-        php: [ '8.1', '8.2', '8.3', '8.4' ]
+        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
         backend:
-          - neon
           - none
     steps:
       - name: Checkout Repository
@@ -21,33 +20,17 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
 
-      - name: Cache ONNX Runtime
-        id: cache-onnx
-        uses: actions/cache@v4
-        with:
-          path: /onnxruntime-linux-aarch64-1.22.0.tgz
-          key: onnxruntime-1.22.0-${{ runner.os }}-aarch64
-
-      - name: Download ONNX Runtime
-        if: steps.cache-onnx.outputs.cache-hit != 'true'
-        run: |
-          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-aarch64-1.22.0.tgz -O /onnxruntime-linux-aarch64-1.22.0.tgz
-
       - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
-          sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-aarch64-1.22.0.tgz
           sudo ldconfig
       - name: Install Extension
         run: |
           phpize
           case "${{ matrix.backend }}" in
-            neon)
-              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2 --with-ort-onnx
-              ;;
             none)
-              ./configure --disable-ort-backend --with-ort-onnx
+              ./configure --disable-ort-backend
               ;;
           esac
           make -j$(nproc)
@@ -63,14 +46,13 @@ jobs:
           name: tests-php${{ matrix.php }}-${{ matrix.backend }}
           path: tests/
   BuildCoverallsReport:
-    runs-on: ubuntu-latest-arm64
+    runs-on: [self-hosted, linux, riscv64]
     needs: [RunBasicTests]
 
     strategy:
       matrix:
-        php: [ '8.1', '8.2', '8.3', '8.4' ]
+        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
         backend:
-          - neon
           - none
 
     steps:
@@ -82,33 +64,17 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
 
-      - name: Cache ONNX Runtime
-        id: cache-onnx
-        uses: actions/cache@v4
-        with:
-          path: /onnxruntime-linux-aarch64-1.22.0.tgz
-          key: onnxruntime-1.22.0-${{ runner.os }}-aarch64
-
-      - name: Download ONNX Runtime
-        if: steps.cache-onnx.outputs.cache-hit != 'true'
-        run: |
-          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-aarch64-1.22.0.tgz -O /onnxruntime-linux-aarch64-1.22.0.tgz
-
       - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
-          sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-aarch64-1.22.0.tgz
           sudo ldconfig
       - name: Install Extension
         run: |
           phpize
           case "${{ matrix.backend }}" in
-            neon)
-              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2 --with-ort-onnx
-              ;;
             none)
-              ./configure --disable-ort-backend --with-ort-onnx
+              ./configure --disable-ort-backend
               ;;
           esac
           make -j$(nproc)
@@ -142,4 +108,4 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
-        carryforward: "backend-none, backend-neon"
+        carryforward: "backend-none"
