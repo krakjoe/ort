@@ -15,6 +15,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Clean PHP PPA Configuration
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/*ondrej* /etc/apt/sources.list.d/*php* 2>/dev/null || true
+          sudo rm -rf /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+          sudo rm -f /usr/share/keyrings/ondrej* /etc/apt/trusted.gpg.d/ondrej* 2>/dev/null || true
+          sudo apt-get clean
+          sudo apt-get update || true
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -58,6 +66,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Clean PHP PPA Configuration
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/*ondrej* /etc/apt/sources.list.d/*php* 2>/dev/null || true
+          sudo rm -rf /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+          sudo rm -f /usr/share/keyrings/ondrej* /etc/apt/trusted.gpg.d/ondrej* 2>/dev/null || true
+          sudo apt-get clean
+          sudo apt-get update || true
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
