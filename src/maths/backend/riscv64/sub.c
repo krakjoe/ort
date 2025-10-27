@@ -17,13 +17,13 @@
  */
 
 #include "maths/backend/impl.h"
-#include <emmintrin.h> /* SSE2 */
+#include <riscv_vector.h> /* RVV */
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int8_t) {
     const int8_t* va = (const int8_t*)a;
     const int8_t* vb = (const int8_t*)b;
     int8_t* res = (int8_t*)result;
-    const size_t mw = 16; // 16 int8_t per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e8m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -31,12 +31,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int8_t) {
         goto __ort_math_backend_sub_int8_fallback;
     }
 
-    /* Vectorized loop - process 16 int8_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_sub_epi8(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
+        vint8m1_t ma = __riscv_vle8_v_i8m1(&va[i], mw);
+        vint8m1_t mb = __riscv_vle8_v_i8m1(&vb[i], mw);
+        vint8m1_t mr = __riscv_vsub_vv_i8m1(ma, mb, mw);
+        __riscv_vse8_v_i8m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_int8_fallback:
@@ -53,7 +52,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int16_t) {
     const int16_t* va = (const int16_t*)a;
     const int16_t* vb = (const int16_t*)b;
     int16_t* res = (int16_t*)result;
-    const size_t mw = 8; // 8 int16_t per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e16m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -61,12 +60,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int16_t) {
         goto __ort_math_backend_sub_int16_fallback;
     }
 
-    /* Vectorized loop - process 8 int16_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_sub_epi16(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
+        vint16m1_t ma = __riscv_vle16_v_i16m1(&va[i], mw);
+        vint16m1_t mb = __riscv_vle16_v_i16m1(&vb[i], mw);
+        vint16m1_t mr = __riscv_vsub_vv_i16m1(ma, mb, mw);
+        __riscv_vse16_v_i16m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_int16_fallback:
@@ -83,7 +81,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int32_t) {
     const int32_t* va = (const int32_t*)a;
     const int32_t* vb = (const int32_t*)b;
     int32_t* res = (int32_t*)result;
-    const size_t mw = 4; // 4 int32_t per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e32m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -91,12 +89,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int32_t) {
         goto __ort_math_backend_sub_int32_fallback;
     }
 
-    /* Vectorized loop - process 4 int32_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_sub_epi32(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
+        vint32m1_t ma = __riscv_vle32_v_i32m1(&va[i], mw);
+        vint32m1_t mb = __riscv_vle32_v_i32m1(&vb[i], mw);
+        vint32m1_t mr = __riscv_vsub_vv_i32m1(ma, mb, mw);
+        __riscv_vse32_v_i32m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_int32_fallback:
@@ -110,15 +107,39 @@ __ort_math_backend_sub_int32_fallback:
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int64_t) {
-    /* No native SSE2 64-bit integer sub, fallback to scalar */
-    ORT_MATH_FRONTEND_OP_SYMBOL(sub, int64_t)(result, a, b, count);
+    const int64_t* va = (const int64_t*)a;
+    const int64_t* vb = (const int64_t*)b;
+    int64_t* res = (int64_t*)result;
+    const size_t mw = __riscv_vsetvlmax_e64m1();
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_sub_int64_fallback;
+    }
+
+    for (size_t i = 0; i < mc; i += mw) {
+        vint64m1_t ma = __riscv_vle64_v_i64m1(&va[i], mw);
+        vint64m1_t mb = __riscv_vle64_v_i64m1(&vb[i], mw);
+        vint64m1_t mr = __riscv_vsub_vv_i64m1(ma, mb, mw);
+        __riscv_vse64_v_i64m1(&res[i], mr, mw);
+    }
+
+__ort_math_backend_sub_int64_fallback:
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(sub, int64_t)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint8_t) {
     const uint8_t* va = (const uint8_t*)a;
     const uint8_t* vb = (const uint8_t*)b;
     uint8_t* res = (uint8_t*)result;
-    const size_t mw = 16; // 16 uint8_t per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e8m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -126,12 +147,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint8_t) {
         goto __ort_math_backend_sub_uint8_fallback;
     }
 
-    /* Vectorized loop - process 16 uint8_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_sub_epi8(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
+        vuint8m1_t ma = __riscv_vle8_v_u8m1(&va[i], mw);
+        vuint8m1_t mb = __riscv_vle8_v_u8m1(&vb[i], mw);
+        vuint8m1_t mr = __riscv_vsub_vv_u8m1(ma, mb, mw);
+        __riscv_vse8_v_u8m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_uint8_fallback:
@@ -148,7 +168,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint16_t) {
     const uint16_t* va = (const uint16_t*)a;
     const uint16_t* vb = (const uint16_t*)b;
     uint16_t* res = (uint16_t*)result;
-    const size_t mw = 8; // 8 uint16_t per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e16m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -156,12 +176,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint16_t) {
         goto __ort_math_backend_sub_uint16_fallback;
     }
 
-    /* Vectorized loop - process 8 uint16_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_sub_epi16(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
+        vuint16m1_t ma = __riscv_vle16_v_u16m1(&va[i], mw);
+        vuint16m1_t mb = __riscv_vle16_v_u16m1(&vb[i], mw);
+        vuint16m1_t mr = __riscv_vsub_vv_u16m1(ma, mb, mw);
+        __riscv_vse16_v_u16m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_uint16_fallback:
@@ -178,7 +197,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint32_t) {
     const uint32_t* va = (const uint32_t*)a;
     const uint32_t* vb = (const uint32_t*)b;
     uint32_t* res = (uint32_t*)result;
-    const size_t mw = 4; // 4 uint32_t per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e32m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -186,12 +205,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint32_t) {
         goto __ort_math_backend_sub_uint32_fallback;
     }
 
-    /* Vectorized loop - process 4 uint32_t at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_sub_epi32(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
+        vuint32m1_t ma = __riscv_vle32_v_u32m1(&va[i], mw);
+        vuint32m1_t mb = __riscv_vle32_v_u32m1(&vb[i], mw);
+        vuint32m1_t mr = __riscv_vsub_vv_u32m1(ma, mb, mw);
+        __riscv_vse32_v_u32m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_uint32_fallback:
@@ -208,7 +226,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, float) {
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
     float* res = (float*)result;
-    const size_t mw = 4; // 4 floats per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e32m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -216,12 +234,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, float) {
         goto __ort_math_backend_sub_float_fallback;
     }
 
-    /* Vectorized loop - process 4 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_load_ps(&va[i]);
-        __m128 mb = _mm_load_ps(&vb[i]);
-        __m128 mr = _mm_sub_ps(ma, mb);
-        _mm_store_ps(&res[i], mr);
+        vfloat32m1_t ma = __riscv_vle32_v_f32m1(&va[i], mw);
+        vfloat32m1_t mb = __riscv_vle32_v_f32m1(&vb[i], mw);
+        vfloat32m1_t mr = __riscv_vfsub_vv_f32m1(ma, mb, mw);
+        __riscv_vse32_v_f32m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_float_fallback:
@@ -238,7 +255,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, double) {
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
     double* res = (double*)result;
-    const size_t mw = 2; // 2 doubles per SSE2 register
+    const size_t mw = __riscv_vsetvlmax_e64m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
@@ -246,12 +263,11 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sub, double) {
         goto __ort_math_backend_sub_double_fallback;
     }
 
-    /* Vectorized loop - process 2 doubles at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_load_pd(&va[i]);
-        __m128d mb = _mm_load_pd(&vb[i]);
-        __m128d mr = _mm_sub_pd(ma, mb);
-        _mm_store_pd(&res[i], mr);
+        vfloat64m1_t ma = __riscv_vle64_v_f64m1(&va[i], mw);
+        vfloat64m1_t mb = __riscv_vle64_v_f64m1(&vb[i], mw);
+        vfloat64m1_t mr = __riscv_vfsub_vv_f64m1(ma, mb, mw);
+        __riscv_vse64_v_f64m1(&res[i], mr, mw);
     }
 
 __ort_math_backend_sub_double_fallback:

@@ -19,12 +19,6 @@
 #include "maths/backend/impl.h"
 #include <emmintrin.h> /* SSE2 */
 
-/*
- * SIMD Sign Operations (SSE2)
- *
- * Only float and double are contracted for sign in SSE2, matching AVX2/SSE4.1.
- */
-
 ORT_MATH_BACKEND_UNARY_OP_DECL(sign, float) {
     const float* va = (const float*)a;
     float* res = (float*)result;

@@ -24,7 +24,6 @@
  * SIMD Multiplication Operations (SSE2)
  *
  * Only contracted types are implemented. SSE2 does not support 8-bit or 64-bit integer multiply.
- * All fallback logic and style matches AVX2/SSE4.1.
  */
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(mul, int16_t) {

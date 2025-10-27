@@ -10,15 +10,19 @@ jobs:
       matrix:
         php: [ '8.3' ]
         backend:
+          - riscv64
           - none
-    steps:
 
+    steps:
       - name: Install Extension
         run: |
           phpize
           case "${{ matrix.backend }}" in
             none)
               ./configure --disable-ort-backend
+              ;;
+            riscv64)
+              ./configure --enable-ort-backend=riscv64
               ;;
           esac
           make -j$(nproc)
@@ -41,6 +45,7 @@ jobs:
       matrix:
         php: [ '8.3' ]
         backend:
+          - riscv64
           - none
 
     steps:
@@ -53,6 +58,9 @@ jobs:
           case "${{ matrix.backend }}" in
             none)
               ./configure --disable-ort-backend
+              ;;
+            riscv64)
+              ./configure --enable-ort-backend=riscv64
               ;;
           esac
           make -j$(nproc)
@@ -86,4 +94,4 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
-        carryforward: "backend-none"
+        carryforward: "backend-none, backend-riscv64"

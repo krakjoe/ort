@@ -31,6 +31,9 @@
 #define ORT_MATH_BACKEND_UTIL_DECL(util, generic, scalar, specific) \
     static zend_always_inline scalar                                \
         ORT_MATH_BACKEND_UTIL(util, generic, scalar)(specific v)
+#define ORT_MATH_BACKEND_UTIL_DECL_VAR(util, generic, scalar, specific) \
+    static zend_always_inline scalar                                    \
+        ORT_MATH_BACKEND_UTIL(util, generic, scalar)(specific v, size_t vl)
 #define ORT_MATH_BACKEND_OP_SYMBOL(op, type) \
     ort_math_backend_##op##_##type
 #define ORT_MATH_BACKEND_OP_AXIS_SYMBOL(op, type) \

@@ -6,7 +6,7 @@ PHP_ARG_ENABLE([ort],
 
 PHP_ARG_ENABLE([ort-backend],
   [which backend to use for optimizations],
-  [AS_HELP_STRING([--enable-ort-backend@<:@=TYPE@:>@], [Enable backend optimizations. TYPE can be: auto, none, wasm, neon, avx2, sse41, sse2 (default: auto)])],
+  [AS_HELP_STRING([--enable-ort-backend@<:@=TYPE@:>@], [Enable backend optimizations. TYPE can be: auto, none, wasm, neon, riscv64, avx2, sse41, sse2 (default: auto)])],
   [auto],
   [no])
 
@@ -27,7 +27,8 @@ AS_VAR_IF([PHP_ORT], [no],, [
   
   dnl Initialize detection variables
   PHP_ORT_HAS_WASM="no"
-  PHP_ORT_HAS_NEON="no" 
+  PHP_ORT_HAS_NEON="no"
+  PHP_ORT_HAS_RISCV64="no"
   PHP_ORT_HAS_AVX2="no"
   PHP_ORT_HAS_SSE41="no"
   PHP_ORT_HAS_SSE2="no"
@@ -48,9 +49,25 @@ AS_VAR_IF([PHP_ORT], [no],, [
     ], [])
   fi
 
-  dnl Check for AVX2 support (if no wasm/neon)
+  dnl Check for RISC-V Vector support (if no wasm/neon)
   if test "$PHP_ORT_HAS_WASM" == "no" &&
      test "$PHP_ORT_HAS_NEON" == "no"; then
+    AX_CHECK_COMPILE_FLAG([-march=rv64gcv], [
+      dnl Save current CFLAGS
+      save_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS -march=rv64gcv"
+      AC_CHECK_HEADERS([riscv_vector.h], [
+        PHP_ORT_HAS_RISCV64="yes"
+      ], [], [AC_INCLUDES_DEFAULT])
+      dnl Restore CFLAGS
+      CFLAGS="$save_CFLAGS"
+    ], [])
+  fi
+
+  dnl Check for AVX2 support (if no wasm/neon/riscv64)
+  if test "$PHP_ORT_HAS_WASM" == "no" &&
+     test "$PHP_ORT_HAS_NEON" == "no" &&
+     test "$PHP_ORT_HAS_RISCV64" == "no"; then
     AX_CHECK_COMPILE_FLAG([-mavx2], [
       AC_CHECK_HEADERS([immintrin.h], [
         PHP_ORT_HAS_AVX2="yes"
@@ -59,8 +76,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
   fi
 
   if test "$PHP_ORT_HAS_WASM" == "no" &&
-     test "$PHP_ORT_HAS_NEON" == "no"; then
-    dnl Check for SSE4.1 support (if no wasm/neon)
+     test "$PHP_ORT_HAS_NEON" == "no" &&
+     test "$PHP_ORT_HAS_RISCV64" == "no"; then
+    dnl Check for SSE4.1 support (if no wasm/neon/riscv64)
     AX_CHECK_COMPILE_FLAG([-msse4.1], [
       AC_CHECK_HEADERS([smmintrin.h], [
         PHP_ORT_HAS_SSE41="yes"
@@ -69,8 +87,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
   fi
 
   if test "$PHP_ORT_HAS_WASM" == "no" &&
-     test "$PHP_ORT_HAS_NEON" == "no"; then
-    dnl Check for SSE2 support (if no wasm/neon)
+     test "$PHP_ORT_HAS_NEON" == "no" &&
+     test "$PHP_ORT_HAS_RISCV64" == "no"; then
+    dnl Check for SSE2 support (if no wasm/neon/riscv64)
     AX_CHECK_COMPILE_FLAG([-msse2], [
       AC_CHECK_HEADERS([emmintrin.h], [
         PHP_ORT_HAS_SSE2="yes"
@@ -85,6 +104,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
   fi
   if test "$PHP_ORT_HAS_NEON" = "yes"; then
     PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED NEON"
+  fi
+  if test "$PHP_ORT_HAS_RISCV64" = "yes"; then
+    PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED RISCV64"
   fi
   if test "$PHP_ORT_HAS_AVX2" = "yes"; then
     PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED AVX2"
@@ -213,10 +235,11 @@ AS_VAR_IF([PHP_ORT], [no],, [
       [none], [PHP_ORT_BACKEND="no"],
       [wasm], [PHP_ORT_WASM="yes"],
       [neon], [PHP_ORT_NEON="yes"],
+      [riscv64], [PHP_ORT_RISCV64="yes"],
       [avx2], [PHP_ORT_AVX2="yes"],
       [sse41], [PHP_ORT_SSE41="yes"],
       [sse2], [PHP_ORT_SSE2="yes"],
-      [AC_MSG_ERROR([Invalid backend TYPE: $PHP_ORT_BACKEND. Valid options: auto, none, wasm, neon, avx2, sse41, sse2])])
+      [AC_MSG_ERROR([Invalid backend TYPE: $PHP_ORT_BACKEND. Valid options: auto, none, wasm, neon, riscv64, avx2, sse41, sse2])])
 
     dnl Check for conflicting backend flags
     PHP_ORT_BACKEND_COUNT=0
@@ -224,6 +247,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
       PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
     fi
     if test "x$PHP_ORT_NEON" = "xyes"; then
+      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
+    fi
+    if test "x$PHP_ORT_RISCV64" = "xyes"; then
       PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
     fi
     if test "x$PHP_ORT_AVX2" = "xyes"; then
@@ -252,6 +278,8 @@ AS_VAR_IF([PHP_ORT], [no],, [
         PHP_ORT_WASM="yes"
       elif test "$PHP_ORT_HAS_NEON" = "yes" && test "$enable_ort_neon" != "no"; then
         PHP_ORT_NEON="yes"
+      elif test "$PHP_ORT_HAS_RISCV64" = "yes" && test "$enable_ort_riscv64" != "no"; then
+        PHP_ORT_RISCV64="yes"
       elif test "$PHP_ORT_HAS_AVX2" = "yes" && test "$enable_ort_avx2" != "no"; then
         PHP_ORT_AVX2="yes"
       elif test "$PHP_ORT_HAS_SSE41" = "yes" && test "$enable_ort_sse41" != "no"; then
@@ -322,6 +350,28 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/neon/trunc.c
           $PHP_ORT_BACKEND_DIR/neon/mul.c
           $PHP_ORT_BACKEND_DIR/neon/impl.c
+        ")
+      fi
+
+      dnl RISC-V 64 backend
+      if test "$PHP_ORT_RISCV64" = "yes"; then
+        if test "$PHP_ORT_HAS_RISCV64" != "yes"; then
+          AC_MSG_ERROR([RISC-V 64 backend requested but not available])
+        fi
+        PHP_ORT_BACKEND_CFLAGS="-march=rv64gcv"
+        PHP_ORT_BACKEND_LEVEL="RISCV64"
+        PHP_ORT_BACKEND_IMPL=m4_normalize("
+          $PHP_ORT_BACKEND_DIR/riscv64/abs.c
+          $PHP_ORT_BACKEND_DIR/riscv64/add.c
+          $PHP_ORT_BACKEND_DIR/riscv64/div.c
+          $PHP_ORT_BACKEND_DIR/riscv64/matmul.c
+          $PHP_ORT_BACKEND_DIR/riscv64/mul.c
+          $PHP_ORT_BACKEND_DIR/riscv64/neg.c
+          $PHP_ORT_BACKEND_DIR/riscv64/recip.c
+          $PHP_ORT_BACKEND_DIR/riscv64/sign.c
+          $PHP_ORT_BACKEND_DIR/riscv64/sqrt.c
+          $PHP_ORT_BACKEND_DIR/riscv64/sub.c
+          $PHP_ORT_BACKEND_DIR/riscv64/impl.c
         ")
       fi
 

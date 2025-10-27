@@ -19,11 +19,6 @@
 #include "maths/backend/impl.h"
 #include <emmintrin.h> /* SSE2 */
 
-/*
- * SIMD Square Root Operations (SSE2)
- *
- */
-
 ORT_MATH_BACKEND_UNARY_OP_DECL(sqrt, float) {
     const float* va = (const float*)a;
     float* res = (float*)result;
