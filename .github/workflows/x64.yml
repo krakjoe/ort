@@ -28,14 +28,14 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Cache ONNX Runtime
-        id: cache-ort
+        id: cache-onnx
         uses: actions/cache@v4
         with:
           path: /onnxruntime-linux-x64-1.22.0.tgz
           key: onnxruntime-1.22.0-${{ runner.os }}
 
       - name: Download ONNX Runtime
-        if: steps.cache-ort.outputs.cache-hit != 'true'
+        if: steps.cache-onnx.outputs.cache-hit != 'true'
         run: |
           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
 
@@ -85,14 +85,14 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Cache ONNX Runtime
-        id: cache-ort
+        id: cache-onnx
         uses: actions/cache@v4
         with:
           path: /onnxruntime-linux-x64-1.22.0.tgz
           key: onnxruntime-1.22.0-${{ runner.os }}
 
       - name: Download ONNX Runtime
-        if: steps.cache-ort.outputs.cache-hit != 'true'
+        if: steps.cache-onnx.outputs.cache-hit != 'true'
         run: |
           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz -O /onnxruntime-linux-x64-1.22.0.tgz
 

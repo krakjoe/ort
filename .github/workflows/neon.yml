@@ -1,14 +1,14 @@
-name: aarch64
+name: neon
 
 on:
   workflow_dispatch:
 
 jobs:
   RunBasicTests:
-    runs-on: ubuntu-latest-arm64 
+    runs-on: [self-hosted, linux, neon]
     strategy:
       matrix:
-        php: [ '8.1', '8.2', '8.3', '8.4' ]
+        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
         backend:
           - neon
           - none
@@ -44,7 +44,7 @@ jobs:
           phpize
           case "${{ matrix.backend }}" in
             neon)
-              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2 --with-ort-onnx
+              ./configure --enable-ort-backend=neon --with-ort-onnx
               ;;
             none)
               ./configure --disable-ort-backend --with-ort-onnx
@@ -63,12 +63,13 @@ jobs:
           name: tests-php${{ matrix.php }}-${{ matrix.backend }}
           path: tests/
   BuildCoverallsReport:
-    runs-on: ubuntu-latest-arm64
+    runs-on: [self-hosted, linux, neon]
+    continue-on-error: true
     needs: [RunBasicTests]
 
     strategy:
       matrix:
-        php: [ '8.1', '8.2', '8.3', '8.4' ]
+        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
         backend:
           - neon
           - none
@@ -105,7 +106,7 @@ jobs:
           phpize
           case "${{ matrix.backend }}" in
             neon)
-              ./configure --enable-ort-neon --disable-ort-avx2 --disable-ort-sse41 --disable-ort-sse2 --with-ort-onnx
+              ./configure --enable-ort-backend=neon --with-ort-onnx
               ;;
             none)
               ./configure --disable-ort-backend --with-ort-onnx
@@ -133,7 +134,7 @@ jobs:
           parallel: true
   FinishCoverallsReport:
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, neon]
     continue-on-error: true
     needs: [BuildCoverallsReport]
     steps:
