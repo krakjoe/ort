@@ -17,6 +17,7 @@ This document explains how to build the PHP-ORT extension with various configura
 - **`none`**: Disable backend optimizations
 - **`wasm`**: WebAssembly SIMD backend (*nix only)
 - **`neon`**: ARM NEON backend (*nix only)
+- **`riscv64`**: RISCV64 backend (*nix only)
 - **`avx2`**: AVX2 backend
 - **`sse41`**: SSE4.1 backend
 - **`sse2`**: SSE2 backend
@@ -27,6 +28,7 @@ When using `--enable-ort-backend=auto`, backends are selected in this priority o
 
 1. **WASM** (highest priority)
 2. **NEON**
+3. **RISCV64**
 3. **AVX2**
 4. **SSE4.1**
 5. **SSE2** (lowest priority)
@@ -107,73 +109,79 @@ flowchart TD
     
     C --> D[Check WASM SIMD<br/>-msimd128 + wasm_simd128.h]
     C --> E[Check ARM NEON<br/>-march=armv8-a+simd + arm_neon.h]
-    C --> F[Check AVX2<br/>-mavx2 + immintrin.h]
-    C --> G[Check SSE4.1<br/>-msse4.1 + smmintrin.h]
-    C --> H[Check SSE2<br/>-msse2 + emmintrin.h]
+    C --> F[Check RISCV64<br/>-march=rv64gcv + riscv_vector.h]
+    C --> G[Check AVX2<br/>-mavx2 + immintrin.h]
+    C --> H[Check SSE4.1<br/>-msse4.1 + smmintrin.h]
+    C --> I[Check SSE2<br/>-msse2 + emmintrin.h]
     
-    D --> I{Backend Config<br/>--enable-ort-backend}
-    E --> I
-    F --> I
-    G --> I
-    H --> I
+    D --> J{Backend Config<br/>--enable-ort-backend}
+    E --> J
+    F --> J
+    G --> J
+    H --> J
+    I --> J
     
-    I -->|auto| J[Auto-Select Best Available]
-    I -->|none| K[No Backend Optimization]
-    I -->|specific| L[Use Specified Backend]
+    J -->|auto| K[Auto-Select Best Available]
+    J -->|none| L[No Backend Optimization]
+    J -->|specific| M[Use Specified Backend]
     
-    J --> M{WASM Available?}
-    M -->|Yes| N[Use WASM Backend]
-    M -->|No| O{NEON Available?}
-    O -->|Yes| P[Use NEON Backend]
-    O -->|No| Q{AVX2 Available?}
-    Q -->|Yes| R[Use AVX2 Backend]
-    Q -->|No| S{SSE4.1 Available?}
-    S -->|Yes| T[Use SSE4.1 Backend]
-    S -->|No| U{SSE2 Available?}
-    U -->|Yes| V[Use SSE2 Backend]
-    U -->|No| K
+    K --> N{WASM Available?}
+    N -->|Yes| O[Use WASM Backend]
+    N -->|No| P{NEON Available?}
+    P -->|Yes| Q[Use NEON Backend]
+    P -->|No| R{RISCV64 Available?}
+    R -->|Yes| S[Use RISCV64 Backend]
+    R -->|No| T{AVX2 Available?}
+    T -->|Yes| U[Use AVX2 Backend]
+    T -->|No| V{SSE4.1 Available?}
+    V -->|Yes| W[Use SSE4.1 Backend]
+    V -->|No| X{SSE2 Available?}
+    X -->|Yes| Y[Use SSE2 Backend]
+    X -->|No| L
     
-    L --> W{Validate Backend<br/>Availability}
-    W -->|Valid| X[Configure Backend]
-    W -->|Invalid| Y[Error: Backend Not Available]
+    M --> AA{Validate Backend<br/>Availability}
+    AA -->|Valid| AB[Configure Backend]
+    AA -->|Invalid| AC[Error: Backend Not Available]
     
-    N --> AA[Configure WASM Files]
-    P --> BB[Configure NEON Files]
-    R --> CC[Configure AVX2 Files]
-    T --> DD[Configure SSE4.1 Files]
-    V --> EE[Configure SSE2 Files]
-    X --> FF[Configure Specified Backend Files]
+    O --> AD[Configure WASM Files]
+    Q --> AE[Configure NEON Files]
+    S --> AF[Configure RISCV64 Files]
+    U --> AG[Configure AVX2 Files]
+    W --> AH[Configure SSE4.1 Files]
+    Y --> AI[Configure SSE2 Files]
+    AB --> AJ[Configure Specified Backend Files]
     
-    AA --> GG{ONNX Runtime?<br/>--with-ort-onnx}
-    BB --> GG
-    CC --> GG
-    DD --> GG
-    EE --> GG
-    FF --> GG
-    K --> GG
+    AD --> AK{ONNX Runtime?<br/>--with-ort-onnx}
+    AE --> AK
+    AF --> AK
+    AG --> AK
+    AH --> AK
+    AI --> AK
+    AJ --> AK
+    L --> AK
     
-    GG -->|Yes| HH[Link ONNX Runtime<br/>libonnxruntime >= 1.16]
-    GG -->|No| II[Skip ONNX Runtime]
+    AK -->|Yes| AL[Link ONNX Runtime<br/>libonnxruntime >= 1.16]
+    AK -->|No| AM[Skip ONNX Runtime]
     
-    HH --> JJ{Pooling?<br/>--enable-ort-pool}
-    II --> JJ
+    AL --> AN{Pooling?<br/>--enable-ort-pool}
+    AM --> AN
     
-    JJ -->|Yes| KK[Enable Thread Pooling]
-    JJ -->|No| LL[Disable Pooling]
+    AN -->|Yes| AO[Enable Thread Pooling]
+    AN -->|No| AP[Disable Pooling]
     
-    KK --> MM[Check Atomic Operations<br/>__atomic_add_fetch]
-    LL --> MM
+    AO --> AQ[Check Atomic Operations<br/>__atomic_add_fetch]
+    AP --> AQ
     
-    MM --> NN[Compile Core Sources]
-    NN --> OO[Compile Math Operations]
-    OO --> PP[Compile Backend Sources]
-    PP --> QQ[Link Extension]
-    QQ --> RR[Build Complete]
+    AQ --> AR[Compile Core Sources]
+    AR --> AS[Compile Math Operations]
+    AS --> AT[Compile Backend Sources]
+    AT --> AU[Link Extension]
+    AU --> AV[Build Complete]
     
-    AA -.-> SS[Note: WASM forces<br/>ext_shared=no<br/>PHP_ORT_POOL=no]
+    AD -.-> AW[Note: WASM forces<br/>ext_shared=no<br/>PHP_ORT_POOL=no]
     
     style A fill:#e1f5fe
-    style RR fill:#c8e6c9
-    style Y fill:#ffcdd2
+    style AV fill:#c8e6c9
+    style AC fill:#ffcdd2
     style Z fill:#f5f5f5
 ```

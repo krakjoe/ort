@@ -8,7 +8,7 @@ This extension also includes optional integration with Microsoft's ONNX Runtime 
 
 ## Features
 
-- **High-Performance Mathematics**: SIMD-accelerated operations (AVX2, SSE4.1, SSE2)
+- **High-Performance Mathematics**: SIMD-accelerated operations (WASM, NEON, RISCV64, AVX2, SSE4.1, SSE2)
 - **Multi-Core Parallelism**: Automatic work distribution across CPU cores
 - **Comprehensive Type Support**: 9 data types with automatic promotion
 - **Memory Efficient**: Reference-counted tensors with zero-copy slicing
@@ -107,11 +107,15 @@ echo "Cores: " . ORT\Math\cores() . "\n";
 - `ORT_SCALE_CORES` - Set thread pool size (default: CPU cores)
 
 ### Build Options
-- `--enable-ort-backend`  - Enable SIMD optimizations (default: yes)
-- `--disable-ort-avx2`    - Disable AVX2, use SSE4.1
-- `--disable-ort-sse41`   - Disable SSE4.1, use SSE2
-- `--enable-ort-neon`     - For armv8 builds (disable all other backends)
-- `--disable-ort-backend` - Disable all SIMD optimizations (default: no)
+- `--enable-ort-backend=type`  - Enable SIMD optimizations (default: auto)
+ - `auto`    - detect backend type for platform
+ - `wasm`    - use wasm backend
+ - `neon`    - use neon backend
+ - `riscv64` - use riscv64 backend
+ - `avx2`    - use avx2 backend
+ - `sse41`   - use sse41 backend
+ - `sse2`    - use sse2 backend
+ - `none`    - use no backend
 - `--with-ort-onnx`       - Link against ONNX Runtime (default: no)
 
 ## Technical Details
