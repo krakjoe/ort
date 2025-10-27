@@ -108,15 +108,17 @@ echo "Cores: " . ORT\Math\cores() . "\n";
 
 ### Build Options
 - `--enable-ort-backend=type`  - Enable SIMD optimizations (default: auto)
- - `auto`    - detect backend type for platform
- - `wasm`    - use wasm backend
- - `neon`    - use neon backend
- - `riscv64` - use riscv64 backend
- - `avx2`    - use avx2 backend
- - `sse41`   - use sse41 backend
- - `sse2`    - use sse2 backend
- - `none`    - use no backend
 - `--with-ort-onnx`       - Link against ONNX Runtime (default: no)
+
+### Backend Types
+- `auto`    - detect backend type for platform
+- `wasm`    - use wasm backend
+- `neon`    - use neon backend
+- `riscv64` - use riscv64 backend
+- `avx2`    - use avx2 backend
+- `sse41`   - use sse41 backend
+- `sse2`    - use sse2 backend
+- `none`    - disable backend
 
 ## Technical Details
 

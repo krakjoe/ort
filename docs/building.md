@@ -40,7 +40,7 @@ When using `--enable-ort-backend=auto`, backends are selected in this priority o
 - Forces `ext_shared=no` (static linking only)
 - Disables thread pooling (`PHP_ORT_POOL=no`)
 - Requires in-tree builds (source directory must equal build directory)
-- See [dist/emsdk](dist/emsdk) for building webasm runtime
+- See [https://github.com/krakjoe/em](krakjoe/em) for building webasm runtime
 
 ### ONNX Runtime Integration
 
@@ -88,7 +88,7 @@ make
 ### Common Issues
 
 1. **Backend not available**: Ensure your compiler and system support the requested ISA extension
-3. **WASM build fails**: See [dist/emsdk](dist/emsdk)
+3. **WASM build fails**: See [https://github.com/krakjoe/em](krakjoe/em)
 4. **Multiple backends conflict**: Only one backend can be enabled at a time
 
 ### Verification
