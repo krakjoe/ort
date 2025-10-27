@@ -14,6 +14,9 @@ jobs:
           - none
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Install Extension
         run: |
           phpize
