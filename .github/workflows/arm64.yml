@@ -1,11 +1,11 @@
-name: neon
+name: arm64
 
 on:
   workflow_dispatch:
 
 jobs:
   RunBasicTests:
-    runs-on: [self-hosted, linux, neon]
+    runs-on: [self-hosted, linux, arm64]
     strategy:
       matrix:
         php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
@@ -63,7 +63,7 @@ jobs:
           name: tests-php${{ matrix.php }}-${{ matrix.backend }}
           path: tests/
   BuildCoverallsReport:
-    runs-on: [self-hosted, linux, neon]
+    runs-on: [self-hosted, linux, arm64]
     continue-on-error: true
     needs: [RunBasicTests]
 
@@ -134,7 +134,7 @@ jobs:
           parallel: true
   FinishCoverallsReport:
     if: always()
-    runs-on: [self-hosted, linux, neon]
+    runs-on: [self-hosted, linux, arm64]
     continue-on-error: true
     needs: [BuildCoverallsReport]
     steps:
