@@ -49,7 +49,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     ], [])
   fi
 
-  dnl Check for RISC-V Vector support (if no wasm/neon)
+  dnl Check for RISCV64 Vector support (if no wasm/neon)
   if test "$PHP_ORT_HAS_WASM" == "no" &&
      test "$PHP_ORT_HAS_NEON" == "no"; then
     AX_CHECK_COMPILE_FLAG([-march=rv64gcv], [

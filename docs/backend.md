@@ -8,6 +8,7 @@ By default `php-ort` will attempt to build with the best backend available for y
 
   - WASM
   - NEON
+  - RISCV64
   - AVX2
   - SSE4.1
   - SSE2
@@ -18,6 +19,7 @@ To create a build using specific intrinsics, use `--enable-ort-backend` with:
 
   - wasm
   - neon
+  - riscv64
   - avx2
   - sse41
   - sse2
@@ -40,6 +42,12 @@ For a NEON build:
 
 ```
 ./configure --enable-ort-backend=neon
+```
+
+For a RISCV64 build:
+
+```
+./configure --enable-ort-backend=riscv64
 ```
 
 # SIMD Acceleration Tables
@@ -78,6 +86,32 @@ For a NEON build:
 | **mean**  |  🟧   |   🟦   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 | **softmax**|  🟧   |   🟦   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 
+## RISCV64 Backend
+
+| Operation | float | double | int8_t | int16_t | int32_t | int64_t | uint8_t | uint16_t | uint32_t |
+|-----------|:-----:|:------:|:------:|:-------:|:-------:|:-------:|:-------:|:--------:|:--------:|
+| **add**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **sub**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **mul**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **div**   |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **mod**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   ⬛    |   🟦    |   🟦     |   🟦     |
+| **pow**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   ⬛    |   🟦    |   🟦     |   🟦     |
+| **ceil**  |  🟦   |   🟦   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **floor** |  🟦   |   🟦   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **round** |  🟧   |   🟧   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **abs**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   ⬛    |   ⬛     |   ⬛     |
+| **sqrt**  |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **neg**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   ⬛    |   ⬛     |   ⬛     |
+| **recip** |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **sign**  |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   ⬛    |   ⬛     |   ⬛     |
+| **trunc** |  🟧   |   🟧   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **dot**   |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **matmul**|  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **sum**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟧    |   🟦    |   🟧     |   🟧     |
+| **min**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟧    |   🟦    |   🟧     |   🟧     |
+| **max**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟧    |   🟦    |   🟧     |   🟧     |
+| **mean**  |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **softmax**|  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 
 ## NEON Backend
 
@@ -192,3 +226,4 @@ For a NEON build:
 - Cells marked 🟦 are not supported by the instruction set and would require a slow or complex workaround (e.g. int8_t × int8_t multiply on AVX2).
 - Cells marked 🟧 are possible and planned, but not yet implemented.
 - Cells marked 🟥 are technically possible but not planned due to impracticality or extreme inefficiency.
+- RISCV64 backend uses the RISCV64 Vector Extension (RVV) 1.0 specification with variable-length vectors.
