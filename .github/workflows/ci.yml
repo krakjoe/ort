@@ -50,6 +50,21 @@ jobs:
         backend: [neon, none]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+        
+      - name: Build
+        run: |
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }} \
+            --with-ort-onnx
+          make -j$(nproc)
+          sudo make install
+
       - name: Run Coverage
         run: |
           ORT_SCALE_CORES=1 make ort-test-coverage-html
@@ -113,6 +128,20 @@ jobs:
         backend: [riscv64, none]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Build
+        run: |
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }}
+          make -j$(nproc)
+          sudo make install
+
       - name: Run Coverage
         run: |
           ORT_SCALE_CORES=1 make ort-test-coverage-html
@@ -177,6 +206,21 @@ jobs:
         backend: [avx2, sse41, sse2, none]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Build
+        run: |
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }} \
+            --with-ort-onnx
+          make -j$(nproc)
+          sudo make install
+
       - name: Run Coverage
         run: |
           ORT_SCALE_CORES=1 make ort-test-coverage-html
