@@ -8,7 +8,7 @@ jobs:
     runs-on: [self-hosted, linux, riscv64]
     strategy:
       matrix:
-        php: [ '8.3' ]
+        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
         backend:
           - riscv64
           - none
@@ -19,15 +19,8 @@ jobs:
 
       - name: Install Extension
         run: |
-          phpize
-          case "${{ matrix.backend }}" in
-            none)
-              ./configure --disable-ort-backend
-              ;;
-            riscv64)
-              ./configure --enable-ort-backend=riscv64
-              ;;
-          esac
+          /opt/bin/phpize${{ matrix.php }}
+          ./configure --with-php-config=/opt/bin/php-config${{ matrix.php }} --enable-ort-backend=${{ matrix.backend }}
           make -j$(nproc)
           sudo make install
 
@@ -46,7 +39,7 @@ jobs:
 
     strategy:
       matrix:
-        php: [ '8.3' ]
+        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
         backend:
           - riscv64
           - none
@@ -57,15 +50,8 @@ jobs:
 
       - name: Install Extension
         run: |
-          phpize
-          case "${{ matrix.backend }}" in
-            none)
-              ./configure --disable-ort-backend
-              ;;
-            riscv64)
-              ./configure --enable-ort-backend=riscv64
-              ;;
-          esac
+          /opt/bin/phpize${{ matrix.php }}
+          ./configure --with-php-config=/opt/bin/php-config${{ matrix.php }} --enable-ort-backend=${{ matrix.backend }}
           make -j$(nproc)
           sudo make install
 

@@ -16,40 +16,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-
-      - name: Cache ONNX Runtime
-        id: cache-onnx
-        uses: actions/cache@v4
-        with:
-          path: /onnxruntime-linux-aarch64-1.22.0.tgz
-          key: onnxruntime-1.22.0-${{ runner.os }}-aarch64
-
-      - name: Download ONNX Runtime
-        if: steps.cache-onnx.outputs.cache-hit != 'true'
-        run: |
-          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-aarch64-1.22.0.tgz -O /onnxruntime-linux-aarch64-1.22.0.tgz
-
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
-          sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-aarch64-1.22.0.tgz
-          sudo ldconfig
       - name: Install Extension
         run: |
-          phpize
-          case "${{ matrix.backend }}" in
-            neon)
-              ./configure --enable-ort-backend=neon --with-ort-onnx
-              ;;
-            none)
-              ./configure --disable-ort-backend --with-ort-onnx
-              ;;
-          esac
+          /opt/bin/phpize${{ matrix.php }}
+          ./configure --with-php-config=/opt/bin/php-config${{ matrix.php }} --enable-ort-backend=${{ matrix.backend }} --with-ort-onnx
           make -j$(nproc)
           sudo make install
 
@@ -78,40 +48,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-
-      - name: Cache ONNX Runtime
-        id: cache-onnx
-        uses: actions/cache@v4
-        with:
-          path: /onnxruntime-linux-aarch64-1.22.0.tgz
-          key: onnxruntime-1.22.0-${{ runner.os }}-aarch64
-
-      - name: Download ONNX Runtime
-        if: steps.cache-onnx.outputs.cache-hit != 'true'
-        run: |
-          sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-aarch64-1.22.0.tgz -O /onnxruntime-linux-aarch64-1.22.0.tgz
-
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential re2c autoconf pkg-config lcov gcc
-          sudo tar -C /usr/local --strip-components=1 -xvzf /onnxruntime-linux-aarch64-1.22.0.tgz
-          sudo ldconfig
       - name: Install Extension
         run: |
-          phpize
-          case "${{ matrix.backend }}" in
-            neon)
-              ./configure --enable-ort-backend=neon --with-ort-onnx
-              ;;
-            none)
-              ./configure --disable-ort-backend --with-ort-onnx
-              ;;
-          esac
+          /opt/bin/phpize${{ matrix.php }}
+          ./configure --with-php-config=/opt/bin/php-config${{ matrix.php }} --enable-ort-backend=${{ matrix.backend }} --with-ort-onnx
           make -j$(nproc)
           sudo make install
 
