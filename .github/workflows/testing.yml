@@ -1,7 +1,8 @@
 name: Testing
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ develop ]
 
 jobs:
   arm64:
