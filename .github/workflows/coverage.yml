@@ -1,0 +1,139 @@
+name: Coverage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  arm64:
+    if: success() || failure()
+    runs-on: arm64
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        backend: [neon, none]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Configure
+        run: |
+          /opt/php/php8.6/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/php8.6/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }} \
+            --with-ort-onnx
+
+      - name: Run Coverage
+        run: |
+          ORT_SCALE_CORES=1 make ort-test-coverage-html
+
+      - name: Upload HTML Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-arm64-${{ matrix.backend }}
+          path: html/
+
+      - name: Send Coveralls Report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ github.workspace }}/coverage.info
+          flag-name: arm64-${{ matrix.backend }}
+          parallel: true
+
+  riscv64:
+    if: success() || failure()
+    runs-on: riscv64
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        backend: [riscv64, none]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Configure
+        run: |
+          /opt/php/php8.6/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/php8.6/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }}
+
+      - name: Run Coverage
+        run: |
+          ORT_SCALE_CORES=1 make ort-test-coverage-html
+
+      - name: Upload HTML Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-riscv64-${{ matrix.backend }}
+          path: html/
+
+      - name: Send Coveralls Report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ github.workspace }}/coverage.info
+          flag-name: riscv64-${{ matrix.backend }}
+          parallel: true
+
+  x64:
+    if: success() || failure()
+    runs-on: x64
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        backend: [avx2, sse41, sse2, none]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Configure
+        run: |
+          /opt/php/php8.6/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/php8.6/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }} \
+            --with-ort-onnx
+
+      - name: Run Coverage
+        run: |
+          ORT_SCALE_CORES=1 make ort-test-coverage-html
+
+      - name: Upload HTML Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-x64-${{ matrix.backend }}
+          path: html/
+
+      - name: Send Coveralls Report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ github.workspace }}/coverage.info
+          flag-name: x64-${{ matrix.backend }}
+          parallel: true
+
+  finish:
+    if: success() || failure()
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs: [arm64, riscv64, x64]
+    steps:
+    - name: Finish Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
