@@ -25,7 +25,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          make test
+          TEST_PHP_EXECUTABLE=/opt/bin/php${{ matrix.php }} make test
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -57,7 +57,7 @@ jobs:
 
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 TEST_PHP_EXECUTABLE=/opt/bin/php${{ matrix.php }} make ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
