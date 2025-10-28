@@ -4,20 +4,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  Install:
-    runs-on: ${{ matrix.arch }}
+  arm64-install:
+    runs-on: arm64
     strategy:
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5', '8.6']
-        arch: [arm64, riscv64]
-        backend: [neon, none, riscv64]
-        exclude:
-          # Exclude neon from riscv64
-          - arch: riscv64
-            backend: neon
-          # Exclude riscv64 backend from arm64
-          - arch: arm64
-            backend: riscv64
+        backend: [neon, none]
 
     steps:
       - name: Checkout
@@ -29,7 +21,7 @@ jobs:
           ./configure \
             --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }} \
-            ${{ matrix.arch == 'arm64' && '--with-ort-onnx' || '' }}
+            --with-ort-onnx
           make -j$(nproc)
           sudo make install
 
@@ -40,34 +32,28 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: tests-${{ matrix.arch }}-${{ matrix.backend }}-${{ matrix.php }}
+          name: tests-arm64-${{ matrix.backend }}-${{ matrix.php }}
           path: tests/
 
-  Coverage:
-    runs-on: ${{ matrix.arch }}
+  arm64-coverage:
+    runs-on: arm64
     continue-on-error: true
-    needs: [Install]
+    needs: [arm64-install]
 
     strategy:
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5', '8.6']
-        arch: [arm64, riscv64]
-        backend: [neon, none, riscv64]
-        exclude:
-          - arch: riscv64
-            backend: neon
-          - arch: arm64
-            backend: riscv64
+        backend: [neon, none]
 
     steps:
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make -j$(nproc) ort-test-coverage-html
+          ORT_SCALE_CORES=1 make ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.arch }}-${{ matrix.backend }}-${{ matrix.php }}
+          name: arm64-coverage-${{ matrix.backend }}-${{ matrix.php }}
           path: html/
 
       - name: Send Coveralls Report
@@ -75,14 +61,73 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ${{ github.workspace }}/coverage.info
-          flag-name: ${{ matrix.arch }}-${{ matrix.backend }}-${{ matrix.php }}
+          flag-name: arm64-${{ matrix.backend }}-${{ matrix.php }}
           parallel: true
 
-  Finish:
+  riscv64-install:
+    runs-on: riscv64
+    strategy:
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        backend: [riscv64, none]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }}
+          make -j$(nproc)
+          sudo make install
+
+      - name: Run Tests
+        run: |
+          make test
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-riscv64-${{ matrix.backend }}-${{ matrix.php }}
+          path: tests/
+
+  riscv64-coverage:
+    runs-on: riscv64
+    continue-on-error: true
+    needs: [riscv64-install]
+
+    strategy:
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        backend: [riscv64, none]
+
+    steps:
+      - name: Run Coverage
+        run: |
+          ORT_SCALE_CORES=1 make ort-test-coverage-html
+
+      - name: Upload HTML Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: riscv64-coverage-${{ matrix.backend }}-${{ matrix.php }}
+          path: html/
+
+      - name: Send Coveralls Report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ github.workspace }}/coverage.info
+          flag-name: riscv64-${{ matrix.backend }}-${{ matrix.php }}
+          parallel: true
+
+  finish:
     if: always()
     runs-on: ubuntu-latest
     continue-on-error: true
-    needs: [Coverage]
+    needs: [arm64-coverage, riscv64-coverage]
     steps:
     - name: Finish Coveralls Reporting
       uses: coverallsapp/github-action@master
