@@ -1,5 +1,8 @@
 # PHP-ORT
 
+[![Testing](https://github.com/krakjoe/ort/actions/workflows/testing.yml/badge.svg)](https://github.com/krakjoe/ort/actions/workflows/testing.yml)
+[![Coverage](https://coveralls.io/repos/github/krakjoe/ort/badge.svg?branch=develop)](https://coveralls.io/github/krakjoe/ort?branch=develop)
+
 <em>PHP - Oh Really, Tensors?</em>
 
 This extension provides high performance tensor mathematics. It supports a wide range of mathematical operations on tensors, including element-wise computations, reductions, linear algebra functions, and more.
