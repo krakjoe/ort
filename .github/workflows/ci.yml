@@ -123,11 +123,71 @@ jobs:
           flag-name: riscv64-${{ matrix.backend }}-${{ matrix.php }}
           parallel: true
 
+  x64-install:
+    runs-on: x64
+    strategy:
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        backend: [avx2, sse41, sse2, none]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }} \
+            --with-ort-onnx
+          make -j$(nproc)
+          sudo make install
+
+      - name: Run Tests
+        run: |
+          make test
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-x64-${{ matrix.backend }}-${{ matrix.php }}
+          path: tests/
+
+  x64-coverage:
+    runs-on: x64
+    continue-on-error: true
+    needs: [x64-install]
+
+    strategy:
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        backend: [avx2, sse41, sse2, none]
+
+    steps:
+      - name: Run Coverage
+        run: |
+          ORT_SCALE_CORES=1 make ort-test-coverage-html
+
+      - name: Upload HTML Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: x64-coverage-${{ matrix.backend }}-${{ matrix.php }}
+          path: html/
+
+      - name: Send Coveralls Report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ github.workspace }}/coverage.info
+          flag-name: x64-${{ matrix.backend }}-${{ matrix.php }}
+          parallel: true
+
   finish:
     if: always()
     runs-on: ubuntu-latest
     continue-on-error: true
-    needs: [arm64-coverage, riscv64-coverage]
+    needs: [arm64-coverage, riscv64-coverage, x64-coverage]
     steps:
     - name: Finish Coveralls Reporting
       uses: coverallsapp/github-action@master
