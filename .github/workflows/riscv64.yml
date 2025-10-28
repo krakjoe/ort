@@ -14,17 +14,15 @@ jobs:
           - none
 
     steps:
-      - name: Debug
-        run: |
-          echo "GitHub runner.arch: '${{ runner.arch }}'"
-
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Build
         run: |
           /opt/php/${{ matrix.php }}/bin/phpize
-          ./configure --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config --enable-ort-backend=${{ matrix.backend }}
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }}
           make -j$(nproc)
           sudo make install
 
@@ -35,7 +33,7 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: tests-php${{ matrix.php }}-${{ matrix.backend }}
+          name: tests-${{ runner.arch }}-${{ matrix.php }}-${{ matrix.backend }}
           path: tests/
   Coverage:
     runs-on: riscv64
@@ -56,7 +54,7 @@ jobs:
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-html-php-${{ matrix.php }}-backend-${{ matrix.backend }}
+          name: coverage-${{ runner.arch }}-${{ matrix.php }}-${{ matrix.backend }}
           path: html/
 
       - name: Send Coveralls Report
@@ -64,7 +62,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ${{ github.workspace }}/coverage.info
-          flag-name: backend-${{ matrix.backend }}
+          flag-name: ${{ runner.arch }}-${{ matrix.php }}-${{ matrix.backend }}
           parallel: true
   Finish:
     if: always()
@@ -77,4 +75,3 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
-        carryforward: "backend-none, backend-riscv64"
