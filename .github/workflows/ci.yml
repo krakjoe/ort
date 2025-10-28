@@ -15,7 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+        with:
+            clean: true
+        
       - name: Build
         run: |
           /opt/php/${{ matrix.php }}/bin/phpize
@@ -55,7 +57,7 @@ jobs:
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: arm64-coverage-${{ matrix.backend }}-${{ matrix.php }}
+          name: coverage-arm64-${{ matrix.backend }}-${{ matrix.php }}
           path: html/
 
       - name: Send Coveralls Report
@@ -77,6 +79,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+            clean: true
 
       - name: Build
         run: |
@@ -116,7 +120,7 @@ jobs:
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: riscv64-coverage-${{ matrix.backend }}-${{ matrix.php }}
+          name: coverage-riscv64-${{ matrix.backend }}-${{ matrix.php }}
           path: html/
 
       - name: Send Coveralls Report
@@ -138,6 +142,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+            clean: true
 
       - name: Build
         run: |
@@ -178,7 +184,7 @@ jobs:
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: x64-coverage-${{ matrix.backend }}-${{ matrix.php }}
+          name: coverage-x64-${{ matrix.backend }}-${{ matrix.php }}
           path: html/
 
       - name: Send Coveralls Report
