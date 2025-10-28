@@ -6,6 +6,7 @@ on:
 jobs:
   arm64-install:
     runs-on: arm64
+    continue-on-error: true
     strategy:
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5', '8.6']
@@ -36,6 +37,7 @@ jobs:
           path: tests/
 
   arm64-coverage:
+    if: always()
     runs-on: arm64
     continue-on-error: true
     needs: [arm64-install]
@@ -66,6 +68,7 @@ jobs:
 
   riscv64-install:
     runs-on: riscv64
+    continue-on-error: true
     strategy:
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5', '8.6']
@@ -95,6 +98,7 @@ jobs:
           path: tests/
 
   riscv64-coverage:
+    if: always()
     runs-on: riscv64
     continue-on-error: true
     needs: [riscv64-install]
@@ -125,6 +129,7 @@ jobs:
 
   x64-install:
     runs-on: x64
+    continue-on-error: true
     strategy:
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5', '8.6']
@@ -155,6 +160,7 @@ jobs:
           path: tests/
 
   x64-coverage:
+    if: always()
     runs-on: x64
     continue-on-error: true
     needs: [x64-install]
