@@ -1,17 +1,23 @@
-name: riscv64
+name: Multi-arch CI
 
 on:
   workflow_dispatch:
 
 jobs:
   Install:
-    runs-on: riscv64
+    runs-on: ${{ matrix.arch }}
     strategy:
       matrix:
-        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
-        backend:
-          - riscv64
-          - none
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        arch: [arm64, riscv64]
+        backend: [neon, none, riscv64]
+        exclude:
+          # Exclude neon from riscv64
+          - arch: riscv64
+            backend: neon
+          # Exclude riscv64 backend from arm64
+          - arch: arm64
+            backend: riscv64
 
     steps:
       - name: Checkout
@@ -22,7 +28,8 @@ jobs:
           /opt/php/${{ matrix.php }}/bin/phpize
           ./configure \
             --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
-            --enable-ort-backend=${{ matrix.backend }}
+            --enable-ort-backend=${{ matrix.backend }} \
+            ${{ matrix.arch == 'arm64' && '--with-ort-onnx' || '' }}
           make -j$(nproc)
           sudo make install
 
@@ -33,19 +40,24 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: tests-${{ runner.arch }}-${{ matrix.php }}-${{ matrix.backend }}
+          name: tests-${{ matrix.arch }}-${{ matrix.backend }}-${{ matrix.php }}
           path: tests/
+
   Coverage:
-    runs-on: riscv64
+    runs-on: ${{ matrix.arch }}
     continue-on-error: true
     needs: [Install]
 
     strategy:
       matrix:
-        php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
-        backend:
-          - riscv64
-          - none
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        arch: [arm64, riscv64]
+        backend: [neon, none, riscv64]
+        exclude:
+          - arch: riscv64
+            backend: neon
+          - arch: arm64
+            backend: riscv64
 
     steps:
       - name: Run Coverage
@@ -55,7 +67,7 @@ jobs:
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ runner.arch }}-${{ matrix.php }}-${{ matrix.backend }}
+          name: coverage-${{ matrix.arch }}-${{ matrix.backend }}-${{ matrix.php }}
           path: html/
 
       - name: Send Coveralls Report
@@ -63,11 +75,12 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ${{ github.workspace }}/coverage.info
-          flag-name: ${{ runner.arch }}-${{ matrix.php }}-${{ matrix.backend }}
+          flag-name: ${{ matrix.arch }}-${{ matrix.backend }}-${{ matrix.php }}
           parallel: true
+
   Finish:
     if: always()
-    runs-on: riscv64
+    runs-on: ubuntu-latest
     continue-on-error: true
     needs: [Coverage]
     steps:
