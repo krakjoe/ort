@@ -21,9 +21,9 @@ jobs:
 
       - name: Configure
         run: |
-          /opt/php/php8.6/bin/phpize
+          /opt/php/8.6/bin/phpize
           ./configure \
-            --with-php-config=/opt/php/php8.6/bin/php-config \
+            --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }} \
             --with-ort-onnx
 
@@ -62,9 +62,9 @@ jobs:
 
       - name: Configure
         run: |
-          /opt/php/php8.6/bin/phpize
+          /opt/php/8.6/bin/phpize
           ./configure \
-            --with-php-config=/opt/php/php8.6/bin/php-config \
+            --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }}
 
       - name: Run Coverage
@@ -102,9 +102,9 @@ jobs:
 
       - name: Configure
         run: |
-          /opt/php/php8.6/bin/phpize
+          /opt/php/8.6/bin/phpize
           ./configure \
-            --with-php-config=/opt/php/php8.6/bin/php-config \
+            --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }} \
             --with-ort-onnx
 
