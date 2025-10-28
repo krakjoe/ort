@@ -62,7 +62,7 @@ jobs:
     steps:
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 make -j$(nproc) ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
