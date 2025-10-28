@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  RunBasicTests:
-    runs-on: [self-hosted, linux, riscv64]
+  Install:
+    runs-on: riscv64
     strategy:
       matrix:
         php: [ '8.2', '8.3', '8.4', '8.5', '8.6' ]
@@ -14,28 +14,32 @@ jobs:
           - none
 
     steps:
-      - name: Checkout Repository
+      - name: Debug
+        run: |
+          echo "GitHub runner.arch: '${{ runner.arch }}'"
+
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Extension
+      - name: Build
         run: |
-          /opt/bin/phpize${{ matrix.php }}
-          ./configure --with-php-config=/opt/bin/php-config${{ matrix.php }} --enable-ort-backend=${{ matrix.backend }}
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config --enable-ort-backend=${{ matrix.backend }}
           make -j$(nproc)
           sudo make install
 
       - name: Run Tests
         run: |
-          TEST_PHP_EXECUTABLE=/opt/bin/php${{ matrix.php }} make test
+          TEST_PHP_EXECUTABLE=/opt/php/${{ matrix.php }}/bin/php make test
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
           name: tests-php${{ matrix.php }}-${{ matrix.backend }}
           path: tests/
-  BuildCoverallsReport:
-    runs-on: [self-hosted, linux, riscv64]
-    needs: [RunBasicTests]
+  Coverage:
+    runs-on: riscv64
+    needs: [Install]
 
     strategy:
       matrix:
@@ -45,19 +49,9 @@ jobs:
           - none
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Extension
-        run: |
-          /opt/bin/phpize${{ matrix.php }}
-          ./configure --with-php-config=/opt/bin/php-config${{ matrix.php }} --enable-ort-backend=${{ matrix.backend }}
-          make -j$(nproc)
-          sudo make install
-
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 TEST_PHP_EXECUTABLE=/opt/bin/php${{ matrix.php }} make ort-test-coverage-html
+          ORT_SCALE_CORES=1 TEST_PHP_EXECUTABLE=/opt/php/${{ matrix.php }}/bin/php make ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
@@ -72,11 +66,11 @@ jobs:
           path-to-lcov: ${{ github.workspace }}/coverage.info
           flag-name: backend-${{ matrix.backend }}
           parallel: true
-  FinishCoverallsReport:
+  Finish:
     if: always()
-    runs-on: [self-hosted, linux, riscv64]
+    runs-on: riscv64
     continue-on-error: true
-    needs: [BuildCoverallsReport]
+    needs: [Coverage]
     steps:
     - name: Finish Coveralls Reporting
       uses: coverallsapp/github-action@master
