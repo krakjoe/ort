@@ -39,7 +39,7 @@ jobs:
           path: tests/
 
   arm64-coverage:
-    if: always()
+    if: success() || failure()
     runs-on: arm64
     continue-on-error: true
     needs: [arm64-install]
@@ -117,7 +117,7 @@ jobs:
           path: tests/
 
   riscv64-coverage:
-    if: always()
+    if: success() || failure()
     runs-on: riscv64
     continue-on-error: true
     needs: [riscv64-install]
@@ -195,7 +195,7 @@ jobs:
           path: tests/
 
   x64-coverage:
-    if: always()
+    if: success() || failure()
     runs-on: x64
     continue-on-error: true
     needs: [x64-install]
@@ -240,7 +240,7 @@ jobs:
           parallel: true
 
   finish:
-    if: always()
+    if: success() || failure()
     runs-on: ubuntu-latest
     continue-on-error: true
     needs: [arm64-coverage, riscv64-coverage, x64-coverage]
