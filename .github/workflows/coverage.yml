@@ -151,6 +151,7 @@ jobs:
             --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=cuda,${{ matrix.backend }} \
             --with-ort-onnx
+          make -j$(nproc) ort-cuda-kernels
 
       - name: Run Coverage
         run: |

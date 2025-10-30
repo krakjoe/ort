@@ -127,6 +127,7 @@ jobs:
             --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
             --enable-ort-backend=cuda,${{ matrix.backend }} \
             --with-ort-onnx
+          make -j$(nproc) ort-cuda-kernels
           make -j$(nproc)
           sudo make install
 
