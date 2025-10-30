@@ -9,7 +9,7 @@ $backend = \ORT\Math\backend();
 if ($backend === false) {
     printf("Backend: none\n");
 } else if ($backend) {
-    printf("Backend: %s\n", $backend);
+    printf("Backend: %s\n", \implode(", ", $backend));
 } else {
     printf("backend() returned something unexpected");
 }
