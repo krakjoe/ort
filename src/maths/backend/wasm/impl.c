@@ -45,7 +45,7 @@ static void* ort_math_memcpy_wasm(void *dest, const void *src, size_t n) {
     return dest;
 }
 
-void ort_math_backend_install(ort_math_dispatch_t* table) {
+void ort_math_backend_cpu_install(ort_math_dispatch_t* table) {
     /* There is no need to guard the wasm backend, there is
         no variability in the ISA */
 
