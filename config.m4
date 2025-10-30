@@ -18,6 +18,10 @@ PHP_ARG_WITH([ort-onnx],
   [whether to enable ONNX Runtime support],
   [AS_HELP_STRING([--with-ort-onnx], [Enable ONNX Runtime support])], no, no)
 
+PHP_ARG_ENABLE([ort-coverage],
+  [whether to enable coverage],
+  [AS_HELP_STRING([--enable-ort-coverage], [Enable coverage, default=no])], no, no)
+
 AS_VAR_IF([PHP_ORT], [no],, [
   dnl ============================================================
   dnl ISA Extension Detection (Prologue)
@@ -583,6 +587,22 @@ AS_VAR_IF([PHP_ORT], [no],, [
   ], [
     AC_DEFINE(HAVE_ORT_POOL, 1,
       [Defined to 1 where we should use pooling (threads)])
+    AC_MSG_RESULT([enabled])
+  ])
+
+  dnl ============================================================
+  dnl Coverage Support
+  dnl ============================================================
+  AC_MSG_CHECKING([for coverage support])
+  AS_VAR_IF([PHP_ORT_COVERAGE], [no], [
+    AC_MSG_RESULT([no])
+  ], [
+    AC_DEFINE(HAVE_ORT_COVERAGE, 1,
+      [Defined to 1 where we are generating coverage])
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -fprofile-arcs -ftest-coverage"
+    EXTRA_LDFLAGS="$EXTRA_LDFLAGS -fprofile-arcs -lgcov"
+    PHP_SUBST(EXTRA_CFLAGS)
+    PHP_SUBST(EXTRA_LDFLAGS)
     AC_MSG_RESULT([enabled])
   ])
 

@@ -1,9 +1,10 @@
 name: pages
 
 on:
-  push:
-    branches:
-      - develop
+  workflow_run:
+    workflows: ["Testing"]
+    types:
+      - completed
 
 permissions:
   contents: read

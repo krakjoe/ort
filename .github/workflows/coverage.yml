@@ -28,11 +28,12 @@ jobs:
           ./configure \
             --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }} \
+            --enable-ort-coverage \
             --with-ort-onnx
 
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 make -j$(nproc) ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
@@ -68,11 +69,12 @@ jobs:
           /opt/php/8.6/bin/phpize
           ./configure \
             --with-php-config=/opt/php/8.6/bin/php-config \
-            --enable-ort-backend=${{ matrix.backend }}
+            --enable-ort-backend=${{ matrix.backend }} \
+            --enable-ort-coverage
 
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 make -j$(nproc) ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
@@ -109,11 +111,12 @@ jobs:
           ./configure \
             --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }} \
+            --enable-ort-coverage \
             --with-ort-onnx
 
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 make -j$(nproc) ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4
@@ -150,12 +153,13 @@ jobs:
           ./configure \
             --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=cuda,${{ matrix.backend }} \
+            --enable-ort-coverage \
             --with-ort-onnx
           make -j$(nproc) ort-cuda-kernels
 
       - name: Run Coverage
         run: |
-          ORT_SCALE_CORES=1 make ort-test-coverage-html
+          ORT_SCALE_CORES=1 make -j$(nproc) ort-test-coverage-html
 
       - name: Upload HTML Coverage
         uses: actions/upload-artifact@v4

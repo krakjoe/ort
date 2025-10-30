@@ -1,7 +1,25 @@
-ort-test-coverage:
-	CCACHE_DISABLE=1 EXTRA_CFLAGS="-fprofile-arcs -ftest-coverage" TEST_PHP_ARGS="-q" $(MAKE) clean test
+################################################################################
+# Jobs
+################################################################################
+TEST_PHP_JOBS_FLAG := $(firstword $(filter -j%,$(MAKEFLAGS)))
 
-ort-test-coverage-lcov: ort-test-coverage
+ifeq ($(TEST_PHP_JOBS_FLAG),)
+    TEST_PHP_JOBS := 1
+else
+    TEST_PHP_JOBS := $(patsubst -j%,%,$(TEST_PHP_JOBS_FLAG))
+endif
+
+################################################################################
+# Parallel Test
+################################################################################
+ort-test-parallel:
+	TEST_PHP_ARGS="-g FAIL,LEAK -q -j$(TEST_PHP_JOBS) --no-progress --show-diff --show-mem" \
+		$(MAKE) test
+
+################################################################################
+# Coverage
+################################################################################
+ort-test-coverage-lcov: ort-test-parallel
 	lcov --directory $(top_srcdir)/src             \
 		 --no-external                             \
 		 --output-file $(top_srcdir)/coverage.info \
