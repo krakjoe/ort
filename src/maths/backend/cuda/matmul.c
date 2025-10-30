@@ -31,7 +31,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float) {
     const float *vb = (const float *)b;
     float *res = (float *)result;
 
-    if (a_cols * sizeof(float) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(float) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(float) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_float_relay;
     }
 
@@ -74,7 +75,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, double) {
     const double *vb = (const double *)b;
     double *res = (double *)result;
 
-    if (a_cols * sizeof(double) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(double) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(double) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_double_relay;
     }
 
@@ -110,7 +112,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int8_t) {
     const int8_t *vb = (const int8_t *)b;
     int8_t *res = (int8_t *)result;
 
-    if (a_cols * sizeof(int8_t) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(int8_t) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(int8_t) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_int8_relay;
     }
 
@@ -129,7 +132,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint8_t) {
     const uint8_t *vb = (const uint8_t *)b;
     uint8_t *res = (uint8_t *)result;
 
-    if (a_cols * sizeof(uint8_t) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(uint8_t) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(uint8_t) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_uint8_relay;
     }
 
@@ -148,7 +152,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int16_t) {
     const int16_t *vb = (const int16_t *)b;
     int16_t *res = (int16_t *)result;
 
-    if (a_cols * sizeof(int16_t) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(int16_t) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(int16_t) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_int16_relay;
     }
 
@@ -167,7 +172,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint16_t) {
     const uint16_t *vb = (const uint16_t *)b;
     uint16_t *res = (uint16_t *)result;
 
-    if (a_cols * sizeof(uint16_t) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(uint16_t) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(uint16_t) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_uint16_relay;
     }
 
@@ -186,7 +192,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int32_t) {
     const int32_t *vb = (const int32_t *)b;
     int32_t *res = (int32_t *)result;
 
-    if (a_cols * sizeof(int32_t) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(int32_t) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(int32_t) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_int32_relay;
     }
 
@@ -205,7 +212,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint32_t) {
     const uint32_t *vb = (const uint32_t *)b;
     uint32_t *res = (uint32_t *)result;
 
-    if (a_cols * sizeof(uint32_t) < __ort_cuda_threshold) {
+    if ((a_cols * sizeof(uint32_t) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(uint32_t) < __ort_cuda_threshold)) {
         goto __ort_math_backend_matmul_uint32_relay;
     }
 

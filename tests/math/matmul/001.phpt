@@ -1,5 +1,5 @@
 --TEST--
-ORT\Math\matmul: matrix x matrix, all types, shape, numpy/onnx semantics, includes large matrix and batched 3D for vectorization
+ORT\Math\matmul: matrix x matrix, all types, shape, numpy/onnx semantics, small matrix and batched 3D for vectorization
 --EXTENSIONS--
 ort
 --FILE--
@@ -34,7 +34,7 @@ foreach ($types as $name => [$type, $values]) {
     print_result($result);
 }
 
-// Large matrix case for vectorization
+// Small matrix case for vectorization
 $large_size = 256;
 foreach ($types as $name => [$type, $values]) {
     // $a: shape [$large_size, 2], each row is [1, 1] (distinct arrays)

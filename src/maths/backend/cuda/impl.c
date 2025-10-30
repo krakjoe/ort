@@ -24,7 +24,7 @@
 
 static int __ort_cuda_device = 0;
 
-int __ort_cuda_threshold = 167770;
+int __ort_cuda_threshold = 16384;
 
 static bool                  __ort_cuda_initialized = false;
 ORT_TLS bool                 __ort_cuda_activated = false;
