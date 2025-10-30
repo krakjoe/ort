@@ -143,14 +143,19 @@
                         <p>1000×1000 float32 matrices</p>
                     </div>
                     <div class="performance-card">
-                        <h4>SIMD Acceleration</h4>
+                        <h4>CPU Acceleration</h4>
                         <div class="performance-number">8x</div>
                         <p>speedup with AVX2</p>
                     </div>
                     <div class="performance-card">
+                        <h4>GPU Acceleration</h4>
+                        <div class="performance-number">??</div>
+                        <p>speedup with CUDA</p>
+                    </div>
+                    <div class="performance-card">
                         <h4>Hybrid Parallelism</h4>
                         <div class="performance-number">100%</div>
-                        <p>CPU utilization</p>
+                        <p>CPU/GPU utilization</p>
                     </div>
                 </div>
 
@@ -235,7 +240,7 @@ if (extension_loaded('ort')) {
     echo "Subtraction: ";
     print_r($diff->getData()[0]);
     
-    echo "\\n✨ All operations use optimized SIMD when available!\\n";
+    echo "\\n✨ All operations use optimized CPU/GPU instructions when available!\\n";
 } else {
     echo "ORT Extension not available\\n";
 }
@@ -323,6 +328,7 @@ if (extension_loaded('ort')) {
                     <li><strong><a href="#" onclick="showInnovationDetail('memory-management'); return false;">Memory Management:</a></strong> Aligned allocator and optimized memcpy for maximum performance potential</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('thread-pool'); return false;">Thread Pool:</a></strong> Dedicated Slot scheduling implementation with alignment awareness</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('simd-optimization'); return false;">SIMD Optimization:</a></strong> Runtime detection with thread pinning ensures stability and predictability at scale</li>
+                    <li><strong><a href="#" onclick="showInnovationDetail('gpu-optimization'); return false;">GPU Optimization:</a></strong> Optional GPU acceleration ensures saturation of all available parallel hardware</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('type-system'); return false;">Type System:</a></strong> Schemas extracted from NumPy runtime; no guesswork, perfect compatibility</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('type-promotion'); return false;">Type Promotion:</a></strong> Automatic conversion between types for seamless integration and maximum predictability</li>
                     <li><strong><a href="#" onclick="showInnovationDetail('zero-overhead'); return false;">Zero Overhead Optimizations:</a></strong> Backend silently (opaque to the frontend) optimizes dispatch</li>
@@ -751,6 +757,18 @@ function showInnovationDetail(innovationId) {
                 If we pursue a maniacal optimization strategy the complexity of the code becomes a barrier to entry for those potential contributors</em>
                 <br />
                 <em>It's smarter to be correct, and as easy to understand as possible, at this time in development. According to benchmarks, this is doing no harm.</em>
+           `
+       },
+       'gpu-optimization': {
+           title: 'GPU Optimization Strategy',
+           content: `
+               <h4>Transparent GPU Acceleration</h4>
+               <p>Multi-layered approach to GPU acceleration:</p>
+               <ul class="padded-list">
+                   <li><strong>Relaying:</strong> When an operation will not benefit from execution on the GPU, the best available CPU kernel will be used</li>
+                   <li><strong>Managing:</strong> The programmer does not need to care about moving memory between devices</li>
+                   <li><strong>Zero Configuration::</strong> Characteristics controlled by environment variables</li>
+               </ul>
            `
        },
        'type-system': {

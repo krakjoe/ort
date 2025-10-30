@@ -11,8 +11,10 @@ This extension also includes optional integration with Microsoft's ONNX Runtime 
 
 ## Features
 
-- **High-Performance Mathematics**: SIMD-accelerated operations (WASM, NEON, RISCV64, AVX2, SSE4.1, SSE2)
-- **Multi-Core Parallelism**: Automatic work distribution across CPU cores
+- **High-Performance Mathematics**: Hardware Acceleration
+  - CPU (SIMD): WASM, NEON, RISCV64, AVX2, SSE4.1, SSE2
+  - GPU: CUDA
+- **Hybrid Parallelism**: Automatic work distribution across CPU/GPU
 - **Comprehensive Type Support**: 9 data types with automatic promotion
 - **Memory Efficient**: Reference-counted tensors with zero-copy slicing
 - **ONNX Integration**: Optional and Direct ONNX model loading and inference
@@ -41,11 +43,15 @@ tar -C /usr/local -xvf onnxruntime-linux-x64-1.22.0.tgz --strip-components 1
 # Build and install extension
 phpize
 ./configure --with-ort-onnx=/usr/local --enable-ort
-make
+make -j$(nproc)
 sudo make install
 ```
 
 <em>Note: Use microsoft provided releases of ONNX, not brew or ppa or apt provided releases.</em>
+
+### Installation with CUDA
+
+See [docs/gpu.md](docs/gpu.md) for more information about GPU acceleration.
 
 #### Post Installation
 
@@ -121,6 +127,7 @@ echo "Cores: " . ORT\Math\cores() . "\n";
 - `avx2`    - use avx2 backend
 - `sse41`   - use sse41 backend
 - `sse2`    - use sse2 backend
+- `cuda`    - use cuda backend
 - `none`    - disable backend
 
 ## Technical Details
@@ -132,7 +139,7 @@ See [docs](docs) for detailed technical documentation.
 - **PHP**: 7.4+ or 8.0+
 - **ONNX Runtime**: 1.16+ (optional)
 - **Compiler**: GCC 4.8+ or Clang 3.8+
-- **CPU**: x86_64 with SSE2 (AVX2 recommended)
+- **CPU**: x86_64 with SSE2 (AVX2 recommended), aarch64, riscv64, wasm
 
 ## License
 
