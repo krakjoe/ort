@@ -37,7 +37,10 @@ __ort_math_backend_ceil_float_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, ceil, FLOAT)
                 (res, va, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_UNARY_OP_DECL(cuda, ceil, double) {
@@ -55,5 +58,8 @@ __ort_math_backend_ceil_double_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, ceil, DOUBLE)
                 (res, va, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }

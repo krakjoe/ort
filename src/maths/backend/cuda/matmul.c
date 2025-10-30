@@ -66,7 +66,10 @@ __ort_math_backend_matmul_float_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, FLOAT)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 /* Double matmul using cuBLAS gemv */
@@ -103,7 +106,10 @@ __ort_math_backend_matmul_double_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, DOUBLE)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 /* Integer matmuls using custom kernels */
@@ -124,7 +130,10 @@ __ort_math_backend_matmul_int8_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, INT8)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint8_t) {
@@ -144,7 +153,10 @@ __ort_math_backend_matmul_uint8_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, UINT8)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int16_t) {
@@ -164,7 +176,10 @@ __ort_math_backend_matmul_int16_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, INT16)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint16_t) {
@@ -184,7 +199,10 @@ __ort_math_backend_matmul_uint16_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, UINT16)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int32_t) {
@@ -204,7 +222,10 @@ __ort_math_backend_matmul_int32_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, INT32)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint32_t) {
@@ -224,5 +245,8 @@ __ort_math_backend_matmul_uint32_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, UINT32)
                 (res, va, vb, a_cols, b_cols);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }

@@ -13,7 +13,14 @@ endif
 # Parallel Test
 ################################################################################
 ort-test-parallel:
-	TEST_PHP_ARGS="-g FAIL,LEAK -q -j$(TEST_PHP_JOBS) --no-progress --show-diff --show-mem" \
+	TEST_PHP_ARGS="-g FAIL,LEAK -q -j$(TEST_PHP_JOBS) --no-progress --show-diff" \
+		$(MAKE) test
+
+################################################################################
+# Parallel Test (Memcheck)
+################################################################################
+ort-test-parallel-valgrind:
+	TEST_PHP_ARGS="-g FAIL,LEAK -q -j$(TEST_PHP_JOBS) --no-progress --show-diff --show-mem -m" \
 		$(MAKE) test
 
 ################################################################################
@@ -55,4 +62,4 @@ $(ORT_CUDA_LIBRARY): $(ORT_CUDA_OBJECTS)
 $(ORT_CUDA_OBJDIR)/%.o: $(ORT_CUDA_OBJDIR)/%.cu
 	$(NVCC) $(ORT_CUDA_CFLAGS) -c $< -o $@
 
-.PHONY: ort-cuda-kernels ort-test-coverage ort-test-coverage-lcov ort-test-coverage-html
+.PHONY: ort-cuda-kernels ort-test-coverage ort-test-coverage-lcov ort-test-coverage-html ort-test-parallel ort-test-parallel-valgrind

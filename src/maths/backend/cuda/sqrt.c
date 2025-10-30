@@ -37,7 +37,10 @@ __ort_math_backend_sqrt_float_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sqrt, FLOAT)
                 (res, va, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_UNARY_OP_DECL(cuda, sqrt, double) {
@@ -55,5 +58,8 @@ __ort_math_backend_sqrt_double_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sqrt, DOUBLE)
                 (res, va, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }

@@ -38,7 +38,10 @@ __ort_math_backend_sub_int8_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, INT8)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, int16_t) {
@@ -57,7 +60,10 @@ __ort_math_backend_sub_int16_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, INT16)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, int32_t) {
@@ -76,7 +82,10 @@ __ort_math_backend_sub_int32_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, INT32)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, int64_t) {
@@ -95,7 +104,10 @@ __ort_math_backend_sub_int64_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, INT64)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, uint8_t) {
@@ -114,7 +126,10 @@ __ort_math_backend_sub_uint8_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, UINT8)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, uint16_t) {
@@ -133,7 +148,10 @@ __ort_math_backend_sub_uint16_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, UINT16)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, uint32_t) {
@@ -152,7 +170,10 @@ __ort_math_backend_sub_uint32_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, UINT32)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, float) {
@@ -171,7 +192,10 @@ __ort_math_backend_sub_float_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, FLOAT)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, double) {
@@ -190,5 +214,8 @@ __ort_math_backend_sub_double_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, sub, DOUBLE)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }

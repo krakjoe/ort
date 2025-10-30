@@ -38,7 +38,10 @@ __ort_math_backend_div_float_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, div, FLOAT)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, div, double) {
@@ -57,5 +60,8 @@ __ort_math_backend_div_double_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, div, DOUBLE)
                 (res, va, vb, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }

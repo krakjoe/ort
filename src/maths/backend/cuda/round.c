@@ -55,5 +55,8 @@ __ort_math_backend_round_double_relay:
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, round, DOUBLE)
                 (res, va, count);
+        return;
     }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
 }
