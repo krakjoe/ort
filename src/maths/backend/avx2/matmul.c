@@ -21,7 +21,7 @@
 
 #include <immintrin.h> /* AVX2 */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, float) {
     const float *va = (const float *)a;
     const float *vb = (const float *)b;
     float *res = (float *)result;
@@ -40,7 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mul_ps(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, float32x8, float)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, float32x8, float)(mr);
         }
         /* Fallback for leftovers */
         for (; k < a_cols; k++) {
@@ -50,7 +50,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, double) {
     const double *va = (const double *)a;
     const double *vb = (const double *)b;
     double *res = (double *)result;
@@ -67,7 +67,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mul_pd(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, float64x4, double)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, float64x4, double)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -76,7 +76,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, int32_t) {
     const int32_t *va = (const int32_t *)a;
     const int32_t *vb = (const int32_t *)b;
     int32_t *res = (int32_t *)result;
@@ -95,7 +95,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mullo_epi32(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -104,7 +104,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, uint32_t) {
     const uint32_t *va = (const uint32_t *)a;
     const uint32_t *vb = (const uint32_t *)b;
     uint32_t *res = (uint32_t *)result;
@@ -123,7 +123,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm256_mullo_epi32(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -132,7 +132,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, int16_t) {
     const int16_t *va = (const int16_t *)a;
     const int16_t *vb = (const int16_t *)b;
     int16_t *res = (int16_t *)result;
@@ -155,7 +155,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
             // Multiply and horizontally add pairs to 32-bit
             __m256i prod = _mm256_madd_epi16(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int32_t)(prod);
         }
         for (; k < a_cols; k++) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
@@ -165,7 +165,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, uint16_t) {
     const uint16_t *va = (const uint16_t *)a;
     const uint16_t *vb = (const uint16_t *)b;
     uint16_t *res = (uint16_t *)result;
@@ -188,7 +188,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
             // Multiply and horizontally add pairs to 32-bit
             __m256i prod = _mm256_madd_epi16(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int32_t)(prod);
         }
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];
@@ -198,7 +198,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, int8_t) {
     const int8_t *va = (const int8_t *)a;
     const int8_t *vb = (const int8_t *)b;
     int8_t *res = (int8_t *)result;
@@ -231,7 +231,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
             // Now horizontally add pairs to 32-bit
             __m256i prod32 = _mm256_madd_epi16(prod, _mm256_set1_epi16(1));
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod32);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int32_t)(prod32);
         }
         for (; k < a_cols; k++) {
             sum += (int32_t)va[k] * (int32_t)vb[k * b_cols + j];
@@ -241,7 +241,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int8_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, uint8_t) {
     const uint8_t *va = (const uint8_t *)a;
     const uint8_t *vb = (const uint8_t *)b;
     uint8_t *res = (uint8_t *)result;
@@ -274,7 +274,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint8_t) {
             // Now horizontally add pairs to 32-bit
             __m256i prod32 = _mm256_madd_epi16(prod, _mm256_set1_epi16(1));
 
-            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x8, int32_t)(prod32);
+            sum += ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int32_t)(prod32);
         }
         for (; k < a_cols; k++) {
             sum += (uint32_t)va[k] * (uint32_t)vb[k * b_cols + j];

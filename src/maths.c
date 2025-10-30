@@ -316,15 +316,21 @@ PHP_NAMED_FUNCTION(php_ort_math_matmul)
     rv->object = result;
 }
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(php_ort_math_backend_arginfo, 0, 0, MAY_BE_STRING|MAY_BE_FALSE)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(php_ort_math_backend_arginfo, 0, 0, MAY_BE_ARRAY|MAY_BE_FALSE)
 ZEND_END_ARG_INFO()
 
 PHP_NAMED_FUNCTION(php_ort_math_backend)
 {
     ZEND_PARSE_PARAMETERS_NONE();
 
-#ifdef ORT_BACKEND_ENABLED
-    RETURN_STRING(ORT_BACKEND_NAME);
+#if defined(ORT_BACKEND_CPU_ENABLED) || defined(ORT_BACKEND_GPU_ENABLED)
+    array_init(return_value);
+# if defined(ORT_BACKEND_GPU_ENABLED)
+    add_next_index_string(return_value, ORT_BACKEND_GPU_NAME);
+# endif
+# if defined(ORT_BACKEND_CPU_ENABLED)
+    add_next_index_string(return_value, ORT_BACKEND_CPU_NAME);
+# endif
 #else
     RETURN_FALSE;
 #endif

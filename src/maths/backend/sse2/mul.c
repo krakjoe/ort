@@ -16,7 +16,7 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/sse2/impl.h"
 
 #include <emmintrin.h> /* SSE2 */
 
@@ -26,7 +26,7 @@
  * Only contracted types are implemented. SSE2 does not support 8-bit or 64-bit integer multiply.
  */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(mul, int16_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, int16_t) {
     const int16_t* va = (const int16_t*)a;
     const int16_t* vb = (const int16_t*)b;
     int16_t* res = (int16_t*)result;
@@ -56,7 +56,7 @@ __ort_math_backend_mul_int16_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(mul, uint16_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, uint16_t) {
     const uint16_t* va = (const uint16_t*)a;
     const uint16_t* vb = (const uint16_t*)b;
     uint16_t* res = (uint16_t*)result;
@@ -86,7 +86,7 @@ __ort_math_backend_mul_uint16_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(mul, float) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float) {
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
     float* res = (float*)result;
@@ -116,7 +116,7 @@ __ort_math_backend_mul_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(mul, double) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, double) {
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
     double* res = (double*)result;

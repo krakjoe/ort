@@ -109,6 +109,12 @@ static zend_always_inline int16_t ort_math_dispatch_indexof(ONNXTensorElementDat
 /* Function dispatch table access */
 ort_math_dispatch_t* ort_math_dispatch_table(void);
 
+/* Function dispatch table backup */
+ort_math_dispatch_t*
+    ort_math_dispatch_backup_malloc(void);
+void ort_math_dispatch_backup_free(
+    ort_math_dispatch_t* backup);
+
 const ort_math_dispatch_t* ort_math_dispatch_type(
     ONNXTensorElementDataType type);
 #endif

@@ -1,0 +1,27 @@
+/*
+  +----------------------------------------------------------------------+
+  | ort                                                                  |
+  +----------------------------------------------------------------------+
+  | Copyright (c) Joe Watkins 2025                                       |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 3.01 of the PHP license,      |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.php.net/license/3_01.txt                                  |
+  | If you did not receive a copy of the PHP license and are unable to   |
+  | obtain it through the world-wide-web, please send a note to          |
+  | license@php.net so we can mail you a copy immediately.               |
+  +----------------------------------------------------------------------+
+  | Author: krakjoe                                                      |
+  +----------------------------------------------------------------------+
+ */
+
+#include <stdint.h>
+#include <cuda_runtime.h>
+
+void ort_cuda_dot_float(float* result, const float* a, const float* b, size_t count, cudaStream_t stream);
+void ort_cuda_dot_double(double* result, const double* a, const double* b, size_t count, cudaStream_t stream);
+void ort_cuda_dot_int16(int16_t* result, const int16_t* a, const int16_t* b, size_t count, cudaStream_t stream);
+void ort_cuda_dot_int32(int32_t* result, const int32_t* a, const int32_t* b, size_t count, cudaStream_t stream);
+void ort_cuda_dot_uint16(uint16_t* result, const uint16_t* a, const uint16_t* b, size_t count, cudaStream_t stream);
+void ort_cuda_dot_uint32(uint32_t* result, const uint32_t* a, const uint32_t* b, size_t count, cudaStream_t stream);

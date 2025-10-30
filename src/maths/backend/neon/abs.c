@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/neon/impl.h"
 
 #include <arm_neon.h>  /* NEON */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, int8_t) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int8_t) {
     const int8_t* va = (const int8_t*)a;
     int8_t* res      = (int8_t*)result;
     const size_t mw = 16; // 16 int8_t per NEON register
@@ -46,7 +46,7 @@ __ort_math_backend_abs_int8_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, int16_t) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int16_t) {
     const int16_t* va = (const int16_t*)a;
     int16_t* res      = (int16_t*)result;
     const size_t mw = 8; // 8 int16_t per NEON register
@@ -72,7 +72,7 @@ __ort_math_backend_abs_int16_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, int32_t) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int32_t) {
     const int32_t* va = (const int32_t*)a;
     int32_t* res      = (int32_t*)result;
     const size_t mw = 4; // 4 int32_t per NEON register
@@ -98,7 +98,7 @@ __ort_math_backend_abs_int32_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, int64_t) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int64_t) {
     const int64_t* va = (const int64_t*)a;
     int64_t* res      = (int64_t*)result;
     const size_t mw = 2; // 2 int64_t per NEON register
@@ -124,7 +124,7 @@ __ort_math_backend_abs_int64_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, float) {
     const float* va = (const float*)a;
     float* res      = (float*)result;
     const size_t mw = 4; // 4 floats per NEON register
@@ -150,7 +150,7 @@ __ort_math_backend_abs_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, double) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, double) {
     const double* va = (const double*)a;
     double* res      = (double*)result;
     const size_t mw = 2; // 2 doubles per NEON register

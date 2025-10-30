@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/sse2/impl.h"
 
 #include <emmintrin.h> /* SSE2 */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neg, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, neg, float) {
     const float* va = (const float*)a;
     float* res = (float*)result;
     const size_t mw = 4; // 4 floats per SSE2 register
@@ -49,7 +49,7 @@ __ort_math_backend_neg_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neg, double) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, neg, double) {
     const double* va = (const double*)a;
     double* res = (double*)result;
     const size_t mw = 2; // 2 doubles per SSE2 register

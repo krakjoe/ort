@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/neon/impl.h"
 
 #include <arm_neon.h>  /* NEON */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int8_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int8_t) {
     const int8_t* va = (const int8_t*)a;
     const int8_t* vb = (const int8_t*)b;
     int8_t* res = (int8_t*)result;
@@ -50,7 +50,7 @@ __ort_math_backend_sub_int8_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int16_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int16_t) {
     const int16_t* va = (const int16_t*)a;
     const int16_t* vb = (const int16_t*)b;
     int16_t* res = (int16_t*)result;
@@ -80,7 +80,7 @@ __ort_math_backend_sub_int16_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int32_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int32_t) {
     const int32_t* va = (const int32_t*)a;
     const int32_t* vb = (const int32_t*)b;
     int32_t* res = (int32_t*)result;
@@ -110,7 +110,7 @@ __ort_math_backend_sub_int32_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, int64_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int64_t) {
     const int64_t* va = (const int64_t*)a;
     const int64_t* vb = (const int64_t*)b;
     int64_t* res = (int64_t*)result;
@@ -140,7 +140,7 @@ __ort_math_backend_sub_int64_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint8_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint8_t) {
     const uint8_t* va = (const uint8_t*)a;
     const uint8_t* vb = (const uint8_t*)b;
     uint8_t* res = (uint8_t*)result;
@@ -170,7 +170,7 @@ __ort_math_backend_sub_uint8_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint16_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint16_t) {
     const uint16_t* va = (const uint16_t*)a;
     const uint16_t* vb = (const uint16_t*)b;
     uint16_t* res = (uint16_t*)result;
@@ -200,7 +200,7 @@ __ort_math_backend_sub_uint16_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, uint32_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint32_t) {
     const uint32_t* va = (const uint32_t*)a;
     const uint32_t* vb = (const uint32_t*)b;
     uint32_t* res = (uint32_t*)result;
@@ -230,7 +230,7 @@ __ort_math_backend_sub_uint32_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, float) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float) {
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
     float* res = (float*)result;
@@ -260,7 +260,7 @@ __ort_math_backend_sub_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sub, double) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, double) {
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
     double* res = (double*)result;

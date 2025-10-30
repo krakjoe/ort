@@ -16,10 +16,10 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/sse41/impl.h"
 #include <smmintrin.h> /* SSE4.1 */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(sign, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, sign, float) {
     const float* va = (const float*)a;
     float* res = (float*)result;
     const size_t mw = 4;
@@ -53,7 +53,7 @@ __ort_math_backend_sign_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(sign, double) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, sign, double) {
     const double* va = (const double*)a;
     double* res = (double*)result;
     const size_t mw = 2;

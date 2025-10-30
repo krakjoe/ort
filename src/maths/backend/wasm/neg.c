@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/wasm/impl.h"
 
 #include <wasm_simd128.h>  /* WASM */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neg, int8_t) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, neg, int8_t) {
     const int8_t* va = (const int8_t*)a;
     int8_t* res      = (int8_t*)result;
     const size_t mw = 16; // 16 int8_t per 128-bit WASM SIMD
@@ -46,7 +46,7 @@ __ort_math_backend_neg_int8_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neg, int16_t) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, neg, int16_t) {
     const int16_t* va = (const int16_t*)a;
     int16_t* res      = (int16_t*)result;
     const size_t mw = 8; // 8 int16_t per 128-bit WASM SIMD
@@ -72,7 +72,7 @@ __ort_math_backend_neg_int16_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neg, int32_t) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, neg, int32_t) {
     const int32_t* va = (const int32_t*)a;
     int32_t* res      = (int32_t*)result;
     const size_t mw = 4; // 4 int32_t per 128-bit WASM SIMD
@@ -98,7 +98,7 @@ __ort_math_backend_neg_int32_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neg, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, neg, float) {
     const float* va = (const float*)a;
     float* res      = (float*)result;
     const size_t mw = 4; // 4 floats per 128-bit WASM SIMD

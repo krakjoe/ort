@@ -5,8 +5,8 @@ PHP_ARG_ENABLE([ort],
   [AS_HELP_STRING([--enable-ort], [Enable ort extension])])
 
 PHP_ARG_ENABLE([ort-backend],
-  [which backend to use for optimizations],
-  [AS_HELP_STRING([--enable-ort-backend@<:@=TYPE@:>@], [Enable backend optimizations. TYPE can be: auto, none, wasm, neon, riscv64, avx2, sse41, sse2 (default: auto)])],
+  [which backend(s) to use for optimizations],
+  [AS_HELP_STRING([--enable-ort-backend@<:@=TYPE@:>@], [Enable backend optimizations. TYPE can be: auto, none, or comma-separated list like cuda,avx2 (default: auto)])],
   [auto],
   [no])
 
@@ -26,6 +26,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
   AC_MSG_RESULT([working])
   
   dnl Initialize detection variables
+  PHP_ORT_HAS_CUDA="no"
   PHP_ORT_HAS_WASM="no"
   PHP_ORT_HAS_NEON="no"
   PHP_ORT_HAS_RISCV64="no"
@@ -33,6 +34,48 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ORT_HAS_SSE41="no"
   PHP_ORT_HAS_SSE2="no"
   
+  dnl Check for CUDA support
+  dnl First check environment variables
+  if test -n "$CUDA_HOME"; then
+    CUDA_DIR="$CUDA_HOME"
+  elif test -n "$CUDA_PATH"; then
+    CUDA_DIR="$CUDA_PATH"
+  else
+    dnl Try to find nvcc in PATH
+    AC_PATH_PROG([NVCC], [nvcc], [no])
+    if test "$NVCC" != "no"; then
+      dnl Derive CUDA directory from nvcc location
+      CUDA_DIR=$(dirname $(dirname $NVCC))
+      PHP_SUBST(NVCC)
+    else
+      dnl Try standard installation paths
+      for dir in /usr/local/cuda /opt/cuda /usr/cuda; do
+        if test -d "$dir"; then
+          CUDA_DIR="$dir"
+          break
+        fi
+      done
+    fi
+  fi
+
+  dnl If we found a CUDA directory, verify it has what we need
+  if test -n "$CUDA_DIR"; then
+    save_CPPFLAGS="$CPPFLAGS"
+    save_LDFLAGS="$LDFLAGS"
+    
+    CPPFLAGS="$CPPFLAGS -I$CUDA_DIR/include"
+    LDFLAGS="$LDFLAGS -L$CUDA_DIR/lib64 -L$CUDA_DIR/lib"
+    
+    AC_CHECK_HEADERS([cuda_runtime.h], [
+      AC_CHECK_LIB([cudart], [cudaMalloc], [
+        PHP_ORT_HAS_CUDA="yes"
+      ])
+    ], [], [AC_INCLUDES_DEFAULT])
+    
+    CPPFLAGS="$save_CPPFLAGS"
+    LDFLAGS="$save_LDFLAGS"
+  fi
+
   dnl Check for WASM SIMD support
   AX_CHECK_COMPILE_FLAG([-msimd128], [
     AC_CHECK_HEADERS([wasm_simd128.h], [
@@ -40,8 +83,8 @@ AS_VAR_IF([PHP_ORT], [no],, [
     ], [], [AC_INCLUDES_DEFAULT])
   ], [])
 
-  dnl Check for NEON support (if no wasm)
-  if test "$PHP_ORT_HAS_WASM" == "no"; then
+  dnl Check for NEON support
+  if test "$PHP_ORT_HAS_WASM" = "no"; then
     AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd], [
       AC_CHECK_HEADERS([arm_neon.h], [
         PHP_ORT_HAS_NEON="yes"
@@ -49,25 +92,23 @@ AS_VAR_IF([PHP_ORT], [no],, [
     ], [])
   fi
 
-  dnl Check for RISCV64 Vector support (if no wasm/neon)
-  if test "$PHP_ORT_HAS_WASM" == "no" &&
-     test "$PHP_ORT_HAS_NEON" == "no"; then
+  dnl Check for RISCV64 Vector support
+  if test "$PHP_ORT_HAS_WASM" = "no" &&
+     test "$PHP_ORT_HAS_NEON" = "no"; then
     AX_CHECK_COMPILE_FLAG([-march=rv64gcv], [
-      dnl Save current CFLAGS
       save_CFLAGS="$CFLAGS"
       CFLAGS="$CFLAGS -march=rv64gcv"
       AC_CHECK_HEADERS([riscv_vector.h], [
         PHP_ORT_HAS_RISCV64="yes"
       ], [], [AC_INCLUDES_DEFAULT])
-      dnl Restore CFLAGS
       CFLAGS="$save_CFLAGS"
     ], [])
   fi
 
-  dnl Check for AVX2 support (if no wasm/neon/riscv64)
-  if test "$PHP_ORT_HAS_WASM" == "no" &&
-     test "$PHP_ORT_HAS_NEON" == "no" &&
-     test "$PHP_ORT_HAS_RISCV64" == "no"; then
+  dnl Check for AVX2 support
+  if test "$PHP_ORT_HAS_WASM"    = "no" &&
+     test "$PHP_ORT_HAS_NEON"    = "no" &&
+     test "$PHP_ORT_HAS_RISCV64" = "no"; then
     AX_CHECK_COMPILE_FLAG([-mavx2], [
       AC_CHECK_HEADERS([immintrin.h], [
         PHP_ORT_HAS_AVX2="yes"
@@ -75,10 +116,10 @@ AS_VAR_IF([PHP_ORT], [no],, [
     ], [])
   fi
 
-  if test "$PHP_ORT_HAS_WASM" == "no" &&
-     test "$PHP_ORT_HAS_NEON" == "no" &&
-     test "$PHP_ORT_HAS_RISCV64" == "no"; then
-    dnl Check for SSE4.1 support (if no wasm/neon/riscv64)
+  dnl Check for SSE4.1 support
+  if test "$PHP_ORT_HAS_WASM"    = "no" &&
+     test "$PHP_ORT_HAS_NEON"    = "no" &&
+     test "$PHP_ORT_HAS_RISCV64" = "no"; then
     AX_CHECK_COMPILE_FLAG([-msse4.1], [
       AC_CHECK_HEADERS([smmintrin.h], [
         PHP_ORT_HAS_SSE41="yes"
@@ -86,10 +127,10 @@ AS_VAR_IF([PHP_ORT], [no],, [
     ], [])
   fi
 
-  if test "$PHP_ORT_HAS_WASM" == "no" &&
-     test "$PHP_ORT_HAS_NEON" == "no" &&
-     test "$PHP_ORT_HAS_RISCV64" == "no"; then
-    dnl Check for SSE2 support (if no wasm/neon/riscv64)
+  dnl Check for SSE2 support
+  if test "$PHP_ORT_HAS_WASM"    = "no" &&
+     test "$PHP_ORT_HAS_NEON"    = "no" &&
+     test "$PHP_ORT_HAS_RISCV64" = "no"; then
     AX_CHECK_COMPILE_FLAG([-msse2], [
       AC_CHECK_HEADERS([emmintrin.h], [
         PHP_ORT_HAS_SSE2="yes"
@@ -99,6 +140,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
 
   dnl Report detected ISA extensions
   PHP_ORT_ISA_DETECTED=""
+  if test "$PHP_ORT_HAS_CUDA" = "yes"; then
+    PHP_ORT_ISA_DETECTED="CUDA"
+  fi
   if test "$PHP_ORT_HAS_WASM" = "yes"; then
     PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED WASM"
   fi
@@ -224,89 +268,146 @@ AS_VAR_IF([PHP_ORT], [no],, [
   AS_VAR_IF([PHP_ORT_BACKEND], [no], [
     AC_MSG_RESULT([disabled])
   ], [
-    PHP_ORT_BACKEND_LEVEL="none"
+    PHP_ORT_BACKEND_LEVEL=""
     PHP_ORT_BACKEND_DIR="$PHP_ORT_MATHS_DIR/backend"
     PHP_ORT_BACKEND_CFLAGS=""
     PHP_ORT_BACKEND_IMPL=""
 
-    dnl Process explicit backend choice
-    AS_CASE([$PHP_ORT_BACKEND],
-      [auto], [],
-      [none], [PHP_ORT_BACKEND="no"],
-      [wasm], [PHP_ORT_WASM="yes"],
-      [neon], [PHP_ORT_NEON="yes"],
-      [riscv64], [PHP_ORT_RISCV64="yes"],
-      [avx2], [PHP_ORT_AVX2="yes"],
-      [sse41], [PHP_ORT_SSE41="yes"],
-      [sse2], [PHP_ORT_SSE2="yes"],
-      [AC_MSG_ERROR([Invalid backend TYPE: $PHP_ORT_BACKEND. Valid options: auto, none, wasm, neon, riscv64, avx2, sse41, sse2])])
+    dnl Initialize backend selection flags
+    PHP_ORT_USE_CUDA="no"
+    PHP_ORT_USE_WASM="no"
+    PHP_ORT_USE_NEON="no"
+    PHP_ORT_USE_RISCV64="no"
+    PHP_ORT_USE_AVX2="no"
+    PHP_ORT_USE_SSE41="no"
+    PHP_ORT_USE_SSE2="no"
 
-    dnl Check for conflicting backend flags
-    PHP_ORT_BACKEND_COUNT=0
-    if test "x$PHP_ORT_WASM" = "xyes"; then
-      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
-    fi
-    if test "x$PHP_ORT_NEON" = "xyes"; then
-      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
-    fi
-    if test "x$PHP_ORT_RISCV64" = "xyes"; then
-      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
-    fi
-    if test "x$PHP_ORT_AVX2" = "xyes"; then
-      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
-    fi
-    if test "x$PHP_ORT_SSE41" = "xyes"; then
-      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
-    fi
-    if test "x$PHP_ORT_SSE2" = "xyes"; then
-      PHP_ORT_BACKEND_COUNT=`expr $PHP_ORT_BACKEND_COUNT + 1`
-    fi
-
-    if test $PHP_ORT_BACKEND_COUNT -gt 1; then
-      AC_MSG_ERROR([Only one backend can be enabled at a time (found $PHP_ORT_BACKEND_COUNT enabled backends)])
-    fi
-
-    dnl If no specific backend was requested, auto-detect in priority order
-    if test $PHP_ORT_BACKEND_COUNT -eq 0; then
-      AC_MSG_RESULT([auto-detecting])
-      
-      dnl Check which backends were explicitly disabled by looking at enable_ort_* variables
-      dnl that autoconf sets when processing --disable-ort-* flags
-      
-      dnl Select best available backend in priority order (respecting explicit --disable flags)
-      if test "$PHP_ORT_HAS_WASM" = "yes" && test "$enable_ort_wasm" != "no"; then
-        PHP_ORT_WASM="yes"
-      elif test "$PHP_ORT_HAS_NEON" = "yes" && test "$enable_ort_neon" != "no"; then
-        PHP_ORT_NEON="yes"
-      elif test "$PHP_ORT_HAS_RISCV64" = "yes" && test "$enable_ort_riscv64" != "no"; then
-        PHP_ORT_RISCV64="yes"
-      elif test "$PHP_ORT_HAS_AVX2" = "yes" && test "$enable_ort_avx2" != "no"; then
-        PHP_ORT_AVX2="yes"
-      elif test "$PHP_ORT_HAS_SSE41" = "yes" && test "$enable_ort_sse41" != "no"; then
-        PHP_ORT_SSE41="yes"
-      elif test "$PHP_ORT_HAS_SSE2" = "yes" && test "$enable_ort_sse2" != "no"; then
-        PHP_ORT_SSE2="yes"
-      else
+    dnl Parse backend specification
+    case "$PHP_ORT_BACKEND" in
+      auto)
+        AC_MSG_RESULT([auto-detecting])
+        dnl Auto-select: CUDA if available, plus best CPU backend
+        if test "$PHP_ORT_HAS_CUDA" = "yes"; then
+          PHP_ORT_USE_CUDA="yes"
+        fi
+        if test "$PHP_ORT_HAS_WASM" = "yes"; then
+          PHP_ORT_USE_WASM="yes"
+        elif test "$PHP_ORT_HAS_NEON" = "yes"; then
+          PHP_ORT_USE_NEON="yes"
+        elif test "$PHP_ORT_HAS_RISCV64" = "yes"; then
+          PHP_ORT_USE_RISCV64="yes"
+        elif test "$PHP_ORT_HAS_AVX2" = "yes"; then
+          PHP_ORT_USE_AVX2="yes"
+        elif test "$PHP_ORT_HAS_SSE41" = "yes"; then
+          PHP_ORT_USE_SSE41="yes"
+        elif test "$PHP_ORT_HAS_SSE2" = "yes"; then
+          PHP_ORT_USE_SSE2="yes"
+        fi
+        ;;
+      none)
+        AC_MSG_RESULT([explicitly disabled])
         PHP_ORT_BACKEND="no"
-        AC_MSG_RESULT([no suitable backend found, disabling])
-      fi
-    else
-      AC_MSG_RESULT([using requested backend])
-    fi
+        ;;
+      *)
+        AC_MSG_RESULT([parsing: $PHP_ORT_BACKEND])
+        dnl Parse comma-separated list
+        PHP_ORT_CPU_BACKEND_COUNT=0
+        saved_IFS="$IFS"
+        IFS=','
+        for backend in $PHP_ORT_BACKEND; do
+          case "$backend" in
+            cuda)
+              PHP_ORT_USE_CUDA="yes"
+              ;;
+            wasm)
+              PHP_ORT_USE_WASM="yes"
+              PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              ;;
+            neon)
+              PHP_ORT_USE_NEON="yes"
+              PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              ;;
+            riscv64)
+              PHP_ORT_USE_RISCV64="yes"
+              PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              ;;
+            avx2)
+              PHP_ORT_USE_AVX2="yes"
+              PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              ;;
+            sse41)
+              PHP_ORT_USE_SSE41="yes"
+              PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              ;;
+            sse2)
+              PHP_ORT_USE_SSE2="yes"
+              PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              ;;
+            none)
+              ;;
+            *)
+              IFS="$saved_IFS"
+              AC_MSG_ERROR([Invalid backend: $backend. Valid: cuda,wasm,neon,riscv64,avx2,sse41,sse2])
+              ;;
+          esac
+        done
+        IFS="$saved_IFS"
+        
+        dnl Enforce: only one CPU backend allowed
+        if test $PHP_ORT_CPU_BACKEND_COUNT -gt 1; then
+          AC_MSG_ERROR([Only one CPU backend allowed (found $PHP_ORT_CPU_BACKEND_COUNT). Example: cuda,avx2 not cuda,avx2,sse41])
+        fi
+        ;;
+    esac
 
-    dnl Configure the selected backend using simple variable checks
+    dnl Configure selected backends
     if test "$PHP_ORT_BACKEND" != "no"; then
+      dnl CUDA backend
+      if test "$PHP_ORT_USE_CUDA" = "yes"; then
+        if test "$PHP_ORT_HAS_CUDA" != "yes"; then
+          AC_MSG_ERROR([CUDA backend requested but not available])
+        fi
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -I$CUDA_DIR/include"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL CUDA"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
+          $PHP_ORT_BACKEND_DIR/cuda/abs.c
+          $PHP_ORT_BACKEND_DIR/cuda/add.c
+          $PHP_ORT_BACKEND_DIR/cuda/ceil.c
+          $PHP_ORT_BACKEND_DIR/cuda/div.c
+          $PHP_ORT_BACKEND_DIR/cuda/dot.c
+          $PHP_ORT_BACKEND_DIR/cuda/floor.c
+          $PHP_ORT_BACKEND_DIR/cuda/matmul.c
+          $PHP_ORT_BACKEND_DIR/cuda/mul.c
+          $PHP_ORT_BACKEND_DIR/cuda/neg.c
+          $PHP_ORT_BACKEND_DIR/cuda/recip.c
+          $PHP_ORT_BACKEND_DIR/cuda/round.c
+          $PHP_ORT_BACKEND_DIR/cuda/sign.c
+          $PHP_ORT_BACKEND_DIR/cuda/sqrt.c
+          $PHP_ORT_BACKEND_DIR/cuda/sub.c
+          $PHP_ORT_BACKEND_DIR/cuda/trunc.c
+          $PHP_ORT_BACKEND_DIR/cuda/impl.c"
+
+        PHP_ADD_LIBRARY_WITH_PATH(cudart, $CUDA_DIR/lib64, ORT_SHARED_LIBADD)
+        PHP_ADD_LIBRARY_WITH_PATH(cudart, $CUDA_DIR/lib, ORT_SHARED_LIBADD)
+        PHP_ADD_LIBRARY_WITH_PATH(cublas, $CUDA_DIR/lib64, ORT_SHARED_LIBADD)
+        PHP_ADD_LIBRARY_WITH_PATH(cublas, $CUDA_DIR/lib, ORT_SHARED_LIBADD)
+        PHP_ADD_LIBRARY_WITH_PATH(kernels, $PHP_ORT_BACKEND_DIR/cuda, ORT_SHARED_LIBADD)
+
+        AC_DEFINE(ORT_BACKEND_GPU_ENABLED, 1, [GPU backend enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_GPU_NAME, "CUDA", [GPU Backend Name])
+      fi
+
       dnl WASM backend
-      if test "$PHP_ORT_WASM" = "yes"; then
+      if test "$PHP_ORT_USE_WASM" = "yes"; then
         if test "$PHP_ORT_HAS_WASM" != "yes"; then
           AC_MSG_ERROR([WASM backend requested but not available])
         fi
         if test "$abs_srcdir" != "$abs_builddir"; then
-          AC_MSG_ERROR([WASM backend only supports in-tree (source == build dir) builds])
+          AC_MSG_ERROR([WASM backend only supports in-tree builds])
         fi
-        PHP_ORT_BACKEND_CFLAGS="-msimd128"
-        PHP_ORT_BACKEND_LEVEL="WASM"
-        PHP_ORT_BACKEND_IMPL=m4_normalize("
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -msimd128"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL WASM"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/wasm/abs.c
           $PHP_ORT_BACKEND_DIR/wasm/add.c
           $PHP_ORT_BACKEND_DIR/wasm/ceil.c
@@ -321,20 +422,21 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/wasm/sqrt.c
           $PHP_ORT_BACKEND_DIR/wasm/sub.c
           $PHP_ORT_BACKEND_DIR/wasm/trunc.c
-          $PHP_ORT_BACKEND_DIR/wasm/impl.c
-        ")
+          $PHP_ORT_BACKEND_DIR/wasm/impl.c"
+        AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "WASM", [CPU Backend Name])
         PHP_ORT_POOL="no"
         ext_shared=no
       fi
 
       dnl NEON backend
-      if test "$PHP_ORT_NEON" = "yes"; then
+      if test "$PHP_ORT_USE_NEON" = "yes"; then
         if test "$PHP_ORT_HAS_NEON" != "yes"; then
           AC_MSG_ERROR([NEON backend requested but not available])
         fi
-        PHP_ORT_BACKEND_CFLAGS="-march=armv8-a+simd"
-        PHP_ORT_BACKEND_LEVEL="NEON"
-        PHP_ORT_BACKEND_IMPL=m4_normalize("
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -march=armv8-a+simd"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL NEON"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/neon/abs.c
           $PHP_ORT_BACKEND_DIR/neon/add.c
           $PHP_ORT_BACKEND_DIR/neon/ceil.c
@@ -349,18 +451,19 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/neon/sqrt.c
           $PHP_ORT_BACKEND_DIR/neon/trunc.c
           $PHP_ORT_BACKEND_DIR/neon/mul.c
-          $PHP_ORT_BACKEND_DIR/neon/impl.c
-        ")
+          $PHP_ORT_BACKEND_DIR/neon/impl.c"
+        AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "NEON", [CPU Backend Name])
       fi
 
       dnl RISC-V 64 backend
-      if test "$PHP_ORT_RISCV64" = "yes"; then
+      if test "$PHP_ORT_USE_RISCV64" = "yes"; then
         if test "$PHP_ORT_HAS_RISCV64" != "yes"; then
           AC_MSG_ERROR([RISC-V 64 backend requested but not available])
         fi
-        PHP_ORT_BACKEND_CFLAGS="-march=rv64gcv"
-        PHP_ORT_BACKEND_LEVEL="RISCV64"
-        PHP_ORT_BACKEND_IMPL=m4_normalize("
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -march=rv64gcv"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL RISCV64"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/riscv64/abs.c
           $PHP_ORT_BACKEND_DIR/riscv64/add.c
           $PHP_ORT_BACKEND_DIR/riscv64/div.c
@@ -371,18 +474,19 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/riscv64/sign.c
           $PHP_ORT_BACKEND_DIR/riscv64/sqrt.c
           $PHP_ORT_BACKEND_DIR/riscv64/sub.c
-          $PHP_ORT_BACKEND_DIR/riscv64/impl.c
-        ")
+          $PHP_ORT_BACKEND_DIR/riscv64/impl.c"
+        AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "RISCV64", [CPU Backend Name])
       fi
 
       dnl AVX2 backend
-      if test "$PHP_ORT_AVX2" = "yes"; then
+      if test "$PHP_ORT_USE_AVX2" = "yes"; then
         if test "$PHP_ORT_HAS_AVX2" != "yes"; then
           AC_MSG_ERROR([AVX2 backend requested but not available])
         fi
-        PHP_ORT_BACKEND_CFLAGS="-mavx2"
-        PHP_ORT_BACKEND_LEVEL="AVX2"
-        PHP_ORT_BACKEND_IMPL=m4_normalize("
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mavx2"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL AVX2"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/avx2/add.c
           $PHP_ORT_BACKEND_DIR/avx2/sub.c
           $PHP_ORT_BACKEND_DIR/avx2/dot.c
@@ -398,18 +502,19 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/avx2/sign.c
           $PHP_ORT_BACKEND_DIR/avx2/recip.c
           $PHP_ORT_BACKEND_DIR/avx2/trunc.c
-          $PHP_ORT_BACKEND_DIR/avx2/impl.c
-        ")
+          $PHP_ORT_BACKEND_DIR/avx2/impl.c"
+        AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "AVX2", [CPU Backend Name])
       fi
 
       dnl SSE4.1 backend
-      if test "$PHP_ORT_SSE41" = "yes"; then
+      if test "$PHP_ORT_USE_SSE41" = "yes"; then
         if test "$PHP_ORT_HAS_SSE41" != "yes"; then
           AC_MSG_ERROR([SSE4.1 backend requested but not available])
         fi
-        PHP_ORT_BACKEND_CFLAGS="-msse4.1"
-        PHP_ORT_BACKEND_LEVEL="SSE4.1"
-        PHP_ORT_BACKEND_IMPL=m4_normalize("
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -msse4.1"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL SSE4.1"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/sse41/add.c
           $PHP_ORT_BACKEND_DIR/sse41/sub.c
           $PHP_ORT_BACKEND_DIR/sse41/matmul.c
@@ -424,18 +529,19 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/sse41/sign.c
           $PHP_ORT_BACKEND_DIR/sse41/recip.c
           $PHP_ORT_BACKEND_DIR/sse41/trunc.c
-          $PHP_ORT_BACKEND_DIR/sse41/impl.c
-        ")
+          $PHP_ORT_BACKEND_DIR/sse41/impl.c"
+        AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "SSE4.1", [CPU Backend Name])
       fi
 
       dnl SSE2 backend
-      if test "$PHP_ORT_SSE2" = "yes"; then
+      if test "$PHP_ORT_USE_SSE2" = "yes"; then
         if test "$PHP_ORT_HAS_SSE2" != "yes"; then
           AC_MSG_ERROR([SSE2 backend requested but not available])
         fi
-        PHP_ORT_BACKEND_CFLAGS="-msse2"
-        PHP_ORT_BACKEND_LEVEL="SSE2"
-        PHP_ORT_BACKEND_IMPL=m4_normalize("
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -msse2"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL SSE2"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/sse2/abs.c
           $PHP_ORT_BACKEND_DIR/sse2/add.c
           $PHP_ORT_BACKEND_DIR/sse2/div.c
@@ -446,19 +552,24 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/sse2/sign.c
           $PHP_ORT_BACKEND_DIR/sse2/sqrt.c
           $PHP_ORT_BACKEND_DIR/sse2/sub.c
-          $PHP_ORT_BACKEND_DIR/sse2/impl.c
-        ")
+          $PHP_ORT_BACKEND_DIR/sse2/impl.c"
+        AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "SSE2", [CPU Backend Name])
       fi
 
-      dnl Set backend defines and report result
-      AC_MSG_CHECKING([for backend build])
-      if test "$PHP_ORT_BACKEND_LEVEL" != "none"; then
-        AC_DEFINE(ORT_BACKEND_ENABLED, 1, [ort backend optimizations enabled])
-        AC_DEFINE_UNQUOTED(ORT_BACKEND_NAME, "$PHP_ORT_BACKEND_LEVEL", [ort backend name])
+      dnl Normalize backend implementation list
+      PHP_ORT_BACKEND_IMPL=m4_normalize("$PHP_ORT_BACKEND_IMPL")
+
+      dnl Report configured backends
+      AC_MSG_CHECKING([for enabled backends])
+      if test -n "$PHP_ORT_BACKEND_LEVEL"; then
+        AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL])
+        AC_MSG_CHECKING([for backend CFLAGS])
+        AC_MSG_RESULT([$PHP_ORT_BACKEND_CFLAGS])
         PHP_SUBST(PHP_ORT_BACKEND_CFLAGS)
-        AC_MSG_RESULT([$PHP_ORT_BACKEND_LEVEL with $PHP_ORT_BACKEND_CFLAGS])
       else
         AC_MSG_RESULT([none])
+        PHP_ORT_BACKEND="no"
       fi
     fi
   ])
@@ -487,7 +598,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ADD_INCLUDE([$ext_builddir/$PHP_ORT_MATHS_DIR])
   PHP_ADD_BUILD_DIR([$ext_builddir/$PHP_ORT_MATHS_DIR])
 
-  if test "$PHP_ORT_BACKEND_LEVEL" != "none"; then
+  if test -n "$PHP_ORT_BACKEND_LEVEL"; then
     PHP_ADD_INCLUDE([$ext_builddir/$PHP_ORT_BACKEND_DIR])
     PHP_ADD_BUILD_DIR([$ext_builddir/$PHP_ORT_BACKEND_DIR])
   fi

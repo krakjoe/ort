@@ -43,11 +43,28 @@ typedef struct _ort_alloc_t ort_alloc_t;
 typedef void (*ort_alloc_startup_func_t)(ort_alloc_t* allocator);
 typedef void (*ort_alloc_shutdown_func_t)(ort_alloc_t* allocator);
 
+typedef void (*ort_alloc_activate_func_t)(void);
+typedef void (*ort_alloc_deactivate_func_t)(void);
+
 typedef void* (*ort_alloc_func_t)(
     size_t size, size_t count, size_t alignment);
 typedef void* (*ort_memcpy_func_t)(
     void *dest, const void *src, size_t n);
 typedef void (*ort_free_func_t)(void *ptr);
+
+struct _ort_alloc_t {
+    ort_alloc_func_t alloc;
+    ort_memcpy_func_t memcpy_fn; /* renamed to avoid conflict with system memcpy macro */
+    ort_free_func_t free;
+
+    ort_alloc_startup_func_t startup;
+    ort_alloc_shutdown_func_t shutdown;
+
+    ort_alloc_activate_func_t activate;
+    ort_alloc_deactivate_func_t deactivate;
+
+    size_t alignment;
+};
 
 /*
  @brief shall allocate memory using the allocator's alloc function
@@ -97,7 +114,25 @@ size_t ort_alloc_alignment(void);
 */
 zend_bool ort_alloc_aligned(void* ptr);
 
+/*
+ @brief shall setup the allocator with the given functions
+ @param activate
+ @param _alloc
+ @param _memcpy
+ @param _free
+ @param deactivate
+*/
+void ort_alloc_setup(
+    ort_alloc_t                *backup,
+    ort_alloc_activate_func_t   activate,
+    ort_alloc_func_t            _alloc,
+    ort_memcpy_func_t           _memcpy,
+    ort_free_func_t             _free,
+    ort_alloc_deactivate_func_t deactivate);
+
 /* {{{ */
 void ort_alloc_startup(void);
+void ort_alloc_activate(void);
+void ort_alloc_deactivate(void);
 void ort_alloc_shutdown(void); /* }}} */
 #endif

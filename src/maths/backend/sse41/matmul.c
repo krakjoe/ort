@@ -16,12 +16,12 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/sse41/impl.h"
 #include "maths/backend/sse41/util.h"
 
 #include <smmintrin.h> /* SSE4.1 */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse41, float) {
     const float *va = (const float *)a;
     const float *vb = (const float *)b;
     float *res = (float *)result;
@@ -41,7 +41,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                     vb[k * b_cols + j]);
                 mr = _mm_mul_ps(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, float32x4, float)(mr);
+                sum += ORT_MATH_BACKEND_UTIL(sse41, hsum, float32x4, float)(mr);
             }
         }
         if (mc < a_cols) {
@@ -54,7 +54,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse41, double) {
     const double *va = (const double *)a;
     const double *vb = (const double *)b;
     double *res = (double *)result;
@@ -72,7 +72,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                     vb[k * b_cols + j]);
                 mr = _mm_mul_pd(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, float64x2, double)(mr);
+                sum += ORT_MATH_BACKEND_UTIL(sse41, hsum, float64x2, double)(mr);
             }
         }
         if (mc < a_cols) {
@@ -84,7 +84,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse41, int16_t) {
     const int16_t *va = (const int16_t *)a;
     const int16_t *vb = (const int16_t *)b;
     int16_t *res = (int16_t *)result;
@@ -104,7 +104,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                 // Multiply and horizontally add pairs to 32-bit
                 __m128i prod = _mm_madd_epi16(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
+                sum += ORT_MATH_BACKEND_UTIL(sse41, hsum, int16x8, int32_t)(prod);
             }
         }
         if (mc < a_cols) {
@@ -117,7 +117,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse41, uint16_t) {
     const uint16_t *va = (const uint16_t *)a;
     const uint16_t *vb = (const uint16_t *)b;
     uint16_t *res = (uint16_t *)result;
@@ -137,7 +137,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                 // Multiply and horizontally add pairs to 32-bit
                 __m128i prod = _mm_madd_epi16(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
+                sum += ORT_MATH_BACKEND_UTIL(sse41, hsum, int16x8, int32_t)(prod);
             }
         }
         if (mc < a_cols) {
@@ -150,7 +150,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse41, int32_t) {
     const int32_t *va = (const int32_t *)a;
     const int32_t *vb = (const int32_t *)b;
     int32_t *res = (int32_t *)result;
@@ -170,7 +170,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                     vb[k * b_cols + j]);
                 mr = _mm_mullo_epi32(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(mr);
+                sum += ORT_MATH_BACKEND_UTIL(sse41, hsum, int32x4, int32_t)(mr);
             }
         }
         if (mc < a_cols) {
@@ -182,7 +182,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse41, uint32_t) {
     const uint32_t *va = (const uint32_t *)a;
     const uint32_t *vb = (const uint32_t *)b;
     uint32_t *res = (uint32_t *)result;
@@ -202,7 +202,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                     vb[k * b_cols + j]);
                 mr = _mm_mullo_epi32(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(mr);
+                sum += ORT_MATH_BACKEND_UTIL(sse41, hsum, int32x4, int32_t)(mr);
             }
         }
         if (mc < a_cols) {

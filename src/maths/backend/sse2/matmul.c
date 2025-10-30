@@ -16,12 +16,12 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/sse2/impl.h"
 #include "maths/backend/sse2/util.h"
 
 #include <emmintrin.h> /* SSE2 */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse2, float) {
     const float *va = (const float *)a;
     const float *vb = (const float *)b;
     float *res = (float *)result;
@@ -40,7 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                     vb[(k+1) * b_cols + j],
                     vb[k * b_cols + j]);
                 mr = _mm_mul_ps(ma, mb);
-                sum += ORT_MATH_BACKEND_UTIL(hsum, float32x4, float)(mr);
+                sum += ORT_MATH_BACKEND_UTIL(sse2, hsum, float32x4, float)(mr);
             }
         }
         for (; k < a_cols; k++) {
@@ -50,7 +50,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse2, double) {
     const double *va = (const double *)a;
     const double *vb = (const double *)b;
     double *res = (double *)result;
@@ -68,7 +68,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                     vb[k * b_cols + j]);
                 mr = _mm_mul_pd(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, float64x2, double)(mr);
+                sum += ORT_MATH_BACKEND_UTIL(sse2, hsum, float64x2, double)(mr);
             }
         }
         for (; k < a_cols; k++) {
@@ -78,7 +78,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse2, int16_t) {
     const int16_t *va = (const int16_t *)a;
     const int16_t *vb = (const int16_t *)b;
     int16_t *res = (int16_t *)result;
@@ -97,7 +97,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 __m128i prod = _mm_madd_epi16(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
+                sum += ORT_MATH_BACKEND_UTIL(sse2, hsum, int16x8, int32_t)(prod);
             }
         }
         for (; k < a_cols; k++) {
@@ -108,7 +108,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(sse2, uint16_t) {
     const uint16_t *va = (const uint16_t *)a;
     const uint16_t *vb = (const uint16_t *)b;
     uint16_t *res = (uint16_t *)result;
@@ -127,7 +127,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
                     vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
                 __m128i prod = _mm_madd_epi16(ma, mb);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(prod);
+                sum += ORT_MATH_BACKEND_UTIL(sse2, hsum, int16x8, int32_t)(prod);
             }
         }
         for (; k < a_cols; k++) {

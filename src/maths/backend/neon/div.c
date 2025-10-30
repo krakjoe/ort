@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/neon/impl.h"
 
 #include <arm_neon.h>  /* NEON */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(div, float) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, div, float) {
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
     float* res      = (float*)result;
@@ -50,7 +50,7 @@ __ort_math_backend_div_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(div, double) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, div, double) {
     const double* va = (const double*)a;
     const double* vb = (const double*)b;
     double* res = (double*)result;

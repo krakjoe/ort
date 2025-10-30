@@ -20,35 +20,35 @@
 
 #include <riscv_vector.h> /* RVV */
 
-ORT_MATH_BACKEND_UTIL_DECL_VAR(
+ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
     hsum, float32xN, float, vfloat32m1_t) {
     vfloat32m1_t zero = __riscv_vfmv_v_f_f32m1(0.0f, 1);
     vfloat32m1_t sum_vec = __riscv_vfredosum_vs_f32m1_f32m1(v, zero, vl);
     return __riscv_vfmv_f_s_f32m1_f32(sum_vec);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL_VAR(
+ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
     hsum, float64xN, double, vfloat64m1_t) {
     vfloat64m1_t zero = __riscv_vfmv_v_f_f64m1(0.0, 1);
     vfloat64m1_t sum_vec = __riscv_vfredosum_vs_f64m1_f64m1(v, zero, vl);
     return __riscv_vfmv_f_s_f64m1_f64(sum_vec);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL_VAR(
+ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
     hsum, uint32xN, uint32_t, vuint32m1_t) {
     vuint32m1_t zero = __riscv_vmv_v_x_u32m1(0, 1);
     vuint32m1_t sum_vec = __riscv_vredsum_vs_u32m1_u32m1(v, zero, vl);
     return __riscv_vmv_x_s_u32m1_u32(sum_vec);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL_VAR(
+ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
     hsum, int32xN, int32_t, vint32m1_t) {
     vint32m1_t zero = __riscv_vmv_v_x_i32m1(0, 1);
     vint32m1_t sum_vec = __riscv_vredsum_vs_i32m1_i32m1(v, zero, vl);
     return __riscv_vmv_x_s_i32m1_i32(sum_vec);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL_VAR(
+ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
     hsum, int16xN, int32_t, vint32m1_t) {
     vint32m1_t zero = __riscv_vmv_v_x_i32m1(0, 1);
     vint32m1_t sum_vec = __riscv_vredsum_vs_i32m1_i32m1(v, zero, vl);

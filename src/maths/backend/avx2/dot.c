@@ -21,7 +21,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(dot, float) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float) {
     const float* va = (const float*) a;
     const float* vb = (const float*) b;
     float* res      = (float*) result;
@@ -38,7 +38,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, float) {
             __m256 mr = _mm256_mul_ps(ma, mb);
             vsum = _mm256_add_ps(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(hsum, float32x8, float)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float32x8, float)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -48,7 +48,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, float) {
     res[0] = sum;
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(dot, double) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, double) {
     const double* va = (const double*) a;
     const double* vb = (const double*) b;
     double* res      = (double*) result;
@@ -65,7 +65,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, double) {
             __m256d mr = _mm256_mul_pd(ma, mb);
             vsum = _mm256_add_pd(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(hsum, float64x4, double)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float64x4, double)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -75,7 +75,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, double) {
     res[0] = sum;
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int16_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, int16_t) {
     const int16_t* va = (const int16_t*) a;
     const int16_t* vb = (const int16_t*) b;
     int16_t* res      = (int16_t*) result;
@@ -92,7 +92,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int16_t) {
             __m256i mr = _mm256_mullo_epi16(ma, mb);
             vsum = _mm256_add_epi16(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, int16x8, int32_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -102,7 +102,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int16_t) {
     res[0] = ORT_MATH_CLAMP(sum, INT16, int16_t);
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int32_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, int32_t) {
     const int32_t* va = (const int32_t*) a;
     const int32_t* vb = (const int32_t*) b;
     int32_t* res      = (int32_t*) result;
@@ -121,7 +121,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int32_t) {
             __m256i mr = _mm256_mullo_epi32(ma, mb);
             vsum = _mm256_add_epi32(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(hsum, int32x8, int64_t)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int64_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -131,7 +131,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, int32_t) {
     res[0] = ORT_MATH_CLAMP(sum, INT32, int32_t);
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint16_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, uint16_t) {
     const uint16_t* va = (const uint16_t*) a;
     const uint16_t* vb = (const uint16_t*) b;
     uint16_t* res      = (uint16_t*) result;
@@ -148,7 +148,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint16_t) {
             __m256i mr = _mm256_mullo_epi16(ma, mb);
             vsum = _mm256_add_epi16(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(hsum, int16x8, int32_t)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, int16x8, int32_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -158,7 +158,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint16_t) {
     res[0] = ORT_MATH_CLAMP_MAX(sum, UINT16, uint16_t);
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint32_t) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, uint32_t) {
     const uint32_t* va = (const uint32_t*) a;
     const uint32_t* vb = (const uint32_t*) b;
     uint32_t* res      = (uint32_t*) result;
@@ -177,7 +177,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(dot, uint32_t) {
             __m256i mr = _mm256_mullo_epi32(ma, mb);
             vsum = _mm256_add_epi32(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(hsum, int32x8, int64_t)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, int32x8, int64_t)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {

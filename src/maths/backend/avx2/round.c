@@ -20,7 +20,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(round, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, round, float) {
     const float* va = (const float*)a;
     float* res      = (float*)result;
     const size_t mw = 8; /* AVX2 can process 8 floats at once */
@@ -51,7 +51,7 @@ __ort_math_backend_round_float_fallback:
 }
 
 /* SIMD round operation for double arrays */
-ORT_MATH_BACKEND_UNARY_OP_DECL(round, double) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, round, double) {
     const double* va = (const double*)a;
     double* res      = (double*)result;
     const size_t mw  = 4; /* AVX2 can process 4 doubles at once */

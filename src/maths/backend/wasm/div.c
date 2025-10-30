@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/wasm/impl.h"
 
 #include <wasm_simd128.h>  /* WASM */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(div, float) {
+ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, div, float) {
     const float* va = (const float*)a;
     const float* vb = (const float*)b;
     float* res      = (float*)result;

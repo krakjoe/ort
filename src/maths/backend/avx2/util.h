@@ -20,7 +20,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-ORT_MATH_BACKEND_UTIL_DECL(
+ORT_MATH_BACKEND_UTIL_DECL(avx2,
     hsum, float32x8, float, __m256) {
     __m128 low = _mm256_castps256_ps128(v);
     __m128 high = _mm256_extractf128_ps(v, 1);
@@ -32,7 +32,7 @@ ORT_MATH_BACKEND_UTIL_DECL(
     return _mm_cvtss_f32(sum128);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL(
+ORT_MATH_BACKEND_UTIL_DECL(avx2,
     hsum, float64x4, double, __m256d) {
     __m128d low = _mm256_castpd256_pd128(v);
     __m128d high = _mm256_extractf128_pd(v, 1);
@@ -43,7 +43,7 @@ ORT_MATH_BACKEND_UTIL_DECL(
     return _mm_cvtsd_f64(sum128);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL(
+ORT_MATH_BACKEND_UTIL_DECL(avx2,
     hsum, int16x8, int32_t, __m256i) {
     __m128i low = _mm256_castsi256_si128(v);
     __m128i high = _mm256_extracti128_si256(v, 1);
@@ -61,7 +61,7 @@ ORT_MATH_BACKEND_UTIL_DECL(
     return _mm_cvtsi128_si32(sum128);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL(
+ORT_MATH_BACKEND_UTIL_DECL(avx2,
     hsum, int32x8, int32_t, __m256i) {
     __m128i sum_low = _mm256_castsi256_si128(v);
     __m128i sum_high = _mm256_extracti128_si256(v, 1);
@@ -73,7 +73,7 @@ ORT_MATH_BACKEND_UTIL_DECL(
     return _mm_cvtsi128_si32(sum128);
 }
 
-ORT_MATH_BACKEND_UTIL_DECL(
+ORT_MATH_BACKEND_UTIL_DECL(avx2,
     hsum, int32x8, int64_t, __m256i) {
     __m128i low = _mm256_castsi256_si128(v);
     __m128i high = _mm256_extracti128_si256(v, 1);

@@ -464,6 +464,19 @@ ort_math_dispatch_t* ort_math_dispatch_table(void) {
     return __ort_math_dispatch_table;
 }
 
+ort_math_dispatch_t* ort_math_dispatch_backup_malloc(void) {
+    ort_math_dispatch_t* backup = (ort_math_dispatch_t*)
+        malloc(
+            sizeof(__ort_math_dispatch_table));
+    memcpy(backup, __ort_math_dispatch_table,
+        sizeof(__ort_math_dispatch_table));
+    return backup;
+}
+
+void ort_math_dispatch_backup_free(ort_math_dispatch_t* backup) {
+    free(backup);
+}
+
 const ort_math_dispatch_t* ort_math_dispatch_type(
     ONNXTensorElementDataType type) {
     int16_t index = ort_math_dispatch_indexof(type);

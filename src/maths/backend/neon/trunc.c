@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/neon/impl.h"
 
 #include <arm_neon.h>  /* NEON */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(trunc, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, trunc, float) {
     const float* va = (const float*)a;
     float* res      = (float*)result;
     const size_t mw = 4; // 4 floats per NEON register
@@ -46,7 +46,7 @@ __ort_math_backend_trunc_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(trunc, double) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, trunc, double) {
     const double* va = (const double*)a;
     double* res      = (double*)result;
     const size_t mw = 2; // 2 doubles per NEON register

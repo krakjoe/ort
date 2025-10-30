@@ -16,12 +16,12 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/wasm/impl.h"
 #include "maths/backend/wasm/util.h"
 
 #include <wasm_simd128.h>  /* WASM */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(wasm, float) {
     const float *va = (const float *)a;
     const float *vb = (const float *)b;
     float *res = (float *)result;
@@ -40,7 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
             };
             v128_t mb = wasm_v128_load(mb_arr);
             v128_t mr = wasm_f32x4_mul(ma, mb);
-            sum += ORT_MATH_BACKEND_UTIL(hsum, float32x4, float)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(wasm, hsum, float32x4, float)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -49,7 +49,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(wasm, int32_t) {
     const int32_t *va = (const int32_t *)a;
     const int32_t *vb = (const int32_t *)b;
     int32_t *res = (int32_t *)result;
@@ -68,7 +68,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
             };
             v128_t mb = wasm_v128_load(mb_arr);
             v128_t mr = wasm_i32x4_mul(ma, mb);
-            sum += ORT_MATH_BACKEND_UTIL(hsum, int32x4, int32_t)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(wasm, hsum, int32x4, int32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];
@@ -77,7 +77,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(wasm, uint32_t) {
     const uint32_t *va = (const uint32_t *)a;
     const uint32_t *vb = (const uint32_t *)b;
     uint32_t *res = (uint32_t *)result;
@@ -97,7 +97,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
             v128_t mb = wasm_v128_load(mb_arr);
             /* there's no unsigned equivalent, this is correct, not a mistake */
             v128_t mr = wasm_i32x4_mul(ma, mb);
-            sum += ORT_MATH_BACKEND_UTIL(hsum, uint32x4, uint32_t)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(wasm, hsum, uint32x4, uint32_t)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];

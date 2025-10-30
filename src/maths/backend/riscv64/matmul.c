@@ -16,12 +16,12 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/riscv64/impl.h"
 #include "maths/backend/riscv64/util.h"
 
 #include <riscv_vector.h> /* RVV */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, float) {
     const float *va = (const float *)a;
     const float *vb = (const float *)b;
     float *res = (float *)result;
@@ -37,7 +37,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
                 mb = __riscv_vlse32_v_f32m1(&vb[k * b_cols + j], b_cols * sizeof(float), mw);
                 mr = __riscv_vfmul_vv_f32m1(ma, mb, mw);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, float32xN, float)(mr, mw);
+                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, float32xN, float)(mr, mw);
             }
         }
         if (mc < a_cols) {
@@ -50,7 +50,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, double) {
     const double *va = (const double *)a;
     const double *vb = (const double *)b;
     double *res = (double *)result;
@@ -66,7 +66,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
                 mb = __riscv_vlse64_v_f64m1(&vb[k * b_cols + j], b_cols * sizeof(double), mw);
                 mr = __riscv_vfmul_vv_f64m1(ma, mb, mw);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, float64xN, double)(mr, mw);
+                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, float64xN, double)(mr, mw);
             }
         }
         if (mc < a_cols) {
@@ -78,7 +78,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(double) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, int16_t) {
     const int16_t *va = (const int16_t *)a;
     const int16_t *vb = (const int16_t *)b;
     int16_t *res = (int16_t *)result;
@@ -109,7 +109,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int16_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, uint16_t) {
     const uint16_t *va = (const uint16_t *)a;
     const uint16_t *vb = (const uint16_t *)b;
     uint16_t *res = (uint16_t *)result;
@@ -140,7 +140,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint16_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, int32_t) {
     const int32_t *va = (const int32_t *)a;
     const int32_t *vb = (const int32_t *)b;
     int32_t *res = (int32_t *)result;
@@ -156,7 +156,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
                 mb = __riscv_vlse32_v_i32m1(&vb[k * b_cols + j], b_cols * sizeof(int32_t), mw);
                 mr = __riscv_vmul_vv_i32m1(ma, mb, mw);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, int32xN, int32_t)(mr, mw);
+                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, int32xN, int32_t)(mr, mw);
             }
         }
         if (mc < a_cols) {
@@ -168,7 +168,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(int32_t) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, uint32_t) {
     const uint32_t *va = (const uint32_t *)a;
     const uint32_t *vb = (const uint32_t *)b;
     uint32_t *res = (uint32_t *)result;
@@ -184,7 +184,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(uint32_t) {
                 mb = __riscv_vlse32_v_u32m1(&vb[k * b_cols + j], b_cols * sizeof(uint32_t), mw);
                 mr = __riscv_vmul_vv_u32m1(ma, mb, mw);
 
-                sum += ORT_MATH_BACKEND_UTIL(hsum, uint32xN, uint32_t)(mr, mw);
+                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, uint32xN, uint32_t)(mr, mw);
             }
         }
         if (mc < a_cols) {

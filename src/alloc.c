@@ -20,17 +20,6 @@
 #include "env.h"
 #include "alloc.h"
 
-struct _ort_alloc_t {
-    ort_alloc_func_t alloc;
-    ort_memcpy_func_t memcpy_fn; /* renamed to avoid conflict with system memcpy macro */
-    ort_free_func_t free;
-
-    ort_alloc_startup_func_t startup;
-    ort_alloc_shutdown_func_t shutdown;
-
-    size_t alignment;
-};
-
 #ifdef HAVE_ONNXRUNTIME
 static OrtMemoryInfo* minfo;
 
@@ -156,6 +145,8 @@ ORT_TLS ort_alloc_t __ort_allocator = {
     .free     = __ort_alloc_default_free,
 
     .startup  = __ort_alloc_default_startup,
+    .activate = NULL,
+    .deactivate = NULL,
     .shutdown = __ort_alloc_default_shutdown,
 
     .alignment = sizeof(void*) * 2,
@@ -202,10 +193,41 @@ void ort_free(void* ptr) {
     __ort_allocator.free(ptr);
 }
 
+void ort_alloc_setup(
+    ort_alloc_t                *backup,
+    ort_alloc_activate_func_t   activate,
+    ort_alloc_func_t            _alloc,
+    ort_memcpy_func_t           _memcpy,
+    ort_free_func_t             _free,
+    ort_alloc_deactivate_func_t deactivate) {
+
+    memcpy(backup, &__ort_allocator, sizeof(ort_alloc_t));
+
+    __ort_allocator.activate   = activate;
+    __ort_allocator.alloc      = _alloc;
+    __ort_allocator.memcpy_fn  = _memcpy;
+    __ort_allocator.free       = _free;
+    __ort_allocator.deactivate = deactivate;
+}
+
 void ort_alloc_startup(void)
 {
     if (__ort_allocator.startup) {
         __ort_allocator.startup(&__ort_allocator);
+    }
+}
+
+void ort_alloc_activate(void)
+{
+    if (__ort_allocator.activate) {
+        __ort_allocator.activate();
+    }
+}
+
+void ort_alloc_deactivate(void)
+{
+    if (__ort_allocator.deactivate) {
+        __ort_allocator.deactivate();
     }
 }
 

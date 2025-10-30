@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/riscv64/impl.h"
 
 #include <riscv_vector.h> /* RVV */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, abs, float) {
     const float* va = (const float*)a;
     float* res = (float*)result;
     const size_t mw = __riscv_vsetvlmax_e32m1();
@@ -45,7 +45,7 @@ __ort_math_backend_abs_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(abs, double) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, abs, double) {
     const double* va = (const double*)a;
     double* res = (double*)result;
     const size_t mw = __riscv_vsetvlmax_e64m1();

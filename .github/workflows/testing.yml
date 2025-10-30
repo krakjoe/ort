@@ -78,7 +78,7 @@ jobs:
     strategy:
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5', '8.6']
-        backend: [avx2, sse41, sse2, none]
+        backend: ['avx2', 'sse41', 'sse2', 'none']
 
     steps:
       - name: Checkout
@@ -104,4 +104,38 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tests-x64-${{ matrix.backend }}-${{ matrix.php }}
+          path: tests/
+
+  x64-cuda:
+    runs-on: x64
+    continue-on-error: true
+    strategy:
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        backend: ['avx2', 'sse41', 'sse2', 'none']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Build
+        run: |
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=cuda,${{ matrix.backend }} \
+            --with-ort-onnx
+          make -j$(nproc)
+          sudo make install
+
+      - name: Run Tests
+        run: |
+          TEST_PHP_ARGS=--show-diff make test
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-x64-cuda-${{ matrix.backend }}-${{ matrix.php }}
           path: tests/

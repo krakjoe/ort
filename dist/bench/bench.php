@@ -39,6 +39,7 @@ $php_funcs = [
     'sub' => 'ORT\\Math\\subtract',
     'div' => 'ORT\\Math\\divide',
 ];
+
 if (!isset($php_funcs[$func]) || !function_exists($php_funcs[$func])) {
     fwrite(STDERR, "Unknown function: $func\n");
     exit(1);
@@ -49,8 +50,9 @@ if (!$as_json) {
         $func,
         $size, $size,
         $size, $size,
-        \ORT\Math\cores(),
-        \ORT\Math\backend() ?: 'scalar');
+        \ORT\Math\scale\cores(),
+        ($backends = \ORT\Math\backend()) ?
+            \implode(", ", $backends) : 'scalar');
 }
 
 $times = [];

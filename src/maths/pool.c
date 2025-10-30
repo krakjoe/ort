@@ -421,6 +421,9 @@ static void *ort_pool_worker(void *_arg) {
    /* Startup math library for this thread */
    ort_math_startup();
 
+   /* Execute activate routine possible installed by backend */
+   ort_alloc_activate();
+
    while (1) {
        ort_pool_mutex_lock(&pool->mutex);
        while (!pool->activated && !pool->stop) {
@@ -453,6 +456,9 @@ static void *ort_pool_worker(void *_arg) {
            ort_pool_mutex_unlock(&pool->mutex);
        }
    }
+
+   /* Execute deactivate routine possible installed by backend */
+   ort_alloc_deactivate();
 
    /* Shutdown math library for this thread */
    ort_math_shutdown();

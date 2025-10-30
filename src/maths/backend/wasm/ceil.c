@@ -16,11 +16,11 @@
   +----------------------------------------------------------------------+
  */
 
-#include "maths/backend/impl.h"
+#include "maths/backend/wasm/impl.h"
 
 #include <wasm_simd128.h>  /* WASM */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(ceil, float) {
+ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, ceil, float) {
     const float* va = (const float*)a;
     float* res      = (float*)result;
     const size_t mw = 4; // 4 float per 128-bit WASM SIMD register

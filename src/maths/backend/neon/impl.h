@@ -1,0 +1,93 @@
+/*
+  +----------------------------------------------------------------------+
+  | ort                                                                  |
+  +----------------------------------------------------------------------+
+  | Copyright (c) Joe Watkins 2025                                       |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 3.01 of the PHP license,      |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.php.net/license/3_01.txt                                  |
+  | If you did not receive a copy of the PHP license and are unable to   |
+  | obtain it through the world-wide-web, please send a note to          |
+  | license@php.net so we can mail you a copy immediately.               |
+  +----------------------------------------------------------------------+
+  | Author: krakjoe                                                      |
+  +----------------------------------------------------------------------+
+ */
+
+#include "maths/backend/impl.h"
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, double);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int8_t);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int16_t);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int32_t);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, int64_t);
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, int8_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, int16_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, int32_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, int64_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, uint8_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, uint16_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, uint32_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, float);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, ceil, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, ceil, double);
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, div, float);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, div, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, floor, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, floor, double);
+
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, int8_t);
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, uint8_t);
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, int16_t);
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, uint16_t);
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, int32_t);
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, uint32_t);
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float);
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, double);
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, int16_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, int32_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, uint16_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, uint32_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, float);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int8_t);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int16_t);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int32_t);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int64_t);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, recip, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, recip, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, round, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, round, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sign, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sign, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sqrt, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sqrt, double);
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int8_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int16_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int32_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int64_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint8_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint16_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint32_t);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float);
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, double);
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, trunc, float);
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, trunc, double);
