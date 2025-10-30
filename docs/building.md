@@ -13,18 +13,19 @@ This document explains how to build the PHP-ORT extension with various configura
 
 ### Backend Types
 
-- **`auto`**: Automatically select the best (as applicable) backend
+- **`auto`**: Automatically select the best (as applicable) CPU backend
 - **`none`**: Disable backend optimizations
-- **`wasm`**: WebAssembly SIMD backend (*nix only)
-- **`neon`**: ARM NEON backend (*nix only)
-- **`riscv64`**: RISCV64 backend (*nix only)
-- **`avx2`**: AVX2 backend
-- **`sse41`**: SSE4.1 backend
-- **`sse2`**: SSE2 backend
+- **`wasm`**: WebAssembly SIMD backend (CPU, *nix only)
+- **`neon`**: ARM NEON backend (CPU, *nix only)
+- **`riscv64`**: RISCV64 backend (CPU, *nix only)
+- **`avx2`**: AVX2 backend (CPU)
+- **`sse41`**: SSE4.1 backend (CPU)
+- **`sse2`**: SSE2 backend (CPU)
+- **`cuda`**: CUDA backend (GPU, *nix only)
 
 ## Backend Priority Order
 
-When using `--enable-ort-backend=auto`, backends are selected in this priority order:
+When using `--enable-ort-backend=auto`, the CPU backend is selected in this priority order:
 
 1. **WASM** (highest priority)
 2. **NEON**
@@ -41,6 +42,20 @@ When using `--enable-ort-backend=auto`, backends are selected in this priority o
 - Disables thread pooling (`PHP_ORT_POOL=no`)
 - Requires in-tree builds (source directory must equal build directory)
 - See [https://github.com/krakjoe/em](krakjoe/em) for building webasm runtime
+
+### CUDA Backend
+
+*For comprehensive information see [docs/gpu.md](docs/gpu.md).*
+
+To build with cuda, combine with appropriate CPU backend:
+
+```
+--enable-ort-backend=cuda,avx2
+```
+
+Only one GPU and one CPU backend may be selected.
+
+**Note: Disables `auto`, this means manual selection of the applicable CPU backend is required.**
 
 ### ONNX Runtime Integration
 
