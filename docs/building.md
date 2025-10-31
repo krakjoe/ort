@@ -45,12 +45,12 @@ When using `--enable-ort-backend=auto`, the CPU backend is selected in this prio
 
 ### CUDA Backend
 
-*For comprehensive information see [docs/gpu.md](docs/gpu.md).*
+*For comprehensive information see [gpu.md](gpu.md).*
 
-To build with cuda, combine with appropriate CPU backend:
+To build with cuda, combine with appropriate CPU backend (or use automatic selection):
 
 ```
---enable-ort-backend=cuda,avx2
+--enable-ort-backend=cuda,auto
 ```
 
 Only one GPU and one CPU backend may be selected.

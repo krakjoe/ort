@@ -60,13 +60,7 @@ Currently implemented GPU backends:
 
   - cuda
 
-On a modern x64 system, combining cuda and avx2 will provide the best performance:
-
-```
-./configure --enable-ort-backend=cuda,avx2
-```
-
-See [docs/gpu.md](docs/gpu.md) for more information about GPU based acceleration.
+See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 **Note: When building a GPU backend the CPU backend is not automatically selected, you are required to select a specific CPU backend**
 

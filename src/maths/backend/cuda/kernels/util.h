@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-#define ORT_CUDA_THREAD_COUNT 256
+extern int __ort_cuda_threads;
 
 static inline int ort_cuda_blocks_count(const int threads, size_t count) {
     return (count + threads - 1) / threads;

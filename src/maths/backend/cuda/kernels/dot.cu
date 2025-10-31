@@ -169,7 +169,10 @@ extern "C" {
 void ort_cuda_dot_float(float* result, const float* a, const float* b, size_t count, cudaStream_t stream) {
     cudaMemsetAsync(result, 0, sizeof(float), stream);
 
-    ort_cuda_dot_float_kernel<<<ort_cuda_blocks_min(256, count, 1024), 256, 256 * sizeof(unsigned long long), stream>>>(
+    ort_cuda_dot_float_kernel<<<
+        ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
+        __ort_cuda_threads,
+        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
         result, a, b, count
     );
 }
@@ -177,7 +180,10 @@ void ort_cuda_dot_float(float* result, const float* a, const float* b, size_t co
 void ort_cuda_dot_double(double* result, const double* a, const double* b, size_t count, cudaStream_t stream) {
     cudaMemsetAsync(result, 0, sizeof(double), stream);
 
-    ort_cuda_dot_double_kernel<<<ort_cuda_blocks_min(256, count, 1024), 256, 256 * sizeof(unsigned long long), stream>>>(
+    ort_cuda_dot_double_kernel<<<
+        ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
+        __ort_cuda_threads,
+        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
         result, a, b, count
     );
 }
@@ -189,7 +195,10 @@ void ort_cuda_dot_int16(int16_t* result, const int16_t* a, const int16_t* b, siz
     cudaMallocAsync(&d_temp, sizeof(int32_t), stream);
     cudaMemsetAsync(d_temp, 0, sizeof(int32_t), stream);
 
-    ort_cuda_dot_int16_kernel<<<ort_cuda_blocks_min(256, count, 1024), 256, 256 * sizeof(unsigned long long), stream>>>(
+    ort_cuda_dot_int16_kernel<<<
+        ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
+        __ort_cuda_threads,
+        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
         d_temp, a, b, count
     );
 
@@ -213,7 +222,10 @@ void ort_cuda_dot_int32(int32_t* result, const int32_t* a, const int32_t* b, siz
     cudaMallocAsync(&d_temp, sizeof(unsigned long long), stream);
     cudaMemsetAsync(d_temp, 0, sizeof(unsigned long long), stream);
 
-    ort_cuda_dot_int32_kernel<<<ort_cuda_blocks_min(256, count, 1024), 256, 256 * sizeof(unsigned long long), stream>>>(
+    ort_cuda_dot_int32_kernel<<<
+        ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
+        __ort_cuda_threads,
+        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
         d_temp, a, b, count
     );
 
@@ -237,7 +249,10 @@ void ort_cuda_dot_uint16(uint16_t* result, const uint16_t* a, const uint16_t* b,
     cudaMallocAsync(&d_temp, sizeof(uint32_t), stream);
     cudaMemsetAsync(d_temp, 0, sizeof(uint32_t), stream);
 
-    ort_cuda_dot_uint16_kernel<<<ort_cuda_blocks_min(256, count, 1024), 256, 256 * sizeof(unsigned long long), stream>>>(
+    ort_cuda_dot_uint16_kernel<<<
+        ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
+        __ort_cuda_threads,
+        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
         d_temp, a, b, count
     );
 
@@ -259,7 +274,10 @@ void ort_cuda_dot_uint32(uint32_t* result, const uint32_t* a, const uint32_t* b,
     cudaMallocAsync(&d_temp, sizeof(unsigned long long), stream);
     cudaMemsetAsync(d_temp, 0, sizeof(unsigned long long), stream);
 
-    ort_cuda_dot_uint32_kernel<<<ort_cuda_blocks_min(256, count, 1024), 256, 256 * sizeof(unsigned long long), stream>>>(
+    ort_cuda_dot_uint32_kernel<<<
+        ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
+        __ort_cuda_threads,
+        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
         d_temp, a, b, count
     );
 

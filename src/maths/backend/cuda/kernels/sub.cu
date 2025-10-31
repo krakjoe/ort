@@ -89,55 +89,73 @@ __global__ void ort_cuda_sub_double_kernel(double* result, const double* a, cons
 extern "C" {
 
 void ort_cuda_sub_int8(int8_t* result, const int8_t* a, const int8_t* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_int8_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_int8_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_int16(int16_t* result, const int16_t* a, const int16_t* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_int16_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_int16_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_int32(int32_t* result, const int32_t* a, const int32_t* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_int32_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_int32_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_int64(int64_t* result, const int64_t* a, const int64_t* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_int64_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_int64_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_uint8(uint8_t* result, const uint8_t* a, const uint8_t* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_uint8_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_uint8_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_uint16(uint16_t* result, const uint16_t* a, const uint16_t* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_uint16_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_uint16_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_uint32(uint32_t* result, const uint32_t* a, const uint32_t* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_uint32_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_uint32_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_float(float* result, const float* a, const float* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_float_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_float_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
 void ort_cuda_sub_double(double* result, const double* a, const double* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_double_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_sub_double_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }

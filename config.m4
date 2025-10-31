@@ -323,6 +323,28 @@ AS_VAR_IF([PHP_ORT], [no],, [
             cuda)
               PHP_ORT_USE_CUDA="yes"
               ;;
+            auto)
+              dnl Auto detect CPU backend
+              if test "$PHP_ORT_HAS_WASM" = "yes"; then
+                PHP_ORT_USE_WASM="yes"
+                PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              elif test "$PHP_ORT_HAS_NEON" = "yes"; then
+                PHP_ORT_USE_NEON="yes"
+                PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              elif test "$PHP_ORT_HAS_RISCV64" = "yes"; then
+                PHP_ORT_USE_RISCV64="yes"
+                PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              elif test "$PHP_ORT_HAS_AVX2" = "yes"; then
+                PHP_ORT_USE_AVX2="yes"
+                PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              elif test "$PHP_ORT_HAS_SSE41" = "yes"; then
+                PHP_ORT_USE_SSE41="yes"
+                PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              elif test "$PHP_ORT_HAS_SSE2" = "yes"; then
+                PHP_ORT_USE_SSE2="yes"
+                PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              fi
+              ;;
             wasm)
               PHP_ORT_USE_WASM="yes"
               PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
@@ -351,7 +373,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
               ;;
             *)
               IFS="$saved_IFS"
-              AC_MSG_ERROR([Invalid backend: $backend. Valid: cuda,wasm,neon,riscv64,avx2,sse41,sse2])
+              AC_MSG_ERROR([Invalid backend: $backend. Valid: cuda,auto,wasm,neon,riscv64,avx2,sse41,sse2,none])
               ;;
           esac
         done

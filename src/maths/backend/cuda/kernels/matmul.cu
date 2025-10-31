@@ -126,42 +126,54 @@ extern "C" {
 
 void ort_cuda_matmul_int8(int8_t* result, const int8_t* a, size_t a_cols, 
                           const int8_t* b, size_t b_cols, cudaStream_t stream) {
-    ort_cuda_matmul_int8_kernel<<<ort_cuda_blocks_count(256, b_cols), 256, 0, stream>>>(
+    ort_cuda_matmul_int8_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, b_cols),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, a_cols, b, b_cols
     );
 }
 
 void ort_cuda_matmul_uint8(uint8_t* result, const uint8_t* a, size_t a_cols, 
                            const uint8_t* b, size_t b_cols, cudaStream_t stream) {
-    ort_cuda_matmul_uint8_kernel<<<ort_cuda_blocks_count(256, b_cols), 256, 0, stream>>>(
+    ort_cuda_matmul_uint8_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, b_cols),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, a_cols, b, b_cols
     );
 }
 
 void ort_cuda_matmul_int16(int16_t* result, const int16_t* a, size_t a_cols, 
                            const int16_t* b, size_t b_cols, cudaStream_t stream) {
-    ort_cuda_matmul_int16_kernel<<<ort_cuda_blocks_count(256, b_cols), 256, 0, stream>>>(
+    ort_cuda_matmul_int16_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, b_cols),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, a_cols, b, b_cols
     );
 }
 
 void ort_cuda_matmul_uint16(uint16_t* result, const uint16_t* a, size_t a_cols, 
                             const uint16_t* b, size_t b_cols, cudaStream_t stream) {
-    ort_cuda_matmul_uint16_kernel<<<ort_cuda_blocks_count(256, b_cols), 256, 0, stream>>>(
+    ort_cuda_matmul_uint16_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, b_cols),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, a_cols, b, b_cols
     );
 }
 
 void ort_cuda_matmul_int32(int32_t* result, const int32_t* a, size_t a_cols, 
                            const int32_t* b, size_t b_cols, cudaStream_t stream) {
-    ort_cuda_matmul_int32_kernel<<<ort_cuda_blocks_count(256, b_cols), 256, 0, stream>>>(
+    ort_cuda_matmul_int32_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, b_cols),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, a_cols, b, b_cols
     );
 }
 
 void ort_cuda_matmul_uint32(uint32_t* result, const uint32_t* a, size_t a_cols, 
                             const uint32_t* b, size_t b_cols, cudaStream_t stream) {
-    ort_cuda_matmul_uint32_kernel<<<ort_cuda_blocks_count(256, b_cols), 256, 0, stream>>>(
+    ort_cuda_matmul_uint32_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, b_cols),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, a_cols, b, b_cols
     );
 }

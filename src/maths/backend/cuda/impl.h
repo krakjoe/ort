@@ -94,5 +94,6 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(cuda, trunc, double);
 extern ORT_TLS ort_alloc_t          __ort_math_cpu_allocator;
 extern ORT_TLS ort_math_dispatch_t* __ort_math_cpu_dispatch;
 extern int                          __ort_cuda_threshold;
+extern int                          __ort_cuda_threads;
 
 void ort_cuda_activate(void);

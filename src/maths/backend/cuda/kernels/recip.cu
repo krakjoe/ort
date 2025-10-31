@@ -42,13 +42,17 @@ __global__ void ort_cuda_recip_double_kernel(double* result, const double* a, si
 extern "C" {
 
 void ort_cuda_recip_float(float* result, const float* a, size_t count, cudaStream_t stream) {
-    ort_cuda_recip_float_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_recip_float_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, count
     );
 }
 
 void ort_cuda_recip_double(double* result, const double* a, size_t count, cudaStream_t stream) {
-    ort_cuda_recip_double_kernel<<<ort_cuda_blocks_count(256, count), 256, 0, stream>>>(
+    ort_cuda_recip_double_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
         result, a, count
     );
 }
