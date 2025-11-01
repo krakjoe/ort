@@ -92,7 +92,7 @@ jobs:
 
   x64:
     if: success() || failure()
-    runs-on: x64
+    runs-on: [self-hosted, X64, Linux]
     continue-on-error: true
 
     strategy:
@@ -134,7 +134,7 @@ jobs:
 
   x64-cuda:
     if: success() || failure()
-    runs-on: x64
+    runs-on: [self-hosted, X64, Linux]
     continue-on-error: true
 
     strategy:
@@ -175,11 +175,53 @@ jobs:
           flag-name: x64-cuda-${{ matrix.backend }}
           parallel: true
 
+  x64-mac:
+    if: success() || failure()
+    runs-on: [self-hosted, X64, macOS]
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        backend: [avx2, sse41, sse2, none]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Configure
+        run: |
+          /opt/php/8.6/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/8.6/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }} \
+            --enable-ort-coverage \
+            --with-ort-onnx
+
+      - name: Run Coverage
+        run: |
+          ORT_SCALE_CORES=1 make -j$(nproc) ort-test-coverage-html
+
+      - name: Upload HTML Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-x64-mac-${{ matrix.backend }}
+          path: html/
+
+      - name: Send Coveralls Report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ github.workspace }}/coverage.info
+          flag-name: x64-mac-${{ matrix.backend }}
+          parallel: true
+
   finish:
     if: success() || failure()
     runs-on: ubuntu-latest
     continue-on-error: true
-    needs: [arm64, riscv64, x64, x64-cuda]
+    needs: [arm64, riscv64, x64, x64-cuda, x64-mac]
     steps:
     - name: Finish Coveralls
       uses: coverallsapp/github-action@master

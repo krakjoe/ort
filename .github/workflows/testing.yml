@@ -75,7 +75,7 @@ jobs:
           path: tests/
 
   x64:
-    runs-on: x64
+    runs-on: [self-hosted, X64, Linux]
     continue-on-error: true
     strategy:
       matrix:
@@ -110,7 +110,7 @@ jobs:
           path: tests/
 
   x64-cuda:
-    runs-on: x64
+    runs-on: [self-hosted, x64, Linux]
     continue-on-error: true
     strategy:
       matrix:
@@ -145,7 +145,7 @@ jobs:
           path: tests/
 
   x64-mac:
-    runs-on: x64-mac
+    runs-on: [self-hosted, x64, macOS]
     continue-on-error: true
     strategy:
       matrix:
