@@ -143,3 +143,38 @@ jobs:
         with:
           name: tests-x64-cuda-${{ matrix.backend }}-${{ matrix.php }}
           path: tests/
+
+  x64-mac:
+    runs-on: x64-mac
+    continue-on-error: true
+    strategy:
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        backend: ['avx2', 'sse41', 'sse2', 'none']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            clean: true
+
+      - name: Build
+        run: |
+          /opt/php/${{ matrix.php }}/bin/phpize
+          ./configure \
+            --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
+            --enable-ort-backend=${{ matrix.backend }} \
+            --with-ort-onnx
+          make -j$(nproc)
+          sudo make install
+
+      - name: Run Tests
+        run: |
+          make -j$(nproc) ort-test-parallel
+
+      - name: Upload Test Results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-x64-mac-${{ matrix.backend }}-${{ matrix.php }}
+          path: tests/
