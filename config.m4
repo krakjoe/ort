@@ -622,7 +622,17 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AC_DEFINE(HAVE_ORT_COVERAGE, 1,
       [Defined to 1 where we are generating coverage])
     EXTRA_CFLAGS="$EXTRA_CFLAGS -fprofile-arcs -ftest-coverage"
-    EXTRA_LDFLAGS="$EXTRA_LDFLAGS -fprofile-arcs -lgcov"
+    EXTRA_LDFLAGS="$EXTRA_LDFLAGS -fprofile-arcs"
+    
+    dnl On non-Darwin systems, we need to explicitly link libgcov
+    case $host_os in
+      darwin*)
+        ;;
+      *)
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lgcov"
+        ;;
+    esac
+
     PHP_SUBST(EXTRA_CFLAGS)
     PHP_SUBST(EXTRA_LDFLAGS)
     AC_MSG_RESULT([enabled])
