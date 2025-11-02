@@ -19,8 +19,6 @@
 #ifndef HAVE_ORT_MATHS_BACKEND_GUARD
 #define HAVE_ORT_MATHS_BACKEND_GUARD
 
-#include "maths/backend/impl.h"
-
 /* {{{
     On platforms with a hybrid layout of P and E cores, it's necessary to guard
     against executing code that is not supported on the current core type.
@@ -47,6 +45,9 @@
     I haven't documented every mysterious thing going on, but have named the magic numbers which
     you should be able to research if you want to find out what it means.
 */
+
+#include <stdbool.h>
+#include <stdint.h>
 
 #if defined(__aarch64__)
 #if !defined(__APPLE__) && !defined(__MACH__)
@@ -106,7 +107,7 @@ typedef enum {
 #define __ORT_MATH_BACKEND_CPU_BITS(reg, bits) \
    (((reg) & (bits)) == (bits))
 
-static zend_always_inline zend_bool __ort_math_backend_ecore(void) {
+static inline bool __ort_math_backend_ecore(void) {
 #if defined(__x86_64__) || defined(_M_X64)
     unsigned int eax = 0,
                  ebx = 0, 
@@ -136,7 +137,7 @@ static zend_always_inline zend_bool __ort_math_backend_ecore(void) {
 
 /** Shall return true if the current thread should be 
  *      guarded from features provided by the given backend type */
-static zend_always_inline zend_bool
+static inline bool
     __ort_math_backend_guard(
         ort_math_backend_type_t type) {
     if (type == ORT_MATH_BACKEND_NONE) {

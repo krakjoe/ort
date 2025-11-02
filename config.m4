@@ -38,7 +38,17 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ORT_HAS_AVX2="no"
   PHP_ORT_HAS_SSE41="no"
   PHP_ORT_HAS_SSE2="no"
-  
+
+  AC_MSG_CHECKING([looking for guard.h])
+  if test -f "src/maths/backend/guard.h"; then
+    PHP_ORT_INC="-I./src"
+  elif test -f "ext/ort/src/maths/backend/guard.h"; then
+    PHP_ORT_INC="-I./ext/ort/src"
+  else
+    AC_MSG_ERROR([failed, this seems to be an incomplete or misplaced source tree])
+  fi
+  AC_MSG_RESULT([$PHP_ORT_INC])
+
   dnl Check for CUDA support
   dnl First check environment variables
   if test -n "$CUDA_HOME"; then
@@ -114,52 +124,83 @@ AS_VAR_IF([PHP_ORT], [no],, [
   if test "$PHP_ORT_HAS_WASM"    = "no" &&
      test "$PHP_ORT_HAS_NEON"    = "no" &&
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
-    AX_CHECK_COMPILE_FLAG([-mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512], [
-      AC_CHECK_HEADERS([immintrin.h], [
-        dnl Runtime test for AVX512 instruction support
-        AC_MSG_CHECKING([for runtime AVX512 support])
-        saved_CFLAGS="$CFLAGS"
-        CFLAGS="$CFLAGS -mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512"
-        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
-          #include <immintrin.h>
-        ]], [[
-          volatile __m512i a = _mm512_set1_epi32(1);
-          volatile int test = _mm512_extract_epi32(a, 0);
-          if (test != 1) return 1;
-          return 0;
-        ]])], [
-          AC_MSG_RESULT([yes])
-          PHP_ORT_HAS_AVX512="yes"
-        ], [
-          AC_MSG_RESULT([no])
-          PHP_ORT_HAS_AVX512="no"
-        ], [
-          dnl Cross-compilation: assume available if compiler supports it
-          AC_MSG_RESULT([assuming yes (cross-compiling)])
-          PHP_ORT_HAS_AVX512="yes"
-        ])
-        CFLAGS="$saved_CFLAGS"
-      ], [], [AC_INCLUDES_DEFAULT])
-    ], [])
+    AC_CHECK_HEADERS([immintrin.h], [
+      dnl Runtime test for AVX512 instruction support
+      AC_MSG_CHECKING([for runtime AVX512 support])
+      saved_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS -mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512 $PHP_ORT_INC"
+      AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+        #define _GNU_SOURCE
+        #ifndef __APPLE__
+        #include <pthread.h>
+        #include <sched.h>
+        #include <unistd.h>
+        void ort_test_pin_to_zero(void) {
+          cpu_set_t set;
+          CPU_ZERO(&set);
+          CPU_SET(0, &set);
+          pthread_setaffinity_np(
+            pthread_self(), sizeof(set), &set);
+          while (sched_getcpu() != 0) {
+              sched_yield();
+          }
+        }
+        #else
+        void ort_test_pin_to_zero(void) {}
+        #endif
+        #include "maths/backend/guard.h"
+      ]], [[
+        ort_test_pin_to_zero();
+        return __ort_math_backend_guard(
+          ORT_MATH_BACKEND_AVX512);
+      ]])], [
+        AC_MSG_RESULT([yes])
+        PHP_ORT_HAS_AVX512="yes"
+      ], [
+        AC_MSG_RESULT([no])
+        PHP_ORT_HAS_AVX512="no"
+      ], [
+        dnl Cross-compilation: assume available if compiler supports it
+        AC_MSG_RESULT([assuming yes (cross-compiling)])
+        PHP_ORT_HAS_AVX512="yes"
+      ])
+      CFLAGS="$saved_CFLAGS"
+    ], [], [AC_INCLUDES_DEFAULT])
   fi
 
   dnl Check for AVX2 support
   if test "$PHP_ORT_HAS_WASM"    = "no" &&
      test "$PHP_ORT_HAS_NEON"    = "no" &&
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
-    AX_CHECK_COMPILE_FLAG([-mavx2], [
-      AC_CHECK_HEADERS([immintrin.h], [
-        dnl Runtime test for AVX2 instruction support
-        AC_MSG_CHECKING([for runtime AVX2 support])
-        saved_CFLAGS="$CFLAGS"
-        CFLAGS="$CFLAGS -mavx2"
+    AC_CHECK_HEADERS([immintrin.h], [
+      dnl Runtime test for AVX2 instruction support
+      AC_MSG_CHECKING([for runtime AVX2 support])
+      saved_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS -mavx2 $PHP_ORT_INC"
         AC_RUN_IFELSE([AC_LANG_PROGRAM([[
-          #include <immintrin.h>
+          #define _GNU_SOURCE
+          #ifndef __APPLE__
+          #include <pthread.h>
+          #include <sched.h>
+          #include <unistd.h>
+          void ort_test_pin_to_zero(void) {
+            cpu_set_t set;
+            CPU_ZERO(&set);
+            CPU_SET(0, &set);
+            pthread_setaffinity_np(
+              pthread_self(), sizeof(set), &set);
+            while (sched_getcpu() != 0) {
+                sched_yield();
+            }
+          }
+          #else
+          void ort_test_pin_to_zero(void) {}
+          #endif
+          #include "maths/backend/guard.h"
         ]], [[
-          volatile __m256i a = _mm256_set1_epi32(1);
-          volatile int test = _mm256_extract_epi32(a, 0);
-          if (test != 1) return 1;
-          return 0;
+          ort_test_pin_to_zero();
+          return __ort_math_backend_guard(
+            ORT_MATH_BACKEND_AVX2);
         ]])], [
           AC_MSG_RESULT([yes])
           PHP_ORT_HAS_AVX2="yes"
@@ -173,73 +214,102 @@ AS_VAR_IF([PHP_ORT], [no],, [
         ])
         CFLAGS="$saved_CFLAGS"
       ], [], [AC_INCLUDES_DEFAULT])
-    ], [])
   fi
 
   dnl Check for SSE4.1 support
   if test "$PHP_ORT_HAS_WASM"    = "no" &&
      test "$PHP_ORT_HAS_NEON"    = "no" &&
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
-    AX_CHECK_COMPILE_FLAG([-msse4.1], [
-      AC_CHECK_HEADERS([smmintrin.h], [
-        dnl Runtime test for SSE4.1 instruction support
-        AC_MSG_CHECKING([for runtime SSE4.1 support])
-        saved_CFLAGS="$CFLAGS"
-        CFLAGS="$CFLAGS -msse4.1"
-        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
-          #include <smmintrin.h>
-        ]], [[
-          volatile __m128i a = _mm_set1_epi32(1);
-          volatile int test = _mm_extract_epi32(a, 0);
-          if (test != 1) return 1;
-          return 0;
-        ]])], [
-          AC_MSG_RESULT([yes])
-          PHP_ORT_HAS_SSE41="yes"
-        ], [
-          AC_MSG_RESULT([no])
-          PHP_ORT_HAS_SSE41="no"
-        ], [
-          dnl Cross-compilation: assume available if compiler supports it
-          AC_MSG_RESULT([assuming yes (cross-compiling)])
-          PHP_ORT_HAS_SSE41="yes"
-        ])
-        CFLAGS="$saved_CFLAGS"
-      ], [], [AC_INCLUDES_DEFAULT])
-    ], [])
+    AC_CHECK_HEADERS([smmintrin.h], [
+      dnl Runtime test for SSE4.1 instruction support
+      AC_MSG_CHECKING([for runtime SSE4.1 support])
+      saved_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS -msse4.1 $PHP_ORT_INC"
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+      #define _GNU_SOURCE
+      #ifndef __APPLE__
+      #include <pthread.h>
+      #include <sched.h>
+      #include <unistd.h>
+      void ort_test_pin_to_zero(void) {
+        cpu_set_t set;
+        CPU_ZERO(&set);
+        CPU_SET(0, &set);
+        pthread_setaffinity_np(
+          pthread_self(), sizeof(set), &set);
+        while (sched_getcpu() != 0) {
+            sched_yield();
+        }
+      }
+      #else
+      void ort_test_pin_to_zero(void) {}
+      #endif
+      #include "maths/backend/guard.h"
+    ]], [[
+      ort_test_pin_to_zero();
+      return __ort_math_backend_guard(
+        ORT_MATH_BACKEND_SSE41);
+    ]])], [
+      AC_MSG_RESULT([yes])
+      PHP_ORT_HAS_SSE41="yes"
+    ], [
+      AC_MSG_RESULT([no])
+      PHP_ORT_HAS_SSE41="no"
+    ], [
+      dnl Cross-compilation: assume available if compiler supports it
+      AC_MSG_RESULT([assuming yes (cross-compiling)])
+      PHP_ORT_HAS_SSE41="yes"
+    ])
+    CFLAGS="$saved_CFLAGS"
+    ], [], [AC_INCLUDES_DEFAULT])
   fi
 
   dnl Check for SSE2 support
   if test "$PHP_ORT_HAS_WASM"    = "no" &&
      test "$PHP_ORT_HAS_NEON"    = "no" &&
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
-    AX_CHECK_COMPILE_FLAG([-msse2], [
-      AC_CHECK_HEADERS([emmintrin.h], [
-        dnl Runtime test for SSE2 instruction support
-        AC_MSG_CHECKING([for runtime SSE2 support])
-        saved_CFLAGS="$CFLAGS"
-        CFLAGS="$CFLAGS -msse2"
-        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
-          #include <emmintrin.h>
-        ]], [[
-          volatile __m128i a = _mm_set1_epi32(1);
-          volatile int test = _mm_cvtsi128_si32(a);
-          if (test != 1) return 1;
-          return 0;
-        ]])], [
-          AC_MSG_RESULT([yes])
-          PHP_ORT_HAS_SSE2="yes"
-        ], [
-          AC_MSG_RESULT([no])
-          PHP_ORT_HAS_SSE2="no"
-        ], [
-          dnl Cross-compilation: assume available if compiler supports it
-          AC_MSG_RESULT([assuming yes (cross-compiling)])
-          PHP_ORT_HAS_SSE2="yes"
-        ])
-        CFLAGS="$saved_CFLAGS"
-      ], [], [AC_INCLUDES_DEFAULT])
-    ], [])
+    AC_CHECK_HEADERS([emmintrin.h], [
+      dnl Runtime test for SSE2 instruction support
+    AC_MSG_CHECKING([for runtime SSE2 support])
+    saved_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -msse2 $PHP_ORT_INC"
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+      #define _GNU_SOURCE
+      #ifndef __APPLE__
+      #include <pthread.h>
+      #include <sched.h>
+      #include <unistd.h>
+      void ort_test_pin_to_zero(void) {
+        cpu_set_t set;
+        CPU_ZERO(&set);
+        CPU_SET(0, &set);
+        pthread_setaffinity_np(
+          pthread_self(), sizeof(set), &set);
+        while (sched_getcpu() != 0) {
+            sched_yield();
+        }
+      }
+      #else
+      void ort_test_pin_to_zero(void) {}
+      #endif
+      #include "maths/backend/guard.h"
+    ]], [[
+      ort_test_pin_to_zero();
+      return __ort_math_backend_guard(
+        ORT_MATH_BACKEND_SSE2);
+    ]])], [
+      AC_MSG_RESULT([yes])
+      PHP_ORT_HAS_SSE2="yes"
+    ], [
+      AC_MSG_RESULT([no])
+      PHP_ORT_HAS_SSE2="no"
+    ], [
+      dnl Cross-compilation: assume available if compiler supports it
+      AC_MSG_RESULT([assuming yes (cross-compiling)])
+      PHP_ORT_HAS_SSE2="yes"
+    ])
+    CFLAGS="$saved_CFLAGS"
+    ], [], [AC_INCLUDES_DEFAULT])
   fi
 
   dnl Report detected ISA extensions
