@@ -101,23 +101,23 @@ __global__ void ort_cuda_dot_int16_kernel(int32_t* result, const int16_t* a, con
 }
 
 /* CUDA kernel for int32_t dot product (accumulates in int64_t) */
-__global__ void ort_cuda_dot_int32_kernel(unsigned long long* result, const int32_t* a, const int32_t* b, size_t count) {
-    extern __shared__ long long sdata_i64[];
+__global__ void ort_cuda_dot_int32_kernel(int64_t* result, const int32_t* a, const int32_t* b, size_t count) {
+    extern __shared__ int64_t sdata_i64[];
 
     size_t tid = threadIdx.x;
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     size_t stride = blockDim.x * gridDim.x;
 
-    long long sum = 0;
+    int64_t sum = 0;
     for (size_t i = idx; i < count; i += stride) {
-        sum += (long long)a[i] * (long long)b[i];
+        sum += (int64_t)a[i] * (int64_t)b[i];
     }
     sdata_i64[tid] = sum;
 
     ort_cuda_reduce_sum(sdata_i64, tid);
 
     if (tid == 0) {
-        atomicAdd(result, (unsigned long long)sdata_i64[0]);
+        atomicAdd(result, (int64_t)sdata_i64[0]);
     }
 }
 
@@ -143,16 +143,16 @@ __global__ void ort_cuda_dot_uint16_kernel(uint32_t* result, const uint16_t* a, 
 }
 
 /* CUDA kernel for uint32_t dot product (accumulates in uint64_t) */
-__global__ void ort_cuda_dot_uint32_kernel(unsigned long long* result, const uint32_t* a, const uint32_t* b, size_t count) {
-    extern __shared__ unsigned long long sdata_u64[];
+__global__ void ort_cuda_dot_uint32_kernel(uint64_t* result, const uint32_t* a, const uint32_t* b, size_t count) {
+    extern __shared__ uint64_t sdata_u64[];
 
     size_t tid = threadIdx.x;
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     size_t stride = blockDim.x * gridDim.x;
 
-    unsigned long long sum = 0;
+    uint64_t sum = 0;
     for (size_t i = idx; i < count; i += stride) {
-        sum += (unsigned long long)a[i] * (unsigned long long)b[i];
+        sum += (uint64_t)a[i] * (uint64_t)b[i];
     }
     sdata_u64[tid] = sum;
 
@@ -172,7 +172,7 @@ void ort_cuda_dot_float(float* result, const float* a, const float* b, size_t co
     ort_cuda_dot_float_kernel<<<
         ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
         __ort_cuda_threads,
-        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
+        __ort_cuda_threads * sizeof(float), stream>>>(
         result, a, b, count
     );
 }
@@ -183,7 +183,7 @@ void ort_cuda_dot_double(double* result, const double* a, const double* b, size_
     ort_cuda_dot_double_kernel<<<
         ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
         __ort_cuda_threads,
-        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
+        __ort_cuda_threads * sizeof(double), stream>>>(
         result, a, b, count
     );
 }
@@ -198,7 +198,7 @@ void ort_cuda_dot_int16(int16_t* result, const int16_t* a, const int16_t* b, siz
     ort_cuda_dot_int16_kernel<<<
         ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
         __ort_cuda_threads,
-        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
+        __ort_cuda_threads * sizeof(int32_t), stream>>>(
         d_temp, a, b, count
     );
 
@@ -217,19 +217,19 @@ void ort_cuda_dot_int16(int16_t* result, const int16_t* a, const int16_t* b, siz
 }
 
 void ort_cuda_dot_int32(int32_t* result, const int32_t* a, const int32_t* b, size_t count, cudaStream_t stream) {
-    long long temp_result = 0;
-    unsigned long long* d_temp;
-    cudaMallocAsync(&d_temp, sizeof(unsigned long long), stream);
-    cudaMemsetAsync(d_temp, 0, sizeof(unsigned long long), stream);
+    int64_t temp_result = 0;
+    int64_t* d_temp;
+    cudaMallocAsync(&d_temp, sizeof(int64_t), stream);
+    cudaMemsetAsync(d_temp, 0, sizeof(int64_t), stream);
 
     ort_cuda_dot_int32_kernel<<<
         ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
         __ort_cuda_threads,
-        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
+        __ort_cuda_threads * sizeof(int64_t), stream>>>(
         d_temp, a, b, count
     );
 
-    cudaMemcpyAsync(&temp_result, d_temp, sizeof(unsigned long long), cudaMemcpyDeviceToHost, stream);
+    cudaMemcpyAsync(&temp_result, d_temp, sizeof(int64_t), cudaMemcpyDeviceToHost, stream);
     cudaStreamSynchronize(stream);
     cudaFreeAsync(d_temp, stream);
 
@@ -252,7 +252,7 @@ void ort_cuda_dot_uint16(uint16_t* result, const uint16_t* a, const uint16_t* b,
     ort_cuda_dot_uint16_kernel<<<
         ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
         __ort_cuda_threads,
-        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
+        __ort_cuda_threads * sizeof(uint32_t), stream>>>(
         d_temp, a, b, count
     );
 
@@ -269,19 +269,19 @@ void ort_cuda_dot_uint16(uint16_t* result, const uint16_t* a, const uint16_t* b,
 }
 
 void ort_cuda_dot_uint32(uint32_t* result, const uint32_t* a, const uint32_t* b, size_t count, cudaStream_t stream) {
-    unsigned long long temp_result = 0;
-    unsigned long long* d_temp;
-    cudaMallocAsync(&d_temp, sizeof(unsigned long long), stream);
-    cudaMemsetAsync(d_temp, 0, sizeof(unsigned long long), stream);
+    uint64_t temp_result = 0;
+    uint64_t* d_temp;
+    cudaMallocAsync(&d_temp, sizeof(uint64_t), stream);
+    cudaMemsetAsync(d_temp, 0, sizeof(uint64_t), stream);
 
     ort_cuda_dot_uint32_kernel<<<
         ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
         __ort_cuda_threads,
-        __ort_cuda_threads * sizeof(unsigned long long), stream>>>(
+        __ort_cuda_threads * sizeof(uint64_t), stream>>>(
         d_temp, a, b, count
     );
 
-    cudaMemcpyAsync(&temp_result, d_temp, sizeof(unsigned long long), cudaMemcpyDeviceToHost, stream);
+    cudaMemcpyAsync(&temp_result, d_temp, sizeof(uint64_t), cudaMemcpyDeviceToHost, stream);
     cudaStreamSynchronize(stream);
     cudaFreeAsync(d_temp, stream);
 
