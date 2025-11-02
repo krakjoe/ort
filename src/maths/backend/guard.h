@@ -73,6 +73,7 @@
 typedef enum {
     ORT_MATH_BACKEND_NONE = 0,
     ORT_MATH_BACKEND_AVX2,
+    ORT_MATH_BACKEND_AVX512,
     ORT_MATH_BACKEND_SSE2,
     ORT_MATH_BACKEND_SSE41,
     ORT_MATH_BACKEND_NEON,
@@ -91,6 +92,7 @@ typedef enum {
 #define __ORT_MATH_BACKEND_CPU_BIT_SSE41     (1 << 19)
 #define __ORT_MATH_BACKEND_CPU_BIT_AVX       (1 << 28)
 #define __ORT_MATH_BACKEND_CPU_BIT_AVX2      (1 << 5)
+#define __ORT_MATH_BACKEND_CPU_BIT_AVX512    (1 << 16)
 #define __ORT_MATH_BACKEND_CPU_BIT_OSXSAVE   (1 << 27)
 
 #define __ORT_MATH_BACKEND_CPU_LEAF_BASIC    1
@@ -162,7 +164,8 @@ static zend_always_inline zend_bool
     }
 #endif
 #else
-    if (type == ORT_MATH_BACKEND_AVX2 && __ort_math_backend_ecore()) {
+    if ((type == ORT_MATH_BACKEND_AVX2 ||
+         type == ORT_MATH_BACKEND_AVX512) && __ort_math_backend_ecore()) {
         return 1;
     }
 
@@ -172,6 +175,7 @@ static zend_always_inline zend_bool
                  ecx = 0, 
                  edx = 0;
     switch (type) {
+        case ORT_MATH_BACKEND_AVX512:
         case ORT_MATH_BACKEND_AVX2: {
             // Check if CPUID supports extended features
             __cpuid_count(0, 0,
@@ -222,8 +226,19 @@ static zend_always_inline zend_bool
                 __ORT_MATH_BACKEND_CPU_LEAF_EXTENDED, 
                 0, eax, ebx, ecx, edx);
 
-            return !__ORT_MATH_BACKEND_CPU_BITS(ebx,
-                __ORT_MATH_BACKEND_CPU_BIT_AVX2);
+            if (!__ORT_MATH_BACKEND_CPU_BITS(ebx,
+                 __ORT_MATH_BACKEND_CPU_BIT_AVX2)) {
+                return 1;
+            }
+
+            if (type == ORT_MATH_BACKEND_AVX512) {
+                // Check AVX512F support
+                return !__ORT_MATH_BACKEND_CPU_BITS(ebx,
+                    __ORT_MATH_BACKEND_CPU_BIT_AVX512);
+            }
+
+            // AVX2 support confirmed
+            return 0;
         }
         case ORT_MATH_BACKEND_SSE41: {
             __cpuid_count(
@@ -258,6 +273,7 @@ static zend_always_inline zend_bool
 #undef __ORT_MATH_BACKEND_CPU_BIT_SSE41
 #undef __ORT_MATH_BACKEND_CPU_BIT_AVX
 #undef __ORT_MATH_BACKEND_CPU_BIT_AVX2
+#undef __ORT_MATH_BACKEND_CPU_BIT_AVX512
 #undef __ORT_MATH_BACKEND_CPU_BIT_OSXSAVE
 
 #undef __ORT_MATH_BACKEND_CPU_LEAF_BASIC

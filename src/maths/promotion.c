@@ -69,13 +69,7 @@
 #include "maths/schema/trunc.h"
 /* }}} */
 
-static HashTable __ort_math_promotion_schema =
-    (HashTable) {
-        .nNumOfElements = 0,
-        .gc = {
-            .refcount = 0
-        },
-};
+static HashTable __ort_math_promotion_schema = {0};
 
 static zend_always_inline int ort_math_promotion_schema_lookup(const ONNXTensorElementDataType* list, int size, ONNXTensorElementDataType type) {
     for (int i = 0; i < size; ++i) {
@@ -320,8 +314,10 @@ ort_math_promotion_t ort_math_promotion_perform_scalar(
     return promotion;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
+#ifndef _WIN32
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-result"
+#endif
 char* ort_math_promotion_explain(
     const ort_math_promotion_t* promotion,
     const ort_math_promotion_schema_t* schema) {
@@ -350,8 +346,9 @@ char* ort_math_promotion_explain(
 
     return explain;
 }
-#pragma GCC diagnostic pop
-
+#ifndef _WIN32
+# pragma GCC diagnostic pop
+#endif
 void* ort_math_operation_upcast(
     const ort_tensor_t* result,
     const ort_math_promotion_t* promotion,

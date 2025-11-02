@@ -11,6 +11,7 @@ By default `php-ort` will attempt to build with the best CPU backend available f
   - WASM
   - NEON
   - RISCV64
+  - AVX512
   - AVX2
   - SSE4.1
   - SSE2
@@ -22,6 +23,7 @@ To create a build using specific CPU intrinsics, use `--enable-ort-backend` with
   - wasm
   - neon
   - riscv64
+  - avx512
   - avx2
   - sse41
   - sse2
@@ -153,6 +155,34 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 | **max**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟧    |   🟦    |   🟧     |   🟧     |
 | **mean**  |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
 | **softmax**|  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+
+## AVX512 Backend
+
+| Operation | float | double | int8_t | int16_t | int32_t | int64_t | uint8_t | uint16_t | uint32_t |
+|-----------|:-----:|:------:|:------:|:-------:|:-------:|:-------:|:-------:|:--------:|:--------:|
+| **add**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **sub**   |  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |   🟩     |   🟩     |
+| **mul**   |  🟩   |   🟩   |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |   🟩     |   🟩     |
+| **div**   |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **mod**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   ⬛    |   🟦    |   🟦     |   🟦     |
+| **pow**   |  🟦   |   🟦   |   🟦   |   🟦    |   🟦    |   ⬛    |   🟦    |   🟦     |   🟦     |
+| **ceil**  |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **floor** |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **round** |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **abs**   |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |   ⬛     |   ⬛     |
+| **sqrt**  |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **neg**   |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |   ⬛     |   ⬛     |
+| **recip** |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **sign**  |  🟩   |   🟩   |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |   ⬛     |   ⬛     |
+| **trunc** |  🟩   |   🟩   |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |   ⬛     |   ⬛     |
+| **dot**   |  🟩   |   🟩   |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |   🟩     |   🟩     |
+| **matmul**|  🟩   |   🟩   |   🟩   |   🟩    |   🟩    |   🟦    |   🟩    |   🟩     |   🟩     |
+| **sum**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
+| **min**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
+| **max**   |  🟧   |   🟧   |   🟦   |   🟧    |   🟧    |   🟦    |   🟦    |   🟧     |   🟧     |
+| **mean**  |  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+| **softmax**|  🟧   |   🟧   |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |   🟦     |   🟦     |
+
 
 ## AVX2 Backend
 

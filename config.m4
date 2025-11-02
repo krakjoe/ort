@@ -6,7 +6,7 @@ PHP_ARG_ENABLE([ort],
 
 PHP_ARG_ENABLE([ort-backend],
   [which backend(s) to use for optimizations],
-  [AS_HELP_STRING([--enable-ort-backend@<:@=TYPE@:>@], [Enable backend optimizations. TYPE can be: auto, none, or comma-separated list like cuda,avx2 (default: auto)])],
+  [AS_HELP_STRING([--enable-ort-backend@<:@=TYPE@:>@], [Enable backend optimizations. TYPE can be: auto, none, or comma-separated list like cuda,auto (default: auto)])],
   [auto],
   [no])
 
@@ -34,6 +34,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ORT_HAS_WASM="no"
   PHP_ORT_HAS_NEON="no"
   PHP_ORT_HAS_RISCV64="no"
+  PHP_ORT_HAS_AVX512="no"
   PHP_ORT_HAS_AVX2="no"
   PHP_ORT_HAS_SSE41="no"
   PHP_ORT_HAS_SSE2="no"
@@ -109,6 +110,17 @@ AS_VAR_IF([PHP_ORT], [no],, [
     ], [])
   fi
 
+  dnl Check for AVX512 support
+  if test "$PHP_ORT_HAS_WASM"    = "no" &&
+     test "$PHP_ORT_HAS_NEON"    = "no" &&
+     test "$PHP_ORT_HAS_RISCV64" = "no"; then
+    AX_CHECK_COMPILE_FLAG([-mavx512f], [
+      AC_CHECK_HEADERS([immintrin.h], [
+        PHP_ORT_HAS_AVX512="yes"
+      ], [], [AC_INCLUDES_DEFAULT])
+    ], [])
+  fi
+
   dnl Check for AVX2 support
   if test "$PHP_ORT_HAS_WASM"    = "no" &&
      test "$PHP_ORT_HAS_NEON"    = "no" &&
@@ -155,6 +167,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
   fi
   if test "$PHP_ORT_HAS_RISCV64" = "yes"; then
     PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED RISCV64"
+  fi
+  if test "$PHP_ORT_HAS_AVX512" = "yes"; then
+    PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED AVX512"
   fi
   if test "$PHP_ORT_HAS_AVX2" = "yes"; then
     PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED AVX2"
@@ -282,6 +297,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     PHP_ORT_USE_WASM="no"
     PHP_ORT_USE_NEON="no"
     PHP_ORT_USE_RISCV64="no"
+    PHP_ORT_USE_AVX512="no"
     PHP_ORT_USE_AVX2="no"
     PHP_ORT_USE_SSE41="no"
     PHP_ORT_USE_SSE2="no"
@@ -300,6 +316,8 @@ AS_VAR_IF([PHP_ORT], [no],, [
           PHP_ORT_USE_NEON="yes"
         elif test "$PHP_ORT_HAS_RISCV64" = "yes"; then
           PHP_ORT_USE_RISCV64="yes"
+        elif test "$PHP_ORT_HAS_AVX512" = "yes"; then
+          PHP_ORT_USE_AVX512="yes"
         elif test "$PHP_ORT_HAS_AVX2" = "yes"; then
           PHP_ORT_USE_AVX2="yes"
         elif test "$PHP_ORT_HAS_SSE41" = "yes"; then
@@ -334,6 +352,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
               elif test "$PHP_ORT_HAS_RISCV64" = "yes"; then
                 PHP_ORT_USE_RISCV64="yes"
                 PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              elif test "$PHP_ORT_HAS_AVX512" = "yes"; then
+                PHP_ORT_USE_AVX512="yes"
+                PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
               elif test "$PHP_ORT_HAS_AVX2" = "yes"; then
                 PHP_ORT_USE_AVX2="yes"
                 PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
@@ -357,6 +378,10 @@ AS_VAR_IF([PHP_ORT], [no],, [
               PHP_ORT_USE_RISCV64="yes"
               PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
               ;;
+            avx512)
+              PHP_ORT_USE_AVX512="yes"
+              PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
+              ;;
             avx2)
               PHP_ORT_USE_AVX2="yes"
               PHP_ORT_CPU_BACKEND_COUNT=`expr $PHP_ORT_CPU_BACKEND_COUNT + 1`
@@ -373,7 +398,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
               ;;
             *)
               IFS="$saved_IFS"
-              AC_MSG_ERROR([Invalid backend: $backend. Valid: cuda,auto,wasm,neon,riscv64,avx2,sse41,sse2,none])
+              AC_MSG_ERROR([Invalid backend: $backend. Valid: cuda,auto,wasm,neon,riscv64,avx512,avx2,sse41,sse2,none])
               ;;
           esac
         done
@@ -505,6 +530,34 @@ AS_VAR_IF([PHP_ORT], [no],, [
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "RISCV64", [CPU Backend Name])
       fi
 
+      dnl AVX512 backend
+      if test "$PHP_ORT_USE_AVX512" = "yes"; then
+        if test "$PHP_ORT_HAS_AVX512" != "yes"; then
+          AC_MSG_ERROR([AVX512 backend requested but not available])
+        fi
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mavx512f"
+        PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL AVX512"
+        PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
+          $PHP_ORT_BACKEND_DIR/avx512/add.c
+          $PHP_ORT_BACKEND_DIR/avx512/sub.c
+          $PHP_ORT_BACKEND_DIR/avx512/dot.c
+          $PHP_ORT_BACKEND_DIR/avx512/matmul.c
+          $PHP_ORT_BACKEND_DIR/avx512/mul.c
+          $PHP_ORT_BACKEND_DIR/avx512/div.c
+          $PHP_ORT_BACKEND_DIR/avx512/sqrt.c
+          $PHP_ORT_BACKEND_DIR/avx512/neg.c
+          $PHP_ORT_BACKEND_DIR/avx512/ceil.c
+          $PHP_ORT_BACKEND_DIR/avx512/floor.c
+          $PHP_ORT_BACKEND_DIR/avx512/round.c
+          $PHP_ORT_BACKEND_DIR/avx512/abs.c
+          $PHP_ORT_BACKEND_DIR/avx512/sign.c
+          $PHP_ORT_BACKEND_DIR/avx512/recip.c
+          $PHP_ORT_BACKEND_DIR/avx512/trunc.c
+          $PHP_ORT_BACKEND_DIR/avx512/impl.c"
+        AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "AVX512", [CPU Backend Name])
+      fi
+
       dnl AVX2 backend
       if test "$PHP_ORT_USE_AVX2" = "yes"; then
         if test "$PHP_ORT_HAS_AVX2" != "yes"; then
@@ -623,7 +676,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
       [Defined to 1 where we are generating coverage])
     EXTRA_CFLAGS="$EXTRA_CFLAGS -fprofile-arcs -ftest-coverage"
     EXTRA_LDFLAGS="$EXTRA_LDFLAGS -fprofile-arcs"
-    
+
     dnl On non-Darwin systems, we need to explicitly link libgcov
     case $host_os in
       darwin*)

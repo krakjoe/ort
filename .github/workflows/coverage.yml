@@ -182,7 +182,7 @@ jobs:
 
     strategy:
       matrix:
-        backend: [avx2, sse41, sse2, none]
+        backend: [avx512, avx2, sse41, sse2, none]
 
     steps:
       - name: Checkout
