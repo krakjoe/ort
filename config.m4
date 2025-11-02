@@ -122,20 +122,11 @@ AS_VAR_IF([PHP_ORT], [no],, [
         CFLAGS="$CFLAGS -mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512"
         AC_RUN_IFELSE([AC_LANG_PROGRAM([[
           #include <immintrin.h>
-          #include <signal.h>
-          #include <setjmp.h>
-          static jmp_buf jmp_env;
-          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
         ]], [[
-          signal(SIGILL, sigill_handler);
-          if (setjmp(jmp_env) == 0) {
-            __m512i a = _mm512_setzero_si512();
-            __m512i b = _mm512_set1_epi32(1);
-            __m512i c = _mm512_add_epi32(a, b);
-            volatile int result = _mm512_extract_epi32(c, 0);
-            return (result == 1) ? 0 : 1;
-          }
-          return 1;
+          volatile __m512i a = _mm512_set1_epi32(1);
+          volatile int test = _mm512_extract_epi32(a, 0);
+          if (test != 1) return 1;
+          return 0;
         ]])], [
           AC_MSG_RESULT([yes])
           PHP_ORT_HAS_AVX512="yes"
@@ -164,20 +155,11 @@ AS_VAR_IF([PHP_ORT], [no],, [
         CFLAGS="$CFLAGS -mavx2"
         AC_RUN_IFELSE([AC_LANG_PROGRAM([[
           #include <immintrin.h>
-          #include <signal.h>
-          #include <setjmp.h>
-          static jmp_buf jmp_env;
-          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
         ]], [[
-          signal(SIGILL, sigill_handler);
-          if (setjmp(jmp_env) == 0) {
-            __m256i a = _mm256_setzero_si256();
-            __m256i b = _mm256_set1_epi32(1);
-            __m256i c = _mm256_add_epi32(a, b);
-            volatile int result = _mm256_extract_epi32(c, 0);
-            return (result == 1) ? 0 : 1;
-          }
-          return 1;
+          volatile __m256i a = _mm256_set1_epi32(1);
+          volatile int test = _mm256_extract_epi32(a, 0);
+          if (test != 1) return 1;
+          return 0;
         ]])], [
           AC_MSG_RESULT([yes])
           PHP_ORT_HAS_AVX2="yes"
@@ -206,20 +188,11 @@ AS_VAR_IF([PHP_ORT], [no],, [
         CFLAGS="$CFLAGS -msse4.1"
         AC_RUN_IFELSE([AC_LANG_PROGRAM([[
           #include <smmintrin.h>
-          #include <signal.h>
-          #include <setjmp.h>
-          static jmp_buf jmp_env;
-          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
         ]], [[
-          signal(SIGILL, sigill_handler);
-          if (setjmp(jmp_env) == 0) {
-            __m128i a = _mm_setzero_si128();
-            __m128i b = _mm_set1_epi32(1);
-            __m128i c = _mm_add_epi32(a, b);
-            volatile int result = _mm_extract_epi32(c, 0);
-            return (result == 1) ? 0 : 1;
-          }
-          return 1;
+          volatile __m128i a = _mm_set1_epi32(1);
+          volatile int test = _mm_extract_epi32(a, 0);
+          if (test != 1) return 1;
+          return 0;
         ]])], [
           AC_MSG_RESULT([yes])
           PHP_ORT_HAS_SSE41="yes"
@@ -248,20 +221,11 @@ AS_VAR_IF([PHP_ORT], [no],, [
         CFLAGS="$CFLAGS -msse2"
         AC_RUN_IFELSE([AC_LANG_PROGRAM([[
           #include <emmintrin.h>
-          #include <signal.h>
-          #include <setjmp.h>
-          static jmp_buf jmp_env;
-          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
         ]], [[
-          signal(SIGILL, sigill_handler);
-          if (setjmp(jmp_env) == 0) {
-            __m128i a = _mm_setzero_si128();
-            __m128i b = _mm_set1_epi32(1);
-            __m128i c = _mm_add_epi32(a, b);
-            volatile int result = _mm_cvtsi128_si32(c);
-            return (result == 1) ? 0 : 1;
-          }
-          return 1;
+          volatile __m128i a = _mm_set1_epi32(1);
+          volatile int test = _mm_cvtsi128_si32(a);
+          if (test != 1) return 1;
+          return 0;
         ]])], [
           AC_MSG_RESULT([yes])
           PHP_ORT_HAS_SSE2="yes"
