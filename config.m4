@@ -114,7 +114,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
   if test "$PHP_ORT_HAS_WASM"    = "no" &&
      test "$PHP_ORT_HAS_NEON"    = "no" &&
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
-    AX_CHECK_COMPILE_FLAG([-mavx512f -mavx512bw], [
+    AX_CHECK_COMPILE_FLAG([-mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512], [
       AC_CHECK_HEADERS([immintrin.h], [
         PHP_ORT_HAS_AVX512="yes"
       ], [], [AC_INCLUDES_DEFAULT])
@@ -535,7 +535,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
         if test "$PHP_ORT_HAS_AVX512" != "yes"; then
           AC_MSG_ERROR([AVX512 backend requested but not available])
         fi
-        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mavx512f -mavx512bw"
+        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512"
         PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL AVX512"
         PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/avx512/add.c
