@@ -34,7 +34,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, trunc, float) {
     /* Vectorized loop - process 16 floats at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m512 ma = _mm512_load_ps(&va[i]);
-        __m512 mr = _mm512_trunc_ps(ma);
+        __m512 mr = _mm512_roundscale_ps(ma, _MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC);
         _mm512_store_ps(&res[i], mr);
     }
 
@@ -63,7 +63,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, trunc, double)  {
     /* Vectorized loop - process 8 doubles at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m512d ma = _mm512_load_pd(&va[i]);
-        __m512d mr = _mm512_trunc_pd(ma);
+        __m512d mr = _mm512_roundscale_pd(ma, _MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC);
         _mm512_store_pd(&res[i], mr);
     }
 
