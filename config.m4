@@ -116,7 +116,38 @@ AS_VAR_IF([PHP_ORT], [no],, [
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
     AX_CHECK_COMPILE_FLAG([-mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512], [
       AC_CHECK_HEADERS([immintrin.h], [
-        PHP_ORT_HAS_AVX512="yes"
+        dnl Runtime test for AVX512 instruction support
+        AC_MSG_CHECKING([for runtime AVX512 support])
+        saved_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS -mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512"
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+          #include <immintrin.h>
+          #include <signal.h>
+          #include <setjmp.h>
+          static jmp_buf jmp_env;
+          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
+        ]], [[
+          signal(SIGILL, sigill_handler);
+          if (setjmp(jmp_env) == 0) {
+            __m512i a = _mm512_setzero_si512();
+            __m512i b = _mm512_set1_epi32(1);
+            __m512i c = _mm512_add_epi32(a, b);
+            volatile int result = _mm512_extract_epi32(c, 0);
+            return (result == 1) ? 0 : 1;
+          }
+          return 1;
+        ]])], [
+          AC_MSG_RESULT([yes])
+          PHP_ORT_HAS_AVX512="yes"
+        ], [
+          AC_MSG_RESULT([no])
+          PHP_ORT_HAS_AVX512="no"
+        ], [
+          dnl Cross-compilation: assume available if compiler supports it
+          AC_MSG_RESULT([assuming yes (cross-compiling)])
+          PHP_ORT_HAS_AVX512="yes"
+        ])
+        CFLAGS="$saved_CFLAGS"
       ], [], [AC_INCLUDES_DEFAULT])
     ], [])
   fi
@@ -127,7 +158,38 @@ AS_VAR_IF([PHP_ORT], [no],, [
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
     AX_CHECK_COMPILE_FLAG([-mavx2], [
       AC_CHECK_HEADERS([immintrin.h], [
-        PHP_ORT_HAS_AVX2="yes"
+        dnl Runtime test for AVX2 instruction support
+        AC_MSG_CHECKING([for runtime AVX2 support])
+        saved_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS -mavx2"
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+          #include <immintrin.h>
+          #include <signal.h>
+          #include <setjmp.h>
+          static jmp_buf jmp_env;
+          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
+        ]], [[
+          signal(SIGILL, sigill_handler);
+          if (setjmp(jmp_env) == 0) {
+            __m256i a = _mm256_setzero_si256();
+            __m256i b = _mm256_set1_epi32(1);
+            __m256i c = _mm256_add_epi32(a, b);
+            volatile int result = _mm256_extract_epi32(c, 0);
+            return (result == 1) ? 0 : 1;
+          }
+          return 1;
+        ]])], [
+          AC_MSG_RESULT([yes])
+          PHP_ORT_HAS_AVX2="yes"
+        ], [
+          AC_MSG_RESULT([no])
+          PHP_ORT_HAS_AVX2="no"
+        ], [
+          dnl Cross-compilation: assume available if compiler supports it
+          AC_MSG_RESULT([assuming yes (cross-compiling)])
+          PHP_ORT_HAS_AVX2="yes"
+        ])
+        CFLAGS="$saved_CFLAGS"
       ], [], [AC_INCLUDES_DEFAULT])
     ], [])
   fi
@@ -138,7 +200,38 @@ AS_VAR_IF([PHP_ORT], [no],, [
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
     AX_CHECK_COMPILE_FLAG([-msse4.1], [
       AC_CHECK_HEADERS([smmintrin.h], [
-        PHP_ORT_HAS_SSE41="yes"
+        dnl Runtime test for SSE4.1 instruction support
+        AC_MSG_CHECKING([for runtime SSE4.1 support])
+        saved_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS -msse4.1"
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+          #include <smmintrin.h>
+          #include <signal.h>
+          #include <setjmp.h>
+          static jmp_buf jmp_env;
+          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
+        ]], [[
+          signal(SIGILL, sigill_handler);
+          if (setjmp(jmp_env) == 0) {
+            __m128i a = _mm_setzero_si128();
+            __m128i b = _mm_set1_epi32(1);
+            __m128i c = _mm_add_epi32(a, b);
+            volatile int result = _mm_extract_epi32(c, 0);
+            return (result == 1) ? 0 : 1;
+          }
+          return 1;
+        ]])], [
+          AC_MSG_RESULT([yes])
+          PHP_ORT_HAS_SSE41="yes"
+        ], [
+          AC_MSG_RESULT([no])
+          PHP_ORT_HAS_SSE41="no"
+        ], [
+          dnl Cross-compilation: assume available if compiler supports it
+          AC_MSG_RESULT([assuming yes (cross-compiling)])
+          PHP_ORT_HAS_SSE41="yes"
+        ])
+        CFLAGS="$saved_CFLAGS"
       ], [], [AC_INCLUDES_DEFAULT])
     ], [])
   fi
@@ -149,7 +242,38 @@ AS_VAR_IF([PHP_ORT], [no],, [
      test "$PHP_ORT_HAS_RISCV64" = "no"; then
     AX_CHECK_COMPILE_FLAG([-msse2], [
       AC_CHECK_HEADERS([emmintrin.h], [
-        PHP_ORT_HAS_SSE2="yes"
+        dnl Runtime test for SSE2 instruction support
+        AC_MSG_CHECKING([for runtime SSE2 support])
+        saved_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS -msse2"
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+          #include <emmintrin.h>
+          #include <signal.h>
+          #include <setjmp.h>
+          static jmp_buf jmp_env;
+          static void sigill_handler(int sig) { longjmp(jmp_env, 1); }
+        ]], [[
+          signal(SIGILL, sigill_handler);
+          if (setjmp(jmp_env) == 0) {
+            __m128i a = _mm_setzero_si128();
+            __m128i b = _mm_set1_epi32(1);
+            __m128i c = _mm_add_epi32(a, b);
+            volatile int result = _mm_cvtsi128_si32(c);
+            return (result == 1) ? 0 : 1;
+          }
+          return 1;
+        ]])], [
+          AC_MSG_RESULT([yes])
+          PHP_ORT_HAS_SSE2="yes"
+        ], [
+          AC_MSG_RESULT([no])
+          PHP_ORT_HAS_SSE2="no"
+        ], [
+          dnl Cross-compilation: assume available if compiler supports it
+          AC_MSG_RESULT([assuming yes (cross-compiling)])
+          PHP_ORT_HAS_SSE2="yes"
+        ])
+        CFLAGS="$saved_CFLAGS"
       ], [], [AC_INCLUDES_DEFAULT])
     ], [])
   fi
