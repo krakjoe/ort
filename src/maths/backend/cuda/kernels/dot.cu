@@ -117,7 +117,7 @@ __global__ void ort_cuda_dot_int32_kernel(int64_t* result, const int32_t* a, con
     ort_cuda_reduce_sum(sdata_i64, tid);
 
     if (tid == 0) {
-        atomicAdd(result, (int64_t)sdata_i64[0]);
+        atomicAdd((unsigned long long*)result, (unsigned long long)sdata_i64[0]);
     }
 }
 
@@ -159,7 +159,7 @@ __global__ void ort_cuda_dot_uint32_kernel(uint64_t* result, const uint32_t* a, 
     ort_cuda_reduce_sum(sdata_u64, tid);
 
     if (tid == 0) {
-        atomicAdd(result, sdata_u64[0]);
+        atomicAdd((unsigned long long*)result, (unsigned long long) sdata_u64[0]);
     }
 }
 
