@@ -25,8 +25,13 @@ foreach (get_defined_functions()["internal"] as $symbol) {
         continue;
     }
 
-    if ($symbol == "ort\\math\\backend" ||
-        $symbol == "ort\\math\\cast") {
+    if ($symbol == "ort\\math\\cast") {
+        continue;
+    }
+
+    if (substr($symbol, 0,
+            strlen("ort\\math\\backend")) ==
+                "ort\\math\\backend") {
         continue;
     }
 

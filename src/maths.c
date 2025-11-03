@@ -336,6 +336,34 @@ PHP_NAMED_FUNCTION(php_ort_math_backend)
 #endif
 }
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(php_ort_math_backend_cpu_arginfo, 0, 0, MAY_BE_STRING|MAY_BE_FALSE)
+ZEND_END_ARG_INFO()
+
+PHP_NAMED_FUNCTION(php_ort_math_backend_cpu)
+{
+    ZEND_PARSE_PARAMETERS_NONE();
+
+#if defined(ORT_BACKEND_CPU_ENABLED)
+    RETURN_STRING(ORT_BACKEND_CPU_NAME);
+#else
+    RETURN_FALSE;
+#endif
+}
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(php_ort_math_backend_gpu_arginfo, 0, 0, MAY_BE_STRING|MAY_BE_FALSE)
+ZEND_END_ARG_INFO()
+
+PHP_NAMED_FUNCTION(php_ort_math_backend_gpu)
+{
+    ZEND_PARSE_PARAMETERS_NONE();
+
+#if defined(ORT_BACKEND_GPU_ENABLED)
+    RETURN_STRING(ORT_BACKEND_GPU_NAME);
+#else
+    RETURN_FALSE;
+#endif
+}
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(php_ort_math_cores_arginfo, 0, 0, IS_LONG, 0)
     ZEND_ARG_TYPE_INFO(0, max, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
@@ -519,12 +547,16 @@ static const zend_function_entry php_ort_math_functions[] = {
 
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce", dot, php_ort_math_dot, php_ort_math_dot_arginfo)
 
-    ZEND_NS_NAMED_FE("ORT\\Math", backend,   php_ort_math_backend,   php_ort_math_backend_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math", cast,      php_ort_math_cast,      php_ort_math_cast_arginfo)
 
     ZEND_NS_NAMED_FE("ORT\\Math",        scale,     php_ort_math_scale,     php_ort_math_scale_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math\\scale", cores,     php_ort_math_cores,     php_ort_math_cores_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math\\scale", threshold, php_ort_math_threshold, php_ort_math_threshold_arginfo)
+
+    ZEND_NS_NAMED_FE("ORT\\Math",          backend, php_ort_math_backend, php_ort_math_backend_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\backend", cpu,     php_ort_math_backend_cpu, php_ort_math_backend_cpu_arginfo)
+    ZEND_NS_NAMED_FE("ORT\\Math\\backend", gpu,     php_ort_math_backend_gpu, php_ort_math_backend_gpu_arginfo)
+
     ZEND_FE_END
 };
 
