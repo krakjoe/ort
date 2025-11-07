@@ -102,10 +102,31 @@ AS_VAR_IF([PHP_ORT], [no],, [
 
   dnl Check for NEON support
   if test "$PHP_ORT_HAS_WASM" = "no"; then
-    AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd], [
+    AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd+fp16], [
       AC_CHECK_HEADERS([arm_neon.h], [
         PHP_ORT_HAS_NEON="yes"
-        PHP_ORT_HAS_F16V="yes"
+        dnl Test for native F16V support with NEON float16
+        AC_MSG_CHECKING([for native F16V support with NEON float16])
+        saved_CFLAGS_F16V="$CFLAGS"
+        CFLAGS="$CFLAGS -march=armv8-a+simd+fp16"
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+          #include <arm_neon.h>
+        ]], [[
+          volatile float16x8_t a = vdupq_n_f16(1.0f);
+          volatile float16x8_t b = vdupq_n_f16(2.0f);
+          volatile float16x8_t c = vaddq_f16(a, b);
+          volatile float16x8_t d = vmulq_f16(c, a);
+          return (vgetq_lane_f16(d, 0) == 3.0f) ? 0 : 1;
+        ]])], [
+          AC_MSG_RESULT([yes])
+          PHP_ORT_HAS_F16V="yes"
+        ], [
+          AC_MSG_RESULT([no])
+        ], [
+          dnl Cross-compilation: assume F16V not available
+          AC_MSG_RESULT([assuming no (cross-compiling)])
+        ])
+        CFLAGS="$saved_CFLAGS_F16V"
       ], [], [AC_INCLUDES_DEFAULT])
     ], [])
   fi
@@ -746,6 +767,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
           AC_MSG_ERROR([NEON backend requested but not available])
         fi
         PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -march=armv8-a+simd"
+        if test "$PHP_ORT_HAS_F16V" = "yes"; then
+          PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS+fp16"
+        fi
         PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL NEON"
         PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/neon/abs.c

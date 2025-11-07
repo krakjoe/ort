@@ -230,6 +230,7 @@ __ort_math_backend_sub_uint32_fallback:
     }
 }
 
+#ifdef ORT_BACKEND_CPU_F16V
 ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float16) {
     const float16* va = (const float16*)a;
     const float16* vb = (const float16*)b;
@@ -244,10 +245,12 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float16) {
 
     // Vectorized loop - process 8 float16 at once using NEON
     for (size_t i = 0; i < mc; i += mw) {
-        float16x8_t ma = vld1q_f16(&va[i]);
-        float16x8_t mb = vld1q_f16(&vb[i]);
+        float16x8_t ma = vld1q_f16(
+            (const float16_t*)&va[i]);
+        float16x8_t mb = vld1q_f16(
+            (const float16_t*)&vb[i]);
         float16x8_t mr = vsubq_f16(ma, mb);
-        vst1q_f16(&res[i], mr);
+        vst1q_f16((float16_t*)&res[i], mr);
     }
 
 __ort_math_backend_sub_float16_fallback:
@@ -259,6 +262,7 @@ __ort_math_backend_sub_float16_fallback:
             count - mc);
     }
 }
+#endif
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float32) {
     const float32* va = (const float32*)a;

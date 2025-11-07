@@ -21,6 +21,7 @@
 
 #include <arm_neon.h>  /* NEON */
 
+#ifdef ORT_BACKEND_CPU_F16V
 ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float16) {
     const float16 *va = (const float16 *)a;
     const float16 *vb = (const float16 *)b;
@@ -32,7 +33,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float16) {
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
         for (; k < mc; k += mw) {
-            ma = vld1q_f16(&va[k]);
+            ma = vld1q_f16(
+                (const float16_t*)&va[k]);
             mb = (float16x8_t){
                 vb[k * b_cols + j],
                 vb[(k+1) * b_cols + j],
@@ -53,6 +55,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float16) {
         res[j] = sum;
     }
 }
+#endif
 
 ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float32) {
     const float32 *va = (const float32 *)a;

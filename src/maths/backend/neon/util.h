@@ -20,6 +20,7 @@
 
 #include <arm_neon.h>
 
+#ifdef ORT_BACKEND_CPU_F16V
 ORT_MATH_BACKEND_UTIL_DECL(neon, 
     hsum, float16x8, float16, float16x8_t) {
     float16x4_t low = vget_low_f16(v);
@@ -34,6 +35,7 @@ ORT_MATH_BACKEND_UTIL_DECL(neon,
 
     return vget_lane_f16(final_sum, 0);
 }
+#endif
 
 ORT_MATH_BACKEND_UTIL_DECL(neon, 
     hsum, float32x4, float32, float32x4_t) {

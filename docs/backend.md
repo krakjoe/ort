@@ -295,4 +295,5 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 **Notes:**
 - RISCV64 backend uses the RISCV64 Vector Extension (RVV) 1.0 specification with variable-length vectors.
 - CUDA uses GPU kernels with managed memory and utilize cuBLAS for matrix operations where applicable.
+- NEON F16V (+fp16) vector extensions are optional, support will be detected at build time.
 - There are machines with AVX512 F16V support, but they are bleeding edge and effectively inaccessible to developers, for this reason AVX512 float16 support will be implemented using F16C extensions.

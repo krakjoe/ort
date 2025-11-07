@@ -20,6 +20,7 @@
 
 #include <arm_neon.h>  /* NEON */
 
+#ifdef ORT_BACKEND_CPU_F16V
 ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sign, float16) {
     const float16* va = (const float16*)a;
     float16* res      = (float16*)result;
@@ -32,7 +33,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sign, float16) {
 
     // Vectorized loop - process 8 float16 at once using NEON
     for (size_t i = 0; i < mc; i += mw) {
-        float16x8_t ma = vld1q_f16(&va[i]);
+        float16x8_t ma = vld1q_f16(
+            (const float16_t*)&va[i]);
         float16x8_t zero = vdupq_n_f16(0.0f);
         float16x8_t one = vdupq_n_f16(1.0f);
         float16x8_t neg_one = vdupq_n_f16(-1.0f);
@@ -45,7 +47,7 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sign, float16) {
         float16x8_t result = vbslq_f16(pos_mask, one, zero);
         float16x8_t mr = vbslq_f16(neg_mask, neg_one, result);
         
-        vst1q_f16(&res[i], mr);
+        vst1q_f16((float16_t*)&res[i], mr);
     }
 
 __ort_math_backend_sign_float16_fallback:
@@ -56,6 +58,7 @@ __ort_math_backend_sign_float16_fallback:
             count - mc);
     }
 }
+#endif
 
 ORT_MATH_BACKEND_UNARY_OP_DECL(neon, sign, float32) {
     const float32* va = (const float32*)a;
