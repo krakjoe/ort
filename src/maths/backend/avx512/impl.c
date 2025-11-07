@@ -112,10 +112,6 @@ void ort_math_backend_cpu_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, avx512, INT8,    matmul, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, avx512, UINT8,   matmul, uint8_t)
 
-    /* mod.c */
-    ORT_MATH_BACKEND_INSTALL(table, avx512, INT8,    mod, int8_t)
-    ORT_MATH_BACKEND_INSTALL_SCALAR(table, avx512, INT8, mod, int8_t)
-
     /* mul.c */
     ORT_MATH_BACKEND_INSTALL(table, avx512, FLOAT32,   mul, float32)
     ORT_MATH_BACKEND_INSTALL(table, avx512, FLOAT64,  mul, float64)
