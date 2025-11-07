@@ -102,7 +102,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
 
   dnl Check for NEON support
   if test "$PHP_ORT_HAS_WASM" = "no"; then
-    AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd+fp16], [
+    AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd], [
       AC_CHECK_HEADERS([arm_neon.h], [
         PHP_ORT_HAS_NEON="yes"
         dnl Test for native F16V support with NEON float16
