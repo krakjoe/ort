@@ -69,6 +69,7 @@ static zend_always_inline float64 ort_math_mod_impl_float64(float64 a, float64 b
     c_type* res = (c_type*)result;                                  \
     const c_type* va = (const c_type*)a;                            \
     const c_type* vb = (const c_type*)b;                            \
+    _Pragma("clang loop vectorize(disable)")                        \
     for (size_t i = 0; i < count; i++) {                            \
         res[i] = ort_math_mod_impl_##c_type(                        \
             va[i], vb[i]);                                          \
@@ -81,11 +82,12 @@ ORT_MATH_FOREACH_CUSTOM_TYPE(
     ORT_MATH_FRONTEND_MOD_IMPL)
 #undef ORT_MATH_FRONTEND_MOD_IMPL
 
-#define ORT_MATH_FRONTEND_MOD_SCALAR_IMPL(c_type, onnx_type)                 \
+#define ORT_MATH_FRONTEND_MOD_SCALAR_IMPL(c_type, onnx_type)        \
     ORT_MATH_FRONTEND_SCALAR_OP_DECL(mod, c_type) {                 \
     c_type* res = (c_type*)result;                                  \
     const c_type* va = (const c_type*)a;                            \
     const c_type sb = *(const c_type*)b;                            \
+    _Pragma("clang loop vectorize(disable)")                        \
     for (size_t i = 0; i < count; i++) {                            \
         res[i] = ort_math_mod_impl_##c_type(va[i], sb);             \
     }                                                               \
