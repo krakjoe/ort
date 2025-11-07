@@ -11,8 +11,8 @@ echo "Testing utility functions coverage...\n";
 
 // Test broadcast compatibility by doing operations with different shaped tensors
 try {
-    $tensor1 = new ORT\Tensor\Transient([2, 1], [[1.0], [2.0]], ORT\Tensor::FLOAT);
-    $tensor2 = new ORT\Tensor\Transient([1, 3], [[3.0, 4.0, 5.0]], ORT\Tensor::FLOAT);
+    $tensor1 = new ORT\Tensor\Transient([2, 1], [[1.0], [2.0]], ORT\Tensor::FLOAT32);
+    $tensor2 = new ORT\Tensor\Transient([1, 3], [[3.0, 4.0, 5.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\add($tensor1, $tensor2);
     echo "Broadcast add succeeded\n";
 } catch (Exception $e) {
@@ -22,7 +22,7 @@ try {
 // Test type promotion by mixing different numeric types
 try {
     $tensor1 = new ORT\Tensor\Transient([2], [1, 2], ORT\Tensor::INT32);
-    $tensor2 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT);
+    $tensor2 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\add($tensor1, $tensor2);
     echo "Type promotion add succeeded\n";
 } catch (Exception $e) {
@@ -32,7 +32,7 @@ try {
 // Test incompatible types to exercise error paths
 try {
     $tensor1 = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
-    $tensor2 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::DOUBLE);
+    $tensor2 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT64);
     $result = ORT\Math\add($tensor1, $tensor2);
     echo "Bool-Double add succeeded\n";
 } catch (Exception $e) {

@@ -10,7 +10,7 @@ try {
     $scalar = new ORT\Tensor\Transient(
         [],  // Empty shape array indicates a scalar
         [5], // Single value in data array
-        ORT\Tensor::FLOAT
+        ORT\Tensor::FLOAT32
     );
     
     // Verify properties
@@ -31,7 +31,7 @@ try {
     echo "Bool scalar value: " . ($bool_scalar->getData()[0] ? "true" : "false") . "\n";
     
     // Test persistent scalar tensor
-    $persistent = new ORT\Tensor\Persistent("scalar_test", [], [3.14], ORT\Tensor::DOUBLE);
+    $persistent = new ORT\Tensor\Persistent("scalar_test", [], [3.14], ORT\Tensor::FLOAT64);
     echo "Persistent scalar value: " . $persistent->getData()[0] . "\n";
     
     echo "OK";

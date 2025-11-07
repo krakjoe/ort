@@ -86,91 +86,103 @@ foreach ($real as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT recip large signed [-16..-1,0,1..16]
+PASS: FLOAT16 recip large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE recip large signed [-16..-1,0,1..16]
+PASS: FLOAT32 recip large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 recip large signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 recip large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT16 recip large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT32 recip large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT64 recip large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: UINT8 recip large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: UINT16 recip large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: UINT32 recip large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
-PASS: FLOAT recip large zeros/ones
+PASS: FLOAT16 recip large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
-PASS: DOUBLE recip large zeros/ones
+PASS: FLOAT32 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [32]
+PASS: FLOAT64 recip large zeros/ones
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT8 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT16 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT32 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT64 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: UINT8 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: UINT16 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: UINT32 recip large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT8 recip 2D 8x8 alt sign
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [8,8]
 PASS: BOOL recip [bool 8x8] (numpy semantics)
 RESULT: [[1,INF,1,INF,1,INF,1,INF],[INF,1,INF,1,INF,1,INF,1],[1,INF,1,INF,1,INF,1,INF],[INF,1,INF,1,INF,1,INF,1],[1,INF,1,INF,1,INF,1,INF],[INF,1,INF,1,INF,1,INF,1],[1,INF,1,INF,1,INF,1,INF],[INF,1,INF,1,INF,1,INF,1]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [8,8]
-PASS: FLOAT recip extremes large
+PASS: FLOAT16 recip extremes large
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [36]
-PASS: DOUBLE recip extremes large
+PASS: FLOAT32 recip extremes large
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [36]
+PASS: FLOAT64 recip extremes large
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [36]

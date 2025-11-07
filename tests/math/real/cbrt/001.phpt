@@ -85,91 +85,103 @@ foreach ($real as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT cbrt large signed [-16..-1,0,1..16]
+PASS: FLOAT16 cbrt large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE cbrt large signed [-16..-1,0,1..16]
+PASS: FLOAT32 cbrt large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 cbrt large signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 cbrt large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
 PASS: INT16 cbrt large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [33]
 PASS: INT32 cbrt large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT64 cbrt large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: UINT8 cbrt large unsigned [0..31]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
 PASS: UINT16 cbrt large unsigned [0..31]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [32]
 PASS: UINT32 cbrt large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
-PASS: FLOAT cbrt large zeros/ones
+PASS: FLOAT16 cbrt large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
-PASS: DOUBLE cbrt large zeros/ones
+PASS: FLOAT32 cbrt large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [32]
+PASS: FLOAT64 cbrt large zeros/ones
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT8 cbrt large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
 PASS: INT16 cbrt large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [32]
 PASS: INT32 cbrt large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT64 cbrt large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: UINT8 cbrt large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
 PASS: UINT16 cbrt large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [32]
 PASS: UINT32 cbrt large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT8 cbrt 2D 8x8 alt sign
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [8,8]
 PASS: BOOL cbrt [bool 8x8] (numpy semantics)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [8,8]
-PASS: FLOAT cbrt extremes large
+PASS: FLOAT16 cbrt extremes large
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [39]
-PASS: DOUBLE cbrt extremes large
+PASS: FLOAT32 cbrt extremes large
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [39]
+PASS: FLOAT64 cbrt extremes large
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [39]

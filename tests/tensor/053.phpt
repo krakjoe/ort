@@ -35,7 +35,7 @@ $double_tensor = new ORT\Tensor\Persistent(
     "double_tensor",
     [1, 2],
     [[3.141592653589793, 2.718281828459045]],
-    ORT\Tensor::DOUBLE
+    ORT\Tensor::FLOAT64
 );
 echo "\n=== DOUBLE Tensor Debug Info ===\n";
 var_dump($double_tensor);

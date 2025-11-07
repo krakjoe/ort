@@ -19,58 +19,58 @@
 #include "maths/backend/sse2/impl.h"
 #include <emmintrin.h> /* SSE2 */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, sqrt, float) {
-    const float* va = (const float*)a;
-    float* res = (float*)result;
-    const size_t mw = 4; // 4 floats per SSE2 register
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, sqrt, float32) {
+    const float32* va = (const float32*)a;
+    float32* res = (float32*)result;
+    const size_t mw = 4; // 4 float32 per SSE2 register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_sqrt_float_fallback;
+        goto __ort_math_backend_sqrt_float32_fallback;
     }
 
-    /* Vectorized loop - process 4 floats at once */
+    /* Vectorized loop - process 4 float32 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m128 ma = _mm_load_ps(&va[i]);
         __m128 mr = _mm_sqrt_ps(ma);
         _mm_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_sqrt_float_fallback:
+__ort_math_backend_sqrt_float32_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float32)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, sqrt, double) {
-    const double* va = (const double*)a;
-    double* res = (double*)result;
-    const size_t mw = 2; // 2 doubles per SSE2 register
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, sqrt, float64) {
+    const float64* va = (const float64*)a;
+    float64* res = (float64*)result;
+    const size_t mw = 2; // 2 float64 per SSE2 register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_sqrt_double_fallback;
+        goto __ort_math_backend_sqrt_float64_fallback;
     }
 
-    /* Vectorized loop - process 2 doubles at once */
+    /* Vectorized loop - process 2 float64 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m128d ma = _mm_load_pd(&va[i]);
         __m128d mr = _mm_sqrt_pd(ma);
         _mm_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_sqrt_double_fallback:
+__ort_math_backend_sqrt_float64_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float64)(
             res   + mc,
             va    + mc,
             count - mc);

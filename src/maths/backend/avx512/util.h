@@ -21,7 +21,7 @@
 #include <immintrin.h>  /* AVX512 */
 
 ORT_MATH_BACKEND_UTIL_DECL(avx512,
-    hsum, float32x16, float, __m512) {
+    hsum, float32x16, float32, __m512) {
     __m256 low = _mm512_castps512_ps256(v);
     __m256 high = _mm512_extractf32x8_ps(v, 1);
     __m256 sum256 = _mm256_add_ps(low, high);
@@ -37,7 +37,7 @@ ORT_MATH_BACKEND_UTIL_DECL(avx512,
 }
 
 ORT_MATH_BACKEND_UTIL_DECL(avx512,
-    hsum, float64x8, double, __m512d) {
+    hsum, float64x8, float64, __m512d) {
     __m256d low = _mm512_castpd512_pd256(v);
     __m256d high = _mm512_extractf64x4_pd(v, 1);
     __m256d sum256 = _mm256_add_pd(low, high);

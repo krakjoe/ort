@@ -24,42 +24,42 @@
 @extract %python% %extract.py% -n pow -f pow -b -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float16, float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float16, float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float16, float64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float16, int8) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float16, int16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float16, int32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float16, int64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float16, uint8) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float16, uint16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float16, uint32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float16, bool) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float32, float16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float32, float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float32, float64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float32, int8) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float32, int16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float32, int32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float32, int64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float32, uint8) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float32, uint16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float32, uint32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(float32, bool) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, float16) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, float32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, float64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, int8) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, int16) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, int32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, int64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, uint8) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, uint16) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, uint32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(float64, bool) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(int8, float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(int8, float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int8, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// pow(float16, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float16, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float16, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// pow(float16, int8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float16, int16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float16, int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float16, int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// pow(float16, uint8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float16, uint16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float16, uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// pow(float16, bool) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float32, float16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float32, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float32, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float32, int8) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float32, int16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float32, int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float32, int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float32, uint8) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float32, uint16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float32, uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(float32, bool) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, int8) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, int16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, uint8) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, uint16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(float64, bool) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// pow(int8, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(int8, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int8, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// pow(int8, int8) -> int8
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// pow(int8, int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int8, int32) -> int32
@@ -68,9 +68,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int8, uint16) -> int32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int8, uint32) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// pow(int8, bool) -> int8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(int16, float16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(int16, float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int16, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(int16, float16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(int16, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int16, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// pow(int16, int8) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// pow(int16, int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int16, int32) -> int32
@@ -79,9 +79,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int16, uint16) -> int32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int16, uint32) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// pow(int16, bool) -> int16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int32, float16) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int32, float32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int32, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int32, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int32, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int32, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int32, int8) -> int32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int32, int16) -> int32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int32, int32) -> int32
@@ -90,9 +90,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int32, uint16) -> int32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int32, uint32) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(int32, bool) -> int32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int64, float16) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int64, float32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(int64, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int64, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int64, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(int64, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int64, int8) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int64, int16) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int64, int32) -> int64
@@ -101,9 +101,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int64, uint16) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int64, uint32) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(int64, bool) -> int64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(uint8, float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(uint8, float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(uint8, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// pow(uint8, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(uint8, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(uint8, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// pow(uint8, int8) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// pow(uint8, int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(uint8, int32) -> int32
@@ -112,9 +112,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// pow(uint8, uint16) -> uint16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// pow(uint8, uint32) -> uint32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,	// pow(uint8, bool) -> uint8
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(uint16, float16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(uint16, float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(uint16, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(uint16, float16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(uint16, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(uint16, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(uint16, int8) -> int32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(uint16, int16) -> int32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(uint16, int32) -> int32
@@ -123,9 +123,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// pow(uint16, uint16) -> uint16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// pow(uint16, uint32) -> uint32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// pow(uint16, bool) -> uint16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(uint32, float16) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(uint32, float32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(uint32, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(uint32, float16) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(uint32, float32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(uint32, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(uint32, int8) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(uint32, int16) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// pow(uint32, int32) -> int64
@@ -134,9 +134,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// pow(uint32, uint16) -> uint32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// pow(uint32, uint32) -> uint32
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// pow(uint32, bool) -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(bool, float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// pow(bool, float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// pow(bool, float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// pow(bool, float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// pow(bool, float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// pow(bool, float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// pow(bool, int8) -> int8
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// pow(bool, int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// pow(bool, int32) -> int32
@@ -148,9 +148,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_pow[11*11
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_pow[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

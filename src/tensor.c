@@ -45,13 +45,14 @@ static inline zend_bool php_ort_tensor_validate_next(ONNXTensorElementDataType t
     if (depth == rank) {
         // Leaf node — must match scalar type
         switch (type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
                 php_ort_status_flow(
                     !(Z_TYPE_P(node) == IS_DOUBLE || Z_TYPE_P(node) == IS_LONG),
                     return 0,
                     php_ort_status_tensor_invaliddata_ce,
-                    "tensor leaf at depth %zd: expected float/double, got %s",
+                    "tensor leaf at depth %zd: expected float, got %s",
                     depth, zend_zval_type_name(node)
                 );
                 break;
@@ -181,8 +182,9 @@ static zend_always_inline zend_bool php_ort_tensor_validate(zval *shape, zend_st
         
         // Validate the scalar element type
         switch (type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
                 return Z_TYPE_P(scalar) == IS_DOUBLE || Z_TYPE_P(scalar) == IS_LONG;
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
@@ -253,16 +255,22 @@ void php_ort_tensor_store(ONNXTensorElementDataType type, void* target, zval* no
     }
 
     switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            *(float *)target = Z_TYPE_P(node) == IS_DOUBLE
-                ? (float)Z_DVAL_P(node)
-                : (float)Z_LVAL_P(node);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+            *(float16 *)target = Z_TYPE_P(node) == IS_DOUBLE
+                ? (float16)ort_math_float16_from_float64(Z_DVAL_P(node))
+                : (float16)ort_math_float16_from_float64((float64)Z_LVAL_P(node));
             break;
 
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-            *(double *)target = Z_TYPE_P(node) == IS_DOUBLE
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+            *(float32 *)target = Z_TYPE_P(node) == IS_DOUBLE
+                ? (float32)Z_DVAL_P(node)
+                : (float32)Z_LVAL_P(node);
+            break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
+            *(float64 *)target = Z_TYPE_P(node) == IS_DOUBLE
                 ? Z_DVAL_P(node)
-                : (double)Z_LVAL_P(node);
+                : (float64)Z_LVAL_P(node);
             break;
 
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
@@ -1334,12 +1342,16 @@ static inline zend_bool php_ort_tensor_data(ort_tensor_t *tensor, size_t *offset
             void *source = (char *)tensor->data + ((*offset) * size);
 
             switch (tensor->type) {
-                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-                    ZVAL_DOUBLE(&val, *(float *)source);
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+                    ZVAL_DOUBLE(&val, ort_math_float64_from_float16(*(float16 *)source));
+                break;
+
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+                    ZVAL_DOUBLE(&val, *(float32 *)source);
                     break;
 
-                case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-                    ZVAL_DOUBLE(&val, *(double *)source);
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
+                    ZVAL_DOUBLE(&val, *(float64 *)source);
                     break;
 
                 case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
@@ -1477,12 +1489,16 @@ PHP_METHOD(ONNX_Tensor, getData)
         void *source = ort->object->data;
         
         switch (ort->object->type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-                ZVAL_DOUBLE(&val, *(float *)source);
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+                ZVAL_DOUBLE(&val, ort_math_float64_from_float16(*(float16 *)source));
                 break;
 
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-                ZVAL_DOUBLE(&val, *(double *)source);
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+                ZVAL_DOUBLE(&val, *(float32 *)source);
+                break;
+
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
+                ZVAL_DOUBLE(&val, *(float64 *)source);
                 break;
 
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
@@ -1922,14 +1938,20 @@ static zval* php_ort_tensor_read(zend_object* object, zval* offset, int type, zv
         index, ort->object->elements);
 
     switch (ort->object->type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
             ZVAL_DOUBLE(rv,
-                ((float*)ort->object->data)[index]);
+                ort_math_float64_from_float16(
+                    ((float16*)ort->object->data)[index]));
         break;
 
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
             ZVAL_DOUBLE(rv,
-                ((double*)ort->object->data)[index]);
+                ((float32*)ort->object->data)[index]);
+        break;
+
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
+            ZVAL_DOUBLE(rv,
+                ((float64*)ort->object->data)[index]);
             break;
 
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
@@ -2053,13 +2075,18 @@ PHP_MINIT_FUNCTION(ORT_TENSOR)
 
     zend_declare_class_constant_long(
         php_ort_tensor_interface_ce,
-        "FLOAT", sizeof("FLOAT")-1,
-        ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT);
+        "FLOAT16", sizeof("FLOAT16")-1,
+        ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16);
 
     zend_declare_class_constant_long(
         php_ort_tensor_interface_ce,
-        "DOUBLE", sizeof("DOUBLE")-1,
-        ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE);
+        "FLOAT32", sizeof("FLOAT32")-1,
+        ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32);
+
+    zend_declare_class_constant_long(
+        php_ort_tensor_interface_ce,
+        "FLOAT64", sizeof("FLOAT64")-1,
+        ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64);
 
     zend_declare_class_constant_long(
         php_ort_tensor_interface_ce,

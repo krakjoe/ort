@@ -29,8 +29,18 @@
 #include "maths/dispatch.h"
 #include "maths/schema/recip.h"
 
-ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, float, 1.0f /)
-ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, double, 1.0 /)
+ORT_MATH_FRONTEND_UNARY_OP_DECL(recip, float16) {
+    float16* res = (float16*)result;
+    const float16* va = (const float16*)a;
+    for (size_t i = 0; i < count; i++) {
+        res[i] = ort_math_float16_from_float32(
+            1.0f / ort_math_float32_from_float16(va[i])
+        );
+    }
+}
+
+ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, float32, 1.0f /)
+ORT_MATH_FRONTEND_UNARY_OP_IMPL(recip, float64, 1.0 /)
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
     ort_math_kernel_unary_t, recip)

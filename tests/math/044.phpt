@@ -76,8 +76,8 @@ try {
         ['UINT8', [255, 100], 'ORT\Tensor::UINT8'],
         ['UINT16', [65000, 30000], 'ORT\Tensor::UINT16'],
         ['UINT32', [4000000000, 2000000000], 'ORT\Tensor::UINT32'],
-        ['FLOAT', [123.456, -789.012], 'ORT\Tensor::FLOAT'],
-        ['DOUBLE', [1.23456789e100, -9.87654321e100], 'ORT\Tensor::DOUBLE']
+        ['FLOAT32', [123.456, -789.012], 'ORT\Tensor::FLOAT32'],
+        ['FLOAT64', [1.23456789e100, -9.87654321e100], 'ORT\Tensor::FLOAT64']
     ];
     
     foreach ($numeric_types as $type_info) {

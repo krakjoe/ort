@@ -7,8 +7,8 @@ ort
 // Test scalar tensor operations with math functions
 try {
     // Create scalar tensors
-    $scalar1 = new ORT\Tensor\Transient([], [4], ORT\Tensor::FLOAT);
-    $scalar2 = new ORT\Tensor\Transient([], [2], ORT\Tensor::FLOAT);
+    $scalar1 = new ORT\Tensor\Transient([], [4], ORT\Tensor::FLOAT32);
+    $scalar2 = new ORT\Tensor\Transient([], [2], ORT\Tensor::FLOAT32);
     
     // Test basic operations
     $sum = ORT\Math\add($scalar1, $scalar2);
@@ -29,7 +29,7 @@ try {
     echo "Negation: " . $neg->getData()[0] . "\n";
     
     // Test scalar-tensor broadcasting
-    $vector = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT);
+    $vector = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT32);
     $scaled = ORT\Math\multiply($vector, $scalar2);
     
     $scaled_data = $scaled->getData();

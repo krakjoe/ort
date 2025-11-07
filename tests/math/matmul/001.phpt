@@ -13,8 +13,9 @@ include sprintf(
 $signed_values = array_merge(range(-8, -1), [0], range(1, 8)); // 17 elements
 $unsigned_values = range(0, 7); // 8 elements for [8,8] matrices
 $types = [
-    'FLOAT' => [$real['FLOAT'], $signed_values],
-    'DOUBLE' => [$real['DOUBLE'], $signed_values],
+    'FLOAT16' => [$real['FLOAT16'], $signed_values],
+    'FLOAT32' => [$real['FLOAT32'], $signed_values],
+    'FLOAT64' => [$real['FLOAT64'], $signed_values],
     'INT8' => [$signed_types['INT8'], $signed_values],
     'INT16' => [$signed_types['INT16'], $signed_values],
     'INT32' => [$signed_types['INT32'], $signed_values],
@@ -37,15 +38,19 @@ foreach ($types as $name => [$type, $values]) {
 // Small matrix case for vectorization
 $large_size = 256;
 foreach ($types as $name => [$type, $values]) {
-    // $a: shape [$large_size, 2], each row is [1, 1] (distinct arrays)
+    // Use much smaller values for FLOAT16 to avoid overflow
+    $val_a = ($name === 'FLOAT16') ? 0.01 : 1;
+    $val_b = ($name === 'FLOAT16') ? 0.01 : 2;
+    
+    // $a: shape [$large_size, 2], each row is [$val_a, $val_a] (distinct arrays)
     $a_data = [];
     for ($i = 0; $i < $large_size; $i++) {
-        $a_data[] = [1, 1];
+        $a_data[] = [$val_a, $val_a];
     }
-    // $b: shape [2, $large_size], each row is a distinct array of 2s
+    // $b: shape [2, $large_size], each row is a distinct array of $val_b values
     $b_data = [];
     for ($i = 0; $i < 2; $i++) {
-        $b_data[] = array_fill(0, $large_size, 2);
+        $b_data[] = array_fill(0, $large_size, $val_b);
     }
     $a = new ORT\Tensor\Transient([$large_size, 2], $a_data, $type);
     $b = new ORT\Tensor\Transient([2, $large_size], $b_data, $type);
@@ -68,20 +73,24 @@ $b_data = [
     [ [1,0], [0,1] ],
     [ [1,0], [0,1] ]
 ];
-$a = new ORT\Tensor\Transient([2,2,2], $a_data, $real['FLOAT']);
-$b = new ORT\Tensor\Transient([2,2,2], $b_data, $real['FLOAT']);
+$a = new ORT\Tensor\Transient([2,2,2], $a_data, $real['FLOAT32']);
+$b = new ORT\Tensor\Transient([2,2,2], $b_data, $real['FLOAT32']);
 $result = ORT\Math\matmul($a, $b);
-echo "PASS: FLOAT matmul batched 3D\n";
+echo "PASS: FLOAT32 matmul batched 3D\n";
 print_result($result);
 ?>
 --EXPECTF--
-PASS: FLOAT matmul matrix x matrix
+PASS: FLOAT16 matmul matrix x matrix
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [17,17]
-PASS: DOUBLE matmul matrix x matrix
+PASS: FLOAT32 matmul matrix x matrix
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [17,17]
+PASS: FLOAT64 matmul matrix x matrix
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [17,17]
 PASS: INT8 matmul matrix x matrix
 RESULT: %s
@@ -111,13 +120,17 @@ PASS: UINT32 matmul matrix x matrix
 RESULT: %s
 TYPE: UINT32
 SHAPE: [8,8]
-PASS: FLOAT matmul large matrix x large matrix (vectorized)
+PASS: FLOAT16 matmul large matrix x large matrix (vectorized)
 RESULT: [%d x %d] first=%f last=%f
-TYPE: FLOAT
+TYPE: FLOAT16
+SHAPE: [256,256]
+PASS: FLOAT32 matmul large matrix x large matrix (vectorized)
+RESULT: [%d x %d] first=%f last=%f
+TYPE: FLOAT32
 SHAPE: [%d,%d]
-PASS: DOUBLE matmul large matrix x large matrix (vectorized)
+PASS: FLOAT64 matmul large matrix x large matrix (vectorized)
 RESULT: [%d x %d] first=%f last=%f
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [%d,%d]
 PASS: INT8 matmul large matrix x large matrix (vectorized)
 RESULT: [%d x %d] first=%f last=%f
@@ -147,7 +160,7 @@ PASS: UINT32 matmul large matrix x large matrix (vectorized)
 RESULT: [%d x %d] first=%f last=%f
 TYPE: UINT32
 SHAPE: [%d,%d]
-PASS: FLOAT matmul batched 3D
+PASS: FLOAT32 matmul batched 3D
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [2,2,2]

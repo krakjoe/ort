@@ -24,9 +24,9 @@
 @extract %python% %extract.py% -f negative -n neg -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_neg[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// neg(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// neg(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// neg(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// neg(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// neg(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// neg(float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// neg(int8) -> int8
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// neg(int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// neg(int32) -> int32
@@ -38,9 +38,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_neg[11] =
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_neg[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

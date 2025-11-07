@@ -76,7 +76,7 @@ foreach ($types as $name => $type) {
 
 // 5. Error: axis not integer
 try {
-    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\min($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
@@ -85,7 +85,7 @@ try {
 
 // 6. Error: axis out of range
 try {
-    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\min($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
@@ -93,13 +93,17 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT min axis=0
+PASS: FLOAT16 min axis=0
 RESULT: [1,2,3]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [3]
-PASS: DOUBLE min axis=0
+PASS: FLOAT32 min axis=0
 RESULT: [1,2,3]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [3]
+PASS: FLOAT64 min axis=0
+RESULT: [1,2,3]
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: INT8 min axis=0
 RESULT: [1,2,3]
@@ -133,13 +137,17 @@ PASS: BOOL min axis=0
 RESULT: [false,false,false]
 TYPE: BOOL
 SHAPE: [3]
-PASS: FLOAT min axis=1
+PASS: FLOAT16 min axis=1
 RESULT: [1,4]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE min axis=1
+PASS: FLOAT32 min axis=1
 RESULT: [1,4]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2]
+PASS: FLOAT64 min axis=1
+RESULT: [1,4]
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT8 min axis=1
 RESULT: [1,4]
@@ -173,13 +181,17 @@ PASS: BOOL min axis=1
 RESULT: [false,false]
 TYPE: BOOL
 SHAPE: [2]
-PASS: FLOAT min axis=-1
+PASS: FLOAT16 min axis=-1
 RESULT: [1,4]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE min axis=-1
+PASS: FLOAT32 min axis=-1
 RESULT: [1,4]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2]
+PASS: FLOAT64 min axis=-1
+RESULT: [1,4]
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT8 min axis=-1
 RESULT: [1,4]
@@ -213,13 +225,17 @@ PASS: BOOL min axis=-1
 RESULT: [false,false]
 TYPE: BOOL
 SHAPE: [2]
-PASS: FLOAT min axis=1 keepdims
+PASS: FLOAT16 min axis=1 keepdims
 RESULT: [[1],[4]]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2,1]
-PASS: DOUBLE min axis=1 keepdims
+PASS: FLOAT32 min axis=1 keepdims
 RESULT: [[1],[4]]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2,1]
+PASS: FLOAT64 min axis=1 keepdims
+RESULT: [[1],[4]]
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: INT8 min axis=1 keepdims
 RESULT: [[1],[4]]

@@ -62,19 +62,32 @@ ORT_MATH_FOREACH_INTEGER_TYPE(
     ORT_MATH_FRONTEND_POW_IMPL)
 #undef ORT_MATH_FRONTEND_POW_IMPL
 
-ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, float) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
+ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, float16) {
+    float16* res = (float16*)result;
+    const float16* va = (const float16*)a;
+    const float16* vb = (const float16*)b;
+    for (size_t i = 0; i < count; i++) {
+        res[i] = ort_math_float16_from_float32(
+            powf(
+                ort_math_float32_from_float16(va[i]),
+                ort_math_float32_from_float16(vb[i]))
+        );
+    }
+}
+
+ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, float32) {
+    float32* res = (float32*)result;
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
     for (size_t i = 0; i < count; i++) {
         res[i] = powf(va[i], vb[i]);
     }
 }
 
-ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, double) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
+ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, float64) {
+    float64* res = (float64*)result;
+    const float64* va = (const float64*)a;
+    const float64* vb = (const float64*)b;
     for (size_t i = 0; i < count; i++) {
         res[i] = pow(va[i], vb[i]);
     }
@@ -95,19 +108,32 @@ ORT_MATH_FOREACH_INTEGER_TYPE(
     ORT_MATH_FRONTEND_POW_SCALAR_IMPL)
 #undef ORT_MATH_FRONTEND_POW_SCALAR_IMPL
 
-ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, float) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
-    float sb = *(const float*)b;
+ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, float16) {
+    float16* res = (float16*)result;
+    const float16* va = (const float16*)a;
+    float16 sb = *(const float16*)b;
+    for (size_t i = 0; i < count; i++) {
+        res[i] = ort_math_float16_from_float32(
+            powf(
+                ort_math_float32_from_float16(va[i]),
+                ort_math_float32_from_float16(sb))
+        );
+    }
+}
+
+ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, float32) {
+    float32* res = (float32*)result;
+    const float32* va = (const float32*)a;
+    float32 sb = *(const float32*)b;
     for (size_t i = 0; i < count; i++) {
         res[i] = powf(va[i], sb);
     }
 }
 
-ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, double) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
-    double sb = *(const double*)b;
+ORT_MATH_FRONTEND_SCALAR_OP_DECL(pow, float64) {
+    float64* res = (float64*)result;
+    const float64* va = (const float64*)a;
+    float64 sb = *(const float64*)b;
     for (size_t i = 0; i < count; i++) {
         res[i] = pow(va[i], sb);
     }

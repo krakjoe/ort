@@ -14,20 +14,20 @@ include sprintf(
     dirname(__FILE__));
 
 $tensor = Tensor\Transient::from(
-    array_fill(0, 4096, 1.0), Tensor::FLOAT);
+    array_fill(0, 4096, 1.0), Tensor::FLOAT32);
 
 $casted = Math\cast(Tensor::INT8, $tensor);
 echo "PASS: Casted FLOAT to INT8\n";
 print_result($casted);
 
 $tensor = Tensor\Transient::from(
-    array_fill(0, (Math\scale\cores() * 256)*2, 1.0), Tensor::FLOAT);
+    array_fill(0, (Math\scale\cores() * 256)*2, 1.0), Tensor::FLOAT32);
 
 $casted = Math\cast(Tensor::UINT8, $tensor);
 echo "PASS: Casted FLOAT to UINT8 (parallel)\n";
 print_result($casted);
 
-$casted = Math\cast(Tensor::FLOAT, $tensor);
+$casted = Math\cast(Tensor::FLOAT32, $tensor);
 echo "PASS: Casted FLOAT to FLOAT (deep)\n";
 print_result($casted);
 ?>
@@ -42,5 +42,5 @@ TYPE: UINT8
 SHAPE: [%d]
 PASS: Casted FLOAT to FLOAT (deep)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [%d]

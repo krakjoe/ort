@@ -17,6 +17,7 @@
  */
 
 #include <stdint.h>
+#include "maths/float16.h"
 
 extern int __ort_cuda_threads;
 

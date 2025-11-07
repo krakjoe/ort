@@ -7,7 +7,7 @@ ort
 // Test getData behavior with scalar tensors
 try {
     // Create scalar tensors with different data types
-    $float_scalar = new ORT\Tensor\Transient([], [3.14], ORT\Tensor::FLOAT);
+    $float_scalar = new ORT\Tensor\Transient([], [3.14], ORT\Tensor::FLOAT32);
     $int_scalar = new ORT\Tensor\Transient([], [42], ORT\Tensor::INT64);
     $bool_scalar = new ORT\Tensor\Transient([], [true], ORT\Tensor::BOOL);
     

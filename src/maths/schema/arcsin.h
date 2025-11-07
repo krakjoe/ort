@@ -24,23 +24,23 @@
 @extract %python% %extract.py% -f arcsin -n arcsin -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_arcsin[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// arcsin(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// arcsin(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// arcsin(float64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// arcsin(int8) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// arcsin(int16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// arcsin(int32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// arcsin(int64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// arcsin(uint8) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// arcsin(uint16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// arcsin(uint32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// arcsin(bool) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// arcsin(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// arcsin(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// arcsin(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// arcsin(int8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// arcsin(int16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// arcsin(int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// arcsin(int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// arcsin(uint8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// arcsin(uint16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// arcsin(uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// arcsin(bool) -> float16
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_arcsin[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

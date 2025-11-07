@@ -7,8 +7,9 @@ ort
 use ORT\Tensor;
 
 $types = [
-    'FLOAT'   => ORT\Tensor::FLOAT,
-    'DOUBLE'  => ORT\Tensor::DOUBLE,
+    'FLOAT16'  => ORT\Tensor::FLOAT16,
+    'FLOAT32'   => ORT\Tensor::FLOAT32,
+    'FLOAT64'  => ORT\Tensor::FLOAT64,
     'INT8'    => ORT\Tensor::INT8,
     'INT16'   => ORT\Tensor::INT16,
     'INT32'   => ORT\Tensor::INT32,
@@ -51,7 +52,7 @@ foreach ($types as $name => $type) {
 
 // 2. Error: empty tensor
 try {
-    $a = new ORT\Tensor\Transient([0], [], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([0], [], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\tensor\sum($a);
     echo "FAIL: Did not throw on empty tensor\n";
 } catch (Throwable $e) {
@@ -68,11 +69,15 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT sum
+PASS: FLOAT16 sum
 RESULT: [21]
 TYPE: %d
 SHAPE: []
-PASS: DOUBLE sum
+PASS: FLOAT32 sum
+RESULT: [21]
+TYPE: %d
+SHAPE: []
+PASS: FLOAT64 sum
 RESULT: [21]
 TYPE: %d
 SHAPE: []

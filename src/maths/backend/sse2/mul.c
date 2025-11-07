@@ -86,19 +86,19 @@ __ort_math_backend_mul_uint16_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float) {
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    float* res = (float*)result;
-    const size_t mw = 4; // 4 floats per SSE2 register
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float32) {
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
+    float32* res = (float32*)result;
+    const size_t mw = 4; // 4 float32 per SSE2 register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_mul_float_fallback;
+        goto __ort_math_backend_mul_float32_fallback;
     }
 
-    /* Vectorized loop - process 4 floats at once */
+    /* Vectorized loop - process 4 float32 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m128 ma = _mm_load_ps(&va[i]);
         __m128 mb = _mm_load_ps(&vb[i]);
@@ -106,9 +106,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float) {
         _mm_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_mul_float_fallback:
+__ort_math_backend_mul_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(mul, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(mul, float32)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -116,19 +116,19 @@ __ort_math_backend_mul_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, double) {
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    double* res = (double*)result;
-    const size_t mw = 2; // 2 doubles per SSE2 register
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float64) {
+    const float64* va = (const float64*)a;
+    const float64* vb = (const float64*)b;
+    float64* res = (float64*)result;
+    const size_t mw = 2; // 2 float64 per SSE2 register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_mul_double_fallback;
+        goto __ort_math_backend_mul_float64_fallback;
     }
 
-    /* Vectorized loop - process 2 doubles at once */
+    /* Vectorized loop - process 2 float64 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m128d ma = _mm_load_pd(&va[i]);
         __m128d mb = _mm_load_pd(&vb[i]);
@@ -136,9 +136,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, double) {
         _mm_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_mul_double_fallback:
+__ort_math_backend_mul_float64_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(mul, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(mul, float64)(
             res   + mc,
             va    + mc,
             vb    + mc,

@@ -22,20 +22,20 @@
 
 extern ORT_TLS cudaStream_t __ort_cuda_stream;
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(cuda, sqrt, float) {
-    const float* va = (const float*) a;
-    float* res      = (float*)       result;
+ORT_MATH_BACKEND_UNARY_OP_DECL(cuda, sqrt, float32) {
+    const float32* va = (const float32*) a;
+    float32* res      = (float32*)       result;
 
-    if (count * sizeof(float) < __ort_cuda_threshold) {
-        goto __ort_math_backend_sqrt_float_relay;
+    if (count * sizeof(float32) < __ort_cuda_threshold) {
+        goto __ort_math_backend_sqrt_float32_relay;
     }
 
-    ort_cuda_sqrt_float(res, va, count, __ort_cuda_stream);
+    ort_cuda_sqrt_float32(res, va, count, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_sqrt_float_relay:
+__ort_math_backend_sqrt_float32_relay:
         ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, sqrt, FLOAT)
+            __ort_math_cpu_dispatch, sqrt, FLOAT32)
                 (res, va, count);
         return;
     }
@@ -43,20 +43,20 @@ __ort_math_backend_sqrt_float_relay:
     cudaStreamSynchronize(__ort_cuda_stream);
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(cuda, sqrt, double) {
-    const double* va = (const double*) a;
-    double* res      = (double*)       result;
+ORT_MATH_BACKEND_UNARY_OP_DECL(cuda, sqrt, float64) {
+    const float64* va = (const float64*) a;
+    float64* res      = (float64*)       result;
 
-    if (count * sizeof(double) < __ort_cuda_threshold) {
-        goto __ort_math_backend_sqrt_double_relay;
+    if (count * sizeof(float64) < __ort_cuda_threshold) {
+        goto __ort_math_backend_sqrt_float64_relay;
     }
 
-    ort_cuda_sqrt_double(res, va, count, __ort_cuda_stream);
+    ort_cuda_sqrt_float64(res, va, count, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_sqrt_double_relay:
+__ort_math_backend_sqrt_float64_relay:
         ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, sqrt, DOUBLE)
+            __ort_math_cpu_dispatch, sqrt, FLOAT64)
                 (res, va, count);
         return;
     }

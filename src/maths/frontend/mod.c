@@ -42,14 +42,24 @@ ORT_MATH_FOREACH_INTEGER_TYPE(
     ORT_MATH_FRONTEND_MOD_IMPL_FOR_TYPE)
 #undef ORT_MATH_FRONTEND_MOD_IMPL_FOR_TYPE
 
-static zend_always_inline float ort_math_mod_impl_float(float a, float b) {
-    float r = fmodf(a, b);
+static zend_always_inline float16 ort_math_mod_impl_float16(float16 a, float16 b) {
+    float r = fmodf(
+        ort_math_float32_from_float16(a),
+        ort_math_float32_from_float16(b));
+    return 
+        (r < 0) ? ort_math_float16_from_float32(
+                    r + ort_math_float32_from_float16(b)) :
+                  ort_math_float16_from_float32(r);
+}
+
+static zend_always_inline float32 ort_math_mod_impl_float32(float32 a, float32 b) {
+    float32 r = fmodf(a, b);
     return 
         (r < 0) ? r + b : r;
 }
 
-static zend_always_inline double ort_math_mod_impl_double(double a, double b) {
-    double r = fmod(a, b);
+static zend_always_inline float64 ort_math_mod_impl_float64(float64 a, float64 b) {
+    float64 r = fmod(a, b);
     return 
         (r < 0) ? r + b : r;
 }
@@ -67,6 +77,8 @@ static zend_always_inline double ort_math_mod_impl_double(double a, double b) {
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(
     ORT_MATH_FRONTEND_MOD_IMPL)
+ORT_MATH_FOREACH_CUSTOM_TYPE(
+    ORT_MATH_FRONTEND_MOD_IMPL)
 #undef ORT_MATH_FRONTEND_MOD_IMPL
 
 #define ORT_MATH_FRONTEND_MOD_SCALAR_IMPL(c_type, onnx_type)                 \
@@ -80,6 +92,8 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
 }
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_MOD_SCALAR_IMPL)
+ORT_MATH_FOREACH_CUSTOM_TYPE(
     ORT_MATH_FRONTEND_MOD_SCALAR_IMPL)
 #undef ORT_MATH_FRONTEND_MOD_SCALAR_IMPL
 

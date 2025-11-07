@@ -43,8 +43,9 @@ function print_result($result) {
 }
 
 $types = [
-    'FLOAT'   => ORT\Tensor::FLOAT,
-    'DOUBLE'  => ORT\Tensor::DOUBLE,
+    'FLOAT16' => ORT\Tensor::FLOAT16,
+    'FLOAT32' => ORT\Tensor::FLOAT32,
+    'FLOAT64' => ORT\Tensor::FLOAT64,
     'INT8'    => ORT\Tensor::INT8,
     'INT16'   => ORT\Tensor::INT16,
     'INT32'   => ORT\Tensor::INT32,
@@ -68,6 +69,7 @@ $unsigned_types = [
 ];
 
 $real = [
-    'FLOAT'   => ORT\Tensor::FLOAT,
-    'DOUBLE'  => ORT\Tensor::DOUBLE,
+    'FLOAT16' => ORT\Tensor::FLOAT16,
+    'FLOAT32' => ORT\Tensor::FLOAT32,
+    'FLOAT64' => ORT\Tensor::FLOAT64,
 ];

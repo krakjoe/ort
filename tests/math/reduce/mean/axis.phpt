@@ -76,7 +76,7 @@ foreach ($types as $name => $type) {
 
 // 5. Error: axis not integer
 try {
-    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\mean($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
@@ -85,7 +85,7 @@ try {
 
 // 6. Error: axis out of range
 try {
-    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\mean($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
@@ -93,165 +93,181 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT mean axis=0
+PASS: FLOAT16 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [3]
-PASS: DOUBLE mean axis=0
+PASS: FLOAT32 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [3]
+PASS: FLOAT64 mean axis=0
+RESULT: [2.5,3.5,4.5]
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: INT8 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: INT16 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: INT32 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: INT64 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: UINT8 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: UINT16 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: UINT32 mean axis=0
 RESULT: [2.5,3.5,4.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: BOOL mean axis=0
 RESULT: [0.5,0.5,0.5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
-PASS: FLOAT mean axis=1
+PASS: FLOAT16 mean axis=1
 RESULT: [2,5]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE mean axis=1
+PASS: FLOAT32 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2]
+PASS: FLOAT64 mean axis=1
+RESULT: [2,5]
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT8 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT16 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT32 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT64 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: UINT8 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: UINT16 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: UINT32 mean axis=1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: BOOL mean axis=1
 RESULT: [0.66%d,0.33%d]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
-PASS: FLOAT mean axis=-1
+PASS: FLOAT16 mean axis=-1
 RESULT: [2,5]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE mean axis=-1
+PASS: FLOAT32 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2]
+PASS: FLOAT64 mean axis=-1
+RESULT: [2,5]
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT8 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT16 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT32 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT64 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: UINT8 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: UINT16 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: UINT32 mean axis=-1
 RESULT: [2,5]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: BOOL mean axis=-1
 RESULT: [0.66%d,0.33%d]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2]
-PASS: FLOAT mean axis=1 keepdims
+PASS: FLOAT16 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2,1]
-PASS: DOUBLE mean axis=1 keepdims
+PASS: FLOAT32 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2,1]
+PASS: FLOAT64 mean axis=1 keepdims
+RESULT: [[2],[5]]
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: INT8 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: INT16 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: INT32 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: INT64 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: UINT8 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: UINT16 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: UINT32 mean axis=1 keepdims
 RESULT: [[2],[5]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: BOOL mean axis=1 keepdims
 RESULT: [[0.66%d],[0.33%d]]
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: Error on non-integer axis: %s
 PASS: Error on axis out of range: mean: axis 2 is out of bounds for tensor with 2 dimensions

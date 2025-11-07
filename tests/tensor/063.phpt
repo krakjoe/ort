@@ -39,7 +39,7 @@ $generator = new class
     }
 };
 
-$generated = new Tensor\Transient([16, 16], $generator, Tensor::FLOAT);
+$generated = new Tensor\Transient([16, 16], $generator, Tensor::FLOAT32);
 
 printf("GENERATED MATRIX: %d\n", $generator->counter);
 ?>

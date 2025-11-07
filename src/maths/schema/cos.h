@@ -24,23 +24,23 @@
 @extract %python% %extract.py% -f cos -n cos -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_cos[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// cos(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// cos(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// cos(float64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// cos(int8) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// cos(int16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// cos(int32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// cos(int64) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// cos(uint8) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// cos(uint16) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// cos(uint32) -> float64
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// cos(bool) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// cos(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// cos(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// cos(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// cos(int8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// cos(int16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// cos(int32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// cos(int64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// cos(uint8) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// cos(uint16) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// cos(uint32) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// cos(bool) -> float16
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_cos[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

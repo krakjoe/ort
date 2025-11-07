@@ -24,9 +24,9 @@
 @extract %python% %extract.py% -n sum -f sum -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_sum[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// sum(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// sum(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// sum(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// sum(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// sum(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// sum(float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// sum(int8) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// sum(int16) -> int64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64,	// sum(int32) -> int64
@@ -38,9 +38,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_sum[11] =
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_sum[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

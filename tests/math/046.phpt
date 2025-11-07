@@ -22,8 +22,8 @@ try {
     
     $test_types = [
         ['UNDEFINED', [0, 0], 'ORT\Tensor::UNDEFINED'],
-        ['FLOAT', [1.5, 2.5], 'ORT\Tensor::FLOAT'],
-        ['DOUBLE', [1.5, 2.5], 'ORT\Tensor::DOUBLE'],
+        ['FLOAT32', [1.5, 2.5], 'ORT\Tensor::FLOAT32'],
+        ['FLOAT64', [1.5, 2.5], 'ORT\Tensor::FLOAT64'],
         ['INT8', [10, 20], 'ORT\Tensor::INT8'],
         ['INT16', [100, 200], 'ORT\Tensor::INT16'],
         ['INT32', [1000, 2000], 'ORT\Tensor::INT32'],

@@ -39,13 +39,17 @@ echo "PASS: INT8 floor 2D 8x8\n";
 print_result($result);
 ?>
 --EXPECTF--
-PASS: FLOAT floor signed [-16..-1,0,1..16]
+PASS: FLOAT16 floor signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE floor signed [-16..-1,0,1..16]
+PASS: FLOAT32 floor signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 floor signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 floor signed [-16..-1,0,1..16]
 RESULT: %s

@@ -23,61 +23,89 @@ foreach (array_merge($real, $signed_types, $unsigned_types) as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT mod tensor % scalar (-7)
+PASS: FLOAT16 mod tensor % scalar (-7)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: FLOAT mod tensor % scalar (-3)
+PASS: FLOAT16 mod tensor % scalar (-3)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: FLOAT mod tensor % scalar (-1)
+PASS: FLOAT16 mod tensor % scalar (-1)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: FLOAT mod tensor % scalar (0)
+PASS: FLOAT16 mod tensor % scalar (0)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: FLOAT mod tensor % scalar (1)
+PASS: FLOAT16 mod tensor % scalar (1)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: FLOAT mod tensor % scalar (3)
+PASS: FLOAT16 mod tensor % scalar (3)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: FLOAT mod tensor % scalar (7)
+PASS: FLOAT16 mod tensor % scalar (7)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE mod tensor % scalar (-7)
+PASS: FLOAT32 mod tensor % scalar (-7)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [33]
-PASS: DOUBLE mod tensor % scalar (-3)
+PASS: FLOAT32 mod tensor % scalar (-3)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [33]
-PASS: DOUBLE mod tensor % scalar (-1)
+PASS: FLOAT32 mod tensor % scalar (-1)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [33]
-PASS: DOUBLE mod tensor % scalar (0)
+PASS: FLOAT32 mod tensor % scalar (0)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [33]
-PASS: DOUBLE mod tensor % scalar (1)
+PASS: FLOAT32 mod tensor % scalar (1)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [33]
-PASS: DOUBLE mod tensor % scalar (3)
+PASS: FLOAT32 mod tensor % scalar (3)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [33]
-PASS: DOUBLE mod tensor % scalar (7)
+PASS: FLOAT32 mod tensor % scalar (7)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 mod tensor % scalar (-7)
+RESULT: %s
+TYPE: FLOAT64
+SHAPE: [33]
+PASS: FLOAT64 mod tensor % scalar (-3)
+RESULT: %s
+TYPE: FLOAT64
+SHAPE: [33]
+PASS: FLOAT64 mod tensor % scalar (-1)
+RESULT: %s
+TYPE: FLOAT64
+SHAPE: [33]
+PASS: FLOAT64 mod tensor % scalar (0)
+RESULT: %s
+TYPE: FLOAT64
+SHAPE: [33]
+PASS: FLOAT64 mod tensor % scalar (1)
+RESULT: %s
+TYPE: FLOAT64
+SHAPE: [33]
+PASS: FLOAT64 mod tensor % scalar (3)
+RESULT: %s
+TYPE: FLOAT64
+SHAPE: [33]
+PASS: FLOAT64 mod tensor % scalar (7)
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 mod tensor % scalar (-7)
 RESULT: %s

@@ -90,16 +90,17 @@ typedef struct _ort_math_dispatch_t {
 
 static zend_always_inline int16_t ort_math_dispatch_indexof(ONNXTensorElementDataType type) {
     switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:   return 0;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:  return 1;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:    return 2;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:   return 3;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:   return 4;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:   return 5;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:   return 6;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:  return 7;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:  return 8;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:    return 9;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16: return 0;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32: return 1;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64: return 2;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:    return 3;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:   return 4;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:   return 5;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:   return 6;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:   return 7;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:  return 8;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:  return 9;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:    return 10;
 
         default:
             return FAILURE;

@@ -230,19 +230,19 @@ __ort_math_backend_add_uint32_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, float) {
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    float* res = (float*)result;
-    const size_t mw = 4; // 4 floats per NEON register
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, float32) {
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
+    float32* res = (float32*)result;
+    const size_t mw = 4; // 4 float32 per NEON register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_add_float_fallback;
+        goto __ort_math_backend_add_float32_fallback;
     }
 
-    // Vectorized loop - process 4 floats at once using NEON
+    // Vectorized loop - process 4 float32 at once using NEON
     for (size_t i = 0; i < mc; i += mw) {
         float32x4_t ma = vld1q_f32(&va[i]);
         float32x4_t mb = vld1q_f32(&vb[i]);
@@ -250,9 +250,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, float) {
         vst1q_f32(&res[i], mr);
     }
 
-__ort_math_backend_add_float_fallback:
+__ort_math_backend_add_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(add, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, float32)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -260,19 +260,19 @@ __ort_math_backend_add_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, double) {
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    double* res = (double*)result;
-    const size_t mw = 2; // 2 doubles per NEON register
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, float64) {
+    const float64* va = (const float64*)a;
+    const float64* vb = (const float64*)b;
+    float64* res = (float64*)result;
+    const size_t mw = 2; // 2 float64 per NEON register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_add_double_fallback;
+        goto __ort_math_backend_add_float64_fallback;
     }
 
-    // Vectorized loop - process 2 doubles at once using NEON
+    // Vectorized loop - process 2 float64 at once using NEON
     for (size_t i = 0; i < mc; i += mw) {
         float64x2_t ma = vld1q_f64(&va[i]);
         float64x2_t mb = vld1q_f64(&vb[i]);
@@ -280,9 +280,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, double) {
         vst1q_f64(&res[i], mr);
     }
 
-__ort_math_backend_add_double_fallback:
+__ort_math_backend_add_float64_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(add, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, float64)(
             res   + mc,
             va    + mc,
             vb    + mc,

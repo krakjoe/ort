@@ -20,16 +20,16 @@
 
 #include <riscv_vector.h> /* RVV */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, float) {
-    const float* va = (const float*)a;
-    float* res = (float*)result;
+ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, float32) {
+    const float32* va = (const float32*)a;
+    float32* res = (float32*)result;
     const size_t mw = __riscv_vsetvlmax_e32m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_neg_float_fallback;
+        goto __ort_math_backend_neg_float32_fallback;
     }
 
     for (size_t i = 0; i < mc; i += mw) {
@@ -38,24 +38,24 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, float) {
         __riscv_vse32_v_f32m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_neg_float_fallback:
+__ort_math_backend_neg_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float32)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, double) {
-    const double* va = (const double*)a;
-    double* res = (double*)result;
+ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, float64) {
+    const float64* va = (const float64*)a;
+    float64* res = (float64*)result;
     const size_t mw = __riscv_vsetvlmax_e64m1();
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_neg_double_fallback;
+        goto __ort_math_backend_neg_float64_fallback;
     }
 
     for (size_t i = 0; i < mc; i += mw) {
@@ -64,9 +64,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, double) {
         __riscv_vse64_v_f64m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_neg_double_fallback:
+__ort_math_backend_neg_float64_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(neg, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float64)(
             res   + mc,
             va    + mc,
             count - mc);

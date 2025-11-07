@@ -11,7 +11,7 @@ echo "=== Testing Type Casting and Compatibility ===\n";
 // Test 1: Mixed type operations (should promote to higher precision)
 try {
     $tensor_int = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::INT32);
-    $tensor_float = new ORT\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ORT\Tensor::FLOAT);
+    $tensor_float = new ORT\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ORT\Tensor::FLOAT32);
     
     // This should test type promotion logic
     $result = ORT\Math\add($tensor_int, $tensor_float);
@@ -42,7 +42,7 @@ try {
 
 // Test 4: Scalar type compatibility
 try {
-    $tensor_double = new ORT\Tensor\Transient([3], [1.1, 2.2, 3.3], ORT\Tensor::DOUBLE);
+    $tensor_double = new ORT\Tensor\Transient([3], [1.1, 2.2, 3.3], ORT\Tensor::FLOAT64);
     
     // Test with integer scalar
     $result1 = ORT\Math\add($tensor_double, 5);
@@ -59,7 +59,7 @@ try {
 try {
     // Test promoting to DOUBLE when one operand is DOUBLE
     $tensor_int = new ORT\Tensor\Transient([2], [1, 2], ORT\Tensor::INT32);
-    $tensor_double = new ORT\Tensor\Transient([2], [1.5, 2.5], ORT\Tensor::DOUBLE);
+    $tensor_double = new ORT\Tensor\Transient([2], [1.5, 2.5], ORT\Tensor::FLOAT64);
     
     $result = ORT\Math\multiply($tensor_int, $tensor_double);
     echo "PASS: Type promotion to DOUBLE completed\n";

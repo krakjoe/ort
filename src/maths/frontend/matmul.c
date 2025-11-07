@@ -34,7 +34,37 @@
 #include "maths/schema/matmul.h"
 
 // Matrix multiplication for a single batch (C = A x B)
-#define ORT_MATH_MATMUL_IMPL_FOR_TYPE(c_type, onnx_type)  \
+
+ORT_MATH_FRONTEND_MATMUL_OP_DECL(float16) {
+    const float16* va = (const float16*)a;
+    const float16* vb = (const float16*)b;
+    float16* res = (float16*)result;
+    for (size_t j = 0; j < b_cols; j++) {
+        float32 sum = 0;
+        for (size_t k = 0; k < a_cols; k++) {
+            sum += ort_math_float32_from_float16(va[k]) *
+                   ort_math_float32_from_float16(vb[k * b_cols + j]);
+        }
+        res[j] = ort_math_float16_from_float32(sum);
+    }
+}
+
+#define ORT_MATH_MATMUL_IMPL_FOR_REAL_TYPE(c_type, onnx_type)  \
+    ORT_MATH_FRONTEND_MATMUL_OP_DECL(c_type) {            \
+        const c_type* va = (const c_type*)a;              \
+        const c_type* vb = (const c_type*)b;              \
+        c_type* res = (c_type*)result;                    \
+        for (size_t j = 0; j < b_cols; j++) {             \
+            c_type sum = 0;                               \
+            for (size_t k = 0; k < a_cols; k++) {         \
+                sum += va[k] * vb[k * b_cols + j];        \
+            }                                             \
+            res[j] = (c_type) sum;                        \
+        }                                                 \
+    }
+
+/* TODO(krakjoe) fix accumulator type to be consistent with backend */
+#define ORT_MATH_MATMUL_IMPL_FOR_INTEGER_TYPE(c_type, onnx_type)  \
     ORT_MATH_FRONTEND_MATMUL_OP_DECL(c_type) {            \
         const c_type* va = (const c_type*)a;              \
         const c_type* vb = (const c_type*)b;              \
@@ -67,9 +97,12 @@
         }                                                        \
     }
 
-ORT_MATH_FOREACH_NUMERIC_TYPE(
-    ORT_MATH_MATMUL_IMPL_FOR_TYPE)
-#undef ORT_MATH_MATMUL_IMPL_FOR_TYPE
+ORT_MATH_FOREACH_INTEGER_TYPE(
+    ORT_MATH_MATMUL_IMPL_FOR_INTEGER_TYPE)
+ORT_MATH_FOREACH_REAL_TYPE(
+    ORT_MATH_MATMUL_IMPL_FOR_REAL_TYPE)
+#undef ORT_MATH_MATMUL_IMPL_FOR_INTEGER_TYPE
+#undef ORT_MATH_MATMUL_IMPL_FOR_REAL_TYPE
 
 ORT_MATH_FRONTEND_DISPATCH_RESULT_TYPE_IMPL(
     ort_math_kernel_matmul_t, matmul)

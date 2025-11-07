@@ -131,8 +131,9 @@ static zend_always_inline ONNXTensorElementDataType ort_math_promotion_schema_re
                 return tensor_type;
             }
             // Otherwise, treat as float
-            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
-                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64) {
                 return tensor_type;
             }
             return ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL;
@@ -152,20 +153,22 @@ static zend_always_inline ONNXTensorElementDataType ort_math_promotion_schema_re
                 return tensor_type;
             }
             // If tensor is float, treat as float
-            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
-                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64) {
                 return tensor_type;
             }
             // Fallback
             return ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64;
         case IS_DOUBLE:
             // Use tensor's dtype if it's a float type
-            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT ||
-                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE) {
+            if (tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32 ||
+                tensor_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64) {
                 return tensor_type;
             }
             // Fallback
-            return ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE;
+            return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64;
         default:
             return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED;
     }

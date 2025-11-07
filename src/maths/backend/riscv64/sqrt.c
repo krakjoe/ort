@@ -19,16 +19,16 @@
 #include "maths/backend/riscv64/impl.h"
 #include <riscv_vector.h> /* RVV */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sqrt, float) {
-    const float* va = (const float*)a;
-    float* res = (float*)result;
+ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sqrt, float32) {
+    const float32* va = (const float32*)a;
+    float32* res = (float32*)result;
     const size_t mw = __riscv_vsetvlmax_e32m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_sqrt_float_fallback;
+        goto __ort_math_backend_sqrt_float32_fallback;
     }
 
     /* Vectorized loop */
@@ -38,26 +38,26 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sqrt, float) {
         __riscv_vse32_v_f32m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_sqrt_float_fallback:
+__ort_math_backend_sqrt_float32_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float32)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sqrt, double) {
-    const double* va = (const double*)a;
-    double* res = (double*)result;
+ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sqrt, float64) {
+    const float64* va = (const float64*)a;
+    float64* res = (float64*)result;
     const size_t mw = __riscv_vsetvlmax_e64m1();
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_sqrt_double_fallback;
+        goto __ort_math_backend_sqrt_float64_fallback;
     }
 
     /* Vectorized loop */
@@ -67,10 +67,10 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sqrt, double) {
         __riscv_vse64_v_f64m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_sqrt_double_fallback:
+__ort_math_backend_sqrt_float64_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float64)(
             res   + mc,
             va    + mc,
             count - mc);

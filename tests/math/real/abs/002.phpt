@@ -20,8 +20,8 @@ include sprintf(
 $values = array_merge(range(-16, -1), [0], range(1, 16));
 
 $types = [
-    'FLOAT' => [$real['FLOAT'], $values],
-    'DOUBLE' => [$real['DOUBLE'], $values],
+    'FLOAT32' => [$real['FLOAT32'], $values],
+    'FLOAT64' => [$real['FLOAT64'], $values],
 ];
 
 // Large tensor case for vectorization
@@ -35,11 +35,11 @@ foreach ($types as $name => [$type, $values]) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT abs large tensor (gpu)
+PASS: FLOAT32 abs large tensor (gpu)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [4096]
-PASS: DOUBLE abs large tensor (gpu)
+PASS: FLOAT64 abs large tensor (gpu)
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [4096]

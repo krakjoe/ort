@@ -52,49 +52,49 @@ try {
         echo "INFO: BOOL + BOOL: " . $e->getMessage() . "\n";
     }
     
-    // Test 5: Try to hit DOUBLE macro default case (line 64)
-    // This is tricky - we need DOUBLE source with an unsupported destination
+    // Test 5: Try to hit FLOAT64 macro default case (line 64)
+    // This is tricky - we need FLOAT64 source with an unsupported destination
     // Let's try combinations that might hit default branches
-    echo "\n--- Testing DOUBLE with Comprehensive Destinations ---\n";
+    echo "\n--- Testing FLOAT64 with Comprehensive Destinations ---\n";
     
-    // DOUBLE to INT8
+    // FLOAT64 to INT8
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [123.456, -789.012], ORT\Tensor::DOUBLE);
+        $tensor_FLOAT64 = new ORT\Tensor\Transient([2], [123.456, -789.012], ORT\Tensor::FLOAT64);
         $tensor_int8 = new ORT\Tensor\Transient([2], [50, -50], ORT\Tensor::INT8);
-        $result = ORT\Math\add($tensor_double, $tensor_int8);
-        echo "PASS: DOUBLE + INT8 casting works\n";
+        $result = ORT\Math\add($tensor_FLOAT64, $tensor_int8);
+        echo "PASS: FLOAT64 + INT8 casting works\n";
     } catch (Exception $e) {
-        echo "INFO: DOUBLE + INT8: " . $e->getMessage() . "\n";
+        echo "INFO: FLOAT64 + INT8: " . $e->getMessage() . "\n";
     }
     
-    // DOUBLE to INT16
+    // FLOAT64 to INT16
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [12345.67, -23456.78], ORT\Tensor::DOUBLE);
+        $tensor_FLOAT64 = new ORT\Tensor\Transient([2], [12345.67, -23456.78], ORT\Tensor::FLOAT64);
         $tensor_int16 = new ORT\Tensor\Transient([2], [1000, -1000], ORT\Tensor::INT16);
-        $result = ORT\Math\add($tensor_double, $tensor_int16);
-        echo "PASS: DOUBLE + INT16 casting works\n";
+        $result = ORT\Math\add($tensor_FLOAT64, $tensor_int16);
+        echo "PASS: FLOAT64 + INT16 casting works\n";
     } catch (Exception $e) {
-        echo "INFO: DOUBLE + INT16: " . $e->getMessage() . "\n";
+        echo "INFO: FLOAT64 + INT16: " . $e->getMessage() . "\n";
     }
     
-    // DOUBLE to INT32
+    // FLOAT64 to INT32
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [1234567.89, -9876543.21], ORT\Tensor::DOUBLE);
+        $tensor_FLOAT64 = new ORT\Tensor\Transient([2], [1234567.89, -9876543.21], ORT\Tensor::FLOAT64);
         $tensor_int32 = new ORT\Tensor\Transient([2], [100000, -100000], ORT\Tensor::INT32);
-        $result = ORT\Math\add($tensor_double, $tensor_int32);
-        echo "PASS: DOUBLE + INT32 casting works\n";
+        $result = ORT\Math\add($tensor_FLOAT64, $tensor_int32);
+        echo "PASS: FLOAT64 + INT32 casting works\n";
     } catch (Exception $e) {
-        echo "INFO: DOUBLE + INT32: " . $e->getMessage() . "\n";
+        echo "INFO: FLOAT64 + INT32: " . $e->getMessage() . "\n";
     }
     
-    // DOUBLE to UINT8
+    // FLOAT64 to UINT8
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [100.5, 200.7], ORT\Tensor::DOUBLE);
+        $tensor_FLOAT64 = new ORT\Tensor\Transient([2], [100.5, 200.7], ORT\Tensor::FLOAT64);
         $tensor_uint8 = new ORT\Tensor\Transient([2], [10, 20], ORT\Tensor::UINT8);
-        $result = ORT\Math\add($tensor_double, $tensor_uint8);
-        echo "PASS: DOUBLE + UINT8 casting works\n";
+        $result = ORT\Math\add($tensor_FLOAT64, $tensor_uint8);
+        echo "PASS: FLOAT64 + UINT8 casting works\n";
     } catch (Exception $e) {
-        echo "INFO: DOUBLE + UINT8: " . $e->getMessage() . "\n";
+        echo "INFO: FLOAT64 + UINT8: " . $e->getMessage() . "\n";
     }
     
     // Test 6: Try to hit the unsupported type path (line 55)
@@ -104,9 +104,9 @@ try {
     
     // Create tensors with extreme values that might trigger edge cases
     try {
-        $tensor_float_inf = new ORT\Tensor\Transient([2], [INF, -INF], ORT\Tensor::FLOAT);
-        $tensor_double_nan = new ORT\Tensor\Transient([2], [NAN, 1.0], ORT\Tensor::DOUBLE);
-        $result = ORT\Math\add($tensor_float_inf, $tensor_double_nan);
+        $tensor_float_inf = new ORT\Tensor\Transient([2], [INF, -INF], ORT\Tensor::FLOAT32);
+        $tensor_FLOAT64_nan = new ORT\Tensor\Transient([2], [NAN, 1.0], ORT\Tensor::FLOAT64);
+        $result = ORT\Math\add($tensor_float_inf, $tensor_FLOAT64_nan);
         echo "PASS: Infinity/NaN handling works\n";
     } catch (Exception $e) {
         echo "INFO: INF/NAN test: " . $e->getMessage() . "\n";
@@ -116,8 +116,8 @@ try {
     echo "\n--- Testing Comprehensive Type Matrix ---\n";
     
     $types_to_test = [
-        ['FLOAT', [1.5, 2.5]],
-        ['DOUBLE', [1.123456789, 2.987654321]],
+        ['FLOAT32', [1.5, 2.5]],
+        ['FLOAT64', [1.123456789, 2.987654321]],
         ['INT8', [100, -100]],
         ['INT16', [20000, -20000]],
         ['INT32', [1000000, -1000000]],
@@ -171,19 +171,19 @@ PASS: BOOL + UINT8 casting works
 --- Testing BOOL to BOOL (same type) ---
 PASS: BOOL + BOOL same type works
 
---- Testing DOUBLE with Comprehensive Destinations ---
-PASS: DOUBLE + INT8 casting works
-PASS: DOUBLE + INT16 casting works
-PASS: DOUBLE + INT32 casting works
-PASS: DOUBLE + UINT8 casting works
+--- Testing FLOAT64 with Comprehensive Destinations ---
+PASS: FLOAT64 + INT8 casting works
+PASS: FLOAT64 + INT16 casting works
+PASS: FLOAT64 + INT32 casting works
+PASS: FLOAT64 + UINT8 casting works
 
 --- Testing Edge Cases for Unsupported Type Path ---
 PASS: Infinity/NaN handling works
 
 --- Testing Comprehensive Type Matrix ---
-PASS: FLOAT + DOUBLE works
-PASS: FLOAT + INT8 works
-PASS: FLOAT + INT16 works
+PASS: FLOAT32 + FLOAT64 works
+PASS: FLOAT32 + INT8 works
+PASS: FLOAT32 + INT16 works
 Tested 72 type combinations
 
 === Maximum Coverage Test Complete ===

@@ -76,7 +76,7 @@ foreach ($types as $name => $type) {
 
 // 5. Error: axis not integer
 try {
-    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\max($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
@@ -85,7 +85,7 @@ try {
 
 // 6. Error: axis out of range
 try {
-    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\max($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
@@ -93,13 +93,17 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT max axis=0
+PASS: FLOAT16 max axis=0
 RESULT: [4,5,6]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [3]
-PASS: DOUBLE max axis=0
+PASS: FLOAT32 max axis=0
 RESULT: [4,5,6]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [3]
+PASS: FLOAT64 max axis=0
+RESULT: [4,5,6]
+TYPE: FLOAT64
 SHAPE: [3]
 PASS: INT8 max axis=0
 RESULT: [4,5,6]
@@ -133,13 +137,17 @@ PASS: BOOL max axis=0
 RESULT: [true,true,true]
 TYPE: BOOL
 SHAPE: [3]
-PASS: FLOAT max axis=1
+PASS: FLOAT16 max axis=1
 RESULT: [3,6]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE max axis=1
+PASS: FLOAT32 max axis=1
 RESULT: [3,6]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2]
+PASS: FLOAT64 max axis=1
+RESULT: [3,6]
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT8 max axis=1
 RESULT: [3,6]
@@ -173,13 +181,17 @@ PASS: BOOL max axis=1
 RESULT: [true,true]
 TYPE: BOOL
 SHAPE: [2]
-PASS: FLOAT max axis=-1
+PASS: FLOAT16 max axis=-1
 RESULT: [3,6]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE max axis=-1
+PASS: FLOAT32 max axis=-1
 RESULT: [3,6]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2]
+PASS: FLOAT64 max axis=-1
+RESULT: [3,6]
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: INT8 max axis=-1
 RESULT: [3,6]
@@ -213,13 +225,17 @@ PASS: BOOL max axis=-1
 RESULT: [true,true]
 TYPE: BOOL
 SHAPE: [2]
-PASS: FLOAT max axis=1 keepdims
+PASS: FLOAT16 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2,1]
-PASS: DOUBLE max axis=1 keepdims
+PASS: FLOAT32 max axis=1 keepdims
 RESULT: [[3],[6]]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2,1]
+PASS: FLOAT64 max axis=1 keepdims
+RESULT: [[3],[6]]
+TYPE: FLOAT64
 SHAPE: [2,1]
 PASS: INT8 max axis=1 keepdims
 RESULT: [[3],[6]]

@@ -39,13 +39,17 @@ echo "PASS: INT8 abs 2D 8x8\n";
 print_result($result, 'int8');
 ?>
 --EXPECTF--
-PASS: FLOAT abs signed [-16..-1,0,1..16]
+PASS: FLOAT16 abs signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE abs signed [-16..-1,0,1..16]
+PASS: FLOAT32 abs signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 abs signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 abs signed [-16..-1,0,1..16]
 RESULT: %s

@@ -21,7 +21,7 @@
 #include <immintrin.h>  /* AVX/AVX2 */
 
 ORT_MATH_BACKEND_UTIL_DECL(avx2,
-    hsum, float32x8, float, __m256) {
+    hsum, float32x8, float32, __m256) {
     __m128 low = _mm256_castps256_ps128(v);
     __m128 high = _mm256_extractf128_ps(v, 1);
     __m128 sum128 = _mm_add_ps(low, high);
@@ -33,7 +33,7 @@ ORT_MATH_BACKEND_UTIL_DECL(avx2,
 }
 
 ORT_MATH_BACKEND_UTIL_DECL(avx2,
-    hsum, float64x4, double, __m256d) {
+    hsum, float64x4, float64, __m256d) {
     __m128d low = _mm256_castpd256_pd128(v);
     __m128d high = _mm256_extractf128_pd(v, 1);
     __m128d sum128 = _mm_add_pd(low, high);

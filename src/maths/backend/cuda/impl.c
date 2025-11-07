@@ -228,12 +228,12 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
         ort_math_dispatch_backup_malloc();
 
     /* abs.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   abs, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  abs, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   abs, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  abs, float64)
 
     /* add.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   add, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  add, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   add, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  add, float64)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT8,    add, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT16,   add, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT32,   add, int32_t)
@@ -243,28 +243,28 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT32,  add, uint32_t)
 
     /* ceil.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   ceil, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  ceil, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   ceil, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  ceil, float64)
 
     /* div.c*/
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   div, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  div, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   div, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  div, float64)
 
     /* dot.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   dot, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  dot, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   dot, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  dot, float64)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT16,   dot, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT32,   dot, int32_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT16,  dot, uint16_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT32,  dot, uint32_t)
 
     /* floor.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   floor, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  floor, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   floor, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  floor, float64)
 
     /* matmul.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   matmul, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  matmul, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   matmul, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  matmul, float64)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT16,   matmul, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT32,   matmul, int32_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT16,  matmul, uint16_t)
@@ -273,36 +273,36 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT8,   matmul, uint8_t)
 
     /* mul.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   mul, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  mul, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   mul, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  mul, float64)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT16,   mul, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT32,   mul, int32_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT16,  mul, uint16_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT32,  mul, uint32_t)
 
     /* neg.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   neg, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  neg, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   neg, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  neg, float64)
 
     /* recip.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   recip, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  recip, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   recip, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  recip, float64)
 
     /* round.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   round, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  round, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   round, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  round, float64)
 
     /* sign.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   sign, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  sign, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   sign, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  sign, float64)
 
     /* sqrt.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   sqrt, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  sqrt, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   sqrt, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  sqrt, float64)
 
     /* sub.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   sub, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  sub, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   sub, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  sub, float64)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT8,    sub, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT16,   sub, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, cuda,  INT32,   sub, int32_t)
@@ -312,6 +312,6 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, cuda,  UINT32,  sub, uint32_t)
 
     /* trunc.c */
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT,   trunc, float)
-    ORT_MATH_BACKEND_INSTALL(table, cuda,  DOUBLE,  trunc, double)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT32,   trunc, float32)
+    ORT_MATH_BACKEND_INSTALL(table, cuda,  FLOAT64,  trunc, float64)
 }

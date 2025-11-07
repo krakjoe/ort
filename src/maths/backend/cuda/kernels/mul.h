@@ -22,5 +22,5 @@ void ort_cuda_mul_int16(int16_t* result, const int16_t* a, const int16_t* b, siz
 void ort_cuda_mul_int32(int32_t* result, const int32_t* a, const int32_t* b, size_t count, cudaStream_t stream);
 void ort_cuda_mul_uint16(uint16_t* result, const uint16_t* a, const uint16_t* b, size_t count, cudaStream_t stream);
 void ort_cuda_mul_uint32(uint32_t* result, const uint32_t* a, const uint32_t* b, size_t count, cudaStream_t stream);
-void ort_cuda_mul_float(float* result, const float* a, const float* b, size_t count, cudaStream_t stream);
-void ort_cuda_mul_double(double* result, const double* a, const double* b, size_t count, cudaStream_t stream);
+void ort_cuda_mul_float32(float32* result, const float32* a, const float32* b, size_t count, cudaStream_t stream);
+void ort_cuda_mul_float64(float64* result, const float64* a, const float64* b, size_t count, cudaStream_t stream);

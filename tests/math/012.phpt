@@ -13,8 +13,8 @@ echo "=== Testing String Utility Functions ===\n";
 
 // Test 1: Shape mismatch error (should call ort_math_string_shape_to_string)
 try {
-    $tensor_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
-    $tensor_b = new ORT\Tensor\Transient([3, 2], [[1, 2], [3, 4], [5, 6]], ORT\Tensor::FLOAT);
+    $tensor_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT32);
+    $tensor_b = new ORT\Tensor\Transient([3, 2], [[1, 2], [3, 4], [5, 6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\add($tensor_a, $tensor_b);
     echo "FAIL: Shape mismatch should trigger error\n";
 } catch (ORT\Status\Math\InvalidShape $e) {
@@ -35,7 +35,7 @@ try {
 // but we can test by creating scenarios that exercise type checking
 try {
     // Try operations that might trigger type validation
-    $tensor_float = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+    $tensor_float = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
     $tensor_bool = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
     $result = ORT\Math\add($tensor_float, $tensor_bool);
     echo "INFO: FLOAT + BOOL operation result: success\n";
@@ -53,8 +53,8 @@ try {
 
 // Test 3: Matrix operation with wrong dimensions (should trigger detailed error)
 try {
-    $matrix_wrong = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
-    $matrix_incompatible = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
+    $matrix_wrong = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT32);
+    $matrix_incompatible = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix_wrong, $matrix_incompatible);
     echo "FAIL: Matrix dimension mismatch should trigger error\n";
 } catch (ORT\Status\Math\Error $e) {
@@ -71,8 +71,8 @@ try {
 
 // Test 4: Try to trigger validation error for 3D tensor in matrix operation
 try {
-    $tensor_3d = new ORT\Tensor\Transient([2, 2, 2], [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], ORT\Tensor::FLOAT);
-    $matrix_2d = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
+    $tensor_3d = new ORT\Tensor\Transient([2, 2, 2], [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], ORT\Tensor::FLOAT32);
+    $matrix_2d = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($tensor_3d, $matrix_2d);
     echo "FAIL: 3D tensor should be rejected for matrix operation\n";
 } catch (Error $e) {
@@ -91,7 +91,7 @@ $types = [
     ['name' => 'INT16', 'type' => ORT\Tensor::INT16, 'data' => [1, 2]],
     ['name' => 'INT32', 'type' => ORT\Tensor::INT32, 'data' => [1, 2]],
     ['name' => 'UINT8', 'type' => ORT\Tensor::UINT8, 'data' => [1, 2]],
-    ['name' => 'DOUBLE', 'type' => ORT\Tensor::DOUBLE, 'data' => [1.0, 2.0]]
+    ['name' => 'FLOAT64', 'type' => ORT\Tensor::FLOAT64, 'data' => [1.0, 2.0]]
 ];
 
 $successful_types = 0;

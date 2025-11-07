@@ -30,6 +30,60 @@
 #include "maths/result.h"
 #include "maths/schema/max.h"
 
+ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, float16) {
+    float16* va = (float16*)a;
+    float16* res = (float16*)result;
+    size_t outer = 1, inner = 1;
+    for (size_t i = 0; i < axis; ++i) outer *= input_shape[i];
+    for (size_t i = axis + 1; i < input_dims; ++i) inner *= input_shape[i];
+    for (size_t outer_idx = 0; outer_idx < outer; ++outer_idx) {
+        for (size_t inner_idx = 0; inner_idx < inner; ++inner_idx) {
+            int64_t indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
+            for (size_t d = 0; d < input_dims; ++d) indices[d] = 0;
+            size_t tmp_outer = outer_idx;
+            for (size_t d = 0; d < axis; ++d) {
+                indices[d] = tmp_outer % input_shape[d];
+                tmp_outer /= input_shape[d];
+            }
+            size_t tmp_inner = inner_idx;
+            for (size_t d = input_dims - 1; d > axis; --d) {
+                indices[d] = tmp_inner % input_shape[d];
+                tmp_inner /= input_shape[d];
+            }
+            float32 max = ort_math_float32_from_float16(
+                va[ort_math_result_flat(indices, input_shape, input_dims)]
+            );
+            for (size_t axis_idx = 1; axis_idx < input_shape[axis]; ++axis_idx) {
+                indices[axis] = axis_idx;
+                size_t flat = ort_math_result_flat(indices, input_shape, input_dims);
+                float32 val = ort_math_float32_from_float16(va[flat]);
+                if (val > max)
+                    max = val;
+            }
+            /* Write output using output_shape/output_dims */
+            int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
+            if (output_dims == input_dims) { /* keepdims=true */
+                for (size_t d = 0; d < output_dims; ++d) {
+                    if (d == axis) {
+                        out_indices[d] = 0;
+                    } else {
+                        out_indices[d] = indices[d];
+                    }
+                }
+            } else { /* keepdims=false */
+                size_t j = 0;
+                for (size_t d = 0; d < input_dims; ++d) {
+                    if (d != axis) {
+                        out_indices[j++] = indices[d];
+                    }
+                }
+            }
+            size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims);
+            res[out_flat] = ort_math_float16_from_float32(max);
+        }
+    }
+}
+
 #define ORT_MATH_FRONTEND_MAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, c_type) { \
         c_type* va = (c_type*)a; \
@@ -134,6 +188,18 @@ ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(max, zend_bool) {
             res[out_flat] = max;
         }
     }
+}
+
+ORT_MATH_FRONTEND_UNARY_OP_DECL(max, float16) {
+    float16* va = (float16*)a;
+    float16* res = (float16*)result;
+    float32 max = ort_math_float32_from_float16(va[0]);
+    for (size_t idx = 1; idx < count; idx++) {
+        float32 val = ort_math_float32_from_float16(va[idx]);
+        if (val > max)
+            max = val;
+    }
+    res[0] = ort_math_float16_from_float32(max);
 }
 
 #define ORT_MATH_FRONTEND_MAX_IMPL_FOR_TYPE(c_type, unused) \

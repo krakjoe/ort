@@ -8,7 +8,7 @@ echo "=== Testing Type Casting and Broadcasting Compatibility ===\n";
 
 // Test 1: Mixed type operations that should work (type promotion)
 try {
-    $tensor_float = new ORT\Tensor\Transient([2], [1.5, 2.5], ORT\Tensor::FLOAT);
+    $tensor_float = new ORT\Tensor\Transient([2], [1.5, 2.5], ORT\Tensor::FLOAT32);
     $tensor_int = new ORT\Tensor\Transient([2], [3, 4], ORT\Tensor::INT32);
     
     $result = ORT\Math\add($tensor_float, $tensor_int);
@@ -23,7 +23,7 @@ try {
 // Test 2: Boolean with numeric types
 try {
     $tensor_bool = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
-    $tensor_float = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+    $tensor_float = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\add($tensor_bool, $tensor_float);
     echo "INFO: Boolean and FLOAT addition behavior\n";
@@ -55,19 +55,19 @@ try {
 
 // Test 5: Double and float mixing
 try {
-    $tensor_double = new ORT\Tensor\Transient([2], [3.14159265359, 2.71828182846], ORT\Tensor::DOUBLE);
-    $tensor_float = new ORT\Tensor\Transient([2], [1.41421356237, 1.73205080757], ORT\Tensor::FLOAT);
+    $tensor_double = new ORT\Tensor\Transient([2], [3.14159265359, 2.71828182846], ORT\Tensor::FLOAT64);
+    $tensor_float = new ORT\Tensor\Transient([2], [1.41421356237, 1.73205080757], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\multiply($tensor_double, $tensor_float);
-    echo "PASS: DOUBLE and FLOAT multiplication works\n";
+    echo "PASS: FLOAT64 and FLOAT multiplication works\n";
 } catch (Error $e) {
     echo "INFO: DOUBLE and FLOAT mixing: " . get_class($e) . "\n";
 }
 
 // Test 6: Broadcasting compatibility - different shapes
 try {
-    $tensor_2x3 = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT);
-    $tensor_1x3 = new ORT\Tensor\Transient([1, 3], [[10.0, 20.0, 30.0]], ORT\Tensor::FLOAT);
+    $tensor_2x3 = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT32);
+    $tensor_1x3 = new ORT\Tensor\Transient([1, 3], [[10.0, 20.0, 30.0]], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\add($tensor_2x3, $tensor_1x3);
     echo "PASS: Broadcasting (2x3 + 1x3) works\n";
@@ -77,7 +77,7 @@ try {
 
 // Test 7: Scalar broadcasting (already tested but for completeness)
 try {
-    $tensor = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
+    $tensor = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\add($tensor, 10.0);
     echo "PASS: Scalar broadcasting works\n";
 } catch (Error $e) {
@@ -86,8 +86,8 @@ try {
 
 // Test 8: Incompatible broadcasting shapes
 try {
-    $tensor_2x3 = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT);
-    $tensor_2x2 = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
+    $tensor_2x3 = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT32);
+    $tensor_2x2 = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\add($tensor_2x3, $tensor_2x2);
     echo "FAIL: Incompatible shapes should throw exception\n";
@@ -108,8 +108,8 @@ try {
 
 // Test 10: Edge case - same type but different tensors
 try {
-    $tensor_a = new ORT\Tensor\Transient([3], [1.0, 2.0, 3.0], ORT\Tensor::FLOAT);
-    $tensor_b = new ORT\Tensor\Transient([3], [4.0, 5.0, 6.0], ORT\Tensor::FLOAT);
+    $tensor_a = new ORT\Tensor\Transient([3], [1.0, 2.0, 3.0], ORT\Tensor::FLOAT32);
+    $tensor_b = new ORT\Tensor\Transient([3], [4.0, 5.0, 6.0], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\add($tensor_a, $tensor_b);
     $data = $result->getData();
@@ -135,7 +135,7 @@ try {
 
 // Test 13: Division by zero handling across types
 try {
-    $tensor_float = new ORT\Tensor\Transient([2], [10.0, 20.0], ORT\Tensor::FLOAT);
+    $tensor_float = new ORT\Tensor\Transient([2], [10.0, 20.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\divide($tensor_float, 0.0);
     echo "INFO: Float division by zero handling\n";
 } catch (Error $e) {

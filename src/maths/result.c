@@ -175,11 +175,16 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
     uint8_t scalar_buffer[16];
     void* scalar_data = scalar_buffer;
     switch (result->type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            *(float*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ? (float)Z_DVAL_P(scalar) : (float)Z_LVAL_P(scalar);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+            *(float16*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ?
+                ort_math_float16_from_float64((float64)Z_DVAL_P(scalar)) :
+                ort_math_float16_from_float64((float64)Z_LVAL_P(scalar));
             break;
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-            *(double*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ? Z_DVAL_P(scalar) : (double)Z_LVAL_P(scalar);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+            *(float32*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ? (float32)Z_DVAL_P(scalar) : (float32)Z_LVAL_P(scalar);
+            break;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
+            *(float64*)scalar_data = (Z_TYPE_P(scalar) == IS_DOUBLE) ? Z_DVAL_P(scalar) : (float64)Z_LVAL_P(scalar);
             break;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
             *(int8_t*)scalar_data = (Z_TYPE_P(scalar) == IS_LONG) ? (int8_t)Z_LVAL_P(scalar) : (int8_t)Z_DVAL_P(scalar);

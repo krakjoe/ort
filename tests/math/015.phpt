@@ -10,8 +10,8 @@ echo "=== Testing Result Management ===\n";
 
 // Test 1: Basic result creation and memory handling
 try {
-    $tensor_a = new ORT\Tensor\Persistent("a", [2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
-    $tensor_b = new ORT\Tensor\Persistent("b", [2, 2], [[1, 1], [1, 1]], ORT\Tensor::FLOAT);
+    $tensor_a = new ORT\Tensor\Persistent("a", [2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT32);
+    $tensor_b = new ORT\Tensor\Persistent("b", [2, 2], [[1, 1], [1, 1]], ORT\Tensor::FLOAT32);
     
     // This should create and properly manage result structures
     $result = ORT\Math\add($tensor_a, $tensor_b);
@@ -31,7 +31,7 @@ try {
         [1, 2, 3], 
         [4, 5, 6], 
         [7, 8, 9]
-    ], ORT\Tensor::FLOAT);
+    ], ORT\Tensor::FLOAT32);
     
     // Chain operations to test result management
     $result1 = ORT\Math\sqrt($tensor);
@@ -48,7 +48,7 @@ try {
     $tensor = new ORT\Tensor\Persistent("scalar_test", [2, 3], [
         [1, 2, 3], 
         [4, 5, 6]
-    ], ORT\Tensor::FLOAT);
+    ], ORT\Tensor::FLOAT32);
     
     // Scalar operations
     $result1 = ORT\Math\add($tensor, 10);

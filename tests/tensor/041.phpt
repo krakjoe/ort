@@ -12,7 +12,7 @@ $tensor = new ORT\Tensor\Persistent(
     "test_tensor",
     [2, 2],
     [[1.5, 2.5], [3.5, 4.5]],
-    ORT\Tensor::FLOAT
+    ORT\Tensor::FLOAT32
 );
 
 $data = $tensor->getData();

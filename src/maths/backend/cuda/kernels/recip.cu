@@ -20,8 +20,8 @@
 
 #include "maths/backend/cuda/kernels/util.h"
 
-/* CUDA kernel for float reciprocal */
-__global__ void ort_cuda_recip_float_kernel(float* result, const float* a, size_t count) {
+/* CUDA kernel for float32 reciprocal */
+__global__ void ort_cuda_recip_float32_kernel(float32* result, const float32* a, size_t count) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     
     if (idx < count) {
@@ -29,8 +29,8 @@ __global__ void ort_cuda_recip_float_kernel(float* result, const float* a, size_
     }
 }
 
-/* CUDA kernel for double reciprocal */
-__global__ void ort_cuda_recip_double_kernel(double* result, const double* a, size_t count) {
+/* CUDA kernel for float64 reciprocal */
+__global__ void ort_cuda_recip_float64_kernel(float64* result, const float64* a, size_t count) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     
     if (idx < count) {
@@ -41,16 +41,16 @@ __global__ void ort_cuda_recip_double_kernel(double* result, const double* a, si
 /* C-linkage wrapper functions */
 extern "C" {
 
-void ort_cuda_recip_float(float* result, const float* a, size_t count, cudaStream_t stream) {
-    ort_cuda_recip_float_kernel<<<
+void ort_cuda_recip_float32(float32* result, const float32* a, size_t count, cudaStream_t stream) {
+    ort_cuda_recip_float32_kernel<<<
         ort_cuda_blocks_count(__ort_cuda_threads, count),
         __ort_cuda_threads, 0, stream>>>(
         result, a, count
     );
 }
 
-void ort_cuda_recip_double(double* result, const double* a, size_t count, cudaStream_t stream) {
-    ort_cuda_recip_double_kernel<<<
+void ort_cuda_recip_float64(float64* result, const float64* a, size_t count, cudaStream_t stream) {
+    ort_cuda_recip_float64_kernel<<<
         ort_cuda_blocks_count(__ort_cuda_threads, count),
         __ort_cuda_threads, 0, stream>>>(
         result, a, count

@@ -10,7 +10,7 @@ try {
         "test_tensor",
         [2, 2],
         [[0.0, 1.570796], [3.141593, 4.712389]], // 0, π/2, π, 3π/2
-        ORT\Tensor::FLOAT
+        ORT\Tensor::FLOAT32
     );
     
     // Test sin

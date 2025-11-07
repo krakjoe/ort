@@ -24,9 +24,9 @@
 @extract %python% %extract.py% -f max -n max -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_max[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// max(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// max(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// max(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// max(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// max(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// max(float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// max(int8) -> int8
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// max(int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// max(int32) -> int32
@@ -38,9 +38,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_max[11] =
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_max[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

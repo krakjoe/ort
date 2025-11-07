@@ -21,13 +21,17 @@ foreach (array_merge($real, $signed_types, $unsigned_types) as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT pow tensor ** tensor
+PASS: FLOAT16 pow tensor ** tensor
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE pow tensor ** tensor
+PASS: FLOAT32 pow tensor ** tensor
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 pow tensor ** tensor
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 pow tensor ** tensor
 RESULT: %s

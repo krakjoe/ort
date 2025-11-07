@@ -10,8 +10,8 @@ echo "=== Testing Matrix Operations ===\n";
 
 // Test 1: Basic square matrix multiplication
 try {
-    $matrix_a = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([2, 2], [[2, 0], [1, 2]], ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([2, 2], [[2, 0], [1, 2]], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     // Result should be [[4, 4], [10, 8]]
@@ -22,8 +22,8 @@ try {
 
 // Test 2: Non-square matrix multiplication
 try {
-    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([3, 2], [[1, 2], [3, 4], [5, 6]], ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([3, 2], [[1, 2], [3, 4], [5, 6]], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     // Result should be [2, 2] matrix
@@ -34,8 +34,8 @@ try {
 
 // Test 3: Incompatible matrix dimensions
 try {
-    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([2, 2], [[1, 2], [3, 4]], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     echo "FAIL: Incompatible matrix dimensions should be rejected\n";
@@ -47,8 +47,8 @@ try {
 
 // Test 4: Matrix with vector (should fail - vectors need to be 2D)
 try {
-    $matrix = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
-    $vector = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT);
+    $matrix = new ORT\Tensor\Transient([2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT32);
+    $vector = new ORT\Tensor\Transient([3], [1, 2, 3], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\matmul($matrix, $vector);
     echo "FAIL: 1D vector should be rejected for matmul\n";
@@ -75,8 +75,8 @@ try {
         $large_b[] = $row_b;
     }
     
-    $matrix_a = new ORT\Tensor\Transient([5, 5], $large_a, ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([5, 5], $large_b, ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([5, 5], $large_a, ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([5, 5], $large_b, ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     echo "PASS: Large matrix multiplication completed\n";

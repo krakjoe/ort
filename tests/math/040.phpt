@@ -12,7 +12,7 @@ try {
     echo "\n--- Testing INT64 Type Casting ---\n";
     try {
         $tensor_int64 = new ORT\Tensor\Transient([2], [9223372036854775800, -9223372036854775800], ORT\Tensor::INT64);
-        $tensor_float = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+        $tensor_float = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
         $result = ORT\Math\add($tensor_int64, $tensor_float);
         echo "PASS: INT64 + FLOAT casting works\n";
     } catch (Exception $e) {
@@ -22,10 +22,10 @@ try {
     // Test 2: DOUBLE source type casting (to exercise more cast paths)
     echo "\n--- Testing DOUBLE Source Type Casting ---\n";
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [1.23456789012345, -2.98765432109876], ORT\Tensor::DOUBLE);
+        $tensor_double = new ORT\Tensor\Transient([2], [1.23456789012345, -2.98765432109876], ORT\Tensor::FLOAT64);
         $tensor_int8 = new ORT\Tensor\Transient([2], [10, 20], ORT\Tensor::INT8);
         $result = ORT\Math\add($tensor_double, $tensor_int8);
-        echo "PASS: DOUBLE + INT8 casting works\n";
+        echo "PASS: FLOAT64 + INT8 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + INT8: " . $e->getMessage() . "\n";
     }
@@ -34,7 +34,7 @@ try {
     echo "\n--- Testing BOOL Source Type Casting ---\n";
     try {
         $tensor_bool = new ORT\Tensor\Transient([3], [true, false, true], ORT\Tensor::BOOL);
-        $tensor_double = new ORT\Tensor\Transient([3], [1.5, 2.5, 3.5], ORT\Tensor::DOUBLE);
+        $tensor_double = new ORT\Tensor\Transient([3], [1.5, 2.5, 3.5], ORT\Tensor::FLOAT64);
         $result = ORT\Math\add($tensor_bool, $tensor_double);
         echo "PASS: BOOL + DOUBLE casting works\n";
     } catch (Exception $e) {
@@ -55,10 +55,10 @@ try {
     // Test 5: Edge case - same type operations (fast path)
     echo "\n--- Testing Same Type Fast Path ---\n";
     try {
-        $tensor_a = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
-        $tensor_b = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT);
+        $tensor_a = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
+        $tensor_b = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT32);
         $result = ORT\Math\add($tensor_a, $tensor_b);
-        echo "PASS: FLOAT + FLOAT same type works\n";
+        echo "PASS: FLOAT32 + FLOAT same type works\n";
     } catch (Exception $e) {
         echo "INFO: FLOAT + FLOAT: " . $e->getMessage() . "\n";
     }
@@ -89,7 +89,7 @@ try {
 PASS: INT64 + FLOAT casting works
 
 --- Testing DOUBLE Source Type Casting ---
-PASS: DOUBLE + INT8 casting works
+PASS: FLOAT64 + INT8 casting works
 
 --- Testing BOOL Source Type Casting ---
 PASS: BOOL + DOUBLE casting works
@@ -98,7 +98,7 @@ PASS: BOOL + DOUBLE casting works
 PASS: INT16 + UINT16 casting works
 
 --- Testing Same Type Fast Path ---
-PASS: FLOAT + FLOAT same type works
+PASS: FLOAT32 + FLOAT same type works
 
 --- Testing Edge Cases ---
 PASS: UINT8 + INT32 edge values work

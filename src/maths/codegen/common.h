@@ -55,12 +55,18 @@
     ORT_MATH_FOREACH_UNSIGNED_TYPE_EX(macro, ex)
 
 #define ORT_MATH_FOREACH_REAL_TYPE(macro)                 \
-    macro(float,   ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)   \
-    macro(double,  ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)
+    macro(float32, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32) \
+    macro(float64, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64)
+
+#define ORT_MATH_FOREACH_CUSTOM_TYPE(macro)                   \
+    macro(float16, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16)
 
 #define ORT_MATH_FOREACH_REAL_TYPE_EX(macro, ex)              \
-    macro(float,   ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, ex)   \
-    macro(double,  ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, ex)
+    macro(float32, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32, ex) \
+    macro(float64, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64, ex)
+
+#define ORT_MATH_FOREACH_CUSTOM_TYPE_EX(macro, ex)            \
+    macro(float16, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16, ex) \
 
 #define ORT_MATH_FOREACH_NUMERIC_TYPE(macro)              \
     ORT_MATH_FOREACH_REAL_TYPE(macro)                     \
@@ -73,9 +79,9 @@
 #define ORT_MATH_FOREACH_ALL_TYPES(macro)                 \
     ORT_MATH_FOREACH_NUMERIC_TYPE(macro)                  \
     macro(zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL) 
-    
-#define ORT_MATH_FOREACH_ALL_TYPES_EX(macro, ex)                \
-    ORT_MATH_FOREACH_NUMERIC_TYPE_EX(macro, ex)                 \
+
+#define ORT_MATH_FOREACH_ALL_TYPES_EX(macro, ex)          \
+    ORT_MATH_FOREACH_NUMERIC_TYPE_EX(macro, ex)           \
     macro(zend_bool, ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, ex)
 
 #endif

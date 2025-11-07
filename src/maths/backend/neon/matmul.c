@@ -21,13 +21,13 @@
 
 #include <arm_neon.h>  /* NEON */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float) {
-    const float *va = (const float *)a;
-    const float *vb = (const float *)b;
-    float *res = (float *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float32) {
+    const float32 *va = (const float32 *)a;
+    const float32 *vb = (const float32 *)b;
+    float32 *res = (float32 *)result;
     for (size_t j = 0; j < b_cols; j++) {
         float32x4_t ma, mb, mr;
-        float sum = 0.0f;
+        float32 sum = 0.0f;
         const size_t mw = 4;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
@@ -40,7 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float) {
                 vb[(k+3) * b_cols + j]
             };
             mr = vmulq_f32(ma, mb);
-            sum += ORT_MATH_BACKEND_UTIL(neon, hsum, float32x4, float)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(neon, hsum, float32x4, float32)(mr);
         }
         /* Fallback for leftovers */
         for (; k < a_cols; k++) {
@@ -50,13 +50,13 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, double) {
-    const double *va = (const double *)a;
-    const double *vb = (const double *)b;
-    double *res = (double *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float64) {
+    const float64 *va = (const float64 *)a;
+    const float64 *vb = (const float64 *)b;
+    float64 *res = (float64 *)result;
     for (size_t j = 0; j < b_cols; j++) {
         float64x2_t ma, mb, mr;
-        double sum = 0.0;
+        float64 sum = 0.0;
         const size_t mw = 2;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
@@ -67,7 +67,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, double) {
                 vb[(k+1) * b_cols + j]
             };
             mr = vmulq_f64(ma, mb);
-            sum += ORT_MATH_BACKEND_UTIL(neon, hsum, float64x2, double)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(neon, hsum, float64x2, float64)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];

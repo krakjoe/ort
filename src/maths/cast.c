@@ -24,26 +24,76 @@
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE: {            \
         C_TYPE src_val = *(C_TYPE*)src;                         \
         switch (dst_type) {                                     \
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:           \
-                *(float*)dst = (float)src_val; break;           \
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:          \
-                *(double*)dst = (double)src_val; break;         \
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:         \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(float16*)dst = src_val; break;          \
+                } else if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32) { \
+                    *(float16*)dst = ort_math_float16_from_float32(src_val); break; \
+                } else if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64) { \
+                    *(float16*)dst = ort_math_float16_from_float64(src_val); break; \
+                } else {                                        \
+                    *(float16*)dst = ort_math_float16_from_float32((float32)src_val); break; \
+                }                                               \
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:         \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(float32*)dst = ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(float32*)dst = (float32)src_val; break;   \
+                }                                               \
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:         \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(float64*)dst = ort_math_float64_from_float16(src_val); break; \
+                } else {                                        \
+                    *(float64*)dst = (float64)src_val; break;   \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:            \
-                *(int8_t*)dst = (int8_t)src_val; break;         \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(int8_t*)dst = (int8_t)ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(int8_t*)dst = (int8_t)src_val; break;     \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:           \
-                *(int16_t*)dst = (int16_t)src_val; break;       \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(int16_t*)dst = (int16_t)ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(int16_t*)dst = (int16_t)src_val; break;   \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:           \
-                *(int32_t*)dst = (int32_t)src_val; break;       \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(int32_t*)dst = (int32_t)ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(int32_t*)dst = (int32_t)src_val; break;   \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:           \
-                *(int64_t*)dst = (int64_t)src_val; break;       \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(int64_t*)dst = (int64_t)ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(int64_t*)dst = (int64_t)src_val; break;   \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:           \
-                *(uint8_t*)dst = (uint8_t)src_val; break;       \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(uint8_t*)dst = (uint8_t)ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(uint8_t*)dst = (uint8_t)src_val; break;   \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:          \
-                *(uint16_t*)dst = (uint16_t)src_val; break;     \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(uint16_t*)dst = (uint16_t)ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(uint16_t*)dst = (uint16_t)src_val; break; \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:          \
-                *(uint32_t*)dst = (uint32_t)src_val; break;     \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(uint32_t*)dst = (uint32_t)ort_math_float32_from_float16(src_val); break; \
+                } else {                                        \
+                    *(uint32_t*)dst = (uint32_t)src_val; break; \
+                }                                               \
             case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:            \
-                *(uint8_t*)dst = (src_val != 0) ? 1 : 0; break; \
+                if (ONNX_TENSOR_ELEMENT_DATA_TYPE_##SRC_TYPE == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16) { \
+                    *(uint8_t*)dst = (ort_math_float32_from_float16(src_val) != 0.0f) ? 1 : 0; break; \
+                } else {                                        \
+                    *(uint8_t*)dst = (src_val != 0) ? 1 : 0; break; \
+                }                                               \
             default: break;                                     \
         }                                                       \
     } break;
@@ -58,8 +108,9 @@ void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType
 
     /* Handle type conversions using macros */
     switch (src_type) {
-        ORT_MATH_CAST_SOURCE_CASE(FLOAT, float)
-        ORT_MATH_CAST_SOURCE_CASE(DOUBLE, double)
+        ORT_MATH_CAST_SOURCE_CASE(FLOAT16, float16)
+        ORT_MATH_CAST_SOURCE_CASE(FLOAT32, float32)
+        ORT_MATH_CAST_SOURCE_CASE(FLOAT64, float64)
         ORT_MATH_CAST_SOURCE_CASE(INT8, int8_t)
         ORT_MATH_CAST_SOURCE_CASE(INT16, int16_t)
         ORT_MATH_CAST_SOURCE_CASE(INT32, int32_t)
@@ -72,11 +123,14 @@ void ort_math_cast_element(const void* src, void* dst, ONNXTensorElementDataType
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL: {
             uint8_t src_val = *(uint8_t*)src;
             switch (dst_type) {
-                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  
-                    *(float*)dst = (float)src_val;
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+                    *(float16*)dst = ort_math_float16_from_float32((float32)src_val);
                     break;
-                case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
-                    *(double*)dst = (double)src_val;
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:  
+                    *(float32*)dst = (float32)src_val;
+                    break;
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
+                    *(float64*)dst = (float64)src_val;
                     break;
                 case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
                     *(int8_t*)dst = (int8_t)src_val;

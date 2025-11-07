@@ -10,20 +10,20 @@ echo "=== Testing Type Promotion ===\n";
 
 // Test 1: Same types (should keep type)
 try {
-    $tensor_a1 = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
-    $tensor_b1 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT);
+    $tensor_a1 = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
+    $tensor_b1 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\add($tensor_a1, $tensor_b1);
-    echo "PASS: FLOAT + FLOAT operation works\n";
+    echo "PASS: FLOAT32 + FLOAT operation works\n";
 } catch (Error $e) {
     echo "FAIL: Same type operation failed: " . $e->getMessage() . "\n";
 }
 
 // Test 2: Float promotion (FLOAT -> DOUBLE)
 try {
-    $tensor_a2 = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
-    $tensor_b2 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::DOUBLE);
+    $tensor_a2 = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
+    $tensor_b2 = new ORT\Tensor\Transient([2], [3.0, 4.0], ORT\Tensor::FLOAT64);
     $result = ORT\Math\add($tensor_a2, $tensor_b2);
-    echo "PASS: FLOAT + DOUBLE promotion works\n";
+    echo "PASS: FLOAT32 + DOUBLE promotion works\n";
 } catch (Error $e) {
     echo "FAIL: Float promotion failed: " . $e->getMessage() . "\n";
 }
@@ -73,8 +73,8 @@ echo "Type promotion tests completed.\n";
 ?>
 --EXPECT--
 === Testing Type Promotion ===
-PASS: FLOAT + FLOAT operation works
-PASS: FLOAT + DOUBLE promotion works
+PASS: FLOAT32 + FLOAT operation works
+PASS: FLOAT32 + DOUBLE promotion works
 PASS: INT32 + INT32 operation works
 PASS: INT16 + INT32 promotion works
 PASS: BOOL + INT32 promotion works

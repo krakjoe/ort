@@ -10,14 +10,14 @@ try {
         "test_tensor1",
         [2, 2],
         [[1.0, 2.0], [3.0, 4.0]],
-        ORT\Tensor::FLOAT
+        ORT\Tensor::FLOAT32
     );
     
     $tensor2 = new ORT\Tensor\Persistent(
         "test_tensor2",
         [2, 2], 
         [[8.0, 27.0], [64.0, 125.0]],
-        ORT\Tensor::FLOAT
+        ORT\Tensor::FLOAT32
     );
     
     // Test sqrt

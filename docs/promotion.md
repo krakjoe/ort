@@ -1,6 +1,6 @@
 # Type Promotions
 
-Type promotions in `php-ort` are context dependent: This means that coercion will occur depending on the call rather than the data. The schema for promotion is extracted from numpy's runtime and exported to C in `src/maths/schema`. This allows `php-ort` to rigidly conform to `numpy` behaviour in a uniform way across all operators and types.
+Type promotions in `php-ort` are context independent: This means that coercion will occur depending on the call rather than the data. The schema for promotion is extracted from numpy's runtime and exported to C in `src/maths/schema`. This allows `php-ort` to rigidly conform to `numpy` behaviour in a uniform way across all operators and types.
 
 # Extracting Promotion Schema
 
@@ -37,9 +37,9 @@ Example:
 $schema = new ORT\Math\Schema('add');
 
 var_dump($schema->resolve(
-    ORT\Tensor::FLOAT,
-    ORT\Tensor::DOUBLE) ==
-        ORT\Tensor::DOUBLE);
+    ORT\Tensor::FLOAT32,
+    ORT\Tensor::FLOAT64) ==
+        ORT\Tensor::FLOAT64);
 ```
 
 Will yield:
@@ -48,7 +48,7 @@ Will yield:
 bool(true)
 ```
 
-Because adding `Tensor::FLOAT` and `Tensor::DOUBLE` results in `Tensor::DOUBLE`.
+Because adding `Tensor::FLOAT32` and `Tensor::FLOAT64` results in `Tensor::FLOAT64`.
 
 ### Introspection Errors
 

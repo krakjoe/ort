@@ -18,11 +18,15 @@ foreach ($real as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT arcsin real [-1..1]
+PASS: FLOAT16 arcsin real [-1..1]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [%d]
-PASS: DOUBLE arcsin real [-1..1]
+PASS: FLOAT32 arcsin real [-1..1]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [%d]
+PASS: FLOAT64 arcsin real [-1..1]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [%d]

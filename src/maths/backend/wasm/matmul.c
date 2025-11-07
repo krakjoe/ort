@@ -21,18 +21,18 @@
 
 #include <wasm_simd128.h>  /* WASM */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(wasm, float) {
-    const float *va = (const float *)a;
-    const float *vb = (const float *)b;
-    float *res = (float *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(wasm, float32) {
+    const float32 *va = (const float32 *)a;
+    const float32 *vb = (const float32 *)b;
+    float32 *res = (float32 *)result;
     for (size_t j = 0; j < b_cols; j++) {
-        float sum = 0.0f;
+        float32 sum = 0.0f;
         const size_t mw = 4;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
         for (; k < mc; k += mw) {
             v128_t ma = wasm_v128_load(&va[k]);
-            float mb_arr[4] = {
+            float32 mb_arr[4] = {
                 vb[k * b_cols + j],
                 vb[(k+1) * b_cols + j],
                 vb[(k+2) * b_cols + j],
@@ -40,7 +40,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(wasm, float) {
             };
             v128_t mb = wasm_v128_load(mb_arr);
             v128_t mr = wasm_f32x4_mul(ma, mb);
-            sum += ORT_MATH_BACKEND_UTIL(wasm, hsum, float32x4, float)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(wasm, hsum, float32x4, float32)(mr);
         }
         for (; k < a_cols; k++) {
             sum += va[k] * vb[k * b_cols + j];

@@ -21,9 +21,9 @@
 #include <wasm_simd128.h>  /* WASM */
 
 ORT_MATH_BACKEND_UTIL_DECL(wasm, 
-    hsum, float32x4, float, v128_t) {
+    hsum, float32x4, float32, v128_t) {
     // WASM: sum all 4 lanes of a float32x4 vector
-    float sum = wasm_f32x4_extract_lane(v, 0)
+    float32 sum = wasm_f32x4_extract_lane(v, 0)
              + wasm_f32x4_extract_lane(v, 1)
              + wasm_f32x4_extract_lane(v, 2)
              + wasm_f32x4_extract_lane(v, 3);
@@ -31,7 +31,7 @@ ORT_MATH_BACKEND_UTIL_DECL(wasm,
 }
 
 ORT_MATH_BACKEND_UTIL_DECL(wasm, 
-    hsum, float64x2, double, v128_t) {
+    hsum, float64x2, float64, v128_t) {
     // WASM: sum both lanes of a float64x2 vector
     return wasm_f64x2_extract_lane(v, 0) + wasm_f64x2_extract_lane(v, 1);
 }

@@ -24,21 +24,21 @@ try {
 
 // Test 2: Double precision operations
 try {
-    $tensor_a = new ORT\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ORT\Tensor::DOUBLE);
-    $tensor_b = new ORT\Tensor\Transient([2, 2], [[0.5, 0.5], [0.5, 0.5]], ORT\Tensor::DOUBLE);
+    $tensor_a = new ORT\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ORT\Tensor::FLOAT64);
+    $tensor_b = new ORT\Tensor\Transient([2, 2], [[0.5, 0.5], [0.5, 0.5]], ORT\Tensor::FLOAT64);
     
     $add_result = ORT\Math\add($tensor_a, $tensor_b);
     $div_result = ORT\Math\divide($tensor_a, $tensor_b);
     
-    echo "PASS: DOUBLE element-wise operations completed\n";
+    echo "PASS: FLOAT64 element-wise operations completed\n";
 } catch (Error $e) {
     echo "FAIL: DOUBLE operations failed: " . $e->getMessage() . "\n";
 }
 
 // Test 3: Division by zero handling
 try {
-    $tensor_a = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
-    $tensor_b = new ORT\Tensor\Transient([2, 2], [[1.0, 0.0], [1.0, 2.0]], ORT\Tensor::FLOAT);
+    $tensor_a = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
+    $tensor_b = new ORT\Tensor\Transient([2, 2], [[1.0, 0.0], [1.0, 2.0]], ORT\Tensor::FLOAT32);
     
     $result = ORT\Math\divide($tensor_a, $tensor_b);
     // Division by zero should produce inf values, not crash
@@ -52,6 +52,6 @@ echo "Element-wise operation tests completed.\n";
 --EXPECT--
 === Testing Element-wise Operations with Different Types ===
 PASS: INT32 element-wise operations completed
-PASS: DOUBLE element-wise operations completed
+PASS: FLOAT64 element-wise operations completed
 PASS: Division by zero handled (produces inf)
 Element-wise operation tests completed.

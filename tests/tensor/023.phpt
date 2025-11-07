@@ -5,8 +5,8 @@ ort
 --FILE--
 <?php
 echo "UNDEFINED: " . ORT\Tensor::UNDEFINED . "\n";
-echo "FLOAT: " . ORT\Tensor::FLOAT . "\n";
-echo "DOUBLE: " . ORT\Tensor::DOUBLE . "\n";
+echo "FLOAT: " . ORT\Tensor::FLOAT32 . "\n";
+echo "DOUBLE: " . ORT\Tensor::FLOAT64 . "\n";
 echo "UINT8: " . ORT\Tensor::UINT8 . "\n";
 echo "INT8: " . ORT\Tensor::INT8 . "\n";
 echo "UINT16: " . ORT\Tensor::UINT16 . "\n";

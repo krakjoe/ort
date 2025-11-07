@@ -12,10 +12,10 @@ This extension also includes optional integration with Microsoft's ONNX Runtime 
 ## Features
 
 - **High-Performance Mathematics**: Hardware Acceleration
-  - CPU (SIMD): WASM, NEON, RISCV64, AVX2, SSE4.1, SSE2
+  - CPU (SIMD): WASM, NEON, RISCV64, AVX512, AVX2, SSE4.1, SSE2
   - GPU: CUDA
 - **Hybrid Parallelism**: Automatic work distribution across CPU/GPU
-- **Comprehensive Type Support**: 9 data types with automatic promotion
+- **Comprehensive Type Support**: 10 data types with automatic promotion
 - **Memory Efficient**: Reference-counted tensors with zero-copy slicing
 - **ONNX Integration**: Optional and Direct ONNX model loading and inference
 
@@ -139,7 +139,7 @@ See [docs](docs) for detailed technical documentation.
 - **PHP**: 7.4+ or 8.0+
 - **ONNX Runtime**: 1.16+ (optional)
 - **Compiler**: GCC 4.8+ or Clang 3.8+
-- **CPU**: x86_64 with SSE2 (AVX2 recommended), aarch64, riscv64, wasm
+- **CPU**: x86_64, aarch64, riscv64, wasm
 
 ## License
 

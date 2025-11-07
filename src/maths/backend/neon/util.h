@@ -21,7 +21,7 @@
 #include <arm_neon.h>
 
 ORT_MATH_BACKEND_UTIL_DECL(neon, 
-    hsum, float32x4, float, float32x4_t) {
+    hsum, float32x4, float32, float32x4_t) {
     float32x2_t sum_pair = vadd_f32(
         vget_low_f32(v), vget_high_f32(v));
     return vget_lane_f32(
@@ -29,7 +29,7 @@ ORT_MATH_BACKEND_UTIL_DECL(neon,
 }
 
 ORT_MATH_BACKEND_UTIL_DECL(neon, 
-    hsum, float64x2, double, float64x2_t) {
+    hsum, float64x2, float64, float64x2_t) {
     return vgetq_lane_f64(v, 0) +
            vgetq_lane_f64(v, 1);
 }

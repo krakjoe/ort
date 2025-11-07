@@ -184,13 +184,13 @@ if (extension_loaded('ort')) {
         [1.5, 2.0, 3.2],
         [4.1, 5.7, 6.0],
         [7.3, 8.1, 9.9]
-    ], ORT\\Tensor::FLOAT);
+    ], ORT\\Tensor::FLOAT32);
     
     $matrix2 = ORT\\Tensor\\Transient::from([
         [0.5, 1.0, 0.8],
         [1.2, 0.3, 2.1],
         [0.7, 1.5, 0.2]
-    ], ORT\\Tensor::FLOAT);
+    ], ORT\\Tensor::FLOAT32);
     
     echo "Matrix 1 (3x3):\\n";
     print_r($matrix1->getData());
@@ -216,11 +216,11 @@ if (extension_loaded('ort')) {
     // Create test vectors
     $vector1 = ORT\\Tensor\\Transient::from([
         [2.0, 4.0, 6.0, 8.0]
-    ], ORT\\Tensor::FLOAT);
+    ], ORT\\Tensor::FLOAT32);
     
     $vector2 = ORT\\Tensor\\Transient::from([
         [1.0, 2.0, 3.0, 4.0]
-    ], ORT\\Tensor::FLOAT);
+    ], ORT\\Tensor::FLOAT32);
     
     echo "Vector 1: ";
     print_r($vector1->getData()[0]);
@@ -779,7 +779,7 @@ function showInnovationDetail(innovationId) {
                <ul class="padded-list">
                    <li><strong>Schema extraction:</strong> Python scripts generate C promotion tables from actual NumPy behavior</li>
                    <li><strong>Perfect compatibility:</strong> No guesswork about edge cases or version differences</li>
-                   <li><strong>Comprehensive coverage:</strong> 9 data types × all operations = hundreds of promotion rules</li>
+                   <li><strong>Comprehensive coverage:</strong> 10 data types × all operations = hundreds of promotion rules</li>
                    <li><strong>Introspection API:</strong> <span class="class">ORT\\Math\\Schema</span> allows runtime type behavior queries</li>
                </ul>
                <p>This ensures that workflows (almost entirely documented in python) adapted to PHP behave predictably, as predictably as they would in python.</p>

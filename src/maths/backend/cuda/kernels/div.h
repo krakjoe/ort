@@ -18,5 +18,5 @@
 
 #include <cuda_runtime.h>
 
-void ort_cuda_div_float(float* result, const float* a, const float* b, size_t count, cudaStream_t stream);
-void ort_cuda_div_double(double* result, const double* a, const double* b, size_t count, cudaStream_t stream);
+void ort_cuda_div_float32(float32* result, const float32* a, const float32* b, size_t count, cudaStream_t stream);
+void ort_cuda_div_float64(float64* result, const float64* a, const float64* b, size_t count, cudaStream_t stream);

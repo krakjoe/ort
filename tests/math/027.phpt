@@ -8,8 +8,8 @@ echo "=== Testing Matrix Operations and Validation ===\n";
 
 // Test 1: Basic 2x2 matrix multiplication
 try {
-    $matrix_a = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([2, 2], [[5.0, 6.0], [7.0, 8.0]], ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([2, 2], [[5.0, 6.0], [7.0, 8.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     $data = $result->getData();
     $shape = $result->getShape();
@@ -48,8 +48,8 @@ try {
 
 // Test 2: Rectangular matrix multiplication (3x2 * 2x4)
 try {
-    $matrix_a = new ORT\Tensor\Transient([3, 2], [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([2, 4], [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]], ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([3, 2], [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([2, 4], [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     $shape = $result->getShape();
     
@@ -64,8 +64,8 @@ try {
 
 // Test 3: Double precision matrix multiplication
 try {
-    $matrix_a = new ORT\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ORT\Tensor::DOUBLE);
-    $matrix_b = new ORT\Tensor\Transient([2, 2], [[0.5, 1.5], [2.5, 3.5]], ORT\Tensor::DOUBLE);
+    $matrix_a = new ORT\Tensor\Transient([2, 2], [[1.5, 2.5], [3.5, 4.5]], ORT\Tensor::FLOAT64);
+    $matrix_b = new ORT\Tensor\Transient([2, 2], [[0.5, 1.5], [2.5, 3.5]], ORT\Tensor::FLOAT64);
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     echo "PASS: Double precision matrix multiplication works\n";
 } catch (Error $e) {
@@ -74,8 +74,8 @@ try {
 
 // Test 4: Matrix multiplication dimension mismatch error
 try {
-    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     echo "FAIL: Dimension mismatch should throw exception\n";
 } catch (ORT\Status\Math\Error $e) {
@@ -86,8 +86,8 @@ try {
 
 // Test 5: 3D tensor matmul rejection
 try {
-    $tensor_3d = new ORT\Tensor\Transient([2, 2, 2], [[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]], ORT\Tensor::FLOAT);
-    $matrix = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
+    $tensor_3d = new ORT\Tensor\Transient([2, 2, 2], [[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]], ORT\Tensor::FLOAT32);
+    $matrix = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($tensor_3d, $matrix);
     echo "FAIL: 3D tensor should be rejected for matmul\n";
 } catch (ORT\Status\Math\Error $e) {
@@ -98,8 +98,8 @@ try {
 
 // Test 6: 1D vector matmul rejection
 try {
-    $vector = new ORT\Tensor\Transient([4], [1.0, 2.0, 3.0, 4.0], ORT\Tensor::FLOAT);
-    $matrix = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
+    $vector = new ORT\Tensor\Transient([4], [1.0, 2.0, 3.0, 4.0], ORT\Tensor::FLOAT32);
+    $matrix = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($vector, $matrix);
     echo "FAIL: 1D vector should be rejected for matmul\n";
 } catch (ORT\Status\Math\Error $e) {
@@ -110,8 +110,8 @@ try {
 
 // Test 7: Empty matrix handling
 try {
-    $matrix_a = new ORT\Tensor\Transient([0, 0], [], ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([0, 0], [], ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([0, 0], [], ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([0, 0], [], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     echo "INFO: Empty matrix multiplication handling\n";
 } catch (Error $e) {
@@ -132,8 +132,8 @@ try {
         $data_b[] = array_fill(0, 8, 0.5);
     }
     
-    $matrix_a = new ORT\Tensor\Transient([10, 5], $data_a, ORT\Tensor::FLOAT);
-    $matrix_b = new ORT\Tensor\Transient([5, 8], $data_b, ORT\Tensor::FLOAT);
+    $matrix_a = new ORT\Tensor\Transient([10, 5], $data_a, ORT\Tensor::FLOAT32);
+    $matrix_b = new ORT\Tensor\Transient([5, 8], $data_b, ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix_a, $matrix_b);
     $shape = $result->getShape();
     
@@ -148,8 +148,8 @@ try {
 
 // Test 9: Identity matrix multiplication
 try {
-    $matrix = new ORT\Tensor\Transient([3, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]], ORT\Tensor::FLOAT);
-    $identity = new ORT\Tensor\Transient([3, 3], [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], ORT\Tensor::FLOAT);
+    $matrix = new ORT\Tensor\Transient([3, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]], ORT\Tensor::FLOAT32);
+    $identity = new ORT\Tensor\Transient([3, 3], [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix, $identity);
     $data = $result->getData();
     $original_data = $matrix->getData();
@@ -197,8 +197,8 @@ try {
 
 // Test 10: Zero matrix multiplication
 try {
-    $matrix = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
-    $zero_matrix = new ORT\Tensor\Transient([2, 2], [[0.0, 0.0], [0.0, 0.0]], ORT\Tensor::FLOAT);
+    $matrix = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
+    $zero_matrix = new ORT\Tensor\Transient([2, 2], [[0.0, 0.0], [0.0, 0.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrix, $zero_matrix);
     $data = $result->getData();
     

@@ -21,7 +21,7 @@
 #include <smmintrin.h> /* SSE4.1 */
 
 ORT_MATH_BACKEND_UTIL_DECL(sse41, 
-    hsum, float32x4, float, __m128) {
+    hsum, float32x4, float32, __m128) {
     __m128 shuf = _mm_movehdup_ps(v);
     __m128 sums = _mm_add_ps(v, shuf);
 
@@ -32,7 +32,7 @@ ORT_MATH_BACKEND_UTIL_DECL(sse41,
 }
 
 ORT_MATH_BACKEND_UTIL_DECL(sse41, 
-    hsum, float64x2, double, __m128d) {
+    hsum, float64x2, float64, __m128d) {
     return _mm_cvtsd_f64(
         _mm_add_sd(v, _mm_unpackhi_pd(v, v)));
 }

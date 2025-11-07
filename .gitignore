@@ -28,8 +28,6 @@ ltmain.sh
 missing
 mkinstalldirs
 modules/
-*.php
-*.py
 tests/**/*.diff
 tests/**/*.exp
 tests/**/*.log

@@ -31,13 +31,16 @@
 # define ORT_TLS __thread
 #endif
 
+#include "maths/float16.h"
+
 #ifdef HAVE_ONNXRUNTIME
 # include <onnxruntime_c_api.h>
 #else
 typedef enum {
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED = 0,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT = 1,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 = 1,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
@@ -57,8 +60,9 @@ typedef enum {
 
 static zend_always_inline const char* php_ort_type_name(ONNXTensorElementDataType type) {
     switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:   return "FLOAT";
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:  return "DOUBLE";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16: return "FLOAT16";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32: return "FLOAT32";
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64: return "FLOAT64";
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:    return "INT8";
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:   return "INT16";
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:   return "INT32";
@@ -73,16 +77,17 @@ static zend_always_inline const char* php_ort_type_name(ONNXTensorElementDataTyp
 
 static zend_always_inline size_t php_ort_type_sizeof(ONNXTensorElementDataType type) {
     switch (type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:  return sizeof(float);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: return sizeof(double);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:   return sizeof(int8_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:  return sizeof(int16_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:  return sizeof(int32_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:  return sizeof(int64_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:  return sizeof(uint8_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16: return sizeof(uint16_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32: return sizeof(uint32_t);
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:   return sizeof(uint8_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16: return sizeof(float16);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32: return sizeof(float32);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64: return sizeof(float64);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:    return sizeof(int8_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:   return sizeof(int16_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:   return sizeof(int32_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:   return sizeof(int64_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:   return sizeof(uint8_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:  return sizeof(uint16_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:  return sizeof(uint32_t);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:    return sizeof(uint8_t);
         default: return 0;
     }
 }

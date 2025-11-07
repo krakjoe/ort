@@ -23,7 +23,7 @@ $A = new ORT\Tensor\Persistent(
         [[3.0], [4.0]],
         [[5.0], [6.0]],
     ],
-    ORT\Tensor::FLOAT
+    ORT\Tensor::FLOAT32
 );
 
 $B = new \ORT\Tensor\Persistent(
@@ -34,7 +34,7 @@ $B = new \ORT\Tensor\Persistent(
         [[3.0], [4.0]],
         [[5.0], [6.0]],
     ],
-    ORT\Tensor::FLOAT
+    ORT\Tensor::FLOAT32
 );
 
 $result = $runtime->run([

@@ -20,10 +20,10 @@
 
 #include <immintrin.h>  /* AVX512 */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, sign, float) {
-    const float* va = (const float*)a;
-    float* res = (float*)result;
-    const size_t mw = 16; /* AVX512 can process 16 floats at once */
+ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, sign, float32) {
+    const float32* va = (const float32*)a;
+    float32* res = (float32*)result;
+    const size_t mw = 16; /* AVX512 can process 16 float32 at once */
 
     const __m512 zero = _mm512_setzero_ps();
     const __m512 one = _mm512_set1_ps(1.0f);
@@ -33,10 +33,10 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, sign, float) {
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_sign_float_fallback;
+        goto __ort_math_backend_sign_float32_fallback;
     }
 
-    /* Vectorized loop - process 16 floats at once */
+    /* Vectorized loop - process 16 float32 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m512 ma = _mm512_load_ps(&va[i]);
 
@@ -51,26 +51,26 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, sign, float) {
         _mm512_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_sign_float_fallback:
+__ort_math_backend_sign_float32_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sign, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(sign, float32)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, sign, double) {
-    const double* va = (const double*)a;
-    double* res = (double*)result;
-    const size_t mw = 8; /* AVX512 can process 8 doubles at once */
+ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, sign, float64) {
+    const float64* va = (const float64*)a;
+    float64* res = (float64*)result;
+    const size_t mw = 8; /* AVX512 can process 8 float64 at once */
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_sign_double_fallback;
+        goto __ort_math_backend_sign_float64_fallback;
     }
 
     const __m512d zero = _mm512_setzero_pd();
@@ -91,10 +91,10 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, sign, double) {
         _mm512_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_sign_double_fallback:
+__ort_math_backend_sign_float64_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sign, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(sign, float64)(
             res   + mc,
             va    + mc,
             count - mc);

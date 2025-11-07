@@ -24,18 +24,33 @@
 #include "maths/dispatch.h"
 #include "maths/schema/sign.h"
 
-ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, float) {
-    float* res = (float*)result;
-    const float* va = (const float*)a;
+ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, float16) {
+    float16* res = (float16*)result;
+    const float16* va = (const float16*)a;
+    for (size_t i = 0; i < count; i++) {
+        res[i] = 
+            ort_math_float16_from_float32(
+                (ort_math_float32_from_float16(va[i]) > 0.0f) ? 
+                    1.0f  :
+                        (ort_math_float32_from_float16(va[i]) < 0.0f) ? 
+                        -1.0f :
+                            0.0f
+            );
+    }
+}
+
+ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, float32) {
+    float32* res = (float32*)result;
+    const float32* va = (const float32*)a;
     for (size_t i = 0; i < count; i++) {
         res[i] = (va[i] > 0.0f) ? 
             1.0f : (va[i] < 0.0f) ? -1.0f : 0.0f;
     }
 }
 
-ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, double) {
-    double* res = (double*)result;
-    const double* va = (const double*)a;
+ORT_MATH_FRONTEND_UNARY_OP_DECL(sign, float64) {
+    float64* res = (float64*)result;
+    const float64* va = (const float64*)a;
     for (size_t i = 0; i < count; i++) {
         res[i] = (va[i] > 0.0) ? 
             1.0 : (va[i] < 0.0) ? -1.0 : 0.0;

@@ -91,13 +91,14 @@ static zend_always_inline void
         (php_ort_generator_random_context_t*) generator->context;
 
     switch (context->type) {
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-        case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE: {
-            double min = Z_DVAL(context->min);
-            double max = Z_DVAL(context->max);
-            double scale =
-                (double) php_mt_rand() /
-                    ((double) PHP_MT_RAND_MAX + 1.0);
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64: {
+            float64 min = Z_DVAL(context->min);
+            float64 max = Z_DVAL(context->max);
+            float64 scale =
+                (float64) php_mt_rand() /
+                    ((float64) PHP_MT_RAND_MAX + 1.0);
 
             if (scale > 0.999999) {
                 scale = 0.999999;
@@ -110,7 +111,7 @@ static zend_always_inline void
             ZVAL_DOUBLE(zv, min + scale * (max - min));
             break;
         }
-        
+
         default: {
             ZVAL_LONG(zv, php_mt_rand_range(
                 Z_LVAL(context->min), Z_LVAL(context->max)));
@@ -208,8 +209,9 @@ PHP_METHOD(Generator_Random, __construct) {
     if (ZEND_NUM_ARGS() == 1) {
         /* only a type provided, we set range */
         switch (context->type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
                 ZVAL_DOUBLE(&context->min, 0.0);
                 ZVAL_DOUBLE(&context->max, 1.0);
                 break;
@@ -278,8 +280,9 @@ PHP_METHOD(Generator_Random, __construct) {
 } while(0)
 
         switch (context->type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
                 ORT_GENERATOR_RANDOM_CHECK_TYPE(
                     DOUBLE, min, "min");
                 ZVAL_COPY(&context->min, min);
@@ -370,8 +373,9 @@ PHP_METHOD(Generator_Random, __construct) {
 } while(0)
 
         switch (context->type) {
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
-            case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32:
+            case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64:
                 ORT_GENERATOR_RANDOM_CHECK_TYPE(
                     DOUBLE, min, "min");
                 ORT_GENERATOR_RANDOM_CHECK_TYPE(

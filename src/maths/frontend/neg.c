@@ -29,6 +29,16 @@
 #include "maths/dispatch.h"
 #include "maths/schema/neg.h"
 
+ORT_MATH_FRONTEND_UNARY_OP_DECL(neg, float16) {
+    float16* res = (float16*)result;
+    const float16* va = (const float16*)a;
+    for (size_t i = 0; i < count; i++) {
+        res[i] = ort_math_float16_from_float32(
+            -ort_math_float32_from_float16(va[i])
+        );
+    }
+}
+
 #define ORT_MATH_FRONTEND_NEG_IMPL(c_type, onnx_type) \
     ORT_MATH_FRONTEND_UNARY_OP_IMPL(neg, c_type, -)
 ORT_MATH_FOREACH_NUMERIC_TYPE(

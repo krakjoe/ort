@@ -44,13 +44,17 @@ echo "PASS: INT8 mod 2D 8x8\n";
 print_result($result);
 ?>
 --EXPECTF--
-PASS: FLOAT mod signed [-16..-1,0,1..16] % reversed
+PASS: FLOAT16 mod signed [-16..-1,0,1..16] % reversed
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE mod signed [-16..-1,0,1..16] % reversed
+PASS: FLOAT32 mod signed [-16..-1,0,1..16] % reversed
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 mod signed [-16..-1,0,1..16] % reversed
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 mod signed [-16..-1,0,1..16] % reversed
 RESULT: %s

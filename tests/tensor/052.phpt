@@ -24,7 +24,7 @@ $float_tensor = new ORT\Tensor\Persistent(
     "float_debug_tensor",
     [1, 4],
     [[1.1, 2.2, 3.3, 4.4]],
-    ORT\Tensor::FLOAT
+    ORT\Tensor::FLOAT32
 );
 
 echo "\n=== Float Tensor Debug Info ===\n";

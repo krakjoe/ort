@@ -56,13 +56,13 @@ void ort_math_backend_cpu_install(ort_math_dispatch_t* table) {
             ort_math_memcpy_wasm);
 
     /* abs.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   abs, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   abs, float32)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT8,    abs, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT16,   abs, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT32,   abs, int32_t)
 
     /* add.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   add, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   add, float32)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT8,    add, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT16,   add, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT32,   add, int32_t)
@@ -71,46 +71,46 @@ void ort_math_backend_cpu_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, wasm, UINT32,  add, uint32_t)
 
     /* ceil.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   ceil,  float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   ceil,  float32)
 
     /* div.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   div,   float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   div,   float32)
 
     /* floor.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   floor, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   floor, float32)
 
     /* matmul.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   matmul, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   matmul, float32)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT32,   matmul, int32_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, UINT32,  matmul, uint32_t)
 
     /* mul.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   mul, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   mul, float32)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT16,   mul, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT32,   mul, int32_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, UINT16,  mul, uint16_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, UINT32,  mul, uint32_t)
 
     /* neg.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,   neg, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,   neg, float32)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT8,    neg, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT16,   neg, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT32,   neg, int32_t)
 
     /* recip.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,  recip, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,  recip, float32)
 
     /* round.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,  round, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,  round, float32)
 
     /* sign.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,  sign,  float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,  sign,  float32)
 
     /* sqrt.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,  sqrt,  float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,  sqrt,  float32)
 
     /* sub.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,  sub,   float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,  sub,   float32)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT8,   sub,   int8_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT16,  sub,   int16_t)
     ORT_MATH_BACKEND_INSTALL(table, wasm, INT32,  sub,   int32_t)
@@ -119,5 +119,5 @@ void ort_math_backend_cpu_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, wasm, UINT32, sub,   uint32_t)
 
     /* trunc.c */
-    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT,  trunc, float)
+    ORT_MATH_BACKEND_INSTALL(table, wasm, FLOAT32,  trunc, float32)
 }

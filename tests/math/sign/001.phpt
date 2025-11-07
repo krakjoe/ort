@@ -72,13 +72,17 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT sign large signed [-16..-1,0,1..16]
+PASS: FLOAT16 sign large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE sign large signed [-16..-1,0,1..16]
+PASS: FLOAT32 sign large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 sign large signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 sign large signed [-16..-1,0,1..16]
 RESULT: %s
@@ -108,13 +112,17 @@ PASS: UINT32 sign large unsigned [0..31]
 RESULT: %s
 TYPE: UINT32
 SHAPE: [32]
-PASS: FLOAT sign extremes large
+PASS: FLOAT16 sign extremes large
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [39]
-PASS: DOUBLE sign extremes large
+PASS: FLOAT32 sign extremes large
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [39]
+PASS: FLOAT64 sign extremes large
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [39]
 PASS: INT8 sign 2D 8x8 alt sign
 RESULT: %s

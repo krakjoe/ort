@@ -39,13 +39,17 @@ echo "PASS: INT8 trunc 2D 8x8\n";
 print_result($result);
 ?>
 --EXPECTF--
-PASS: FLOAT trunc signed [-16..-1,0,1..16]
+PASS: FLOAT16 trunc signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE trunc signed [-16..-1,0,1..16]
+PASS: FLOAT32 trunc signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 trunc signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 trunc signed [-16..-1,0,1..16]
 RESULT: %s

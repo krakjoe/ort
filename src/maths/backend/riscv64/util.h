@@ -21,14 +21,14 @@
 #include <riscv_vector.h> /* RVV */
 
 ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
-    hsum, float32xN, float, vfloat32m1_t) {
+    hsum, float32xN, float32, vfloat32m1_t) {
     vfloat32m1_t zero = __riscv_vfmv_v_f_f32m1(0.0f, 1);
     vfloat32m1_t sum_vec = __riscv_vfredosum_vs_f32m1_f32m1(v, zero, vl);
     return __riscv_vfmv_f_s_f32m1_f32(sum_vec);
 }
 
 ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
-    hsum, float64xN, double, vfloat64m1_t) {
+    hsum, float64xN, float64, vfloat64m1_t) {
     vfloat64m1_t zero = __riscv_vfmv_v_f_f64m1(0.0, 1);
     vfloat64m1_t sum_vec = __riscv_vfredosum_vs_f64m1_f64m1(v, zero, vl);
     return __riscv_vfmv_f_s_f64m1_f64(sum_vec);

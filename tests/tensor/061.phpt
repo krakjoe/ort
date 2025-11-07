@@ -5,8 +5,8 @@ ort
 --FILE--
 <?php
 foreach ([
-    \ORT\Tensor::DOUBLE,
-    \ORT\Tensor::FLOAT,
+    \ORT\Tensor::FLOAT64,
+    \ORT\Tensor::FLOAT32,
     \ORT\Tensor::INT8,
     \ORT\Tensor::INT16,
     \ORT\Tensor::INT32,
@@ -29,8 +29,8 @@ foreach ([
 }
 ?>
 --EXPECTF--
-OK: DOUBLE
-OK: FLOAT
+OK: FLOAT64
+OK: FLOAT32
 OK: INT8
 OK: INT16
 OK: INT32

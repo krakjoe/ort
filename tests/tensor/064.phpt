@@ -14,8 +14,8 @@ $types = [
     "UINT8" => Tensor::UINT8,
     "UINT16" => Tensor::UINT16,
     "UINT32" => Tensor::UINT32,
-    "FLOAT" => Tensor::FLOAT,
-    "DOUBLE" => Tensor::DOUBLE,
+    "FLOAT32" => Tensor::FLOAT32,
+    "FLOAT64" => Tensor::FLOAT64,
 ];
 
 foreach ($types as $name => $type) {
@@ -27,8 +27,8 @@ foreach ($types as $name => $type) {
 }
 
 foreach ($types as $name => $type) {
-    if ($type == Tensor::DOUBLE ||
-        $type == Tensor::FLOAT) {
+    if ($type == Tensor::FLOAT64 ||
+        $type == Tensor::FLOAT32) {
         $param = 42.0;
     } else {
         $param = 42;
@@ -50,8 +50,8 @@ $params = [
     Tensor::UINT8 => [0, 255],
     Tensor::UINT16 => [0, 65535],
     Tensor::UINT32 => [0, 4294967295],
-    Tensor::FLOAT => [0.0, 1.0],
-    Tensor::DOUBLE => [0.0, 1.0],
+    Tensor::FLOAT32 => [0.0, 1.0],
+    Tensor::FLOAT64 => [0.0, 1.0],
 ];
 
 foreach ($types as $name => $type) {
@@ -71,8 +71,8 @@ PASS: INT64 random tensor 0 params
 PASS: UINT8 random tensor 0 params
 PASS: UINT16 random tensor 0 params
 PASS: UINT32 random tensor 0 params
-PASS: FLOAT random tensor 0 params
-PASS: DOUBLE random tensor 0 params
+PASS: FLOAT32 random tensor 0 params
+PASS: FLOAT64 random tensor 0 params
 PASS: INT8 random tensor 1 params
 PASS: INT16 random tensor 1 params
 PASS: INT32 random tensor 1 params
@@ -80,8 +80,8 @@ PASS: INT64 random tensor 1 params
 PASS: UINT8 random tensor 1 params
 PASS: UINT16 random tensor 1 params
 PASS: UINT32 random tensor 1 params
-PASS: FLOAT random tensor 1 params
-PASS: DOUBLE random tensor 1 params
+PASS: FLOAT32 random tensor 1 params
+PASS: FLOAT64 random tensor 1 params
 PASS: INT8 random tensor 2 params
 PASS: INT16 random tensor 2 params
 PASS: INT32 random tensor 2 params
@@ -89,6 +89,6 @@ PASS: INT64 random tensor 2 params
 PASS: UINT8 random tensor 2 params
 PASS: UINT16 random tensor 2 params
 PASS: UINT32 random tensor 2 params
-PASS: FLOAT random tensor 2 params
-PASS: DOUBLE random tensor 2 params
+PASS: FLOAT32 random tensor 2 params
+PASS: FLOAT64 random tensor 2 params
 

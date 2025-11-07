@@ -21,14 +21,61 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float) {
-    const float* va = (const float*) a;
-    const float* vb = (const float*) b;
-    float* res      = (float*) result;
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float16) {
+    const float16* va = (const float16*) a;
+    const float16* vb = (const float16*) b;
+    float16* res      = (float16*)       result;
+    const size_t mw = 8; /* AVX2 can process 8 float32 at once */
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+    float32 sum = 0.0f;
+
+    if (mc == 0) {
+        /* Not enough elements for a single SIMD operation, fallback to scalar */
+        goto __ort_math_backend_dot_float16_fallback;
+    }
+
+#ifndef ORT_BACKEND_CPU_F16C
+    goto __ort_math_backend_dot_float16_fallback;
+#else
+    __m256 vsum = _mm256_setzero_ps();
+
+    /* Vectorized loop - process 8 float16 at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        /* Load 8 float16 values into 128-bit registers */
+        __m128i ma = _mm_load_si128((__m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((__m128i*)&vb[i]);
+
+        /* Convert F16 to F32: 8 float16 -> 8 float32 */
+        __m256 mf16ca = _mm256_cvtph_ps(ma);
+        __m256 mf16cb = _mm256_cvtph_ps(mb);
+
+        /* Apply multiply operation and accumulate */
+        __m256 mf16r = _mm256_mul_ps(mf16ca, mf16cb);
+        vsum = _mm256_add_ps(vsum, mf16r);
+    }
+
+    sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float32x8, float32)(vsum);
+#endif
+
+__ort_math_backend_dot_float16_fallback:
+    /* Handle remaining elements with scalar operations */
+    for (size_t i = mc; i < count; ++i) {
+        sum += ort_math_float32_from_float16(va[i]) *
+               ort_math_float32_from_float16(vb[i]);
+    }
+
+    res[0] = ort_math_float16_from_float32(sum);
+}
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float32) {
+    const float32* va = (const float32*) a;
+    const float32* vb = (const float32*) b;
+    float32* res      = (float32*) result;
     const size_t mw = 8;
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
-    float sum = 0.0f;
+    float32 sum = 0.0f;
 
     if (mc > 0) {
         __m256 vsum = _mm256_setzero_ps();
@@ -38,7 +85,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float) {
             __m256 mr = _mm256_mul_ps(ma, mb);
             vsum = _mm256_add_ps(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float32x8, float)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float32x8, float32)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -48,14 +95,14 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float) {
     res[0] = sum;
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, double) {
-    const double* va = (const double*) a;
-    const double* vb = (const double*) b;
-    double* res      = (double*) result;
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float64) {
+    const float64* va = (const float64*) a;
+    const float64* vb = (const float64*) b;
+    float64* res      = (float64*) result;
     const size_t mw = 4;
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
-    double sum = 0.0;
+    float64 sum = 0.0;
 
     if (mc > 0) {
         __m256d vsum = _mm256_setzero_pd();
@@ -65,7 +112,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, double) {
             __m256d mr = _mm256_mul_pd(ma, mb);
             vsum = _mm256_add_pd(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float64x4, double)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float64x4, float64)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {

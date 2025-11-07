@@ -20,12 +20,12 @@
 
 #include "maths/backend/cuda/kernels/util.h"
 
-/* CUDA kernel for float sign */
-__global__ void ort_cuda_sign_float_kernel(float* result, const float* a, size_t count) {
+/* CUDA kernel for float32 sign */
+__global__ void ort_cuda_sign_float32_kernel(float32* result, const float32* a, size_t count) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     
     if (idx < count) {
-        float val = a[idx];
+        float32 val = a[idx];
         if (val > 0.0f) {
             result[idx] = 1.0f;
         } else if (val < 0.0f) {
@@ -36,12 +36,12 @@ __global__ void ort_cuda_sign_float_kernel(float* result, const float* a, size_t
     }
 }
 
-/* CUDA kernel for double sign */
-__global__ void ort_cuda_sign_double_kernel(double* result, const double* a, size_t count) {
+/* CUDA kernel for float64 sign */
+__global__ void ort_cuda_sign_float64_kernel(float64* result, const float64* a, size_t count) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     
     if (idx < count) {
-        double val = a[idx];
+        float64 val = a[idx];
         if (val > 0.0) {
             result[idx] = 1.0;
         } else if (val < 0.0) {
@@ -55,16 +55,16 @@ __global__ void ort_cuda_sign_double_kernel(double* result, const double* a, siz
 /* C-linkage wrapper functions */
 extern "C" {
 
-void ort_cuda_sign_float(float* result, const float* a, size_t count, cudaStream_t stream) {
-    ort_cuda_sign_float_kernel<<<
+void ort_cuda_sign_float32(float32* result, const float32* a, size_t count, cudaStream_t stream) {
+    ort_cuda_sign_float32_kernel<<<
         ort_cuda_blocks_count(__ort_cuda_threads, count),
         __ort_cuda_threads, 0, stream>>>(
         result, a, count
     );
 }
 
-void ort_cuda_sign_double(double* result, const double* a, size_t count, cudaStream_t stream) {
-    ort_cuda_sign_double_kernel<<<
+void ort_cuda_sign_float64(float64* result, const float64* a, size_t count, cudaStream_t stream) {
+    ort_cuda_sign_float64_kernel<<<
         ort_cuda_blocks_count(__ort_cuda_threads, count),
         __ort_cuda_threads, 0, stream>>>(
         result, a, count

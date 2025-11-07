@@ -10,7 +10,7 @@ echo "=== Testing Error Handling ===\n";
 
 // Test 1: Invalid tensor types
 try {
-    $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+    $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\add($tensor, "invalid_scalar");
     echo "ERROR: Should have thrown exception for invalid scalar\n";
 } catch (ORT\Status\Math\InvalidType $e) {
@@ -19,7 +19,7 @@ try {
 
 // Test 2: Divide by zero (should work and return INF)
 try {
-    $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+    $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\divide($tensor, 0.0);
     $data = $result->getData();
     if (is_infinite($data[0]) && is_infinite($data[1])) {
@@ -33,7 +33,7 @@ try {
 
 // Test 3: Very small tensors
 try {
-    $tensor = new ORT\Tensor\Transient([1], [42.0], ORT\Tensor::FLOAT);
+    $tensor = new ORT\Tensor\Transient([1], [42.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor);
     echo "PASS: sqrt() handles 1-element tensor\n";
 } catch (Error $e) {
@@ -42,7 +42,7 @@ try {
 
 // Test 5: Negative values in sqrt (should work and return NaN)
 try {
-    $tensor = new ORT\Tensor\Transient([2], [-1.0, 4.0], ORT\Tensor::FLOAT);
+    $tensor = new ORT\Tensor\Transient([2], [-1.0, 4.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor);
     $data = $result->getData();
     if (is_nan($data[0]) && $data[1] == 2.0) {
@@ -58,7 +58,7 @@ echo "\n=== Testing Edge Cases ===\n";
 
 // Test 6: Very large numbers
 try {
-    $tensor = new ORT\Tensor\Transient([2], [1e10, 1e10], ORT\Tensor::FLOAT);
+    $tensor = new ORT\Tensor\Transient([2], [1e10, 1e10], ORT\Tensor::FLOAT32);
     $result = ORT\Math\multiply($tensor, 1e10);
     echo "PASS: multiply() handles large numbers\n";
 } catch (Error $e) {
@@ -67,7 +67,7 @@ try {
 
 // Test 7: Very small numbers
 try {
-    $tensor = new ORT\Tensor\Transient([2], [1e-10, 1e-10], ORT\Tensor::FLOAT);
+    $tensor = new ORT\Tensor\Transient([2], [1e-10, 1e-10], ORT\Tensor::FLOAT32);
     $result = ORT\Math\add($tensor, 1e-10);
     echo "PASS: add() handles small numbers\n";
 } catch (Error $e) {
@@ -76,8 +76,8 @@ try {
 
 // Test 8: Matrix multiplication dimension mismatch
 try {
-    $matrixA = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT);
-    $matrixB = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT);
+    $matrixA = new ORT\Tensor\Transient([2, 3], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], ORT\Tensor::FLOAT32);
+    $matrixB = new ORT\Tensor\Transient([2, 2], [[1.0, 2.0], [3.0, 4.0]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\matmul($matrixA, $matrixB);
     echo "ERROR: matmul() should reject dimension mismatch\n";
 } catch (ORT\Status\Math\Error $e) {
@@ -110,7 +110,7 @@ echo "\n=== Testing Return Value Consistency ===\n";
 $functions = ['add', 'multiply', 'sqrt'];
 foreach ($functions as $func) {
     try {
-        $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT);
+        $tensor = new ORT\Tensor\Transient([2], [1.0, 2.0], ORT\Tensor::FLOAT32);
         if ($func === 'add' || $func === 'multiply') {
             $result = call_user_func("ORT\\Math\\$func", $tensor, 1.0);
         } else {

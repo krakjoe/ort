@@ -26,14 +26,14 @@ extern ORT_TLS cudaStream_t __ort_cuda_stream;
 extern ORT_TLS cublasHandle_t __ort_cublas_handle;
 
 /* Float matmul using cuBLAS gemv (matrix-vector multiply) */
-ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float) {
-    const float *va = (const float *)a;
-    const float *vb = (const float *)b;
-    float *res = (float *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float32) {
+    const float32 *va = (const float32 *)a;
+    const float32 *vb = (const float32 *)b;
+    float32 *res = (float32 *)result;
 
-    if ((a_cols * sizeof(float) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(float) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_float_relay;
+    if ((a_cols * sizeof(float32) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(float32) < __ort_cuda_threshold)) {
+        goto __ort_math_backend_matmul_float32_relay;
     }
 
     /* For row vector a times matrix b (both row-major):
@@ -43,8 +43,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float) {
      * Then gemv with CUBLAS_OP_N computes: result = b^T * a
      * Which gives us the row vector result we want.
      */
-    const float alpha = 1.0f;
-    const float beta = 0.0f;
+    const float32 alpha = 1.0f;
+    const float32 beta = 0.0f;
 
     cublasStatus_t status = cublasSgemv(
         __ort_cublas_handle,
@@ -62,9 +62,9 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float) {
     );
 
     if (status != CUBLAS_STATUS_SUCCESS) {
-__ort_math_backend_matmul_float_relay:
+__ort_math_backend_matmul_float32_relay:
         ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, FLOAT)
+            __ort_math_cpu_dispatch, matmul, FLOAT32)
                 (res, va, vb, a_cols, b_cols);
         return;
     }
@@ -73,18 +73,18 @@ __ort_math_backend_matmul_float_relay:
 }
 
 /* Double matmul using cuBLAS gemv */
-ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, double) {
-    const double *va = (const double *)a;
-    const double *vb = (const double *)b;
-    double *res = (double *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float64) {
+    const float64 *va = (const float64 *)a;
+    const float64 *vb = (const float64 *)b;
+    float64 *res = (float64 *)result;
 
-    if ((a_cols * sizeof(double) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(double) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_double_relay;
+    if ((a_cols * sizeof(float64) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(float64) < __ort_cuda_threshold)) {
+        goto __ort_math_backend_matmul_float64_relay;
     }
 
-    const double alpha = 1.0;
-    const double beta = 0.0;
+    const float64 alpha = 1.0;
+    const float64 beta = 0.0;
 
     cublasStatus_t status = cublasDgemv(
         __ort_cublas_handle,
@@ -102,9 +102,9 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, double) {
     );
 
     if (status != CUBLAS_STATUS_SUCCESS) {
-__ort_math_backend_matmul_double_relay:
+__ort_math_backend_matmul_float64_relay:
         ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, DOUBLE)
+            __ort_math_cpu_dispatch, matmul, FLOAT64)
                 (res, va, vb, a_cols, b_cols);
         return;
     }

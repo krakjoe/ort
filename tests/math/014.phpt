@@ -11,7 +11,7 @@ echo "=== Testing Error Handling Paths ===\n";
 // Test 1: NULL/empty tensor validation
 try {
     // This should trigger validation error handling
-    $empty_tensor = new ORT\Tensor\Transient([], [], ORT\Tensor::FLOAT);
+    $empty_tensor = new ORT\Tensor\Transient([], [], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($empty_tensor);
     echo "FAIL: Empty tensor should be rejected\n";
 } catch (ORT\Status\Tensor\InvalidData $e) {

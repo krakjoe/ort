@@ -27,13 +27,17 @@ foreach ($types as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT max
+PASS: FLOAT16 max
 RESULT: [6]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: []
-PASS: DOUBLE max
+PASS: FLOAT32 max
 RESULT: [6]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: []
+PASS: FLOAT64 max
+RESULT: [6]
+TYPE: FLOAT64
 SHAPE: []
 PASS: INT8 max
 RESULT: [6]

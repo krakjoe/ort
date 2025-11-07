@@ -21,8 +21,8 @@
 #include <emmintrin.h> /* SSE2 */
 
 ORT_MATH_BACKEND_UTIL_DECL(sse2, 
-    hsum, float32x4, float, __m128) {
-    float tmp[4];
+    hsum, float32x4, float32, __m128) {
+    float32 tmp[4];
     
     _mm_storeu_ps(tmp, v);
 
@@ -30,7 +30,7 @@ ORT_MATH_BACKEND_UTIL_DECL(sse2,
 }
 
 ORT_MATH_BACKEND_UTIL_DECL(sse2, 
-    hsum, float64x2, double, __m128d) {
+    hsum, float64x2, float64, __m128d) {
     return _mm_cvtsd_f64(
         _mm_add_sd(v, _mm_unpackhi_pd(v, v)));
 }

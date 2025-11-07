@@ -176,21 +176,21 @@ __ort_math_backend_sub_uint32_relay:
     cudaStreamSynchronize(__ort_cuda_stream);
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, float) {
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    float* res = (float*)result;
+ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, float32) {
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
+    float32* res = (float32*)result;
 
-    if (count * sizeof(float) < __ort_cuda_threshold) {
-        goto __ort_math_backend_sub_float_relay;
+    if (count * sizeof(float32) < __ort_cuda_threshold) {
+        goto __ort_math_backend_sub_float32_relay;
     }
 
-    ort_cuda_sub_float(res, va, vb, count, __ort_cuda_stream);
+    ort_cuda_sub_float32(res, va, vb, count, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_sub_float_relay:
+__ort_math_backend_sub_float32_relay:
         ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, sub, FLOAT)
+            __ort_math_cpu_dispatch, sub, FLOAT32)
                 (res, va, vb, count);
         return;
     }
@@ -198,21 +198,21 @@ __ort_math_backend_sub_float_relay:
     cudaStreamSynchronize(__ort_cuda_stream);
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, double) {
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    double* res = (double*)result;
+ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, sub, float64) {
+    const float64* va = (const float64*)a;
+    const float64* vb = (const float64*)b;
+    float64* res = (float64*)result;
 
-    if (count * sizeof(double) < __ort_cuda_threshold) {
-        goto __ort_math_backend_sub_double_relay;
+    if (count * sizeof(float64) < __ort_cuda_threshold) {
+        goto __ort_math_backend_sub_float64_relay;
     }
 
-    ort_cuda_sub_double(res, va, vb, count, __ort_cuda_stream);
+    ort_cuda_sub_float64(res, va, vb, count, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_sub_double_relay:
+__ort_math_backend_sub_float64_relay:
         ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, sub, DOUBLE)
+            __ort_math_cpu_dispatch, sub, FLOAT64)
                 (res, va, vb, count);
         return;
     }

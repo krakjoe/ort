@@ -85,91 +85,103 @@ foreach ($real as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT log large signed [-16..-1,0,1..16]
+PASS: FLOAT16 log large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE log large signed [-16..-1,0,1..16]
+PASS: FLOAT32 log large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 log large signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 log large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
 PASS: INT16 log large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [33]
 PASS: INT32 log large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT64 log large signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: UINT8 log large unsigned [0..31]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
 PASS: UINT16 log large unsigned [0..31]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [32]
 PASS: UINT32 log large unsigned [0..31]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
-PASS: FLOAT log large zeros/ones
+PASS: FLOAT16 log large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
-PASS: DOUBLE log large zeros/ones
+PASS: FLOAT32 log large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [32]
+PASS: FLOAT64 log large zeros/ones
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT8 log large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
 PASS: INT16 log large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [32]
 PASS: INT32 log large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT64 log large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: UINT8 log large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [32]
 PASS: UINT16 log large zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [32]
 PASS: UINT32 log large zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [32]
 PASS: INT8 log 2D 8x8 alt sign
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [8,8]
 PASS: BOOL log [bool 8x8] (numpy semantics)
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [8,8]
-PASS: FLOAT log extremes large
+PASS: FLOAT16 log extremes large
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [36]
-PASS: DOUBLE log extremes large
+PASS: FLOAT32 log extremes large
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [36]
+PASS: FLOAT64 log extremes large
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [36]

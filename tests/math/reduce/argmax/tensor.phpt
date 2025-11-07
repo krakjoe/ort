@@ -35,11 +35,15 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT argmax tensor
+PASS: FLOAT16 argmax tensor
 RESULT: [5]
 TYPE: INT64
 SHAPE: []
-PASS: DOUBLE argmax tensor
+PASS: FLOAT32 argmax tensor
+RESULT: [5]
+TYPE: INT64
+SHAPE: []
+PASS: FLOAT64 argmax tensor
 RESULT: [5]
 TYPE: INT64
 SHAPE: []

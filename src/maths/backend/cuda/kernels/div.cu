@@ -20,8 +20,8 @@
 
 #include "maths/backend/cuda/kernels/util.h"
 
-/* CUDA kernel for float division */
-__global__ void ort_cuda_div_float_kernel(float* result, const float* a, const float* b, size_t count) {
+/* CUDA kernel for float32 division */
+__global__ void ort_cuda_div_float32_kernel(float32* result, const float32* a, const float32* b, size_t count) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (idx < count) {
@@ -29,8 +29,8 @@ __global__ void ort_cuda_div_float_kernel(float* result, const float* a, const f
     }
 }
 
-/* CUDA kernel for double division */
-__global__ void ort_cuda_div_double_kernel(double* result, const double* a, const double* b, size_t count) {
+/* CUDA kernel for float64 division */
+__global__ void ort_cuda_div_float64_kernel(float64* result, const float64* a, const float64* b, size_t count) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (idx < count) {
@@ -41,16 +41,16 @@ __global__ void ort_cuda_div_double_kernel(double* result, const double* a, cons
 /* C-linkage wrapper functions */
 extern "C" {
 
-void ort_cuda_div_float(float* result, const float* a, const float* b, size_t count, cudaStream_t stream) {
-    ort_cuda_div_float_kernel<<<
+void ort_cuda_div_float32(float32* result, const float32* a, const float32* b, size_t count, cudaStream_t stream) {
+    ort_cuda_div_float32_kernel<<<
         ort_cuda_blocks_count(__ort_cuda_threads, count),
         __ort_cuda_threads, 0, stream>>>(
         result, a, b, count
     );
 }
 
-void ort_cuda_div_double(double* result, const double* a, const double* b, size_t count, cudaStream_t stream) {
-    ort_cuda_div_double_kernel<<<
+void ort_cuda_div_float64(float64* result, const float64* a, const float64* b, size_t count, cudaStream_t stream) {
+    ort_cuda_div_float64_kernel<<<
         ort_cuda_blocks_count(__ort_cuda_threads, count),
         __ort_cuda_threads, 0, stream>>>(
         result, a, b, count

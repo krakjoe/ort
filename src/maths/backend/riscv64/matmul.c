@@ -21,23 +21,23 @@
 
 #include <riscv_vector.h> /* RVV */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, float) {
-    const float *va = (const float *)a;
-    const float *vb = (const float *)b;
-    float *res = (float *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, float32) {
+    const float32 *va = (const float32 *)a;
+    const float32 *vb = (const float32 *)b;
+    float32 *res = (float32 *)result;
     for (size_t j = 0; j < b_cols; j++) {
         vfloat32m1_t ma, mb, mr;
-        float sum = 0.0f;
+        float32 sum = 0.0f;
         const size_t mw = __riscv_vsetvlmax_e32m1();
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
         if (mc > 0) {
             for (; k < mc; k += mw) {
                 ma = __riscv_vle32_v_f32m1(&va[k], mw);
-                mb = __riscv_vlse32_v_f32m1(&vb[k * b_cols + j], b_cols * sizeof(float), mw);
+                mb = __riscv_vlse32_v_f32m1(&vb[k * b_cols + j], b_cols * sizeof(float32), mw);
                 mr = __riscv_vfmul_vv_f32m1(ma, mb, mw);
 
-                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, float32xN, float)(mr, mw);
+                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, float32xN, float32)(mr, mw);
             }
         }
         if (mc < a_cols) {
@@ -50,23 +50,23 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, double) {
-    const double *va = (const double *)a;
-    const double *vb = (const double *)b;
-    double *res = (double *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, float64) {
+    const float64 *va = (const float64 *)a;
+    const float64 *vb = (const float64 *)b;
+    float64 *res = (float64 *)result;
     for (size_t j = 0; j < b_cols; j++) {
         vfloat64m1_t ma, mb, mr;
-        double sum = 0.0;
+        float64 sum = 0.0;
         const size_t mw = __riscv_vsetvlmax_e64m1();
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
         if (mc > 0) {
             for (; k < mc; k += mw) {
                 ma = __riscv_vle64_v_f64m1(&va[k], mw);
-                mb = __riscv_vlse64_v_f64m1(&vb[k * b_cols + j], b_cols * sizeof(double), mw);
+                mb = __riscv_vlse64_v_f64m1(&vb[k * b_cols + j], b_cols * sizeof(float64), mw);
                 mr = __riscv_vfmul_vv_f64m1(ma, mb, mw);
 
-                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, float64xN, double)(mr, mw);
+                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, float64xN, float64)(mr, mw);
             }
         }
         if (mc < a_cols) {

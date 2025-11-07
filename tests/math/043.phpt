@@ -23,8 +23,8 @@ try {
         ['UINT8', [255, 0], 'ORT\Tensor::UINT8'],
         ['UINT16', [65535, 0], 'ORT\Tensor::UINT16'],
         ['UINT32', [4294967295, 0], 'ORT\Tensor::UINT32'],
-        ['FLOAT', [3.4028235e+38, -3.4028235e+38], 'ORT\Tensor::FLOAT'],
-        ['DOUBLE', [1.7976931348623157e+308, -1.7976931348623157e+308], 'ORT\Tensor::DOUBLE'],
+        ['FLOAT32', [3.4028235e+38, -3.4028235e+38], 'ORT\Tensor::FLOAT32'],
+        ['FLOAT64', [1.7976931348623157e+308, -1.7976931348623157e+308], 'ORT\Tensor::FLOAT64'],
         ['BOOL', [true, false], 'ORT\Tensor::BOOL']
     ];
     
@@ -47,8 +47,8 @@ try {
     try {
         // Use very large arrays to see if we can trigger memory/size issues
         $large_data = array_fill(0, 100, 1.0);
-        $tensor_large = new ORT\Tensor\Transient([100], $large_data, ORT\Tensor::FLOAT);
-        $tensor_single = new ORT\Tensor\Transient([1], [2.0], ORT\Tensor::FLOAT);
+        $tensor_large = new ORT\Tensor\Transient([100], $large_data, ORT\Tensor::FLOAT32);
+        $tensor_single = new ORT\Tensor\Transient([1], [2.0], ORT\Tensor::FLOAT32);
         $result = ORT\Math\add($tensor_large, $tensor_single); // Should broadcast
         echo "PASS: Large tensor operations work\n";
     } catch (Exception $e) {
@@ -61,8 +61,8 @@ try {
     // Try combinations that might hit the default cases in macros
     $extreme_test_cases = [
         // Very precise floating point values
-        ['DOUBLE', [1.23456789e100, -9.87654321e100]],
-        ['FLOAT', [1.234e20, -9.876e20]],
+        ['FLOAT64', [1.23456789e100, -9.87654321e100]],
+        ['FLOAT32', [1.234e20, -9.876e20]],
         // Integer boundary values
         ['INT8', [120, -120]],
         ['INT16', [30000, -30000]],
@@ -110,8 +110,8 @@ try {
     
     try {
         // Zero division edge cases
-        $tensor_zero = new ORT\Tensor\Transient([2], [0.0, 1.0], ORT\Tensor::FLOAT);
-        $tensor_div = new ORT\Tensor\Transient([2], [1.0, 0.0], ORT\Tensor::FLOAT);
+        $tensor_zero = new ORT\Tensor\Transient([2], [0.0, 1.0], ORT\Tensor::FLOAT32);
+        $tensor_div = new ORT\Tensor\Transient([2], [1.0, 0.0], ORT\Tensor::FLOAT32);
         $result = ORT\Math\divide($tensor_div, $tensor_zero);
         echo "PASS: Division by zero handled\n";
     } catch (Exception $e) {

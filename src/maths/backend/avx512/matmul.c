@@ -21,13 +21,13 @@
 
 #include <immintrin.h> /* AVX512 */
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, float) {
-    const float *va = (const float *)a;
-    const float *vb = (const float *)b;
-    float *res = (float *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, float32) {
+    const float32 *va = (const float32 *)a;
+    const float32 *vb = (const float32 *)b;
+    float32 *res = (float32 *)result;
     for (size_t j = 0; j < b_cols; j++) {
         __m512 ma, mb, mr;
-        float sum = 0.0f;
+        float32 sum = 0.0f;
         const size_t mw = 16;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
@@ -44,7 +44,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, float) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm512_mul_ps(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(avx512, hsum, float32x16, float)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(avx512, hsum, float32x16, float32)(mr);
         }
         /* Fallback for leftovers */
         for (; k < a_cols; k++) {
@@ -54,13 +54,13 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, float) {
     }
 }
 
-ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, double) {
-    const double *va = (const double *)a;
-    const double *vb = (const double *)b;
-    double *res = (double *)result;
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, float64) {
+    const float64 *va = (const float64 *)a;
+    const float64 *vb = (const float64 *)b;
+    float64 *res = (float64 *)result;
     for (size_t j = 0; j < b_cols; j++) {
         __m512d ma, mb, mr;
-        double sum = 0.0;
+        float64 sum = 0.0;
         const size_t mw = 8;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
@@ -73,7 +73,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, double) {
                 vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
             mr = _mm512_mul_pd(ma, mb);
 
-            sum += ORT_MATH_BACKEND_UTIL(avx512, hsum, float64x8, double)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(avx512, hsum, float64x8, float64)(mr);
         }
         /* Fallback for leftovers */
         for (; k < a_cols; k++) {

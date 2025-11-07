@@ -29,11 +29,35 @@
 #include "maths/dispatch.h"
 #include "maths/schema/div.h"
 
+ORT_MATH_FRONTEND_BINARY_OP_DECL(div, float16) {
+    float16* res = (float16*)result;
+    const float16* va = (const float16*)a;
+    const float16* vb = (const float16*)b;
+    for (size_t i = 0; i < count; i++) {
+        res[i] = ort_math_float16_from_float32(
+            ort_math_float32_from_float16(va[i]) /
+            ort_math_float32_from_float16(vb[i])
+        );
+    }
+}
+
 #define ORT_MATH_FRONTEND_DIV_IMPL(c_type, onnx_type) \
     ORT_MATH_FRONTEND_BINARY_OP_IMPL(div, c_type, /)
 ORT_MATH_FOREACH_REAL_TYPE(
     ORT_MATH_FRONTEND_DIV_IMPL)
 #undef ORT_MATH_FRONTEND_DIV_IMPL
+
+ORT_MATH_FRONTEND_SCALAR_OP_DECL(div, float16) {
+    float16* res = (float16*)result;
+    const float16* va = (const float16*)a;
+    const float16 sb = *(const float16*)b;
+    for (size_t i = 0; i < count; i++) {
+        res[i] = ort_math_float16_from_float32(
+            ort_math_float32_from_float16(va[i]) /
+            ort_math_float32_from_float16(sb)
+        );
+    }
+}
 
 #define ORT_MATH_FRONTEND_DIV_SCALAR_IMPL(c_type, onnx_type) \
     ORT_MATH_FRONTEND_SCALAR_OP_IMPL(div, c_type, /)

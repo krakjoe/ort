@@ -203,19 +203,19 @@ __ort_math_backend_sub_uint32_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, sub, float) {
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    float* res = (float*)result;
-    const size_t mw = 4; // 4 floats per 128-bit WASM SIMD
+ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, sub, float32) {
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
+    float32* res = (float32*)result;
+    const size_t mw = 4; // 4 float32 per 128-bit WASM SIMD
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_sub_float_fallback;
+        goto __ort_math_backend_sub_float32_fallback;
     }
 
-    // Vectorized loop - process 4 floats at once using WASM SIMD
+    // Vectorized loop - process 4 float32 at once using WASM SIMD
     for (size_t i = 0; i < mc; i += mw) {
         v128_t ma = wasm_v128_load(&va[i]);
         v128_t mb = wasm_v128_load(&vb[i]);
@@ -224,9 +224,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, sub, float) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_sub_float_fallback:
+__ort_math_backend_sub_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sub, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(sub, float32)(
             res   + mc,
             va    + mc,
             vb    + mc,

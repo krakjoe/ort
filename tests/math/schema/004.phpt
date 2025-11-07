@@ -10,8 +10,8 @@ use ORT\Status;
 
 $schema = new Math\Schema("add");
 
-if ($schema->resolve(Tensor::FLOAT, Tensor::FLOAT) ==
-        Tensor::FLOAT) {
+if ($schema->resolve(Tensor::FLOAT32, Tensor::FLOAT32) ==
+        Tensor::FLOAT32) {
     echo "PASS: binary schema resolved\n";
 }
 
@@ -29,8 +29,8 @@ try {
 
 $schema = new Math\Schema("abs");
 
-if ($schema->resolve(Tensor::FLOAT) ==
-        Tensor::FLOAT) {
+if ($schema->resolve(Tensor::FLOAT32) ==
+        Tensor::FLOAT32) {
     echo "PASS: unary schema resolved\n";
 }
 

@@ -20,14 +20,14 @@
 
 #include <smmintrin.h> /* SSE4.1 */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, neg, float) {
-    const float* va = (const float*)a;
-    float* res = (float*)result;
-    const size_t mw = 4; // 4 floats per SSE register
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, neg, float32) {
+    const float32* va = (const float32*)a;
+    float32* res = (float32*)result;
+    const size_t mw = 4; // 4 float32 per SSE register
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_neg_float_fallback;
+        goto __ort_math_backend_neg_float32_fallback;
     }
 
     __m128 neg_mask = _mm_set1_ps(-0.0f);
@@ -38,23 +38,23 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, neg, float) {
         _mm_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_neg_float_fallback:
+__ort_math_backend_neg_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float32)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, neg, double) {
-    const double* va = (const double*)a;
-    double* res = (double*)result;
+ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, neg, float64) {
+    const float64* va = (const float64*)a;
+    float64* res = (float64*)result;
     const size_t mw = 2;
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_neg_double_fallback;
+        goto __ort_math_backend_neg_float64_fallback;
     }
 
     __m128d neg_mask = _mm_set1_pd(-0.0);
@@ -65,9 +65,9 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sse41, neg, double) {
         _mm_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_neg_double_fallback:
+__ort_math_backend_neg_float64_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(neg, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float64)(
             res   + mc,
             va    + mc,
             count - mc);

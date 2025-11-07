@@ -24,9 +24,9 @@
 @extract %python% %extract.py% -f round -n round -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_round[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// round(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// round(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// round(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// round(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// round(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// round(float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// round(int8) -> int8
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// round(int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// round(int32) -> int32
@@ -34,13 +34,13 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_round[11]
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8,	// round(uint8) -> uint8
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16,	// round(uint16) -> uint16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32,	// round(uint32) -> uint32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// round(bool) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// round(bool) -> float16
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_round[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

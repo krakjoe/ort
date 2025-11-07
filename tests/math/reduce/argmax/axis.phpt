@@ -76,7 +76,7 @@ foreach ($types as $name => $type) {
 
 // 5. Error: axis not integer
 try {
-    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([3], [1,2,3], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\argmax($a, 'foo');
     echo "FAIL: Did not throw on non-integer axis\n";
 } catch (Throwable $e) {
@@ -85,7 +85,7 @@ try {
 
 // 6. Error: axis out of range
 try {
-    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\argmax($a, 2);
     echo "FAIL: Did not throw on axis out of range\n";
 } catch (Throwable $e) {
@@ -93,11 +93,15 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT argmax axis=0
+PASS: FLOAT16 argmax axis=0
 RESULT: [1,1,1]
 TYPE: INT64
 SHAPE: [3]
-PASS: DOUBLE argmax axis=0
+PASS: FLOAT32 argmax axis=0
+RESULT: [1,1,1]
+TYPE: INT64
+SHAPE: [3]
+PASS: FLOAT64 argmax axis=0
 RESULT: [1,1,1]
 TYPE: INT64
 SHAPE: [3]
@@ -133,11 +137,15 @@ PASS: BOOL argmax axis=0
 RESULT: [0,1,0]
 TYPE: INT64
 SHAPE: [3]
-PASS: FLOAT argmax axis=1
+PASS: FLOAT16 argmax axis=1
 RESULT: [2,2]
 TYPE: INT64
 SHAPE: [2]
-PASS: DOUBLE argmax axis=1
+PASS: FLOAT32 argmax axis=1
+RESULT: [2,2]
+TYPE: INT64
+SHAPE: [2]
+PASS: FLOAT64 argmax axis=1
 RESULT: [2,2]
 TYPE: INT64
 SHAPE: [2]
@@ -173,11 +181,15 @@ PASS: BOOL argmax axis=1
 RESULT: [0,1]
 TYPE: INT64
 SHAPE: [2]
-PASS: FLOAT argmax axis=-1
+PASS: FLOAT16 argmax axis=-1
 RESULT: [2,2]
 TYPE: INT64
 SHAPE: [2]
-PASS: DOUBLE argmax axis=-1
+PASS: FLOAT32 argmax axis=-1
+RESULT: [2,2]
+TYPE: INT64
+SHAPE: [2]
+PASS: FLOAT64 argmax axis=-1
 RESULT: [2,2]
 TYPE: INT64
 SHAPE: [2]
@@ -213,11 +225,15 @@ PASS: BOOL argmax axis=-1
 RESULT: [0,1]
 TYPE: INT64
 SHAPE: [2]
-PASS: FLOAT argmax axis=1 keepdims
+PASS: FLOAT16 argmax axis=1 keepdims
 RESULT: [[2],[2]]
 TYPE: INT64
 SHAPE: [2,1]
-PASS: DOUBLE argmax axis=1 keepdims
+PASS: FLOAT32 argmax axis=1 keepdims
+RESULT: [[2],[2]]
+TYPE: INT64
+SHAPE: [2,1]
+PASS: FLOAT64 argmax axis=1 keepdims
 RESULT: [[2],[2]]
 TYPE: INT64
 SHAPE: [2,1]

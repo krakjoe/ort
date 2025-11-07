@@ -1,5 +1,5 @@
 --TEST--
-ORT\Math\reduce\axis\softmax: float/double, axis, keepdims, negative axis, and error handling
+ORT\Math\reduce\axis\softmax: float32/float64, axis, keepdims, negative axis, and error handling
 --EXTENSIONS--
 ort
 --FILE--
@@ -72,7 +72,7 @@ foreach ($real as $name => $type) {
 
 // 6. Error: invalid axis
 try {
-    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\softmax($a, 2, false);
     echo "FAIL: Did not throw on invalid axis\n";
 } catch (Throwable $e) {
@@ -98,45 +98,65 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT softmax axis=0
+PASS: FLOAT16 softmax axis=0
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [3]
-PASS: DOUBLE softmax axis=0
+PASS: FLOAT32 softmax axis=0
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [3]
-PASS: FLOAT softmax axis=1
+PASS: FLOAT64 softmax axis=0
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT64
+SHAPE: [3]
+PASS: FLOAT16 softmax axis=1
+RESULT: %s
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE softmax axis=1
+PASS: FLOAT32 softmax axis=1
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [2]
-PASS: FLOAT softmax axis=0 keepdims
+PASS: FLOAT64 softmax axis=1
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT64
+SHAPE: [2]
+PASS: FLOAT16 softmax axis=0 keepdims
+RESULT: %s
+TYPE: FLOAT16
 SHAPE: [1,3]
-PASS: DOUBLE softmax axis=0 keepdims
+PASS: FLOAT32 softmax axis=0 keepdims
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [1,3]
-PASS: FLOAT softmax axis=1 keepdims
+PASS: FLOAT64 softmax axis=0 keepdims
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT64
+SHAPE: [1,3]
+PASS: FLOAT16 softmax axis=1 keepdims
+RESULT: %s
+TYPE: FLOAT16
 SHAPE: [2,1]
-PASS: DOUBLE softmax axis=1 keepdims
+PASS: FLOAT32 softmax axis=1 keepdims
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
 SHAPE: [2,1]
-PASS: FLOAT softmax axis=-1
+PASS: FLOAT64 softmax axis=1 keepdims
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT64
+SHAPE: [2,1]
+PASS: FLOAT16 softmax axis=-1
+RESULT: %s
+TYPE: FLOAT16
 SHAPE: [2]
-PASS: DOUBLE softmax axis=-1
+PASS: FLOAT32 softmax axis=-1
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [2]
+PASS: FLOAT64 softmax axis=-1
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [2]
 PASS: Error on invalid axis: softmax: axis 2 is out of bounds for tensor with 2 dimensions
 PASS: Error on integer input: softmax: unsupported kernel INT32 -> UNKNOWN

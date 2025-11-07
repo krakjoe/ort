@@ -26,20 +26,20 @@
  * Note: AVX512 does not support integer division.
  */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, div, float) {
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    float* res      = (float*)result;
-    const size_t mw = 16; /* AVX512 can process 16 floats at once */
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, div, float32) {
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
+    float32* res      = (float32*)result;
+    const size_t mw = 16; /* AVX512 can process 16 float32 at once */
 
-    size_t mc = ort_math_backend_optimal_count(count, mw);  /* 16 floats per AVX512 register */
+    size_t mc = ort_math_backend_optimal_count(count, mw);  /* 16 float32 per AVX512 register */
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_div_float_fallback;
+        goto __ort_math_backend_div_float32_fallback;
     }
 
-    /* Vectorized loop - process 16 floats at once */
+    /* Vectorized loop - process 16 float32 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m512 ma = _mm512_load_ps(&va[i]);
         __m512 mb = _mm512_load_ps(&vb[i]);
@@ -47,9 +47,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, div, float) {
         _mm512_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_div_float_fallback:
+__ort_math_backend_div_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(div, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(div, float32)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -57,20 +57,20 @@ __ort_math_backend_div_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, div, double) {
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    double* res = (double*)result;
-    const size_t mw = 8; // 8 doubles per AVX512 register
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, div, float64) {
+    const float64* va = (const float64*)a;
+    const float64* vb = (const float64*)b;
+    float64* res = (float64*)result;
+    const size_t mw = 8; // 8 float64 per AVX512 register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_div_double_fallback;
+        goto __ort_math_backend_div_float64_fallback;
     }
 
-    /* Vectorized loop - process 8 doubles at once */
+    /* Vectorized loop - process 8 float64 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m512d ma = _mm512_load_pd(&va[i]);
         __m512d mb = _mm512_load_pd(&vb[i]);
@@ -78,9 +78,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, div, double) {
         _mm512_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_div_double_fallback:
+__ort_math_backend_div_float64_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(div, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(div, float64)(
             res   + mc,
             va    + mc,
             vb    + mc,

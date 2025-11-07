@@ -20,61 +20,108 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, neg, float) {
-    const float* va = (const float*)a;
-    float* res = (float*)result;
-    const size_t mw = 8; /* AVX2 can process 8 floats at once */
+ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, neg, float16) {
+    const float16* va = (const float16*) a;
+    float16* res      = (float16*)       result;
+    const size_t mw = 8; /* AVX2 can process 8 float32 at once */
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_neg_float_fallback;
+        goto __ort_math_backend_neg_float16_fallback;
     }
 
+#ifndef ORT_BACKEND_CPU_F16C
+    goto __ort_math_backend_neg_float16_fallback;
+#else
     __m256 sign_mask = _mm256_set1_ps(-0.0f);  /* Sign bit mask */
 
-    /* Vectorized loop - process 8 floats at once */
+    /* Vectorized loop - process 8 float16 at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256 ma = _mm256_load_ps(&va[i]);
-        __m256 mr = _mm256_xor_ps(ma, sign_mask);  /* Flip sign bit */
-        _mm256_store_ps(&res[i], mr);
-    }
+        /* Load 8 float16 values into 128-bit register */
+        __m128i ma = _mm_load_si128((__m128i*)&va[i]);
 
-__ort_math_backend_neg_float_fallback:
+        /* Convert F16 to F32: 8 float16 -> 8 float32 */
+        __m256 mf16c = _mm256_cvtph_ps(ma);
+
+        /* Apply neg operation: flip sign bit */
+        __m256 mf16r = _mm256_xor_ps(mf16c, sign_mask);
+
+        /* Convert F32 back to F16: 8 float32 -> 8 float16 */
+        __m128i mr = _mm256_cvtps_ph(
+            mf16r, _MM_FROUND_TO_NEAREST_INT);
+
+        /* Store result */
+        _mm_store_si128((__m128i*)&res[i], mr);
+    }
+#endif
+
+__ort_math_backend_neg_float16_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float16)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, neg, double) {
-    const double* va = (const double*)a;
-    double* res = (double*)result;
-    const size_t mw = 4; /* AVX2 can process 4 doubles at once */
+ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, neg, float32) {
+    const float32* va = (const float32*)a;
+    float32* res = (float32*)result;
+    const size_t mw = 8; /* AVX2 can process 8 float32 at once */
+
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_neg_double_fallback;
+        goto __ort_math_backend_neg_float32_fallback;
+    }
+
+    __m256 sign_mask = _mm256_set1_ps(-0.0f);  /* Sign bit mask */
+
+    /* Vectorized loop - process 8 float32 at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_load_ps(&va[i]);
+        __m256 mr = _mm256_xor_ps(ma, sign_mask);  /* Flip sign bit */
+        _mm256_store_ps(&res[i], mr);
+    }
+
+__ort_math_backend_neg_float32_fallback:
+    /* Handle remaining elements with scalar operations */
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float32)(
+            res   + mc,
+            va    + mc,
+            count - mc);
+    }
+}
+
+ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, neg, float64) {
+    const float64* va = (const float64*)a;
+    float64* res = (float64*)result;
+    const size_t mw = 4; /* AVX2 can process 4 float64 at once */
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        /* Not enough elements for a single SIMD operation, fallback to scalar */
+        goto __ort_math_backend_neg_float64_fallback;
     }
 
     __m256d sign_mask = _mm256_set1_pd(-0.0);  /* Sign bit mask */
 
-    /* Vectorized loop - process 4 doubles at once */
+    /* Vectorized loop - process 4 float64 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m256d ma = _mm256_load_pd(&va[i]);
         __m256d mr = _mm256_xor_pd(ma, sign_mask);  /* Flip sign bit */
         _mm256_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_neg_double_fallback:
+__ort_math_backend_neg_float64_fallback:
     /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(neg, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(neg, float64)(
             res   + mc,
             va    + mc,
             count - mc);

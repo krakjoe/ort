@@ -49,13 +49,17 @@ echo "PASS: INT8 ceil 2D 8x8\n";
 print_result($result);
 ?>
 --EXPECTF--
-PASS: FLOAT ceil signed [-16..-1,0,1..16]
+PASS: FLOAT16 ceil signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [33]
-PASS: DOUBLE ceil signed [-16..-1,0,1..16]
+PASS: FLOAT32 ceil signed [-16..-1,0,1..16]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [33]
+PASS: FLOAT64 ceil signed [-16..-1,0,1..16]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [33]
 PASS: INT8 ceil signed [-16..-1,0,1..16]
 RESULT: %s

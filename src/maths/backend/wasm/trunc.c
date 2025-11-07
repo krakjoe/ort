@@ -20,26 +20,26 @@
 
 #include <wasm_simd128.h>  /* WASM */
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, trunc, float) {
-    const float* va = (const float*)a;
-    float* res      = (float*)result;
-    const size_t mw = 4; // 4 floats per 128-bit WASM SIMD
+ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, trunc, float32) {
+    const float32* va = (const float32*)a;
+    float32* res      = (float32*)result;
+    const size_t mw = 4; // 4 float32 per 128-bit WASM SIMD
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_trunc_float_fallback;
+        goto __ort_math_backend_trunc_float32_fallback;
     }
 
-    // Vectorized loop - process 4 floats at once using WASM SIMD
+    // Vectorized loop - process 4 float32 at once using WASM SIMD
     for (size_t i = 0; i < mc; i += mw) {
         v128_t ma = wasm_v128_load(&va[i]);
         v128_t mr = wasm_f32x4_trunc(ma);
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_trunc_float_fallback:
+__ort_math_backend_trunc_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(trunc, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(trunc, float32)(
             res   + mc,
             va    + mc,
             count - mc);

@@ -7,8 +7,9 @@ ort
 use ORT\Tensor;
 
 $types = [
-    'FLOAT'   => ORT\Tensor::FLOAT,
-    'DOUBLE'  => ORT\Tensor::DOUBLE,
+    'FLOAT16'  => ORT\Tensor::FLOAT16,
+    'FLOAT32'   => ORT\Tensor::FLOAT32,
+    'FLOAT64'  => ORT\Tensor::FLOAT64,
     'INT8'    => ORT\Tensor::INT8,
     'INT16'   => ORT\Tensor::INT16,
     'INT32'   => ORT\Tensor::INT32,
@@ -115,7 +116,7 @@ foreach ($types as $name => $type) {
 
 // 6. Error: invalid axis
 try {
-    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([2,3], [[1,2,3],[4,5,6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\reduce\axis\sum($a, 2, false);
     echo "FAIL: Did not throw on invalid axis\n";
 } catch (Throwable $e) {
@@ -123,11 +124,15 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT sum axis=0
+PASS: FLOAT16 sum axis=0
 RESULT: [5,7,9]
 TYPE: %d
 SHAPE: [3]
-PASS: DOUBLE sum axis=0
+PASS: FLOAT32 sum axis=0
+RESULT: [5,7,9]
+TYPE: %d
+SHAPE: [3]
+PASS: FLOAT64 sum axis=0
 RESULT: [5,7,9]
 TYPE: %d
 SHAPE: [3]
@@ -151,11 +156,15 @@ PASS: BOOL sum axis=0
 RESULT: [1,1,1]
 TYPE: %d
 SHAPE: [3]
-PASS: FLOAT sum axis=1
+PASS: FLOAT16 sum axis=1
 RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]
-PASS: DOUBLE sum axis=1
+PASS: FLOAT32 sum axis=1
+RESULT: [6,15]
+TYPE: %d
+SHAPE: [2]
+PASS: FLOAT64 sum axis=1
 RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]
@@ -179,11 +188,15 @@ PASS: BOOL sum axis=1
 RESULT: [2,1]
 TYPE: %d
 SHAPE: [2]
-PASS: FLOAT sum axis=0 keepdims
+PASS: FLOAT16 sum axis=0 keepdims
 RESULT: [[5,7,9]]
 TYPE: %d
 SHAPE: [1,3]
-PASS: DOUBLE sum axis=0 keepdims
+PASS: FLOAT32 sum axis=0 keepdims
+RESULT: [[5,7,9]]
+TYPE: %d
+SHAPE: [1,3]
+PASS: FLOAT64 sum axis=0 keepdims
 RESULT: [[5,7,9]]
 TYPE: %d
 SHAPE: [1,3]
@@ -207,11 +220,15 @@ PASS: BOOL sum axis=0 keepdims
 RESULT: [[1,1,1]]
 TYPE: %d
 SHAPE: [1,3]
-PASS: FLOAT sum axis=1 keepdims
+PASS: FLOAT16 sum axis=1 keepdims
 RESULT: [[6],[15]]
 TYPE: %d
 SHAPE: [2,1]
-PASS: DOUBLE sum axis=1 keepdims
+PASS: FLOAT32 sum axis=1 keepdims
+RESULT: [[6],[15]]
+TYPE: %d
+SHAPE: [2,1]
+PASS: FLOAT64 sum axis=1 keepdims
 RESULT: [[6],[15]]
 TYPE: %d
 SHAPE: [2,1]
@@ -235,11 +252,15 @@ PASS: BOOL sum axis=1 keepdims
 RESULT: [[2],[1]]
 TYPE: %d
 SHAPE: [2,1]
-PASS: FLOAT sum axis=-1
+PASS: FLOAT16 sum axis=-1
 RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]
-PASS: DOUBLE sum axis=-1
+PASS: FLOAT32 sum axis=-1
+RESULT: [6,15]
+TYPE: %d
+SHAPE: [2]
+PASS: FLOAT64 sum axis=-1
 RESULT: [6,15]
 TYPE: %d
 SHAPE: [2]

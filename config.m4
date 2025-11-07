@@ -38,6 +38,8 @@ AS_VAR_IF([PHP_ORT], [no],, [
   PHP_ORT_HAS_AVX2="no"
   PHP_ORT_HAS_SSE41="no"
   PHP_ORT_HAS_SSE2="no"
+  PHP_ORT_HAS_F16C="no"
+  PHP_ORT_HAS_F16V="no"
 
   AC_MSG_CHECKING([looking for guard.h])
   if test -f "src/maths/backend/guard.h"; then
@@ -103,6 +105,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     AX_CHECK_COMPILE_FLAG([-march=armv8-a+simd], [
       AC_CHECK_HEADERS([arm_neon.h], [
         PHP_ORT_HAS_NEON="yes"
+        PHP_ORT_HAS_F16V="yes"
       ], [], [AC_INCLUDES_DEFAULT])
     ], [])
   fi
@@ -115,6 +118,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
       CFLAGS="$CFLAGS -march=rv64gcv"
       AC_CHECK_HEADERS([riscv_vector.h], [
         PHP_ORT_HAS_RISCV64="yes"
+        PHP_ORT_HAS_F16V="yes"
       ], [], [AC_INCLUDES_DEFAULT])
       CFLAGS="$save_CFLAGS"
     ], [])
@@ -156,13 +160,50 @@ AS_VAR_IF([PHP_ORT], [no],, [
       ]])], [
         AC_MSG_RESULT([yes])
         PHP_ORT_HAS_AVX512="yes"
+        dnl Test for native F16V support with AVX512FP16
+        AC_MSG_CHECKING([for native F16V support with AVX512FP16])
+        saved_CFLAGS_F16V="$CFLAGS"
+        CFLAGS="$CFLAGS -mavx512f -mavx512fp16"
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+          #include <immintrin.h>
+        ]], [[
+          __m512h a = _mm512_setzero_ph();
+          __m512h b = _mm512_setzero_ph();
+          __m512h c = _mm512_add_ph(a, b);
+          return 0;
+        ]])], [
+          AC_MSG_RESULT([yes])
+          PHP_ORT_HAS_F16V="yes"
+        ], [
+          AC_MSG_RESULT([no])
+          dnl Fallback: Test for F16C conversion support
+          AC_MSG_CHECKING([for F16C conversion support with AVX512])
+          CFLAGS="$saved_CFLAGS_F16V -mavx512f -mf16c"
+          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+            #include <immintrin.h>
+          ]], [[
+            __m256i h = _mm256_setzero_si256();
+            __m512 f = _mm512_cvtph_ps(h);
+            __m256i h2 = _mm512_cvtps_ph(f, _MM_FROUND_TO_NEAREST_INT);
+            return 0;
+          ]])], [
+            AC_MSG_RESULT([yes])
+            PHP_ORT_HAS_F16C="yes"
+          ], [
+            AC_MSG_RESULT([no])
+          ])
+        ])
+        CFLAGS="$saved_CFLAGS_F16V"
       ], [
         AC_MSG_RESULT([no])
         PHP_ORT_HAS_AVX512="no"
       ], [
-        dnl Cross-compilation: assume available if compiler supports it
+        dnl Cross-compilation: 
+        dnl assume available if compiler supports it
         AC_MSG_RESULT([assuming yes (cross-compiling)])
         PHP_ORT_HAS_AVX512="yes"
+        dnl assume F16C support
+        PHP_ORT_HAS_F16C="yes"
       ])
       CFLAGS="$saved_CFLAGS"
     ], [], [AC_INCLUDES_DEFAULT])
@@ -204,6 +245,24 @@ AS_VAR_IF([PHP_ORT], [no],, [
         ]])], [
           AC_MSG_RESULT([yes])
           PHP_ORT_HAS_AVX2="yes"
+          dnl Test for F16C support with AVX2
+          AC_MSG_CHECKING([for F16C support with AVX2])
+          saved_CFLAGS_F16C="$CFLAGS"
+          CFLAGS="$CFLAGS -mavx2 -mf16c"
+          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+            #include <immintrin.h>
+          ]], [[
+            __m128i h = _mm_setzero_si128();
+            __m256 f = _mm256_cvtph_ps(h);
+            __m128i h2 = _mm256_cvtps_ph(f, _MM_FROUND_TO_NEAREST_INT);
+            return 0;
+          ]])], [
+            AC_MSG_RESULT([yes])
+            PHP_ORT_HAS_F16C="yes"
+          ], [
+            AC_MSG_RESULT([no])
+          ])
+          CFLAGS="$saved_CFLAGS_F16C"
         ], [
           AC_MSG_RESULT([no])
           PHP_ORT_HAS_AVX2="no"
@@ -211,6 +270,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           dnl Cross-compilation: assume available if compiler supports it
           AC_MSG_RESULT([assuming yes (cross-compiling)])
           PHP_ORT_HAS_AVX2="yes"
+          PHP_ORT_HAS_F16C="yes"
         ])
         CFLAGS="$saved_CFLAGS"
       ], [], [AC_INCLUDES_DEFAULT])
@@ -338,12 +398,30 @@ AS_VAR_IF([PHP_ORT], [no],, [
   if test "$PHP_ORT_HAS_SSE2" = "yes"; then
     PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED SSE2"
   fi
+  if test "$PHP_ORT_HAS_F16C" = "yes"; then
+    PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED F16C"
+  fi
+  if test "$PHP_ORT_HAS_F16V" = "yes"; then
+    PHP_ORT_ISA_DETECTED="$PHP_ORT_ISA_DETECTED F16V"
+  fi
 
   AC_MSG_CHECKING([for detected ISA extensions])
   if test -z "$PHP_ORT_ISA_DETECTED"; then
     AC_MSG_RESULT([none])
   else
     AC_MSG_RESULT([$PHP_ORT_ISA_DETECTED])
+  fi
+
+  dnl ============================================================
+  dnl F16 Capability Detection
+  dnl ============================================================
+
+  if test "$PHP_ORT_HAS_F16V" = "yes"; then
+    AC_DEFINE(ORT_BACKEND_CPU_F16V, 1, [Define to 1 if CPU ISA has native F16 vector support])
+  fi
+
+  if test "$PHP_ORT_HAS_F16C" = "yes"; then
+    AC_DEFINE(ORT_BACKEND_CPU_F16C, 1, [Define to 1 if CPU ISA has F16<->F32 conversion support])
   fi
 
   dnl ============================================================
@@ -694,6 +772,11 @@ AS_VAR_IF([PHP_ORT], [no],, [
           AC_MSG_ERROR([AVX512 backend requested but not available])
         fi
         PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mavx512f -mavx512bw -mavx512dq -mavx512vl -mevex512"
+        if test "$PHP_ORT_HAS_F16V" = "yes"; then
+          PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mavx512fp16"
+        elif test "$PHP_ORT_HAS_F16C" = "yes"; then
+          PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mf16c"
+        fi
         PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL AVX512"
         PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/avx512/add.c
@@ -722,6 +805,9 @@ AS_VAR_IF([PHP_ORT], [no],, [
           AC_MSG_ERROR([AVX2 backend requested but not available])
         fi
         PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mavx2"
+        if test "$PHP_ORT_HAS_F16C" = "yes"; then
+          PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -mf16c"
+        fi
         PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL AVX2"
         PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/avx2/add.c

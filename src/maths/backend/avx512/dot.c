@@ -21,14 +21,14 @@
 
 #include <immintrin.h>  /* AVX512 */
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, float) {
-    const float* va = (const float*) a;
-    const float* vb = (const float*) b;
-    float* res      = (float*) result;
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, float32) {
+    const float32* va = (const float32*) a;
+    const float32* vb = (const float32*) b;
+    float32* res      = (float32*) result;
     const size_t mw = 16;
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
-    float sum = 0.0f;
+    float32 sum = 0.0f;
 
     if (mc > 0) {
         __m512 vsum = _mm512_setzero_ps();
@@ -38,7 +38,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, float) {
             __m512 mr = _mm512_mul_ps(ma, mb);
             vsum = _mm512_add_ps(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(avx512, hsum, float32x16, float)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx512, hsum, float32x16, float32)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {
@@ -48,14 +48,14 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, float) {
     res[0] = sum;
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, double) {
-    const double* va = (const double*) a;
-    const double* vb = (const double*) b;
-    double* res      = (double*) result;
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, float64) {
+    const float64* va = (const float64*) a;
+    const float64* vb = (const float64*) b;
+    float64* res      = (float64*) result;
     const size_t mw = 8;
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
-    double sum = 0.0;
+    float64 sum = 0.0;
 
     if (mc > 0) {
         __m512d vsum = _mm512_setzero_pd();
@@ -65,7 +65,7 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, double) {
             __m512d mr = _mm512_mul_pd(ma, mb);
             vsum = _mm512_add_pd(vsum, mr);
         }
-        sum = ORT_MATH_BACKEND_UTIL(avx512, hsum, float64x8, double)(vsum);
+        sum = ORT_MATH_BACKEND_UTIL(avx512, hsum, float64x8, float64)(vsum);
     }
 
     for (size_t i = mc; i < count; ++i) {

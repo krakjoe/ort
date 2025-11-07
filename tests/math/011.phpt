@@ -11,7 +11,7 @@ echo "=== Testing Utility Functions ===\n";
 // Test 1: Element count validation (total elements calculation)
 try {
     // Test various tensor shapes to exercise element calculation
-    $tensor_1d = new ORT\Tensor\Persistent("1d", [5], [1, 2, 3, 4, 5], ORT\Tensor::FLOAT);
+    $tensor_1d = new ORT\Tensor\Persistent("1d", [5], [1, 2, 3, 4, 5], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor_1d);
     echo "PASS: 1D tensor [5] element calculation works\n";
 } catch (Error $e) {
@@ -19,7 +19,7 @@ try {
 }
 
 try {
-    $tensor_2d = new ORT\Tensor\Persistent("2d", [2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT);
+    $tensor_2d = new ORT\Tensor\Persistent("2d", [2, 3], [[1, 2, 3], [4, 5, 6]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor_2d);
     echo "PASS: 2D tensor [2,3] element calculation works\n";
 } catch (Error $e) {
@@ -27,7 +27,7 @@ try {
 }
 
 try {
-    $tensor_3d = new ORT\Tensor\Persistent("3d", [2, 2, 2], [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], ORT\Tensor::FLOAT);
+    $tensor_3d = new ORT\Tensor\Persistent("3d", [2, 2, 2], [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor_3d);
     echo "PASS: 3D tensor [2,2,2] element calculation works\n";
 } catch (Error $e) {
@@ -35,7 +35,7 @@ try {
 }
 
 try {
-    $tensor_4d = new ORT\Tensor\Persistent("4d", [2, 1, 2, 1], [[[[1], [2]]], [[[3], [4]]]], ORT\Tensor::FLOAT);
+    $tensor_4d = new ORT\Tensor\Persistent("4d", [2, 1, 2, 1], [[[[1], [2]]], [[[3], [4]]]], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor_4d);
     echo "PASS: 4D tensor [2,1,2,1] element calculation works\n";
 } catch (Error $e) {
@@ -46,7 +46,7 @@ try {
 try {
     // Create a larger tensor to test element calculation with bigger numbers
     $large_data = array_fill(0, 100, 1.0);
-    $tensor_large = new ORT\Tensor\Persistent("large", [100], $large_data, ORT\Tensor::FLOAT);
+    $tensor_large = new ORT\Tensor\Persistent("large", [100], $large_data, ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor_large);
     echo "PASS: Large tensor [100] element calculation works\n";
 } catch (Error $e) {
@@ -57,7 +57,7 @@ try {
 try {
     // Create an even larger tensor
     $very_large_data = array_fill(0, 1000, 2.0);
-    $tensor_very_large = new ORT\Tensor\Persistent("very_large", [1000], $very_large_data, ORT\Tensor::FLOAT);
+    $tensor_very_large = new ORT\Tensor\Persistent("very_large", [1000], $very_large_data, ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor_very_large);
     echo "PASS: Very large tensor [1000] element calculation works\n";
 } catch (Error $e) {
@@ -70,7 +70,7 @@ try {
     for ($i = 0; $i < 10; $i++) {
         $md_large_data[] = array_fill(0, 10, (float)($i + 1));
     }
-    $tensor_md_large = new ORT\Tensor\Persistent("md_large", [10, 10], $md_large_data, ORT\Tensor::FLOAT);
+    $tensor_md_large = new ORT\Tensor\Persistent("md_large", [10, 10], $md_large_data, ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($tensor_md_large);
     echo "PASS: Multi-dimensional large tensor [10,10] works\n";
 } catch (Error $e) {
@@ -79,7 +79,7 @@ try {
 
 // Test 5: Single element tensor (scalar-like)
 try {
-    $scalar_tensor = new ORT\Tensor\Persistent("scalar", [1], [42.0], ORT\Tensor::FLOAT);
+    $scalar_tensor = new ORT\Tensor\Persistent("scalar", [1], [42.0], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($scalar_tensor);
     echo "PASS: Single element tensor [1] works\n";
 } catch (Error $e) {

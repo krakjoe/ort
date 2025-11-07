@@ -64,7 +64,7 @@ foreach ($real as $name => $type) {
 
 // 6. Sqrt of empty tensor (should error)
 try {
-    $a = new ORT\Tensor\Transient([0], [], ORT\Tensor::FLOAT);
+    $a = new ORT\Tensor\Transient([0], [], ORT\Tensor::FLOAT32);
     $result = ORT\Math\sqrt($a);
     echo "FAIL: Did not throw on empty tensor\n";
 } catch (Throwable $e) {
@@ -72,92 +72,104 @@ try {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT sqrt [-1,0,4,9,-9]
+PASS: FLOAT16 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [5]
-PASS: DOUBLE sqrt [-1,0,4,9,-9]
+PASS: FLOAT32 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [5]
+PASS: FLOAT64 sqrt [-1,0,4,9,-9]
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [5]
 PASS: INT8 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [5]
 PASS: INT16 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [5]
 PASS: INT32 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [5]
 PASS: INT64 sqrt [-1,0,4,9,-9]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [5]
 PASS: UINT8 sqrt [0,4,9]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [3]
 PASS: UINT16 sqrt [0,4,9]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [3]
 PASS: UINT32 sqrt [0,4,9]
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [3]
-PASS: FLOAT sqrt zeros/ones
+PASS: FLOAT16 sqrt zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [6]
-PASS: DOUBLE sqrt zeros/ones
+PASS: FLOAT32 sqrt zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [6]
+PASS: FLOAT64 sqrt zeros/ones
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [6]
 PASS: INT8 sqrt zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [6]
 PASS: INT16 sqrt zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [6]
 PASS: INT32 sqrt zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [6]
 PASS: INT64 sqrt zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [6]
 PASS: UINT8 sqrt zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [6]
 PASS: UINT16 sqrt zeros/ones
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT32
 SHAPE: [6]
 PASS: UINT32 sqrt zeros/ones
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT64
 SHAPE: [6]
 PASS: INT8 sqrt 2D [[12,16],[24,-128]]
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2,2]
 PASS: BOOL sqrt [bool 2x2] (numpy semantics)
 RESULT: [[1,0],[0,1]]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [2,2]
-PASS: FLOAT sqrt extremes
+PASS: FLOAT16 sqrt extremes
 RESULT: %s
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: [4]
-PASS: DOUBLE sqrt extremes
+PASS: FLOAT32 sqrt extremes
 RESULT: %s
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: [4]
+PASS: FLOAT64 sqrt extremes
+RESULT: %s
+TYPE: FLOAT64
 SHAPE: [4]
 PASS: Error on empty tensor: %s

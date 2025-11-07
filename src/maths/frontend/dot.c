@@ -32,6 +32,16 @@
 #include "maths/result.h"
 #include "maths/schema/dot.h"
 
+static zend_always_inline float16 ort_math_dot_impl_float16(
+    const float16* va, const float16* vb, size_t count) {
+    float32 sum = 0;
+    for (size_t i = 0; i < count; i++) {
+        sum += ort_math_float32_from_float16(va[i]) *
+               ort_math_float32_from_float16(vb[i]);
+    }
+    return ort_math_float16_from_float32(sum);
+}
+
 #define ORT_MATH_FRONTEND_DOT_IMPL_FOR_TYPE(c_type, unused) \
     static zend_always_inline c_type ort_math_dot_impl_##c_type( \
         const c_type* va, const c_type* vb, size_t count) { \
@@ -55,6 +65,8 @@ ORT_MATH_FOREACH_NUMERIC_TYPE(
     }
 
 ORT_MATH_FOREACH_NUMERIC_TYPE(
+    ORT_MATH_FRONTEND_DOT_IMPL)
+ORT_MATH_FOREACH_CUSTOM_TYPE(
     ORT_MATH_FRONTEND_DOT_IMPL)
 #undef ORT_MATH_FRONTEND_DOT_IMPL
 

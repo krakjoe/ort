@@ -27,13 +27,17 @@ foreach ($types as $name => $type) {
 }
 ?>
 --EXPECTF--
-PASS: FLOAT min
+PASS: FLOAT16 min
 RESULT: [1]
-TYPE: FLOAT
+TYPE: FLOAT16
 SHAPE: []
-PASS: DOUBLE min
+PASS: FLOAT32 min
 RESULT: [1]
-TYPE: DOUBLE
+TYPE: FLOAT32
+SHAPE: []
+PASS: FLOAT64 min
+RESULT: [1]
+TYPE: FLOAT64
 SHAPE: []
 PASS: INT8 min
 RESULT: [1]

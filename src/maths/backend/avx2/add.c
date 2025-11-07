@@ -227,30 +227,48 @@ __ort_math_backend_add_uint32_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, add, float) {
-    const float* va = (const float*)a;
-    const float* vb = (const float*)b;
-    float* res = (float*)result;
-    const size_t mw = 8; // 8 floats per AVX2 register
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, add, float16) {
+    const float16* va = (const float16*) a;
+    const float16* vb = (const float16*) b;
+    float16* res      = (float16*)       result;
+    const size_t mw = 8; /* AVX2 can process 8 float32 at once */
 
-    size_t mc = ort_math_backend_optimal_count(count, mw);  /* 8 floats per AVX2 register */
+    size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
         /* Not enough elements for a single SIMD operation, fallback to scalar */
-        goto __ort_math_backend_add_float_fallback;
+        goto __ort_math_backend_add_float16_fallback;
     }
 
-    /* Vectorized loop - process 8 floats at once */
+#ifndef ORT_BACKEND_CPU_F16C
+    goto __ort_math_backend_add_float16_fallback;
+#else
+    /* Vectorized loop - process 8 float16 at once */
     for (size_t i = 0; i < mc; i += mw) {
-        __m256 ma = _mm256_load_ps(&va[i]);
-        __m256 mb = _mm256_load_ps(&vb[i]);
-        __m256 mr = _mm256_add_ps(ma, mb);
-        _mm256_store_ps(&res[i], mr);
-    }
+        /* Load 8 float16 values into 128-bit registers */
+        __m128i ma = _mm_load_si128((__m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((__m128i*)&vb[i]);
 
-__ort_math_backend_add_float_fallback:
+        /* Convert F16 to F32: 8 float16 -> 8 float32 */
+        __m256 mf16ca = _mm256_cvtph_ps(ma);
+        __m256 mf16cb = _mm256_cvtph_ps(mb);
+
+        /* Apply add operation */
+        __m256 mf16r = _mm256_add_ps(mf16ca, mf16cb);
+
+        /* Convert F32 back to F16: 8 float32 -> 8 float16 */
+        __m128i mr = _mm256_cvtps_ph(
+            mf16r, _MM_FROUND_TO_NEAREST_INT);
+
+        /* Store result */
+        _mm_store_si128((__m128i*)&res[i], mr);
+    }
+#endif
+
+__ort_math_backend_add_float16_fallback:
+    /* Handle remaining elements with scalar operations */
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(add, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, float16)(
             res   + mc,
             va    + mc,
             vb    + mc,
@@ -258,19 +276,50 @@ __ort_math_backend_add_float_fallback:
     }
 }
 
-ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, add, double)  {
-    const double* va = (const double*)a;
-    const double* vb = (const double*)b;
-    double* res = (double*)result;
-    const size_t mw = 4; // 4 doubles per AVX2 register
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, add, float32) {
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
+    float32* res = (float32*)result;
+    const size_t mw = 8; // 8 float32 per AVX2 register
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);  /* 8 float32 per AVX2 register */
+
+    if (mc == 0) {
+        /* Not enough elements for a single SIMD operation, fallback to scalar */
+        goto __ort_math_backend_add_float32_fallback;
+    }
+
+    /* Vectorized loop - process 8 float32 at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        __m256 ma = _mm256_load_ps(&va[i]);
+        __m256 mb = _mm256_load_ps(&vb[i]);
+        __m256 mr = _mm256_add_ps(ma, mb);
+        _mm256_store_ps(&res[i], mr);
+    }
+
+__ort_math_backend_add_float32_fallback:
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, float32)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, add, float64)  {
+    const float64* va = (const float64*)a;
+    const float64* vb = (const float64*)b;
+    float64* res = (float64*)result;
+    const size_t mw = 4; // 4 float64 per AVX2 register
 
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_add_double_fallback;
+        goto __ort_math_backend_add_float64_fallback;
     }
 
-    /* Vectorized loop - process 4 doubles at once */
+    /* Vectorized loop - process 4 float64 at once */
     for (size_t i = 0; i < mc; i += mw) {
         __m256d ma = _mm256_load_pd(&va[i]);
         __m256d mb = _mm256_load_pd(&vb[i]);
@@ -278,9 +327,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, add, double)  {
         _mm256_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_add_double_fallback:
+__ort_math_backend_add_float64_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(add, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, float64)(
             res   + mc,
             va    + mc,
             vb    + mc,

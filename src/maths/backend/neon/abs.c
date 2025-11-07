@@ -124,52 +124,52 @@ __ort_math_backend_abs_int64_fallback:
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, float) {
-    const float* va = (const float*)a;
-    float* res      = (float*)result;
-    const size_t mw = 4; // 4 floats per NEON register
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, float32) {
+    const float32* va = (const float32*)a;
+    float32* res      = (float32*)result;
+    const size_t mw = 4; // 4 float32 per NEON register
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_abs_float_fallback;
+        goto __ort_math_backend_abs_float32_fallback;
     }
 
-    // Vectorized loop - process 4 floats at once using NEON
+    // Vectorized loop - process 4 float32 at once using NEON
     for (size_t i = 0; i < mc; i += mw) {
         float32x4_t ma = vld1q_f32(&va[i]);
         float32x4_t mr = vabsq_f32(ma);
         vst1q_f32(&res[i], mr);
     }
 
-__ort_math_backend_abs_float_fallback:
+__ort_math_backend_abs_float32_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(abs, float)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(abs, float32)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
 
-ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, double) {
-    const double* va = (const double*)a;
-    double* res      = (double*)result;
-    const size_t mw = 2; // 2 doubles per NEON register
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, abs, float64) {
+    const float64* va = (const float64*)a;
+    float64* res      = (float64*)result;
+    const size_t mw = 2; // 2 float64 per NEON register
     size_t mc = ort_math_backend_optimal_count(count, mw);
 
     if (mc == 0) {
-        goto __ort_math_backend_abs_double_fallback;
+        goto __ort_math_backend_abs_float64_fallback;
     }
 
-    // Vectorized loop - process 2 doubles at once using NEON
+    // Vectorized loop - process 2 float64 at once using NEON
     for (size_t i = 0; i < mc; i += mw) {
         float64x2_t ma = vld1q_f64(&va[i]);
         float64x2_t mr = vabsq_f64(ma);
         vst1q_f64(&res[i], mr);
     }
 
-__ort_math_backend_abs_double_fallback:
+__ort_math_backend_abs_float64_fallback:
     if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(abs, double)(
+        ORT_MATH_FRONTEND_OP_SYMBOL(abs, float64)(
             res   + mc,
             va    + mc,
             count - mc);

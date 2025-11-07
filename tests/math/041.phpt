@@ -46,40 +46,40 @@ try {
     
     // DOUBLE to INT64
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [1.23e12, -9.87e11], ORT\Tensor::DOUBLE);
+        $tensor_double = new ORT\Tensor\Transient([2], [1.23e12, -9.87e11], ORT\Tensor::FLOAT64);
         $tensor_int64 = new ORT\Tensor\Transient([2], [1, 2], ORT\Tensor::INT64);
         $result = ORT\Math\add($tensor_double, $tensor_int64);
-        echo "PASS: DOUBLE + INT64 casting works\n";
+        echo "PASS: FLOAT64 + INT64 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + INT64: " . $e->getMessage() . "\n";
     }
     
     // DOUBLE to UINT16
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [1234.5678, 9876.5432], ORT\Tensor::DOUBLE);
+        $tensor_double = new ORT\Tensor\Transient([2], [1234.5678, 9876.5432], ORT\Tensor::FLOAT64);
         $tensor_uint16 = new ORT\Tensor\Transient([2], [100, 200], ORT\Tensor::UINT16);
         $result = ORT\Math\add($tensor_double, $tensor_uint16);
-        echo "PASS: DOUBLE + UINT16 casting works\n";
+        echo "PASS: FLOAT64 + UINT16 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + UINT16: " . $e->getMessage() . "\n";
     }
     
     // DOUBLE to UINT32
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [123456789.0, 987654321.0], ORT\Tensor::DOUBLE);
+        $tensor_double = new ORT\Tensor\Transient([2], [123456789.0, 987654321.0], ORT\Tensor::FLOAT64);
         $tensor_uint32 = new ORT\Tensor\Transient([2], [1000, 2000], ORT\Tensor::UINT32);
         $result = ORT\Math\add($tensor_double, $tensor_uint32);
-        echo "PASS: DOUBLE + UINT32 casting works\n";
+        echo "PASS: FLOAT64 + UINT32 casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + UINT32: " . $e->getMessage() . "\n";
     }
     
     // DOUBLE to BOOL
     try {
-        $tensor_double = new ORT\Tensor\Transient([2], [0.0, 1.0], ORT\Tensor::DOUBLE);
+        $tensor_double = new ORT\Tensor\Transient([2], [0.0, 1.0], ORT\Tensor::FLOAT64);
         $tensor_bool = new ORT\Tensor\Transient([2], [true, false], ORT\Tensor::BOOL);
         $result = ORT\Math\add($tensor_double, $tensor_bool);
-        echo "PASS: DOUBLE + BOOL casting works\n";
+        echo "PASS: FLOAT64 + BOOL casting works\n";
     } catch (Exception $e) {
         echo "INFO: DOUBLE + BOOL: " . $e->getMessage() . "\n";
     }
@@ -114,10 +114,10 @@ PASS: BOOL + UINT16 casting works
 PASS: BOOL + UINT32 casting works
 
 --- Testing DOUBLE Source to Various Types ---
-PASS: DOUBLE + INT64 casting works
-PASS: DOUBLE + UINT16 casting works
-PASS: DOUBLE + UINT32 casting works
-PASS: DOUBLE + BOOL casting works
+PASS: FLOAT64 + INT64 casting works
+PASS: FLOAT64 + UINT16 casting works
+PASS: FLOAT64 + UINT32 casting works
+PASS: FLOAT64 + BOOL casting works
 
 --- Testing Edge Cases for Error Paths ---
 PASS: Max value conversions work

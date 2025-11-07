@@ -24,9 +24,9 @@
 @extract %python% %extract.py% -c 'lambda a: a if a.dtype == np.float32 or a.dtype == np.float64 or a.dtype == np.float16 else 0' -n softmax -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_softmax[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// softmax(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// softmax(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// softmax(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// softmax(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// softmax(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// softmax(float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,	// softmax(int8) -> UNDEFINED
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,	// softmax(int16) -> UNDEFINED
     ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED,	// softmax(int32) -> UNDEFINED
@@ -38,9 +38,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_softmax[1
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_softmax[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,

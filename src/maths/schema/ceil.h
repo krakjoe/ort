@@ -24,9 +24,9 @@
 @extract %python% %extract.py% -f ceil -n ceil -u -w }}} */
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_table_ceil[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// ceil(float16) -> float16
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,	// ceil(float32) -> float32
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,	// ceil(float64) -> float64
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,	// ceil(float16) -> float16
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,	// ceil(float32) -> float32
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,	// ceil(float64) -> float64
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,	// ceil(int8) -> int8
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,	// ceil(int16) -> int16
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,	// ceil(int32) -> int32
@@ -38,9 +38,9 @@ static const ONNXTensorElementDataType ort_math_promotion_schema_table_ceil[11] 
 };
 
 static const ONNXTensorElementDataType ort_math_promotion_schema_indices_ceil[11] = {
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT,
-    ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT32,
+    ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT64,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16,
     ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32,
