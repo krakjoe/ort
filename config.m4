@@ -164,13 +164,33 @@ AS_VAR_IF([PHP_ORT], [no],, [
         AC_MSG_CHECKING([for native F16V support with AVX512FP16])
         saved_CFLAGS_F16V="$CFLAGS"
         CFLAGS="$CFLAGS -mavx512f -mavx512fp16"
-        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+          #define _GNU_SOURCE
+          #ifndef __APPLE__
+          #include <pthread.h>
+          #include <sched.h>
+          #include <unistd.h>
+          void ort_test_pin_to_zero(void) {
+            cpu_set_t set;
+            CPU_ZERO(&set);
+            CPU_SET(0, &set);
+            pthread_setaffinity_np(
+              pthread_self(), sizeof(set), &set);
+            while (sched_getcpu() != 0) {
+                sched_yield();
+            }
+          }
+          #else
+          void ort_test_pin_to_zero(void) {}
+          #endif
           #include <immintrin.h>
         ]], [[
-          __m512h a = _mm512_setzero_ph();
-          __m512h b = _mm512_setzero_ph();
-          __m512h c = _mm512_add_ph(a, b);
-          return 0;
+          ort_test_pin_to_zero();
+          volatile __m512h a = _mm512_set1_ph(1.0f);
+          volatile __m512h b = _mm512_set1_ph(2.0f);
+          volatile __m512h c = _mm512_add_ph(a, b);
+          volatile __m512h d = _mm512_mul_ph(c, a);
+          return (_mm512_cvtsh_h(d) == 3.0f) ? 0 : 1;
         ]])], [
           AC_MSG_RESULT([yes])
           PHP_ORT_HAS_F16V="yes"
@@ -192,6 +212,10 @@ AS_VAR_IF([PHP_ORT], [no],, [
           ], [
             AC_MSG_RESULT([no])
           ])
+        ], [
+          dnl Cross-compilation: assume F16V not available, fallback to F16C
+          AC_MSG_RESULT([assuming no (cross-compiling)])
+          PHP_ORT_HAS_F16C="yes"
         ])
         CFLAGS="$saved_CFLAGS_F16V"
       ], [
