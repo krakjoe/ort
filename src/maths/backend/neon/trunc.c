@@ -20,6 +20,32 @@
 
 #include <arm_neon.h>  /* NEON */
 
+ORT_MATH_BACKEND_UNARY_OP_DECL(neon, trunc, float16) {
+    const float16* va = (const float16*)a;
+    float16* res      = (float16*)result;
+    const size_t mw = 8; // 8 float16 per NEON register
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_trunc_float16_fallback;
+    }
+
+    // Vectorized loop - process 8 float16 at once using NEON
+    for (size_t i = 0; i < mc; i += mw) {
+        float16x8_t ma = vld1q_f16(&va[i]);
+        float16x8_t mr = vrndq_f16(ma);
+        vst1q_f16(&res[i], mr);
+    }
+
+__ort_math_backend_trunc_float16_fallback:
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(trunc, float16)(
+            res   + mc,
+            va    + mc,
+            count - mc);
+    }
+}
+
 ORT_MATH_BACKEND_UNARY_OP_DECL(neon, trunc, float32) {
     const float32* va = (const float32*)a;
     float32* res      = (float32*)result;

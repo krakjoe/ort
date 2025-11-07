@@ -20,6 +20,36 @@
 
 #include <arm_neon.h>  /* NEON */
 
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, div, float16) {
+    const float16* va = (const float16*)a;
+    const float16* vb = (const float16*)b;
+    float16* res      = (float16*)result;
+    const size_t mw = 8; /* 8 float16 per NEON register */
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_div_float16_fallback;
+    }
+
+    // Vectorized loop - process 8 float16 at once using NEON
+    for (size_t i = 0; i < mc; i += mw) {
+        float16x8_t va8 = vld1q_f16(&va[i]);
+        float16x8_t vb8 = vld1q_f16(&vb[i]);
+        float16x8_t vr8 = vdivq_f16(va8, vb8);
+        vst1q_f16(&res[i], vr8);
+    }
+
+__ort_math_backend_div_float16_fallback:
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(div, float16)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+
 ORT_MATH_BACKEND_BINARY_OP_DECL(neon, div, float32) {
     const float32* va = (const float32*)a;
     const float32* vb = (const float32*)b;

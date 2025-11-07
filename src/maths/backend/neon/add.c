@@ -230,6 +230,36 @@ __ort_math_backend_add_uint32_fallback:
     }
 }
 
+ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, float16) {
+    const float16* va = (const float16*)a;
+    const float16* vb = (const float16*)b;
+    float16* res = (float16*)result;
+    const size_t mw = 8; // 8 float16 per NEON register
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_add_float16_fallback;
+    }
+
+    // Vectorized loop - process 8 float16 at once using NEON
+    for (size_t i = 0; i < mc; i += mw) {
+        float16x8_t ma = vld1q_f16(&va[i]);
+        float16x8_t mb = vld1q_f16(&vb[i]);
+        float16x8_t mr = vaddq_f16(ma, mb);
+        vst1q_f16(&res[i], mr);
+    }
+
+__ort_math_backend_add_float16_fallback:
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(add, float16)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+
 ORT_MATH_BACKEND_BINARY_OP_DECL(neon, add, float32) {
     const float32* va = (const float32*)a;
     const float32* vb = (const float32*)b;

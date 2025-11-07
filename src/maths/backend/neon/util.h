@@ -21,6 +21,21 @@
 #include <arm_neon.h>
 
 ORT_MATH_BACKEND_UTIL_DECL(neon, 
+    hsum, float16x8, float16, float16x8_t) {
+    float16x4_t low = vget_low_f16(v);
+    float16x4_t high = vget_high_f16(v);
+    float16x4_t sum_pair = vadd_f16(low, high);
+
+    // Pairwise add to get 2 elements
+    float16x4_t pairwise = vpadd_f16(sum_pair, sum_pair);
+
+    // Final pairwise add to get single sum
+    float16x4_t final_sum = vpadd_f16(pairwise, pairwise);
+
+    return vget_lane_f16(final_sum, 0);
+}
+
+ORT_MATH_BACKEND_UTIL_DECL(neon, 
     hsum, float32x4, float32, float32x4_t) {
     float32x2_t sum_pair = vadd_f32(
         vget_low_f32(v), vget_high_f32(v));
