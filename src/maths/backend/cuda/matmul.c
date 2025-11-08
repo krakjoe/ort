@@ -17,6 +17,7 @@
  */
 
 #include <cublas_v2.h>
+#include <cuda_fp16.h>
 
 #include "maths/backend/cuda/impl.h"
 
@@ -24,6 +25,57 @@
 
 extern ORT_TLS cudaStream_t __ort_cuda_stream;
 extern ORT_TLS cublasHandle_t __ort_cublas_handle;
+
+/* Float16 matmul using cublasGemmEx (modern unified interface) */
+ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float16) {
+    const float16 *va = (const float16 *)a;
+    const float16 *vb = (const float16 *)b;
+    float16 *res = (float16 *)result;
+
+    if ((a_cols * sizeof(float16) < __ort_cuda_threshold) &&
+        (b_cols * sizeof(float16) < __ort_cuda_threshold)) {
+        goto __ort_math_backend_matmul_float16_relay;
+    }
+
+    /* For row vector a times matrix b using cublasGemmEx:
+     * Compute: C = alpha * A * B + beta * C
+     * Where A is 1x(a_cols), B is (a_cols)x(b_cols), C is 1x(b_cols)
+     */
+    const float alpha = 1.0f;
+    const float beta = 0.0f;
+
+    cublasStatus_t status = cublasGemmEx(
+        __ort_cublas_handle,
+        CUBLAS_OP_N,           /* op(B) = B */
+        CUBLAS_OP_N,           /* op(A) = A */
+        (int)b_cols,           /* m: rows of op(B) and C */
+        1,                     /* n: cols of op(A) and C */
+        (int)a_cols,           /* k: cols of op(B) and rows of op(A) */
+        &alpha,                /* alpha */
+        vb,                    /* B matrix */
+        CUDA_R_16F,            /* B data type (half precision) */
+        (int)b_cols,           /* ldb: leading dimension of B */
+        va,                    /* A vector (treated as 1x(a_cols) matrix) */
+        CUDA_R_16F,            /* A data type (half precision) */
+        (int)a_cols,           /* lda: leading dimension of A */
+        &beta,                 /* beta */
+        res,                   /* C result */
+        CUDA_R_16F,            /* C data type (half precision) */
+        (int)b_cols,           /* ldc: leading dimension of C */
+        CUDA_R_32F,            /* computation type (float32 for accuracy) */
+        CUBLAS_GEMM_DEFAULT_TENSOR_OP /* algorithm */
+    );
+
+    if (status != CUBLAS_STATUS_SUCCESS) {
+__ort_math_backend_matmul_float16_relay: // LCOV_EXCL_LINE
+        ORT_MATH_BACKEND_RELAY(
+            __ort_math_cpu_dispatch, matmul, FLOAT16)
+                (res, va, vb, a_cols, b_cols);
+        return;
+    }
+
+    cudaStreamSynchronize(__ort_cuda_stream);
+}
 
 /* Float matmul using cuBLAS gemv (matrix-vector multiply) */
 ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float32) {
@@ -62,7 +114,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float32) {
     );
 
     if (status != CUBLAS_STATUS_SUCCESS) {
-__ort_math_backend_matmul_float32_relay:
+__ort_math_backend_matmul_float32_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, FLOAT32)
                 (res, va, vb, a_cols, b_cols);
@@ -102,7 +154,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float64) {
     );
 
     if (status != CUBLAS_STATUS_SUCCESS) {
-__ort_math_backend_matmul_float64_relay:
+__ort_math_backend_matmul_float64_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, FLOAT64)
                 (res, va, vb, a_cols, b_cols);
@@ -126,7 +178,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int8_t) {
     ort_cuda_matmul_int8(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_int8_relay:
+__ort_math_backend_matmul_int8_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, INT8)
                 (res, va, vb, a_cols, b_cols);
@@ -149,7 +201,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint8_t) {
     ort_cuda_matmul_uint8(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_uint8_relay:
+__ort_math_backend_matmul_uint8_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, UINT8)
                 (res, va, vb, a_cols, b_cols);
@@ -172,7 +224,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int16_t) {
     ort_cuda_matmul_int16(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_int16_relay:
+__ort_math_backend_matmul_int16_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, INT16)
                 (res, va, vb, a_cols, b_cols);
@@ -195,7 +247,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint16_t) {
     ort_cuda_matmul_uint16(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_uint16_relay:
+__ort_math_backend_matmul_uint16_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, UINT16)
                 (res, va, vb, a_cols, b_cols);
@@ -218,7 +270,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int32_t) {
     ort_cuda_matmul_int32(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_int32_relay:
+__ort_math_backend_matmul_int32_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, INT32)
                 (res, va, vb, a_cols, b_cols);
@@ -241,7 +293,7 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint32_t) {
     ort_cuda_matmul_uint32(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_uint32_relay:
+__ort_math_backend_matmul_uint32_relay: // LCOV_EXCL_LINE
         ORT_MATH_BACKEND_RELAY(
             __ort_math_cpu_dispatch, matmul, UINT32)
                 (res, va, vb, a_cols, b_cols);

@@ -70,8 +70,8 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 **Legend:**
 - 🟩 = Implemented with ISA intrinsic  (native)
-- 🟨 = Implemented with F16V extension (native)
-- 🟪 = Implemented with F16C extension (efficient workaround, convert to float32 for compute)
+- 🟨 = Implemented with CPU F16V extension (native)
+- 🟪 = Implemented with CPU F16C extension (efficient workaround, convert to float32 for compute)
 - 🟧 = Not yet implemented, but native or efficient workaround possible and planned
 - 🟦 = Not supported by the instruction set (no native support, no efficient workaround)
 - ⬛ = Not applicable (mathematically meaningless, e.g. abs(unsigned))
@@ -269,23 +269,23 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 | Operation  | float16 | float32 | float64 |  int8  |  int16  |  int32  |  int64  |  uint8  |  uint16  |  uint32  |
 |------------|:-------:|:-------:|:-------:|:------:|:-------:|:-------:|:-------:|:-------:|:--------:|:--------:|
-| **add**    |   🟧    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
-| **sub**    |   🟧    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
-| **mul**    |   🟧    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
-| **div**    |   🟧    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **add**    |   🟩    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
+| **sub**    |   🟩    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
+| **mul**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
+| **div**    |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
 | **mod**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
 | **pow**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
-| **ceil**   |   🟧    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **floor**  |   🟧    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **round**  |   🟧    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **abs**    |   🟧    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
-| **sqrt**   |   🟧    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
-| **neg**    |   🟧    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
-| **recip**  |   🟧    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
-| **sign**   |   🟧    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
-| **trunc**  |   🟧    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **dot**    |   🟧    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
-| **matmul** |   🟧    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟦    |   🟩    |    🟩    |    🟩    |
+| **ceil**   |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **floor**  |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **round**  |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **abs**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
+| **sqrt**   |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
+| **neg**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
+| **recip**  |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
+| **sign**   |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
+| **trunc**  |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **dot**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
+| **matmul** |   🟩    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟦    |   🟩    |    🟩    |    🟩    |
 | **sum**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
 | **min**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
 | **max**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
@@ -294,6 +294,6 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 **Notes:**
 - RISCV64 backend uses the RISCV64 Vector Extension (RVV) 1.0 specification with variable-length vectors.
-- CUDA uses GPU kernels with managed memory and utilize cuBLAS for matrix operations where applicable.
+- CUDA uses GPU kernels with managed memory and utilize cuBLAS for matrix operations where applicable, float16 is native.
 - NEON F16V (+fp16) vector extensions are optional, support will be detected at build time.
 - There are machines with AVX512 F16V support, but they are bleeding edge and effectively inaccessible to developers, for this reason AVX512 float16 support will be implemented using F16C extensions.

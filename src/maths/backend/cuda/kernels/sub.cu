@@ -18,10 +18,38 @@
 
 #include <stdint.h>
 #include <cuda_runtime.h>
+#include <cuda_fp16.h>
 
 #include "maths/backend/cuda/kernels/util.h"
 
 /* CUDA kernels for subtraction */
+__global__ void ort_cuda_sub_float16_kernel(float16* result, const float16* a, const float16* b, size_t count) {
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (idx < count) {
+        result[idx] = ort_cuda_float16_from_half(
+            __hsub(
+                ort_cuda_half_from_float16(a[idx]),
+                ort_cuda_half_from_float16(b[idx])
+            )
+        );
+    }
+}
+
+__global__ void ort_cuda_sub_float32_kernel(float32* result, const float32* a, const float32* b, size_t count) {
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        result[idx] = a[idx] - b[idx];
+    }
+}
+
+__global__ void ort_cuda_sub_float64_kernel(float64* result, const float64* a, const float64* b, size_t count) {
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        result[idx] = a[idx] - b[idx];
+    }
+}
+
 __global__ void ort_cuda_sub_int8_kernel(int8_t* result, const int8_t* a, const int8_t* b, size_t count) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < count) {
@@ -71,22 +99,32 @@ __global__ void ort_cuda_sub_uint32_kernel(uint32_t* result, const uint32_t* a, 
     }
 }
 
-__global__ void ort_cuda_sub_float32_kernel(float32* result, const float32* a, const float32* b, size_t count) {
-    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < count) {
-        result[idx] = a[idx] - b[idx];
-    }
-}
-
-__global__ void ort_cuda_sub_float64_kernel(float64* result, const float64* a, const float64* b, size_t count) {
-    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < count) {
-        result[idx] = a[idx] - b[idx];
-    }
-}
-
 /* C-linkage wrapper functions */
 extern "C" {
+
+void ort_cuda_sub_float16(float16* result, const float16* a, const float16* b, size_t count, cudaStream_t stream) {
+    ort_cuda_sub_float16_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
+        result, a, b, count
+    );
+}
+
+void ort_cuda_sub_float32(float32* result, const float32* a, const float32* b, size_t count, cudaStream_t stream) {
+    ort_cuda_sub_float32_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
+        result, a, b, count
+    );
+}
+
+void ort_cuda_sub_float64(float64* result, const float64* a, const float64* b, size_t count, cudaStream_t stream) {
+    ort_cuda_sub_float64_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
+        result, a, b, count
+    );
+}
 
 void ort_cuda_sub_int8(int8_t* result, const int8_t* a, const int8_t* b, size_t count, cudaStream_t stream) {
     ort_cuda_sub_int8_kernel<<<
@@ -138,22 +176,6 @@ void ort_cuda_sub_uint16(uint16_t* result, const uint16_t* a, const uint16_t* b,
 
 void ort_cuda_sub_uint32(uint32_t* result, const uint32_t* a, const uint32_t* b, size_t count, cudaStream_t stream) {
     ort_cuda_sub_uint32_kernel<<<
-        ort_cuda_blocks_count(__ort_cuda_threads, count),
-        __ort_cuda_threads, 0, stream>>>(
-        result, a, b, count
-    );
-}
-
-void ort_cuda_sub_float32(float32* result, const float32* a, const float32* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_float32_kernel<<<
-        ort_cuda_blocks_count(__ort_cuda_threads, count),
-        __ort_cuda_threads, 0, stream>>>(
-        result, a, b, count
-    );
-}
-
-void ort_cuda_sub_float64(float64* result, const float64* a, const float64* b, size_t count, cudaStream_t stream) {
-    ort_cuda_sub_float64_kernel<<<
         ort_cuda_blocks_count(__ort_cuda_threads, count),
         __ort_cuda_threads, 0, stream>>>(
         result, a, b, count

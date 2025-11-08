@@ -2,6 +2,8 @@
 ORT\Math\add: tensor + tensor, all types, shape, numpy/onnx semantics, includes large tensor for vectorization
 --EXTENSIONS--
 ort
+--ENV--
+ORT_CUDA_THRESHOLD=4096
 --FILE--
 <?php
 use ORT\Tensor;

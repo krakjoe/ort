@@ -19,6 +19,7 @@ include sprintf(
 $signed_values = array_merge(range(-8, -1), [0], range(1, 8)); // 17 elements
 $unsigned_values = range(0, 7); // 8 elements for unsigned
 $types = [
+    'FLOAT16' => [$real['FLOAT16'], $signed_values],
     'FLOAT32' => [$real['FLOAT32'], $signed_values],
     'FLOAT64' => [$real['FLOAT64'], $signed_values],
 ];
@@ -36,6 +37,10 @@ foreach ($types as $name => [$type, $values]) {
 }
 ?>
 --EXPECTF--
+PASS: FLOAT16 neg large tensor (gpu)
+RESULT: [%d] first=-1.0 last=-1.0
+TYPE: FLOAT16
+SHAPE: [4096]
 PASS: FLOAT32 neg large tensor (gpu)
 RESULT: [%d] first=-1.0 last=-1.0
 TYPE: FLOAT32

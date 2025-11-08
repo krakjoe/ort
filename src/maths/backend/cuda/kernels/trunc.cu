@@ -17,8 +17,22 @@
  */
 
 #include <cuda_runtime.h>
+#include <cuda_fp16.h>
 
 #include "maths/backend/cuda/kernels/util.h"
+
+/* CUDA kernel for float16 truncate */
+__global__ void ort_cuda_trunc_float16_kernel(float16* result, const float16* a, size_t count) {
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (idx < count) {
+        result[idx] = ort_cuda_float16_from_half(
+            htrunc(
+                ort_cuda_half_from_float16(a[idx])
+            )
+        );
+    }
+}
 
 /* CUDA kernel for float32 truncate */
 __global__ void ort_cuda_trunc_float32_kernel(float32* result, const float32* a, size_t count) {
@@ -40,6 +54,14 @@ __global__ void ort_cuda_trunc_float64_kernel(float64* result, const float64* a,
 
 /* C-linkage wrapper functions */
 extern "C" {
+
+void ort_cuda_trunc_float16(float16* result, const float16* a, size_t count, cudaStream_t stream) {
+    ort_cuda_trunc_float16_kernel<<<
+        ort_cuda_blocks_count(__ort_cuda_threads, count),
+        __ort_cuda_threads, 0, stream>>>(
+        result, a, count
+    );
+}
 
 void ort_cuda_trunc_float32(float32* result, const float32* a, size_t count, cudaStream_t stream) {
     ort_cuda_trunc_float32_kernel<<<

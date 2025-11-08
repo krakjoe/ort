@@ -20,6 +20,7 @@ include sprintf(
 $values = array_merge(range(-16.0, -1.0), [0], range(1.0, 16.0));
 
 $types = [
+    'FLOAT16' => [$real['FLOAT16'], $values],
     'FLOAT32' => [$real['FLOAT32'], $values],
     'FLOAT64' => [$real['FLOAT64'], $values],
 ];
@@ -35,6 +36,10 @@ foreach ($types as $name => [$type, $values]) {
 }
 ?>
 --EXPECTF--
+PASS: FLOAT16 trunc large tensor (gpu)
+RESULT: %s
+TYPE: FLOAT16
+SHAPE: [4096]
 PASS: FLOAT32 trunc large tensor (gpu)
 RESULT: %s
 TYPE: FLOAT32

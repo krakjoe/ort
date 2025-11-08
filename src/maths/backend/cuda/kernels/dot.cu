@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <cuda_runtime.h>
+#include <cuda_fp16.h>
 
 #include "maths/backend/cuda/kernels/util.h"
 
@@ -31,6 +32,57 @@ __device__ void ort_cuda_reduce_sum(T* sdata, int tid) {
             sdata[tid] += sdata[tid + s];
         }
         __syncthreads();
+    }
+}
+
+__device__ __forceinline__ void atomicAddHalf(__half* address, __half val) {
+    unsigned int* address_as_uint = (unsigned int*)((char*)address - ((size_t)address & 2));
+    unsigned int old = *address_as_uint;
+    unsigned int assumed;
+    
+    do {
+        assumed = old;
+        __half_raw hsum;
+        hsum.x = (size_t)address & 2 ? (old >> 16) : (old & 0xffff);
+        
+        __half tmpres = __hadd(*(__half*)&hsum, val);
+        hsum = *(__half_raw*)&tmpres;
+        
+        old = (size_t)address & 2 
+              ? (old & 0xffff) | (hsum.x << 16) 
+              : (old & 0xffff0000) | hsum.x;
+              
+        old = atomicCAS(address_as_uint, assumed, old);
+    } while (assumed != old);
+}
+
+/* CUDA kernel for float16 dot product */
+__global__ void ort_cuda_dot_float16_kernel(float16* result, const float16* a, const float16* b, size_t count) {
+    extern __shared__ __half sdata_h[];
+
+    size_t tid = threadIdx.x;
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t stride = blockDim.x * gridDim.x;
+
+    /* Accumulate thread-local sum */
+    __half sum = __float2half(0.0f);
+    for (size_t i = idx; i < count; i += stride) {
+        sum = __hadd(
+            sum,
+            __hmul(
+                ort_cuda_half_from_float16(a[i]),
+                ort_cuda_half_from_float16(b[i])
+            )
+        );
+    }
+    sdata_h[tid] = sum;
+
+    /* Reduce within block */
+    ort_cuda_reduce_sum(sdata_h, tid);
+
+    /* First thread writes block result */
+    if (tid == 0) {
+        atomicAddHalf((__half*)result, sdata_h[0]);
     }
 }
 
@@ -165,6 +217,26 @@ __global__ void ort_cuda_dot_uint32_kernel(uint64_t* result, const uint32_t* a, 
 
 /* C-linkage wrapper functions */
 extern "C" {
+
+void ort_cuda_dot_float16(float16* result, const float16* a, const float16* b, size_t count, cudaStream_t stream) {
+    __half temp_result = __float2half(0.0f);
+    __half* d_temp;
+    cudaMallocAsync(&d_temp, sizeof(__half), stream);
+    cudaMemsetAsync(d_temp, 0, sizeof(__half), stream);
+
+    ort_cuda_dot_float16_kernel<<<
+        ort_cuda_blocks_min(__ort_cuda_threads, count, 1024),
+        __ort_cuda_threads,
+        __ort_cuda_threads * sizeof(__half), stream>>>(
+        (float16*)d_temp, a, b, count
+    );
+
+    cudaMemcpyAsync(&temp_result, d_temp, sizeof(__half), cudaMemcpyDeviceToHost, stream);
+    cudaStreamSynchronize(stream);
+    cudaFreeAsync(d_temp, stream);
+
+    *result = (float16)temp_result;
+}
 
 void ort_cuda_dot_float32(float32* result, const float32* a, const float32* b, size_t count, cudaStream_t stream) {
     float32 temp_result = 0.0f;

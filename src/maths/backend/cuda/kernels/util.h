@@ -28,3 +28,6 @@ static inline int ort_cuda_blocks_count(const int threads, size_t count) {
 static inline int ort_cuda_blocks_min(const int threads, size_t count, const int minimum) {
     return (int) min(ort_cuda_blocks_count(threads, count), minimum);
 }
+
+#define ort_cuda_half_from_float16(arg) __short_as_half((short) arg)
+#define ort_cuda_float16_from_half(arg) (float16) __half_as_short(arg)
