@@ -59,12 +59,19 @@ void ort_math_backend_cpu_install(ort_math_dispatch_t* table) {
             ort_math_memcpy_riscv64);
 
     /* abs.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   abs, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  abs, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, abs, float16)
+#endif
+
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, abs, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, abs, float64)
 
     /* add.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   add, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  add, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, add, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, add, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, add, float64)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT8,    add, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT16,   add, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT32,   add, int32_t)
@@ -74,46 +81,71 @@ void ort_math_backend_cpu_install(ort_math_dispatch_t* table) {
     ORT_MATH_BACKEND_INSTALL(table, riscv64, UINT32,  add, uint32_t)
 
     /* div.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   div, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  div, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, div, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, div, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, div, float64)
 
     /* matmul.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   matmul, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  matmul, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, matmul, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, matmul, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, matmul, float64)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT16,   matmul, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, UINT16,  matmul, uint16_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT32,   matmul, int32_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, UINT32,  matmul, uint32_t)
 
     /* mul.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   mul, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  mul, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, mul, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, mul, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, mul, float64)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT8,    mul, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, UINT8,   mul, uint8_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT16,   mul, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, UINT16,  mul, uint16_t)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, UINT32,  mul, uint32_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT32,   mul, int32_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT64,   mul, int64_t)
 
     /* neg.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   neg, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  neg, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, neg, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, neg, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, neg, float64)
 
     /* recip.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   recip, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  recip, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, recip, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, recip, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, recip, float64)
 
     /* sign.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   sign, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  sign, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, sign, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, sign, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, sign, float64)
 
     /* sqrt.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   sqrt, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  sqrt, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, sqrt, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, sqrt, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, sqrt, float64)
 
     /* sub.c */
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32,   sub, float32)
-    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64,  sub, float64)
+#ifdef ORT_BACKEND_CPU_F16V
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT16, sub, float16)
+#endif
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT32, sub, float32)
+    ORT_MATH_BACKEND_INSTALL(table, riscv64, FLOAT64, sub, float64)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT8,    sub, int8_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT16,   sub, int16_t)
     ORT_MATH_BACKEND_INSTALL(table, riscv64, INT32,   sub, int32_t)

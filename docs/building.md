@@ -45,7 +45,46 @@ When using `--enable-ort-backend=auto`, the CPU backend is selected in this prio
 - Requires in-tree builds (source directory must equal build directory)
 - See [https://github.com/krakjoe/em](krakjoe/em) for building webasm runtime
 
-### CUDA Backend
+### RISCV64 Backend Notes
+
+While riscv64 has float16 support as part of the specification, the compiler must be new enough to support the build:
+
+| Compiler | Version |
+|:--------:|:-------:|
+| GCC      | 14.1    |
+| clang    | 18      |
+
+**Versions below this will omit float16 support at the backend (upgrade your compiler!).**
+
+If GCC is too old, it's better to install clang alongside it (set `CC=clang` at configure time).
+
+To install clang (on ubuntu based distro):
+
+```
+sudo apt install clang-18
+```
+
+If coverage (`--enable-ort-coverage`) is required:
+
+```
+sudo apt install llvm-18 libclang-rt-18-dev
+```
+
+with `/usr/local/bin/lcov` (+x) as:
+
+```
+#!/bin/bash
+LLVM_GCOV_WRAPPER="/tmp/llvm-gcov-wrapper-$$.sh"
+cat > "$LLVM_GCOV_WRAPPER" << 'INNEREOF'
+#!/bin/bash
+exec llvm-cov-18 gcov "$@"
+INNEREOF
+chmod +x "$LLVM_GCOV_WRAPPER"
+trap "rm -f $LLVM_GCOV_WRAPPER" EXIT
+exec /usr/bin/lcov --gcov-tool "$LLVM_GCOV_WRAPPER" "$@"
+```
+
+### CUDA Backend Notes
 
 *For comprehensive information see [gpu.md](gpu.md).*
 

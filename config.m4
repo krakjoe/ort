@@ -139,7 +139,29 @@ AS_VAR_IF([PHP_ORT], [no],, [
       CFLAGS="$CFLAGS -march=rv64gcv"
       AC_CHECK_HEADERS([riscv_vector.h], [
         PHP_ORT_HAS_RISCV64="yes"
-        PHP_ORT_HAS_F16V="yes"
+        dnl Test for native F16V support with RISC-V ZVFH
+        AC_MSG_CHECKING([for native F16V support with RISC-V ZVFH])
+        saved_CFLAGS_F16V="$CFLAGS"
+        CFLAGS="$CFLAGS -march=rv64gcv_zfh_zvfh"
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+          #include <riscv_vector.h>
+        ]], [[
+          volatile size_t vl = __riscv_vsetvlmax_e16m1();
+          volatile vfloat16m1_t a = __riscv_vfmv_v_f_f16m1(1.0f, vl);
+          volatile vfloat16m1_t b = __riscv_vfmv_v_f_f16m1(2.0f, vl);
+          volatile vfloat16m1_t c = __riscv_vfadd_vv_f16m1(a, b, vl);
+          volatile vfloat16m1_t d = __riscv_vfmul_vv_f16m1(c, a, vl);
+          return (__riscv_vfmv_f_s_f16m1_f16(d) == 3.0f) ? 0 : 1;
+        ]])], [
+          AC_MSG_RESULT([yes])
+          PHP_ORT_HAS_F16V="yes"
+        ], [
+          AC_MSG_RESULT([no])
+        ], [
+          dnl Cross-compilation: assume F16V not available
+          AC_MSG_RESULT([assuming no (cross-compiling)])
+        ])
+        CFLAGS="$saved_CFLAGS_F16V"
       ], [], [AC_INCLUDES_DEFAULT])
       CFLAGS="$save_CFLAGS"
     ], [])
@@ -796,7 +818,11 @@ AS_VAR_IF([PHP_ORT], [no],, [
         if test "$PHP_ORT_HAS_RISCV64" != "yes"; then
           AC_MSG_ERROR([RISC-V 64 backend requested but not available])
         fi
-        PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -march=rv64gcv"
+        if test "$PHP_ORT_HAS_F16V" = "yes"; then
+          PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -march=rv64gcv_zfh_zvfh"
+        else
+          PHP_ORT_BACKEND_CFLAGS="$PHP_ORT_BACKEND_CFLAGS -march=rv64gcv"
+        fi
         PHP_ORT_BACKEND_LEVEL="$PHP_ORT_BACKEND_LEVEL RISCV64"
         PHP_ORT_BACKEND_IMPL="$PHP_ORT_BACKEND_IMPL
           $PHP_ORT_BACKEND_DIR/riscv64/abs.c

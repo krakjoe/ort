@@ -21,6 +21,40 @@
 
 #include <riscv_vector.h> /* RVV */
 
+#ifdef ORT_BACKEND_CPU_F16V
+ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, float16) {
+    const float16 *va = (const float16 *)a;
+    const float16 *vb = (const float16 *)b;
+    float16 *res = (float16 *)result;
+    for (size_t j = 0; j < b_cols; j++) {
+        vfloat16m1_t ma, mb, mr;
+        float16 sum = 0.0f;
+        const size_t mw = __riscv_vsetvlmax_e16m1();
+        size_t mc = ort_math_backend_optimal_count(a_cols, mw);
+        size_t k = 0;
+        if (mc > 0) {
+            for (; k < mc; k += mw) {
+                ma = __riscv_vle16_v_f16m1(
+                    (const _Float16*)&va[k], mw);
+                mb = __riscv_vlse16_v_f16m1(
+                    (const _Float16*)&vb[k * b_cols + j], 
+                    b_cols * sizeof(float16), mw);
+                mr = __riscv_vfmul_vv_f16m1(ma, mb, mw);
+
+                sum += ORT_MATH_BACKEND_UTIL(riscv64, hsum, float16xN, float16)(mr, mw);
+            }
+        }
+        if (mc < a_cols) {
+            /* Fallback to frontend for leftovers */
+            for (; k < a_cols; k++) {
+                sum += va[k] * vb[k * b_cols + j];
+            }
+        }
+        res[j] = sum;
+    }
+}
+#endif
+
 ORT_MATH_BACKEND_MATMUL_OP_DECL(riscv64, float32) {
     const float32 *va = (const float32 *)a;
     const float32 *vb = (const float32 *)b;

@@ -67,7 +67,7 @@ jobs:
       - name: Configure
         run: |
           /opt/php/8.6/bin/phpize
-          ./configure \
+          CC=clang ./configure \
             --with-php-config=/opt/php/8.6/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }} \
             --enable-ort-coverage

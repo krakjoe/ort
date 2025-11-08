@@ -20,6 +20,42 @@
 
 #include <riscv_vector.h> /* RVV */
 
+#ifdef ORT_BACKEND_CPU_F16V
+ORT_MATH_BACKEND_BINARY_OP_DECL(riscv64, div, float16) {
+    const float16* va = (const float16*)a;
+    const float16* vb = (const float16*)b;
+    float16* res = (float16*)result;
+    const size_t mw = __riscv_vsetvlmax_e16m1();
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_div_float16_fallback;
+    }
+
+    for (size_t i = 0; i < mc; i += mw) {
+        vfloat16m1_t ma =
+            __riscv_vle16_v_f16m1(
+                (const _Float16*)&va[i], mw);
+        vfloat16m1_t mb =
+            __riscv_vle16_v_f16m1(
+                (const _Float16*)&vb[i], mw);
+        vfloat16m1_t mr = __riscv_vfdiv_vv_f16m1(ma, mb, mw);
+        __riscv_vse16_v_f16m1(
+            (_Float16*)&res[i], mr, mw);
+    }
+
+__ort_math_backend_div_float16_fallback:
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(div, float16)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+#endif
+
 ORT_MATH_BACKEND_BINARY_OP_DECL(riscv64, div, float32) {
     const float32* va = (const float32*)a;
     const float32* vb = (const float32*)b;

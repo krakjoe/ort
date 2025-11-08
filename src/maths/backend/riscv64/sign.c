@@ -19,6 +19,47 @@
 #include "maths/backend/riscv64/impl.h"
 #include <riscv_vector.h> /* RVV */
 
+#ifdef ORT_BACKEND_CPU_F16V
+ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sign, float16) {
+    const float16* va = (const float16*)a;
+    float16* res = (float16*)result;
+    const size_t mw = __riscv_vsetvlmax_e16m1();
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_sign_float16_fallback;
+    }
+
+    const vfloat16m1_t zero = __riscv_vfmv_v_f_f16m1(0.0f, mw);
+    const vfloat16m1_t one = __riscv_vfmv_v_f_f16m1(1.0f, mw);
+    const vfloat16m1_t neg_one = __riscv_vfmv_v_f_f16m1(-1.0f, mw);
+
+    for (size_t i = 0; i < mc; i += mw) {
+        vfloat16m1_t ma =
+            __riscv_vle16_v_f16m1(
+                (const _Float16*)&va[i], mw);
+        vbool16_t pos_mask = __riscv_vmfgt_vf_f16m1_b16(ma, 0.0f, mw);
+        vbool16_t neg_mask = __riscv_vmflt_vf_f16m1_b16(ma, 0.0f, mw);
+        
+        vfloat16m1_t mr = zero;
+        mr = __riscv_vmerge_vvm_f16m1(mr, one, pos_mask, mw);
+        mr = __riscv_vmerge_vvm_f16m1(mr, neg_one, neg_mask, mw);
+
+        __riscv_vse16_v_f16m1(
+            (_Float16*)&res[i], mr, mw);
+    }
+
+__ort_math_backend_sign_float16_fallback:
+    if (mc < count) {
+        ORT_MATH_FRONTEND_OP_SYMBOL(sign, float16)(
+            res   + mc,
+            va    + mc,
+            count - mc);
+    }
+}
+#endif
+
 ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, sign, float32) {
     const float32* va = (const float32*)a;
     float32* res = (float32*)result;

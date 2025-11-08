@@ -20,6 +20,15 @@
 
 #include <riscv_vector.h> /* RVV */
 
+#ifdef ORT_BACKEND_CPU_F16V
+ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
+    hsum, float16xN, float16, vfloat16m1_t) {
+    vfloat16m1_t zero = __riscv_vfmv_v_f_f16m1(0.0f, 1);
+    vfloat16m1_t sum_vec = __riscv_vfredosum_vs_f16m1_f16m1(v, zero, vl);
+    return __riscv_vfmv_f_s_f16m1_f16(sum_vec);
+}
+#endif
+
 ORT_MATH_BACKEND_UTIL_DECL_VAR(riscv64, 
     hsum, float32xN, float32, vfloat32m1_t) {
     vfloat32m1_t zero = __riscv_vfmv_v_f_f32m1(0.0f, 1);

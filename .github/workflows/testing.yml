@@ -57,7 +57,7 @@ jobs:
       - name: Build
         run: |
           /opt/php/${{ matrix.php }}/bin/phpize
-          ./configure \
+          CC=clang ./configure \
             --with-php-config=/opt/php/${{ matrix.php }}/bin/php-config \
             --enable-ort-backend=${{ matrix.backend }}
           make -j$(nproc)
