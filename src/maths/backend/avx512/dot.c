@@ -21,6 +21,53 @@
 
 #include <immintrin.h>  /* AVX512 */
 
+ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, float16) {
+    const float16* va = (const float16*) a;
+    const float16* vb = (const float16*) b;
+    float16* res      = (float16*)       result;
+    const size_t mw = 16; /* AVX512 can process 16 float32 at once */
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+    float32 sum = 0.0f;
+
+    if (mc == 0) {
+        /* Not enough elements for a single SIMD operation, fallback to scalar */
+        goto __ort_math_backend_dot_float16_fallback;
+    }
+
+#ifndef ORT_BACKEND_CPU_F16C
+    goto __ort_math_backend_dot_float16_fallback;
+#else
+    __m512 vsum = _mm512_setzero_ps();
+
+    /* Vectorized loop - process 16 float16 at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        /* Load 16 float16 values into 256-bit registers */
+        __m256i ma = _mm256_load_si256((__m256i*)&va[i]);
+        __m256i mb = _mm256_load_si256((__m256i*)&vb[i]);
+
+        /* Convert F16 to F32: 16 float16 -> 16 float32 */
+        __m512 mf16ca = _mm512_cvtph_ps(ma);
+        __m512 mf16cb = _mm512_cvtph_ps(mb);
+
+        /* Apply multiply operation and accumulate */
+        __m512 mf16r = _mm512_mul_ps(mf16ca, mf16cb);
+        vsum = _mm512_add_ps(vsum, mf16r);
+    }
+
+    sum = ORT_MATH_BACKEND_UTIL(avx512, hsum, float32x16, float32)(vsum);
+#endif
+
+__ort_math_backend_dot_float16_fallback:
+    /* Handle remaining elements with scalar operations */
+    for (size_t i = mc; i < count; ++i) {
+        sum += ort_math_float32_from_float16(va[i]) *
+               ort_math_float32_from_float16(vb[i]);
+    }
+
+    res[0] = ort_math_float16_from_float32(sum);
+}
+
 ORT_MATH_BACKEND_BINARY_OP_DECL(avx512, dot, float32) {
     const float32* va = (const float32*) a;
     const float32* vb = (const float32*) b;

@@ -21,6 +21,59 @@
 
 #include <immintrin.h> /* AVX512 */
 
+ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, float16) {
+    const float16 *va = (const float16 *)a;
+    const float16 *vb = (const float16 *)b;
+    float16 *res = (float16 *)result;
+
+#ifndef ORT_BACKEND_CPU_F16C
+    /* Fallback to scalar implementation */
+    for (size_t j = 0; j < b_cols; j++) {
+        float32 sum = 0.0f;
+        for (size_t k = 0; k < a_cols; k++) {
+            sum += ort_math_float32_from_float16(va[k]) * 
+                   ort_math_float32_from_float16(vb[k * b_cols + j]);
+        }
+        res[j] = ort_math_float16_from_float32(sum);
+    }
+#else
+    for (size_t j = 0; j < b_cols; j++) {
+        float32 sum = 0.0f;
+        const size_t mw = 16;
+        size_t mc = ort_math_backend_optimal_count(a_cols, mw);
+        size_t k = 0;
+
+        for (; k < mc; k += mw) {
+            /* Load 16 float16 values from matrix A */
+            __m256i ma_h16 = _mm256_load_si256((__m256i*)&va[k]);
+            __m512 ma = _mm512_cvtph_ps(ma_h16);
+
+            /* Gather 16 float16 values from matrix B and convert to F32 */
+            __m256i mb_h16 = _mm256_set_epi16(
+                vb[(k+15) * b_cols + j], vb[(k+14) * b_cols + j],
+                vb[(k+13) * b_cols + j], vb[(k+12) * b_cols + j],
+                vb[(k+11) * b_cols + j], vb[(k+10) * b_cols + j],
+                vb[(k+9) * b_cols + j], vb[(k+8) * b_cols + j],
+                vb[(k+7) * b_cols + j], vb[(k+6) * b_cols + j],
+                vb[(k+5) * b_cols + j], vb[(k+4) * b_cols + j],
+                vb[(k+3) * b_cols + j], vb[(k+2) * b_cols + j],
+                vb[(k+1) * b_cols + j], vb[k * b_cols + j]);
+            __m512 mb = _mm512_cvtph_ps(mb_h16);
+
+            __m512 mr = _mm512_mul_ps(ma, mb);
+            sum += ORT_MATH_BACKEND_UTIL(avx512, hsum, float32x16, float32)(mr);
+        }
+
+        /* Fallback for leftovers */
+        for (; k < a_cols; k++) {
+            sum += ort_math_float32_from_float16(va[k]) * 
+                   ort_math_float32_from_float16(vb[k * b_cols + j]);
+        }
+        res[j] = ort_math_float16_from_float32(sum);
+    }
+#endif
+}
+
 ORT_MATH_BACKEND_MATMUL_OP_DECL(avx512, float32) {
     const float32 *va = (const float32 *)a;
     const float32 *vb = (const float32 *)b;
