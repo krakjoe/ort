@@ -45,8 +45,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(riscv64, div, float16) {
             (_Float16*)&res[i], mr, mw);
     }
 
-__ort_math_backend_div_float16_fallback:
     if (mc < count) {
+__ort_math_backend_div_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(div, float16)(
             res   + mc,
             va    + mc,
@@ -75,8 +75,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(riscv64, div, float32) {
         __riscv_vse32_v_f32m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_div_float32_fallback:
     if (mc < count) {
+__ort_math_backend_div_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(div, float32)(
             res   + mc,
             va    + mc,
@@ -104,8 +104,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(riscv64, div, float64) {
         __riscv_vse64_v_f64m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_div_float64_fallback:
     if (mc < count) {
+__ort_math_backend_div_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(div, float64)(
             res   + mc,
             va    + mc,

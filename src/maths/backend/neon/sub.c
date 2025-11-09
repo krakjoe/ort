@@ -43,8 +43,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float16) {
         vst1q_f16((float16_t*)&res[i], mr);
     }
 
-__ort_math_backend_sub_float16_fallback:
     if (mc < count) {
+__ort_math_backend_sub_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, float16)(
             res   + mc,
             va    + mc,
@@ -74,8 +74,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float32) {
         vst1q_f32(&res[i], mr);
     }
 
-__ort_math_backend_sub_float32_fallback:
     if (mc < count) {
+__ort_math_backend_sub_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, float32)(
             res   + mc,
             va    + mc,
@@ -104,8 +104,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, float64) {
         vst1q_f64(&res[i], mr);
     }
 
-__ort_math_backend_sub_float64_fallback:
     if (mc < count) {
+__ort_math_backend_sub_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, float64)(
             res   + mc,
             va    + mc,
@@ -134,8 +134,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int8_t) {
         vst1q_s8(&res[i], mr);
     }
 
-__ort_math_backend_sub_int8_fallback:
     if (mc < count) {
+__ort_math_backend_sub_int8_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, int8_t)(
             res   + mc,
             va    + mc,
@@ -164,8 +164,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int16_t) {
         vst1q_s16(&res[i], mr);
     }
 
-__ort_math_backend_sub_int16_fallback:
     if (mc < count) {
+__ort_math_backend_sub_int16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, int16_t)(
             res   + mc,
             va    + mc,
@@ -194,8 +194,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int32_t) {
         vst1q_s32(&res[i], mr);
     }
 
-__ort_math_backend_sub_int32_fallback:
     if (mc < count) {
+__ort_math_backend_sub_int32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, int32_t)(
             res    + mc,
             va     + mc,
@@ -224,8 +224,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, int64_t) {
         vst1q_s64(&res[i], mr);
     }
 
-__ort_math_backend_sub_int64_fallback:
     if (mc < count) {
+__ort_math_backend_sub_int64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, int64_t)(
             res    + mc,
             va     + mc,
@@ -254,8 +254,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint8_t) {
         vst1q_u8(&res[i], mr);
     }
 
-__ort_math_backend_sub_uint8_fallback:
     if (mc < count) {
+__ort_math_backend_sub_uint8_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, uint8_t)(
             res   + mc,
             va    + mc,
@@ -284,8 +284,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint16_t) {
         vst1q_u16(&res[i], mr);
     }
 
-__ort_math_backend_sub_uint16_fallback:
     if (mc < count) {
+__ort_math_backend_sub_uint16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, uint16_t)(
             res   + mc,
             va    + mc,
@@ -314,8 +314,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, sub, uint32_t) {
         vst1q_u32(&res[i], mr);
     }
 
-__ort_math_backend_sub_uint32_fallback:
     if (mc < count) {
+__ort_math_backend_sub_uint32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, uint32_t)(
             res   + mc,
             va    + mc,

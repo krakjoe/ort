@@ -20,72 +20,6 @@
 
 #include <emmintrin.h> /* SSE2 */
 
-/*
- * SIMD Multiplication Operations (SSE2)
- *
- * Only contracted types are implemented. SSE2 does not support 8-bit or 64-bit integer multiply.
- */
-
-ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, int16_t) {
-    const int16_t* va = (const int16_t*)a;
-    const int16_t* vb = (const int16_t*)b;
-    int16_t* res = (int16_t*)result;
-    const size_t mw = 8; // 8 int16_t per SSE2 register
-
-    size_t mc = ort_math_backend_optimal_count(count, mw);
-
-    if (mc == 0) {
-        goto __ort_math_backend_mul_int16_fallback;
-    }
-
-    /* Vectorized loop - process 8 int16_t at once */
-    for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_mullo_epi16(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
-    }
-
-__ort_math_backend_mul_int16_fallback:
-    if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(mul, int16_t)(
-            res   + mc,
-            va    + mc,
-            vb    + mc,
-            count - mc);
-    }
-}
-
-ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, uint16_t) {
-    const uint16_t* va = (const uint16_t*)a;
-    const uint16_t* vb = (const uint16_t*)b;
-    uint16_t* res = (uint16_t*)result;
-    const size_t mw = 8; // 8 uint16_t per SSE2 register
-
-    size_t mc = ort_math_backend_optimal_count(count, mw);
-
-    if (mc == 0) {
-        goto __ort_math_backend_mul_uint16_fallback;
-    }
-
-    /* Vectorized loop - process 8 uint16_t at once */
-    for (size_t i = 0; i < mc; i += mw) {
-        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
-        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
-        __m128i mr = _mm_mullo_epi16(ma, mb);
-        _mm_store_si128((__m128i*)&res[i], mr);
-    }
-
-__ort_math_backend_mul_uint16_fallback:
-    if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(mul, uint16_t)(
-            res   + mc,
-            va    + mc,
-            vb    + mc,
-            count - mc);
-    }
-}
-
 ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float32) {
     const float32* va = (const float32*)a;
     const float32* vb = (const float32*)b;
@@ -106,8 +40,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float32) {
         _mm_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_mul_float32_fallback:
     if (mc < count) {
+__ort_math_backend_mul_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float32)(
             res   + mc,
             va    + mc,
@@ -136,9 +70,69 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, float64) {
         _mm_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_mul_float64_fallback:
     if (mc < count) {
+__ort_math_backend_mul_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float64)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, int16_t) {
+    const int16_t* va = (const int16_t*)a;
+    const int16_t* vb = (const int16_t*)b;
+    int16_t* res = (int16_t*)result;
+    const size_t mw = 8; // 8 int16_t per SSE2 register
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_mul_int16_fallback;
+    }
+
+    /* Vectorized loop - process 8 int16_t at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
+        __m128i mr = _mm_mullo_epi16(ma, mb);
+        _mm_store_si128((__m128i*)&res[i], mr);
+    }
+
+    if (mc < count) {
+__ort_math_backend_mul_int16_fallback:
+        ORT_MATH_FRONTEND_OP_SYMBOL(mul, int16_t)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, mul, uint16_t) {
+    const uint16_t* va = (const uint16_t*)a;
+    const uint16_t* vb = (const uint16_t*)b;
+    uint16_t* res = (uint16_t*)result;
+    const size_t mw = 8; // 8 uint16_t per SSE2 register
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_mul_uint16_fallback;
+    }
+
+    /* Vectorized loop - process 8 uint16_t at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128i ma = _mm_load_si128((const __m128i*)&va[i]);
+        __m128i mb = _mm_load_si128((const __m128i*)&vb[i]);
+        __m128i mr = _mm_mullo_epi16(ma, mb);
+        _mm_store_si128((__m128i*)&res[i], mr);
+    }
+
+    if (mc < count) {
+__ort_math_backend_mul_uint16_fallback:
+        ORT_MATH_FRONTEND_OP_SYMBOL(mul, uint16_t)(
             res   + mc,
             va    + mc,
             vb    + mc,

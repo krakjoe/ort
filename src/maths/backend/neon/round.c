@@ -39,8 +39,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, round, float16) {
         vst1q_f16((float16_t*)&res[i], mr);
     }
 
-__ort_math_backend_round_float16_fallback:
     if (mc < count) {
+__ort_math_backend_round_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(round, float16)(
             res   + mc,
             va    + mc,
@@ -66,8 +66,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, round, float32) {
         vst1q_f32(&res[i], mr);
     }
 
-__ort_math_backend_round_float32_fallback:
     if (mc < count) {
+__ort_math_backend_round_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(round, float32)(
             res   + mc,
             va    + mc,
@@ -92,8 +92,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, round, float64) {
         vst1q_f64(&res[i], mr);
     }
 
-__ort_math_backend_round_float64_fallback:
     if (mc < count) {
+__ort_math_backend_round_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(round, float64)(
             res   + mc,
             va    + mc,

@@ -40,8 +40,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, float16) {
         vst1q_f16((float16_t*)&res[i], mr);
     }
 
-__ort_math_backend_neg_float16_fallback:
     if (mc < count) {
+__ort_math_backend_neg_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float16)(
             res   + mc,
             va    + mc,
@@ -67,8 +67,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, float32) {
         vst1q_f32(&res[i], mr);
     }
 
-__ort_math_backend_neg_float32_fallback:
     if (mc < count) {
+__ort_math_backend_neg_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float32)(
             res   + mc,
             va    + mc,
@@ -93,8 +93,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, float64) {
         vst1q_f64(&res[i], mr);
     }
 
-__ort_math_backend_neg_float64_fallback:
     if (mc < count) {
+__ort_math_backend_neg_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float64)(
             res   + mc,
             va    + mc,
@@ -119,8 +119,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int8_t) {
         vst1q_s8(&res[i], mr);
     }
 
-__ort_math_backend_neg_int8_fallback:
     if (mc < count) {
+__ort_math_backend_neg_int8_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, int8_t)(
             res   + mc,
             va    + mc,
@@ -145,8 +145,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int16_t) {
         vst1q_s16(&res[i], mr);
     }
 
-__ort_math_backend_neg_int16_fallback:
     if (mc < count) {
+__ort_math_backend_neg_int16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, int16_t)(
             res   + mc,
             va    + mc,
@@ -171,8 +171,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int32_t) {
         vst1q_s32(&res[i], mr);
     }
 
-__ort_math_backend_neg_int32_fallback:
     if (mc < count) {
+__ort_math_backend_neg_int32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, int32_t)(
             res   + mc,
             va    + mc,
@@ -197,8 +197,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(neon, neg, int64_t) {
         vst1q_s64(&res[i], mr);
     }
 
-__ort_math_backend_neg_int64_fallback:
     if (mc < count) {
+__ort_math_backend_neg_int64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, int64_t)(
             res   + mc,
             va    + mc,

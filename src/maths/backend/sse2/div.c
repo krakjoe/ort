@@ -16,16 +16,9 @@
   +----------------------------------------------------------------------+
  */
 
-
 #include "maths/backend/sse2/impl.h"
+
 #include <emmintrin.h> /* SSE2 */
-
-/*
- * SIMD Division Operations (SSE2)
- *
- * Note: SSE2 does not support integer division.
- */
-
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, div, float32) {
     const float32* va = (const float32*)a;
@@ -48,8 +41,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, div, float32) {
         _mm_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_div_float32_fallback:
     if (mc < count) {
+__ort_math_backend_div_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(div, float32)(
             res   + mc,
             va    + mc,
@@ -79,8 +72,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, div, float64) {
         _mm_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_div_float64_fallback:
     if (mc < count) {
+__ort_math_backend_div_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(div, float64)(
             res   + mc,
             va    + mc,

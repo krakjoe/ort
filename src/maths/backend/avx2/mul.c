@@ -20,7 +20,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
-
+#ifdef ORT_BACKEND_CPU_F16C
 ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, float16) {
     const float16* va = (const float16*) a;
     const float16* vb = (const float16*) b;
@@ -34,9 +34,6 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, float16) {
         goto __ort_math_backend_mul_float16_fallback;
     }
 
-#ifndef ORT_BACKEND_CPU_F16C
-    goto __ort_math_backend_mul_float16_fallback;
-#else
     /* Vectorized loop - process 8 float16 at once */
     for (size_t i = 0; i < mc; i += mw) {
         /* Load 8 float16 values into 128-bit registers */
@@ -57,11 +54,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, float16) {
         /* Store result */
         _mm_store_si128((__m128i*)&res[i], mr);
     }
-#endif
 
-__ort_math_backend_mul_float16_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_mul_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float16)(
             res   + mc,
             va    + mc,
@@ -69,6 +64,7 @@ __ort_math_backend_mul_float16_fallback:
             count - mc);
     }
 }
+#endif
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, float32) {
     const float32* va = (const float32*)a;
@@ -90,8 +86,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, float32) {
         _mm256_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_mul_float32_fallback:
     if (mc < count) {
+__ort_math_backend_mul_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float32)(
             res   + mc,
             va    + mc,
@@ -120,8 +116,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, float64) {
         _mm256_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_mul_float64_fallback:
     if (mc < count) {
+__ort_math_backend_mul_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float64)(
             res   + mc,
             va    + mc,
@@ -150,8 +146,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, int16_t) {
         _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
-__ort_math_backend_mul_int16_fallback:
     if (mc < count) {
+__ort_math_backend_mul_int16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, int16_t)(
             res   + mc,
             va    + mc,
@@ -180,8 +176,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, int32_t) {
         _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
-__ort_math_backend_mul_int32_fallback:
     if (mc < count) {
+__ort_math_backend_mul_int32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, int32_t)(
             res   + mc,
             va    + mc,
@@ -210,8 +206,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, uint16_t) {
         _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
-__ort_math_backend_mul_uint16_fallback:
     if (mc < count) {
+__ort_math_backend_mul_uint16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, uint16_t)(
             res   + mc,
             va    + mc,
@@ -240,8 +236,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, mul, uint32_t) {
         _mm256_store_si256((__m256i*)&res[i], mr);
     }
 
-__ort_math_backend_mul_uint32_fallback:
     if (mc < count) {
+__ort_math_backend_mul_uint32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, uint32_t)(
             res   + mc,
             va    + mc,

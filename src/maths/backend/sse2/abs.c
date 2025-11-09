@@ -41,9 +41,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, abs, float32) {
         _mm_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_abs_float32_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_abs_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(abs, float32)(
             res   + mc,
             va    + mc,
@@ -72,9 +71,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(sse2, abs, float64) {
         _mm_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_abs_float64_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_abs_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(abs, float64)(
             res   + mc,
             va    + mc,

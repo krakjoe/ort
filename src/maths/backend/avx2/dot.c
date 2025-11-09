@@ -21,6 +21,7 @@
 
 #include <immintrin.h>  /* AVX/AVX2 */
 
+#ifdef ORT_BACKEND_CPU_F16C
 ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float16) {
     const float16* va = (const float16*) a;
     const float16* vb = (const float16*) b;
@@ -35,9 +36,6 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float16) {
         goto __ort_math_backend_dot_float16_fallback;
     }
 
-#ifndef ORT_BACKEND_CPU_F16C
-    goto __ort_math_backend_dot_float16_fallback;
-#else
     __m256 vsum = _mm256_setzero_ps();
 
     /* Vectorized loop - process 8 float16 at once */
@@ -56,7 +54,6 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float16) {
     }
 
     sum = ORT_MATH_BACKEND_UTIL(avx2, hsum, float32x8, float32)(vsum);
-#endif
 
 __ort_math_backend_dot_float16_fallback:
     /* Handle remaining elements with scalar operations */
@@ -67,6 +64,7 @@ __ort_math_backend_dot_float16_fallback:
 
     res[0] = ort_math_float16_from_float32(sum);
 }
+#endif
 
 ORT_MATH_BACKEND_BINARY_OP_DECL(avx2, dot, float32) {
     const float32* va = (const float32*) a;

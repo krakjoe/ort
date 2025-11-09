@@ -23,6 +23,7 @@
 
 #include "maths/backend/impl.h"
 
+#ifdef ORT_BACKEND_CPU_F16C
 ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, sqrt, float16) {
     const float16* va = (const float16*) a;
     float16* res      = (float16*)       result;
@@ -35,9 +36,6 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, sqrt, float16) {
         goto __ort_math_backend_sqrt_float16_fallback;
     }
 
-#ifndef ORT_BACKEND_CPU_F16C
-    goto __ort_math_backend_sqrt_float16_fallback;
-#else
     /* Vectorized loop - process 8 float16 at once */
     for (size_t i = 0; i < mc; i += mw) {
         /* Load 8 float16 values into 128-bit register */
@@ -56,17 +54,16 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, sqrt, float16) {
         /* Store result */
         _mm_store_si128((__m128i*)&res[i], mr);
     }
-#endif
 
-__ort_math_backend_sqrt_float16_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_sqrt_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float16)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
+#endif
 
 ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, sqrt, float32) {
     const float32* va = (const float32*)a;
@@ -87,9 +84,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, sqrt, float32) {
         _mm256_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_sqrt_float32_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_sqrt_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float32)(
             res   + mc,
             va    + mc,
@@ -115,9 +111,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx2, sqrt, float64) {
         _mm256_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_sqrt_float64_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_sqrt_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sqrt, float64)(
             res   + mc,
             va    + mc,

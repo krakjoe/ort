@@ -20,6 +20,7 @@
 
 #include <immintrin.h>  /* AVX512 */
 
+#ifdef ORT_BACKEND_CPU_F16C
 ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, neg, float16) {
     const float16* va = (const float16*) a;
     float16* res      = (float16*)       result;
@@ -32,9 +33,6 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, neg, float16) {
         goto __ort_math_backend_neg_float16_fallback;
     }
 
-#ifndef ORT_BACKEND_CPU_F16C
-    goto __ort_math_backend_neg_float16_fallback;
-#else
     __m512 sign_mask = _mm512_set1_ps(-0.0f);  /* Sign bit mask */
 
     /* Vectorized loop - process 16 float16 at once */
@@ -55,17 +53,16 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, neg, float16) {
         /* Store result */
         _mm256_store_si256((__m256i*)&res[i], mr);
     }
-#endif
 
-__ort_math_backend_neg_float16_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_neg_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float16)(
             res   + mc,
             va    + mc,
             count - mc);
     }
 }
+#endif
 
 ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, neg, float32) {
     const float32* va = (const float32*)a;
@@ -88,9 +85,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, neg, float32) {
         _mm512_store_ps(&res[i], mr);
     }
 
-__ort_math_backend_neg_float32_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_neg_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float32)(
             res   + mc,
             va    + mc,
@@ -118,9 +114,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(avx512, neg, float64) {
         _mm512_store_pd(&res[i], mr);
     }
 
-__ort_math_backend_neg_float64_fallback:
-    /* Handle remaining elements with scalar operations */
     if (mc < count) {
+__ort_math_backend_neg_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float64)(
             res   + mc,
             va    + mc,

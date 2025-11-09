@@ -38,8 +38,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(wasm, recip, float32) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_recip_float32_fallback:
     if (mc < count) {
+__ort_math_backend_recip_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(recip, float32)(
             res   + mc,
             va    + mc,

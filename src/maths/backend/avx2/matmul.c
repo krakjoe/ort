@@ -21,22 +21,12 @@
 
 #include <immintrin.h> /* AVX2 */
 
+#ifdef ORT_BACKEND_CPU_F16C
 ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, float16) {
     const float16 *va = (const float16 *)a;
     const float16 *vb = (const float16 *)b;
     float16 *res = (float16 *)result;
 
-#ifndef ORT_BACKEND_CPU_F16C
-    /* Fallback to scalar implementation */
-    for (size_t j = 0; j < b_cols; j++) {
-        float32 sum = 0.0f;
-        for (size_t k = 0; k < a_cols; k++) {
-            sum += ort_math_float32_from_float16(va[k]) * 
-                   ort_math_float32_from_float16(vb[k * b_cols + j]);
-        }
-        res[j] = ort_math_float16_from_float32(sum);
-    }
-#else
     for (size_t j = 0; j < b_cols; j++) {
         float32 sum = 0.0f;
         const size_t mw = 8;
@@ -71,8 +61,8 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, float16) {
         }
         res[j] = ort_math_float16_from_float32(sum);
     }
-#endif
 }
+#endif
 
 ORT_MATH_BACKEND_MATMUL_OP_DECL(avx2, float32) {
     const float32 *va = (const float32 *)a;

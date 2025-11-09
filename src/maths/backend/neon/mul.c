@@ -44,8 +44,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, float16) {
         vst1q_f16((float16_t*)&res[i], mr);
     }
 
-__ort_math_backend_mul_float16_fallback:
     if (mc < count) {
+__ort_math_backend_mul_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float16)(
             res   + mc,
             va    + mc,
@@ -75,8 +75,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, float32) {
         vst1q_f32(&res[i], mr);
     }
 
-__ort_math_backend_mul_float32_fallback:
     if (mc < count) {
+__ort_math_backend_mul_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float32)(
             res   + mc,
             va    + mc,
@@ -105,8 +105,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, float64) {
         vst1q_f64(&res[i], mr);
     }
 
-__ort_math_backend_mul_float64_fallback:
     if (mc < count) {
+__ort_math_backend_mul_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, float64)(
             res   + mc,
             va    + mc,
@@ -135,8 +135,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, int16_t) {
         vst1q_s16(&res[i], mr);
     }
 
-__ort_math_backend_mul_int16_fallback:
     if (mc < count) {
+__ort_math_backend_mul_int16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, int16_t)(
             res   + mc,
             va    + mc,
@@ -165,8 +165,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, int32_t) {
         vst1q_s32(&res[i], mr);
     }
 
-__ort_math_backend_mul_int32_fallback:
     if (mc < count) {
+__ort_math_backend_mul_int32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, int32_t)(
             res   + mc,
             va    + mc,
@@ -195,8 +195,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, uint16_t) {
         vst1q_u16(&res[i], mr);
     }
 
-__ort_math_backend_mul_uint16_fallback:
     if (mc < count) {
+__ort_math_backend_mul_uint16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, uint16_t)(
             res   + mc,
             va    + mc,
@@ -225,8 +225,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(neon, mul, uint32_t) {
         vst1q_u32(&res[i], mr);
     }
 
-__ort_math_backend_mul_uint32_fallback:
     if (mc < count) {
+__ort_math_backend_mul_uint32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(mul, uint32_t)(
             res   + mc,
             va    + mc,

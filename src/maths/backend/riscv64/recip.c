@@ -42,8 +42,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, recip, float16) {
             (_Float16*)&res[i], mr, mw);
     }
 
-__ort_math_backend_recip_float16_fallback:
     if (mc < count) {
+__ort_math_backend_recip_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(recip, float16)(
             res   + mc,
             va    + mc,

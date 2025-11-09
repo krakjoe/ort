@@ -39,8 +39,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, add, int8_t) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_add_int8_fallback:
     if (mc < count) {
+__ort_math_backend_add_int8_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(add, int8_t)(
             res   + mc,
             va    + mc,
@@ -68,8 +68,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, add, int16_t) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_add_int16_fallback:
     if (mc < count) {
+__ort_math_backend_add_int16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(add, int16_t)(
             res   + mc,
             va    + mc,
@@ -97,8 +97,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, add, int32_t) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_add_int32_fallback:
     if (mc < count) {
+__ort_math_backend_add_int32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(add, int32_t)(
             res    + mc,
             va     + mc,
@@ -126,8 +126,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, add, uint8_t) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_add_uint8_fallback:
     if (mc < count) {
+__ort_math_backend_add_uint8_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(add, uint8_t)(
             res   + mc,
             va    + mc,
@@ -155,8 +155,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, add, uint16_t) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_add_uint16_fallback:
     if (mc < count) {
+__ort_math_backend_add_uint16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(add, uint16_t)(
             res   + mc,
             va    + mc,
@@ -184,8 +184,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, add, uint32_t) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_add_uint32_fallback:
     if (mc < count) {
+__ort_math_backend_add_uint32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(add, uint32_t)(
             res   + mc,
             va    + mc,
@@ -213,8 +213,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(wasm, add, float32) {
         wasm_v128_store(&res[i], mr);
     }
 
-__ort_math_backend_add_float32_fallback:
     if (mc < count) {
+__ort_math_backend_add_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(add, float32)(
             res   + mc,
             va    + mc,

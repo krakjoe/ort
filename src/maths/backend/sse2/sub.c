@@ -19,6 +19,66 @@
 #include "maths/backend/sse2/impl.h"
 #include <emmintrin.h> /* SSE2 */
 
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, float32) {
+    const float32* va = (const float32*)a;
+    const float32* vb = (const float32*)b;
+    float32* res = (float32*)result;
+    const size_t mw = 4; // 4 float32 per SSE2 register
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_sub_float32_fallback;
+    }
+
+    /* Vectorized loop - process 4 float32 at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128 ma = _mm_load_ps(&va[i]);
+        __m128 mb = _mm_load_ps(&vb[i]);
+        __m128 mr = _mm_sub_ps(ma, mb);
+        _mm_store_ps(&res[i], mr);
+    }
+
+    if (mc < count) {
+__ort_math_backend_sub_float32_fallback:
+        ORT_MATH_FRONTEND_OP_SYMBOL(sub, float32)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+
+ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, float64) {
+    const float64* va = (const float64*)a;
+    const float64* vb = (const float64*)b;
+    float64* res = (float64*)result;
+    const size_t mw = 2; // 2 float64 per SSE2 register
+
+    size_t mc = ort_math_backend_optimal_count(count, mw);
+
+    if (mc == 0) {
+        goto __ort_math_backend_sub_float64_fallback;
+    }
+
+    /* Vectorized loop - process 2 float64 at once */
+    for (size_t i = 0; i < mc; i += mw) {
+        __m128d ma = _mm_load_pd(&va[i]);
+        __m128d mb = _mm_load_pd(&vb[i]);
+        __m128d mr = _mm_sub_pd(ma, mb);
+        _mm_store_pd(&res[i], mr);
+    }
+
+    if (mc < count) {
+__ort_math_backend_sub_float64_fallback:
+        ORT_MATH_FRONTEND_OP_SYMBOL(sub, float64)(
+            res   + mc,
+            va    + mc,
+            vb    + mc,
+            count - mc);
+    }
+}
+
 ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, int8_t) {
     const int8_t* va = (const int8_t*)a;
     const int8_t* vb = (const int8_t*)b;
@@ -39,8 +99,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, int8_t) {
         _mm_store_si128((__m128i*)&res[i], mr);
     }
 
-__ort_math_backend_sub_int8_fallback:
     if (mc < count) {
+__ort_math_backend_sub_int8_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, int8_t)(
             res   + mc,
             va    + mc,
@@ -69,8 +129,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, int16_t) {
         _mm_store_si128((__m128i*)&res[i], mr);
     }
 
-__ort_math_backend_sub_int16_fallback:
     if (mc < count) {
+__ort_math_backend_sub_int16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, int16_t)(
             res   + mc,
             va    + mc,
@@ -99,8 +159,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, int32_t) {
         _mm_store_si128((__m128i*)&res[i], mr);
     }
 
-__ort_math_backend_sub_int32_fallback:
     if (mc < count) {
+__ort_math_backend_sub_int32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, int32_t)(
             res   + mc,
             va    + mc,
@@ -134,8 +194,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, uint8_t) {
         _mm_store_si128((__m128i*)&res[i], mr);
     }
 
-__ort_math_backend_sub_uint8_fallback:
     if (mc < count) {
+__ort_math_backend_sub_uint8_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, uint8_t)(
             res   + mc,
             va    + mc,
@@ -164,8 +224,8 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, uint16_t) {
         _mm_store_si128((__m128i*)&res[i], mr);
     }
 
-__ort_math_backend_sub_uint16_fallback:
     if (mc < count) {
+__ort_math_backend_sub_uint16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, uint16_t)(
             res   + mc,
             va    + mc,
@@ -194,69 +254,9 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, uint32_t) {
         _mm_store_si128((__m128i*)&res[i], mr);
     }
 
+    if (mc < count) {
 __ort_math_backend_sub_uint32_fallback:
-    if (mc < count) {
         ORT_MATH_FRONTEND_OP_SYMBOL(sub, uint32_t)(
-            res   + mc,
-            va    + mc,
-            vb    + mc,
-            count - mc);
-    }
-}
-
-ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, float32) {
-    const float32* va = (const float32*)a;
-    const float32* vb = (const float32*)b;
-    float32* res = (float32*)result;
-    const size_t mw = 4; // 4 float32 per SSE2 register
-
-    size_t mc = ort_math_backend_optimal_count(count, mw);
-
-    if (mc == 0) {
-        goto __ort_math_backend_sub_float32_fallback;
-    }
-
-    /* Vectorized loop - process 4 float32 at once */
-    for (size_t i = 0; i < mc; i += mw) {
-        __m128 ma = _mm_load_ps(&va[i]);
-        __m128 mb = _mm_load_ps(&vb[i]);
-        __m128 mr = _mm_sub_ps(ma, mb);
-        _mm_store_ps(&res[i], mr);
-    }
-
-__ort_math_backend_sub_float32_fallback:
-    if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sub, float32)(
-            res   + mc,
-            va    + mc,
-            vb    + mc,
-            count - mc);
-    }
-}
-
-ORT_MATH_BACKEND_BINARY_OP_DECL(sse2, sub, float64) {
-    const float64* va = (const float64*)a;
-    const float64* vb = (const float64*)b;
-    float64* res = (float64*)result;
-    const size_t mw = 2; // 2 float64 per SSE2 register
-
-    size_t mc = ort_math_backend_optimal_count(count, mw);
-
-    if (mc == 0) {
-        goto __ort_math_backend_sub_float64_fallback;
-    }
-
-    /* Vectorized loop - process 2 float64 at once */
-    for (size_t i = 0; i < mc; i += mw) {
-        __m128d ma = _mm_load_pd(&va[i]);
-        __m128d mb = _mm_load_pd(&vb[i]);
-        __m128d mr = _mm_sub_pd(ma, mb);
-        _mm_store_pd(&res[i], mr);
-    }
-
-__ort_math_backend_sub_float64_fallback:
-    if (mc < count) {
-        ORT_MATH_FRONTEND_OP_SYMBOL(sub, float64)(
             res   + mc,
             va    + mc,
             vb    + mc,

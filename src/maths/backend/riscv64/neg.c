@@ -41,8 +41,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, float16) {
             (_Float16*)&res[i], mr, mw);
     }
 
-__ort_math_backend_neg_float16_fallback:
     if (mc < count) {
+__ort_math_backend_neg_float16_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float16)(
             res   + mc,
             va    + mc,
@@ -69,8 +69,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, float32) {
         __riscv_vse32_v_f32m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_neg_float32_fallback:
     if (mc < count) {
+__ort_math_backend_neg_float32_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float32)(
             res   + mc,
             va    + mc,
@@ -95,8 +95,8 @@ ORT_MATH_BACKEND_UNARY_OP_DECL(riscv64, neg, float64) {
         __riscv_vse64_v_f64m1(&res[i], mr, mw);
     }
 
-__ort_math_backend_neg_float64_fallback:
     if (mc < count) {
+__ort_math_backend_neg_float64_fallback:
         ORT_MATH_FRONTEND_OP_SYMBOL(neg, float64)(
             res   + mc,
             va    + mc,
