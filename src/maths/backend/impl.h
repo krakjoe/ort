@@ -47,9 +47,8 @@ static zend_always_inline size_t ort_math_backend_optimal_count(size_t count, si
 /* {{{ Each cpu backend must implement this function in its own impl.c */
 void ort_math_backend_cpu_install(ort_math_dispatch_t* table); /* }}} */
 
-/* {{{ Each gpu backend must implement these functions in its own impl.c */
-void ort_math_backend_gpu_install(ort_math_dispatch_t* table);
-bool ort_math_backend_gpu_threshold(size_t chunk, size_t size); /* }}} */
+/* {{{ Each gpu backend must implement this function in its own impl.c */
+void ort_math_backend_gpu_install(ort_math_dispatch_t* table); /* }}} */
 
 /* {{{ 
     CPU/GPU backends must call this macro within their install routine 

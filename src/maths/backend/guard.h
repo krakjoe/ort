@@ -67,7 +67,7 @@
     ecx = registers[2]; \
     edx = registers[3]; \
 } while(0)
-#elif !defined(__riscv)
+#elif defined(__x86_64__) || defined(_M_X64)
 #include <cpuid.h>
 #endif
 
@@ -87,7 +87,7 @@ typedef enum {
 #ifdef __aarch64__
 #define __ORT_MATH_BACKEND_CPU_FEATURES      AT_HWCAP
 #define __ORT_MATH_BACKEND_CPU_NEON          HWCAP_ASIMD
-#else
+#elif defined(__x86_64__) || defined(_M_X64)
 #define __ORT_MATH_BACKEND_CPU_TOPOLOGY      0x1A
 #define __ORT_MATH_BACKEND_CPU_SHIFT         24
 #define __ORT_MATH_BACKEND_CPU_MASK          0xFF
@@ -173,7 +173,7 @@ static inline bool
             return 1;
     }
 # endif
-#elif !defined(__riscv)
+#elif defined(__x86_64__) || defined(_M_X64)
     if ((type == ORT_MATH_BACKEND_AVX2 ||
          type == ORT_MATH_BACKEND_AVX512) && __ort_math_backend_ecore()) {
         return 1;
