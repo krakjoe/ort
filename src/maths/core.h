@@ -27,6 +27,8 @@
  */
 #include "ort.h"
 
+#include "maths/backend/guard.h"
+
 /** {{{  Startup and shutdown, called from the PHP layer */
 void ort_math_startup(void);
 void ort_math_shutdown(void); /* }}} */

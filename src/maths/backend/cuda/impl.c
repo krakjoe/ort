@@ -199,6 +199,13 @@ static void* ort_cuda_memcpy(void *dest, const void *src, size_t n) {
     return __ort_math_cpu_allocator.memcpy_fn(dest, src, n);
 }
 
+/*
+* Help the pool determine AOT if we are going to execute a chunk on the GPU
+*/
+bool ort_math_backend_gpu_threshold(size_t count, size_t size) {
+    return count * size >= __ort_cuda_threshold;
+}
+
 void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
     /* Configure from environment (once per process) */
     if (!ort_cuda_configure()) {

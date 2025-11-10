@@ -10,10 +10,10 @@ if not func:
     if len(sys.argv) > 1:
         func = sys.argv[1]
     else:
-        print("Usage: python bench.py <func> <size> [repeat] [--json]")
+        print("Usage: python bench.py <func> <size> [repeat=10] [--json]")
         sys.exit(1)
 size = int(os.environ.get('BENCH_SIZE', sys.argv[2] if len(sys.argv) > 2 else 1024))
-repeat = int(os.environ.get('BENCH_REPEAT', sys.argv[3] if len(sys.argv) > 3 else 5))
+repeat = int(os.environ.get('BENCH_REPEAT', sys.argv[3] if len(sys.argv) > 3 else 10))
 
 # Output as JSON if requested
 as_json = '--json' in sys.argv or os.environ.get('BENCH_JSON', '').lower() in ('1', 'true', 'yes')
@@ -35,6 +35,10 @@ b = np.random.rand(size, size).astype(np.float32)
 if not as_json:
     print(f"{func}([{size} x {size}, {size} x {size}]), {os.environ.get('OMP_NUM_THREADS', '?')} threads")
 
+# Warmup
+for i in range(repeat):
+    result = np_func(a, b)
+
 results = []
 for i in range(repeat):
     start = time.time()
@@ -43,7 +47,7 @@ for i in range(repeat):
     results.append(elapsed)
     if not as_json:
         print(f"run {i+1}/{repeat}: time={elapsed:.6f}s")
-
+    
 def trimmed_mean(data, trim=1):
     if len(data) <= 2 * trim:
         return sum(data) / len(data)

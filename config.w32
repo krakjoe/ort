@@ -113,6 +113,7 @@ if (PHP_ORT != 'no') {
     if (selected_backend == 'avx512') {
         STDOUT.WriteLine("Configuring ORT with AVX512 backend");
         AC_DEFINE('ORT_BACKEND_CPU_NAME', 'AVX512');
+        AC_DEFINE('ORT_BACKEND_CPU_TYPE', ORT_MATH_BACKEND_AVX512);
         AC_DEFINE('ORT_BACKEND_CPU_ENABLED', 1);
         ADD_SOURCES(
             configure_module_dirname + "\\src\\maths\\backend\\avx512",
@@ -123,6 +124,7 @@ if (PHP_ORT != 'no') {
     } else if (selected_backend == 'avx2') {
         STDOUT.WriteLine("Configuring ORT with AVX2 backend");
         AC_DEFINE('ORT_BACKEND_CPU_NAME', 'AVX2');
+        AC_DEFINE('ORT_BACKEND_CPU_TYPE', ORT_MATH_BACKEND_AVX2);
         AC_DEFINE('ORT_BACKEND_CPU_ENABLED', 1);
         ADD_SOURCES(
             configure_module_dirname + "\\src\\maths\\backend\\avx2",
@@ -133,6 +135,7 @@ if (PHP_ORT != 'no') {
     } else if (selected_backend == 'sse41') {
         STDOUT.WriteLine("Configuring ORT with SSE4.1 backend");
         AC_DEFINE('ORT_BACKEND_CPU_NAME', 'SSE4.1');
+        AC_DEFINE('ORT_BACKEND_CPU_TYPE', ORT_MATH_BACKEND_SSE41);
         AC_DEFINE('ORT_BACKEND_CPU_ENABLED', 1);
         ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse41",
             "abs.c add.c ceil.c div.c floor.c matmul.c mul.c neg.c recip.c round.c sign.c sqrt.c sub.c trunc.c impl.c",
@@ -142,6 +145,7 @@ if (PHP_ORT != 'no') {
     } else if (selected_backend == 'sse2') {
         STDOUT.WriteLine("Configuring ORT with SSE2 backend");
         AC_DEFINE('ORT_BACKEND_CPU_NAME', 'SSE2');
+        AC_DEFINE('ORT_BACKEND_CPU_TYPE', ORT_MATH_BACKEND_SSE2);
         AC_DEFINE('ORT_BACKEND_CPU_ENABLED', 1);
         ADD_SOURCES(configure_module_dirname + "\\src\\maths\\backend\\sse2",
             "abs.c add.c div.c matmul.c mul.c neg.c recip.c sign.c sqrt.c sub.c impl.c",

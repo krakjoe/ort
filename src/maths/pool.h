@@ -114,6 +114,10 @@ void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count);
 
 void ort_pool_matmul_worker(void *arg, size_t index, size_t count);
 
+#ifdef ORT_BACKEND_GPU_ENABLED
+extern bool ort_math_backend_gpu_threshold(size_t chunk, size_t size);
+#endif
+
 /* {{{ Scaling stuff */
 #define ORT_SCALE_THRESHOLD 300000
 
@@ -170,8 +174,9 @@ static zend_always_inline size_t ort_pool_chunk(
     size_t *chunk
 ) {
 #ifdef HAVE_ORT_POOL
-    // Apply threshold
-    if (total <= ort_pool_threshold()) {
+    // Apply pooling threshold
+    if (total < ort_pool_threshold()) {
+__ort_pool_chunk_single:
         if (chunk) {
             *chunk = total; // No parallelization needed,
                             // use all elements as one chunk
@@ -200,6 +205,14 @@ static zend_always_inline size_t ort_pool_chunk(
 
     if (chunk)
         *chunk = chunking;
+
+#ifdef ORT_BACKEND_GPU_ENABLED
+    // Determine if the GPU is going to execute this chunk
+    if (ort_math_backend_gpu_threshold(chunking, size)) {
+        // There is no sense in chunking operations that will execute on the GPU
+        goto __ort_pool_chunk_single;
+    }
+#endif
 
     return (total + chunking - 1) / chunking;
 #else

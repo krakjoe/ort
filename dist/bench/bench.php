@@ -1,9 +1,9 @@
 <?php
-// Usage: php bench.php <func> <size> [repeat]
+// Usage: php bench.php <func> <size> [repeat=10]
 
 $func = getenv('BENCH_FUNCTION') ?: ($argv[1] ?? null);
 $size = getenv('BENCH_SIZE') ?: ($argv[2] ?? null);
-$repeat = getenv('BENCH_REPEAT') ?: ($argv[3] ?? 5);
+$repeat = getenv('BENCH_REPEAT') ?: ($argv[3] ?? 10);
 $as_json = (getenv('BENCH_JSON') && in_array(strtolower(getenv('BENCH_JSON')), ['1','true','yes'])) || in_array('--json', $argv);
 if (!$func || !$size) {
     fwrite(STDERR, "Usage: php bench.php <func> <size> [repeat] [--json]\n");
@@ -30,8 +30,8 @@ for ($i = 0; $i < $size; $i++) {
     $dataB[] = $rowB;
 }
 
-$a = ORT\Tensor\Transient::from($dataA, ORT\Tensor::FLOAT);
-$b = ORT\Tensor\Transient::from($dataB, ORT\Tensor::FLOAT);
+$a = ORT\Tensor\Transient::from($dataA, ORT\Tensor::FLOAT32);
+$b = ORT\Tensor\Transient::from($dataB, ORT\Tensor::FLOAT32);
 
 $php_funcs = [
     'add' => 'ORT\\Math\\add',
@@ -53,6 +53,11 @@ if (!$as_json) {
         \ORT\Math\scale\cores(),
         ($backends = \ORT\Math\backend()) ?
             \implode(", ", $backends) : 'scalar');
+}
+
+# Warmup
+for ($r = 0; $r < $repeat; $r++) {
+    $result = $php_funcs[$func]($a, $b);
 }
 
 $times = [];

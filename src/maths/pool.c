@@ -354,26 +354,25 @@ static void ort_pool_pin(size_t index) {
    *
    * The scheduler still has final say ...
    */
-   pthread_set_qos_class_self_np(QOS_CLASS_USER_INITIATED, 0);
+    pthread_set_qos_class_self_np(QOS_CLASS_USER_INITIATED, 0);
 
-   (void)index; /* Avoid unused parameter warning */
+    (void)index; /* Avoid unused parameter warning */
 #else
-   cpu_set_t set;
-   CPU_ZERO(&set);
-   CPU_SET(index, &set);
-       pthread_setaffinity_np(
-           pthread_self(), sizeof(set), &set);
-
-   while (sched_getcpu() != index) {
-       sched_yield();
-   }
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    CPU_SET(index, &set);
+    pthread_setaffinity_np(
+        pthread_self(), sizeof(set), &set);
+    while (sched_getcpu() != index) {
+        sched_yield();
+    }
 #endif
-   /* The thread is now executing on the target core, as determined by topology or ORT_SCALE_CORES */
+    /* The thread is now executing on the target core, as determined by topology or ORT_SCALE_CORES */
 }
 #else
 static inline void ort_pool_pin(size_t index) {
-   /* No pooling, so no pinning */
-   (void)index;
+    /* No pooling, so no pinning */
+    (void)index;
 }
 #endif
 
@@ -522,6 +521,35 @@ static zend_always_inline size_t ort_pool_threads(void) {
 #else
    threads = (size_t) sysconf(
        _SC_NPROCESSORS_ONLN);
+#endif
+
+#if !defined(__APPLE__) && !defined(__MACH__)
+# ifdef ORT_BACKEND_CPU_ENABLED
+    /**
+    * Here we adjust the default number of threads by the number of threads
+    * that would be guarded.
+    *
+    * We do this to stabilize performance, so that we don't create more workers
+    * than there are cores that would allow the installation of the backend. Thus all
+    * worker threads will be using the backend for computation, not a mixture of frontend
+    * and backend that would result if we don't make this adjustment.
+    * 
+    * @see backend/guard.h
+    */
+    size_t guarded = 0;
+    for (size_t thread = 0; thread < threads; thread++) {
+        /* migrate across the package */
+        ort_pool_pin(thread);
+        /* check if the current backend would be guarded on this core */
+        if (ORT_MATH_BACKEND_GUARD(ORT_BACKEND_CPU_TYPE)){
+            guarded++;
+        }
+    }
+    threads -= guarded;
+
+    /* We must migrate back to the start */
+    ort_pool_pin(0);
+# endif
 #endif
 
    return threads;

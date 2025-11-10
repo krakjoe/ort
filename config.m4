@@ -779,6 +779,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/wasm/impl.c"
         AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "WASM", [CPU Backend Name])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_TYPE,  ORT_MATH_BACKEND_WASM,  [CPU Backend Type])
         PHP_ORT_POOL="no"
         ext_shared=no
       fi
@@ -811,6 +812,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/neon/impl.c"
         AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "NEON", [CPU Backend Name])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_TYPE,  ORT_MATH_BACKEND_NEON,  [CPU Backend Type])
       fi
 
       dnl RISC-V 64 backend
@@ -838,6 +840,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/riscv64/impl.c"
         AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "RISCV64", [CPU Backend Name])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_TYPE,  ORT_MATH_BACKEND_RISCV64,  [CPU Backend Type])
       fi
 
       dnl AVX512 backend
@@ -871,6 +874,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/avx512/impl.c"
         AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "AVX512", [CPU Backend Name])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_TYPE,  ORT_MATH_BACKEND_AVX512,  [CPU Backend Type])
       fi
 
       dnl AVX2 backend
@@ -902,6 +906,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/avx2/impl.c"
         AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "AVX2", [CPU Backend Name])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_TYPE,  ORT_MATH_BACKEND_AVX2,  [CPU Backend Type])
       fi
 
       dnl SSE4.1 backend
@@ -929,6 +934,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/sse41/impl.c"
         AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "SSE4.1", [CPU Backend Name])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_TYPE,  ORT_MATH_BACKEND_SSE41,   [CPU Backend Type])
       fi
 
       dnl SSE2 backend
@@ -952,6 +958,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/sse2/impl.c"
         AC_DEFINE(ORT_BACKEND_CPU_ENABLED, 1, [Backend CPU optimizations enabled])
         AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_NAME, "SSE2", [CPU Backend Name])
+        AC_DEFINE_UNQUOTED(ORT_BACKEND_CPU_TYPE,  ORT_MATH_BACKEND_SSE2,  [CPU Backend Type])
       fi
 
       dnl Normalize backend implementation list

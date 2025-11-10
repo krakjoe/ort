@@ -18,9 +18,11 @@
 
 #include "php.h"
 #include "ext/standard/info.h"
-#include "php_ort.h"
 
 #include "ort.h"
+#include "maths/pool.h"
+
+#include "php_ort.h"
 
 PHP_MINIT_FUNCTION(ort)
 {
@@ -55,7 +57,34 @@ PHP_RSHUTDOWN_FUNCTION(ort)
 PHP_MINFO_FUNCTION(ort)
 {
 	php_info_print_table_start();
+#ifdef HAVE_ONNXRUNTIME
 	php_info_print_table_row(2, "ONNX Runtime support", "enabled");
+#else
+	php_info_print_table_row(2, "ONNX Runtime support", "disabled");
+#endif
+#ifdef HAVE_ORT_POOL
+	{
+		char buffer[256];
+
+		snprintf(buffer,
+			sizeof(buffer),
+			"%zu", ort_pool_cores());
+		php_info_print_table_row(2, "Thread Pool", buffer);
+	}
+#else
+	php_info_print_table_row(2, "Thread Pool", "disabled");
+#endif
+#ifdef ORT_BACKEND_CPU_ENABLED
+	php_info_print_table_row(2, "CPU Backend", ORT_BACKEND_CPU_NAME);
+#else
+	php_info_print_table_row(2, "CPU Backend", "none");
+#endif
+#ifdef ORT_BACKEND_GPU_ENABLED
+	php_info_print_table_row(2, "GPU Backend", ORT_BACKEND_GPU_NAME);
+#else
+	php_info_print_table_row(2, "GPU Backend", "none");
+#endif
+
 	php_info_print_table_end();
 }
 

@@ -78,7 +78,11 @@ typedef enum {
     ORT_MATH_BACKEND_SSE2,
     ORT_MATH_BACKEND_SSE41,
     ORT_MATH_BACKEND_NEON,
+    ORT_MATH_BACKEND_RISCV64,
+    ORT_MATH_BACKEND_WASM,
 } ort_math_backend_type_t;
+
+#define ORT_MATH_BACKEND_TYPE(TYPE) ORT_MATH_BACKEND_##TYPE
 
 #ifdef __aarch64__
 #define __ORT_MATH_BACKEND_CPU_FEATURES      AT_HWCAP
@@ -142,6 +146,11 @@ static inline bool
         ort_math_backend_type_t type) {
     if (type == ORT_MATH_BACKEND_NONE) {
         return 1;
+    }
+
+    if (type == ORT_MATH_BACKEND_RISCV64 ||
+        type == ORT_MATH_BACKEND_WASM) {
+        return 0;
     }
 
 #if defined(__aarch64__)
