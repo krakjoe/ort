@@ -67,7 +67,7 @@
     ecx = registers[2]; \
     edx = registers[3]; \
 } while(0)
-#else
+#elif !defined(__riscv)
 #include <cpuid.h>
 #endif
 
@@ -154,7 +154,7 @@ static inline bool
     }
 
 #if defined(__aarch64__)
-#if defined(__APPLE__) || defined(__MACH__)
+# if defined(__APPLE__) || defined(__MACH__)
     /* On Apple Silicon (macOS ARM64), NEON is always available */
     switch(type) {
         case ORT_MATH_BACKEND_NEON:
@@ -162,7 +162,7 @@ static inline bool
         default:
             return 1;
     }
-#else
+# else
     unsigned long features = getauxval(
         __ORT_MATH_BACKEND_CPU_FEATURES);
     switch(type) {
@@ -172,8 +172,8 @@ static inline bool
         default:
             return 1;
     }
-#endif
-#else
+# endif
+#elif !defined(__riscv)
     if ((type == ORT_MATH_BACKEND_AVX2 ||
          type == ORT_MATH_BACKEND_AVX512) && __ort_math_backend_ecore()) {
         return 1;
