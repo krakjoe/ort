@@ -29,13 +29,17 @@ for fname in os.listdir(csv_dir):
     php = php[php['cores'] == core_count]
     py = py[py['cores'] == core_count]
 
-    # Plot trimmed_mops vs size
+    # Plot trimmed_mops vs size, using sizes as x-axis labels
+    sizes = php['size'].tolist()
+    x = range(len(sizes))
+
     plt.figure(figsize=(10, 6))
-    plt.bar(php['size'] - 50, php['trimmed_mops'], width=100, label='PHP/ort', alpha=0.7)
-    plt.bar(py['size'] + 50, py['trimmed_mops'], width=100, label='Python/numpy', alpha=0.7)
+    plt.bar([i - 0.2 for i in x], php['trimmed_mops'], width=0.4, label='PHP/ort', alpha=0.7)
+    plt.bar([i + 0.2 for i in x], py['trimmed_mops'], width=0.4, label='Python/numpy', alpha=0.7)
     plt.xlabel('Tensor Size')
     plt.ylabel('Mean Mop/Sec (Million Operations per Second)')
     plt.title(f'Performance Comparison: {func_name}')
+    plt.xticks(x, sizes)
     plt.legend()
     plt.tight_layout()
     out_path = os.path.join(out_dir, f"{func_name}.png")
