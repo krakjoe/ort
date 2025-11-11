@@ -37,6 +37,14 @@ $a = ORT\Tensor\Transient::from($int8_2d, \ORT\Tensor::INT8);
 $result = ORT\Math\abs($a);
 echo "PASS: INT8 abs 2D 8x8\n";
 print_result($result, 'int8');
+// 3. Abs of small tensor for real types to test scalar fallback
+$small_values = [-1, 0, 1];
+foreach ($real as $name => $type) {
+    $a = new ORT\Tensor\Transient([count($small_values)], $small_values, $type);
+    $result = ORT\Math\abs($a);
+    echo "PASS: $name abs small tensor [-1,0,1]\n";
+    print_result($result);
+}
 ?>
 --EXPECTF--
 PASS: FLOAT16 abs signed [-16..-1,0,1..16]
@@ -83,3 +91,15 @@ PASS: INT8 abs 2D 8x8
 RESULT: %s
 TYPE: INT8
 SHAPE: [8,8]
+PASS: FLOAT16 abs small tensor [-1,0,1]
+RESULT: %s
+TYPE: FLOAT16
+SHAPE: [3]
+PASS: FLOAT32 abs small tensor [-1,0,1]
+RESULT: %s
+TYPE: FLOAT32
+SHAPE: [3]
+PASS: FLOAT64 abs small tensor [-1,0,1]
+RESULT: %s
+TYPE: FLOAT64
+SHAPE: [3]

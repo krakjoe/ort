@@ -33,8 +33,12 @@
 #include "maths/result.h"
 #include "maths/schema/matmul.h"
 
-// Matrix multiplication for a single batch (C = A x B)
+#ifdef ORT_BACKEND_GPU_ENABLED
+extern void* ort_math_backend_gpu_kernel(
+    void* kernel, ONNXTensorElementDataType type, size_t argc, ...);
+#endif
 
+// Matrix multiplication for a single batch (C = A x B)
 ORT_MATH_FRONTEND_MATMUL_OP_DECL(float16) {
     const float16* va = (const float16*)a;
     const float16* vb = (const float16*)b;
@@ -228,6 +232,25 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         b_buf = tmp_b;
     }
 
+#ifdef ORT_BACKEND_GPU_ENABLED
+    if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
+        ort_math_kernel_matmul_t gpu =
+            ort_math_backend_gpu_kernel(
+                kernel, result->type, 3,
+                    result->data, a_buf, b_buf);
+        if (gpu) {
+            ((ort_math_kernel_matmul_t)
+                ORT_MATH_DISPATCH_UNTAG(gpu))(
+                    result->data,
+                    a_buf,
+                    b_buf,
+                    a_cols,
+                    b_cols);
+            goto __ort_math_result_matmul_cleanup;
+        }
+    }
+#endif
+
     size_t chunk;
     size_t num_chunks = ort_pool_chunk(
         a_rows, type_size * b_cols, &chunk);
@@ -247,11 +270,12 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
         .matrix_size_a = matrix_size_a,
         .matrix_size_b = matrix_size_b,
         .matrix_size_result = matrix_size_result,
-        .op = kernel
+        .op = ORT_MATH_DISPATCH_UNTAG(kernel)
     };
 
     ort_pool_submit(ort_pool_matmul_worker, &ctx, num_chunks);
 
+__ort_math_result_matmul_cleanup:
     if (tmp_a)
         ort_free(tmp_a);
     if (tmp_b)

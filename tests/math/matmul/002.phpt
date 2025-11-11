@@ -13,6 +13,7 @@ include sprintf(
 $signed_values = array_merge(range(-8, -1), [0], range(1, 8)); // 17 elements
 $unsigned_values = range(0, 7); // 8 elements for [8,8] matrices
 $types = [
+    'FLOAT16' => [$real['FLOAT16'], $signed_values],
     'FLOAT32' => [$real['FLOAT32'], $signed_values],
     'FLOAT64' => [$real['FLOAT64'], $signed_values],
     'INT8' => [$signed_types['INT8'], $signed_values],
@@ -75,6 +76,10 @@ echo "PASS: FLOAT32 matmul batched 3D\n";
 print_result($result);
 ?>
 --EXPECTF--
+PASS: FLOAT16 matmul matrix x matrix
+RESULT: %s
+TYPE: FLOAT16
+SHAPE: [17,17]
 PASS: FLOAT32 matmul matrix x matrix
 RESULT: %s
 TYPE: FLOAT32
@@ -111,6 +116,10 @@ PASS: UINT32 matmul matrix x matrix
 RESULT: %s
 TYPE: UINT32
 SHAPE: [8,8]
+PASS: FLOAT16 matmul large matrix x large matrix (vectorized)
+RESULT: [%d x %d] first=%f last=%f
+TYPE: FLOAT16
+SHAPE: [%d,%d]
 PASS: FLOAT32 matmul large matrix x large matrix (vectorized)
 RESULT: [%d x %d] first=%f last=%f
 TYPE: FLOAT32

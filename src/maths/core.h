@@ -37,6 +37,12 @@ void ort_math_shutdown(void); /* }}} */
 void ort_math_activate(void);
 void ort_math_deactivate(void); /* }}} */
 
+#ifdef __MSVC__
+#define ORT_MATH_KERNEL_ALIGN __declspec(align(256))
+#else
+#define ORT_MATH_KERNEL_ALIGN __attribute__((aligned(256)))
+#endif
+
 /* Core mathematical operation function pointers */
 typedef void (*ort_math_kernel_binary_t)(
   void* result, const void* a, const void* b, size_t count);

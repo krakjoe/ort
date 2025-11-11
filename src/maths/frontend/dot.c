@@ -32,6 +32,11 @@
 #include "maths/result.h"
 #include "maths/schema/dot.h"
 
+#ifdef ORT_BACKEND_GPU_ENABLED
+extern void* ort_math_backend_gpu_kernel(
+    void* kernel, ONNXTensorElementDataType type, size_t argc, ...);
+#endif
+
 static zend_always_inline float16 ort_math_dot_impl_float16(
     const float16* va, const float16* vb, size_t count) {
     float32 sum = 0;
@@ -128,8 +133,30 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
         b_data = b_buf;
     }
 
-    kernel(result->data, a_data, b_data, a->elements);
+#ifdef ORT_BACKEND_GPU_ENABLED
+    /** TODO(krakjoe) this won't be entered, result data is too small to be GPU allocated */
+    if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
+        ort_math_kernel_binary_t gpu =
+            ort_math_backend_gpu_kernel(
+                kernel, result->type, 3,
+                    result->data, a_data, b_data);
+        if (gpu) {
+            ((ort_math_kernel_binary_t)
+                ORT_MATH_DISPATCH_UNTAG(gpu))(
+                    result->data,
+                    a_data,
+                    b_data,
+                    a->elements);
+            goto __ort_math_result_dot_cleanup;
+        }
+    }
+#endif
 
+    ((ort_math_kernel_binary_t)
+        ORT_MATH_DISPATCH_UNTAG(kernel))
+            (result->data, a_data, b_data, a->elements);
+
+__ort_math_result_dot_cleanup:
     if (a_buf) {
         ort_free(a_buf);
     }

@@ -93,15 +93,16 @@ ORT_MATH_FRONTEND_BINARY_OP_DECL(pow, float64) {
     }
 }
 
-#define ORT_MATH_FRONTEND_POW_SCALAR_IMPL(c_type, onnx_type)          \
-void ort_math_frontend_pow_scalar_##c_type(                           \
-    void* result, const void* a, const void* b, size_t count) {       \
-    c_type* res = (c_type*)result;                                    \
-    const c_type* va = (const c_type*)a;                              \
-    c_type sb = *(const c_type*)b;                                    \
-    for (size_t i = 0; i < count; i++) {                              \
-        res[i] = ort_math_pow_impl_##c_type(va[i], sb);               \
-    }                                                                 \
+#define ORT_MATH_FRONTEND_POW_SCALAR_IMPL(c_type, onnx_type)              \
+ORT_MATH_KERNEL_ALIGN                                                     \
+    void ort_math_frontend_pow_scalar_##c_type(                           \
+        void* result, const void* a, const void* b, size_t count) {       \
+        c_type* res = (c_type*)result;                                    \
+        const c_type* va = (const c_type*)a;                              \
+        c_type sb = *(const c_type*)b;                                    \
+    for (size_t i = 0; i < count; i++) {                                  \
+        res[i] = ort_math_pow_impl_##c_type(va[i], sb);                   \
+    }                                                                     \
 }
 
 ORT_MATH_FOREACH_INTEGER_TYPE(

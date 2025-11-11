@@ -4,7 +4,7 @@ ORT\Math\abs: large vector, gpu
 ort
 --SKIPIF--
 <?php
-if (\ORT\Math\Backend\GPU() === false) {
+if (\ORT\Math\backend\GPU() === false) {
     die("skip: gpu only test");
 }
 ?>

@@ -118,4 +118,62 @@ void ort_math_dispatch_backup_free(
 
 const ort_math_dispatch_t* ort_math_dispatch_type(
     ONNXTensorElementDataType type);
+
+/* {{{ kernel tagging */
+#define __ORT_MATH_DISPATCH_TAG_CPU      0x0
+#define __ORT_MATH_DISPATCH_TAG_GPU      0x1
+#define __ORT_MATH_DISPATCH_TAG_MASK     0x1
+#define __ORT_MATH_DISPATCH_OFFSET_MASK  0xFE
+#define __ORT_MATH_DISPATCH_OFFSET_SHIFT 1
+
+#define ORT_MATH_DISPATCH_OFFSETOF(field)    \
+    ((offsetof(ort_math_dispatch_t, field) - \
+      offsetof(ort_math_dispatch_t, add_func)) / \
+        sizeof(void*))
+
+#define ORT_MATH_DISPATCH_TAG_CPU(kernel) \
+    ((void*)                              \
+        (((uintptr_t)(kernel)) |          \
+        ((__ORT_MATH_DISPATCH_TAG_CPU) &  \
+            __ORT_MATH_DISPATCH_TAG_MASK)))
+
+#define ORT_MATH_DISPATCH_TAG_GPU(kernel, field) \
+    ((void*)(                                    \
+        ((uintptr_t)(kernel)) |                  \
+        ((__ORT_MATH_DISPATCH_TAG_GPU) &         \
+            __ORT_MATH_DISPATCH_TAG_MASK) |      \
+        ((ORT_MATH_DISPATCH_OFFSETOF(field) <<   \
+            __ORT_MATH_DISPATCH_OFFSET_SHIFT) &  \
+                __ORT_MATH_DISPATCH_OFFSET_MASK)))
+
+#define ORT_MATH_DISPATCH_UNTAG(kernel)      \
+    ((void*)(((uintptr_t)(kernel)) &         \
+        ~(__ORT_MATH_DISPATCH_TAG_MASK |     \
+            __ORT_MATH_DISPATCH_OFFSET_MASK)))
+
+#define ORT_MATH_DISPATCH_TAGGED(kernel, tag) \
+    ((((uintptr_t)(kernel)) &                 \
+        __ORT_MATH_DISPATCH_TAG_MASK) ==      \
+            __ORT_MATH_DISPATCH_TAG_##tag)    \
+
+#define ORT_MATH_DISPATCH_OFFSET(kernel)    \
+    ((((uintptr_t)(kernel)) &               \
+        __ORT_MATH_DISPATCH_OFFSET_MASK) >> \
+            __ORT_MATH_DISPATCH_OFFSET_SHIFT)
+
+static inline void* __ort_math_dispatch_resolve(
+    ort_math_dispatch_t* table,
+    void* kernel, ONNXTensorElementDataType type) {
+    size_t idx =
+        ORT_MATH_DISPATCH_OFFSET(kernel);
+    ort_math_dispatch_t* dispatch =
+        &table[ort_math_dispatch_indexof(type)];
+    void** dispatching =
+        (void**)
+            &dispatch->add_func;
+    return dispatching[idx];
+}
+
+#define ORT_MATH_DISPATCH_RESOLVE(table, kernel, type) __ort_math_dispatch_resolve(table, kernel, type)
+/* }}} */
 #endif

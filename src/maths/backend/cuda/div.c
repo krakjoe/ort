@@ -27,18 +27,14 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, div, float16) {
     const float16* vb = (const float16*)b;
     float16* res      = (float16*)result;
 
-    if (count * sizeof(float16) < __ort_cuda_threshold) {
-        goto __ort_math_backend_div_float16_relay;
-    }
-
     ort_cuda_div_float16(res, va, vb, count, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_div_float16_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, div, FLOAT16)
-                (res, va, vb, count);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_BINARY(div, FLOAT16)
+            (res, va, vb, count);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -49,18 +45,14 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, div, float32) {
     const float32* vb = (const float32*)b;
     float32* res      = (float32*)result;
 
-    if (count * sizeof(float32) < __ort_cuda_threshold) {
-        goto __ort_math_backend_div_float32_relay;
-    }
-
     ort_cuda_div_float32(res, va, vb, count, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_div_float32_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, div, FLOAT32)
-                (res, va, vb, count);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_BINARY(div, FLOAT32)
+            (res, va, vb, count);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -71,18 +63,14 @@ ORT_MATH_BACKEND_BINARY_OP_DECL(cuda, div, float64) {
     const float64* vb = (const float64*)b;
     float64* res = (float64*)result;
 
-    if (count * sizeof(float64) < __ort_cuda_threshold) {
-        goto __ort_math_backend_div_float64_relay;
-    }
-
     ort_cuda_div_float64(res, va, vb, count, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_div_float64_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, div, FLOAT64)
-                (res, va, vb, count);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_BINARY(div, FLOAT64)
+            (res, va, vb, count);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);

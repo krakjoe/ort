@@ -32,11 +32,6 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float16) {
     const float16 *vb = (const float16 *)b;
     float16 *res = (float16 *)result;
 
-    if ((a_cols * sizeof(float16) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(float16) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_float16_relay;
-    }
-
     /* For row vector a times matrix b using cublasGemmEx:
      * Compute: C = alpha * A * B + beta * C
      * Where A is 1x(a_cols), B is (a_cols)x(b_cols), C is 1x(b_cols)
@@ -67,11 +62,11 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float16) {
     );
 
     if (status != CUBLAS_STATUS_SUCCESS) {
-__ort_math_backend_matmul_float16_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, FLOAT16)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, FLOAT16)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -82,11 +77,6 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float32) {
     const float32 *va = (const float32 *)a;
     const float32 *vb = (const float32 *)b;
     float32 *res = (float32 *)result;
-
-    if ((a_cols * sizeof(float32) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(float32) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_float32_relay;
-    }
 
     /* For row vector a times matrix b (both row-major):
      * result[j] = sum_i a[i] * b[i][j]
@@ -114,11 +104,11 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float32) {
     );
 
     if (status != CUBLAS_STATUS_SUCCESS) {
-__ort_math_backend_matmul_float32_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, FLOAT32)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, FLOAT32)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -129,11 +119,6 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float64) {
     const float64 *va = (const float64 *)a;
     const float64 *vb = (const float64 *)b;
     float64 *res = (float64 *)result;
-
-    if ((a_cols * sizeof(float64) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(float64) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_float64_relay;
-    }
 
     const float64 alpha = 1.0;
     const float64 beta = 0.0;
@@ -154,11 +139,11 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, float64) {
     );
 
     if (status != CUBLAS_STATUS_SUCCESS) {
-__ort_math_backend_matmul_float64_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, FLOAT64)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, FLOAT64)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -170,19 +155,14 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int8_t) {
     const int8_t *vb = (const int8_t *)b;
     int8_t *res = (int8_t *)result;
 
-    if ((a_cols * sizeof(int8_t) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(int8_t) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_int8_relay;
-    }
-
     ort_cuda_matmul_int8(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_int8_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, INT8)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, INT8)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -193,19 +173,14 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint8_t) {
     const uint8_t *vb = (const uint8_t *)b;
     uint8_t *res = (uint8_t *)result;
 
-    if ((a_cols * sizeof(uint8_t) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(uint8_t) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_uint8_relay;
-    }
-
     ort_cuda_matmul_uint8(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_uint8_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, UINT8)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, UINT8)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -216,19 +191,14 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int16_t) {
     const int16_t *vb = (const int16_t *)b;
     int16_t *res = (int16_t *)result;
 
-    if ((a_cols * sizeof(int16_t) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(int16_t) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_int16_relay;
-    }
-
     ort_cuda_matmul_int16(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_int16_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, INT16)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, INT16)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -239,19 +209,14 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint16_t) {
     const uint16_t *vb = (const uint16_t *)b;
     uint16_t *res = (uint16_t *)result;
 
-    if ((a_cols * sizeof(uint16_t) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(uint16_t) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_uint16_relay;
-    }
-
     ort_cuda_matmul_uint16(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_uint16_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, UINT16)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, UINT16)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -262,19 +227,14 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, int32_t) {
     const int32_t *vb = (const int32_t *)b;
     int32_t *res = (int32_t *)result;
 
-    if ((a_cols * sizeof(int32_t) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(int32_t) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_int32_relay;
-    }
-
     ort_cuda_matmul_int32(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_int32_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, INT32)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, INT32)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);
@@ -285,19 +245,14 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(cuda, uint32_t) {
     const uint32_t *vb = (const uint32_t *)b;
     uint32_t *res = (uint32_t *)result;
 
-    if ((a_cols * sizeof(uint32_t) < __ort_cuda_threshold) &&
-        (b_cols * sizeof(uint32_t) < __ort_cuda_threshold)) {
-        goto __ort_math_backend_matmul_uint32_relay;
-    }
-
     ort_cuda_matmul_uint32(res, va, a_cols, vb, b_cols, __ort_cuda_stream);
 
     if (cudaGetLastError() != cudaSuccess) {
-__ort_math_backend_matmul_uint32_relay: // LCOV_EXCL_LINE
-        ORT_MATH_BACKEND_RELAY(
-            __ort_math_cpu_dispatch, matmul, UINT32)
-                (res, va, vb, a_cols, b_cols);
+        /* LCOV_EXCL_START */
+        ORT_MATH_BACKEND_RELAY_CPU_MATMUL(matmul, UINT32)
+            (res, va, vb, a_cols, b_cols);
         return;
+        /* LCOV_EXCL_STOP */
     }
 
     cudaStreamSynchronize(__ort_cuda_stream);

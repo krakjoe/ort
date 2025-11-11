@@ -47,22 +47,56 @@ static zend_always_inline size_t ort_math_backend_optimal_count(size_t count, si
 /* {{{ Each cpu backend must implement this function in its own impl.c */
 void ort_math_backend_cpu_install(ort_math_dispatch_t* table); /* }}} */
 
-/* {{{ Each gpu backend must implement this function in its own impl.c */
-void ort_math_backend_gpu_install(ort_math_dispatch_t* table); /* }}} */
+/* {{{ Each gpu backend must implement these functions in its own impl.c */
+void ort_math_backend_gpu_install(ort_math_dispatch_t* table);
+void* ort_math_backend_gpu_kernel(
+    void* kernel, ONNXTensorElementDataType type, size_t argc, ...); /* }}} */
 
 /* {{{ 
-    CPU/GPU backends must call this macro within their install routine 
+    CPU backends must call this macro within their install routine 
     to setup the dispatch table.
     This must never be invoked outside of the backend install function. */
-#define ORT_MATH_BACKEND_INSTALL(table, backend, onnx_type, func, c_type) \
-    table[ort_math_dispatch_indexof(                             \
+#define ORT_MATH_BACKEND_INSTALL(cpu, backend, onnx_type, func, c_type) \
+    cpu[ort_math_dispatch_indexof(                                      \
+        ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type                       \
+    )].func##_func = ORT_MATH_DISPATCH_TAG_CPU(                         \
+        ORT_MATH_BACKEND_OP_SYMBOL(backend, func, c_type)); /* }}} */
+
+/* {{{ 
+    GPU backends must call this macro within their install routine 
+    to setup the dispatch table with GPU tagging.
+    This must never be invoked outside of the backend install function. */
+#define ORT_MATH_BACKEND_INSTALL_GPU(cpu, gpu, backend, onnx_type, func, c_type) do {\
+    cpu[ort_math_dispatch_indexof(                               \
         ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type                \
-    )].func##_func = ORT_MATH_BACKEND_OP_SYMBOL(backend, func, c_type);   /* }}} */
+    )].func##_func = ORT_MATH_DISPATCH_TAG_GPU(                  \
+        ORT_MATH_DISPATCH_UNTAG(                                 \
+            cpu[ort_math_dispatch_indexof(                       \
+                ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type        \
+            )].func##_func),                                     \
+        func##_func);                                            \
+    gpu[ort_math_dispatch_indexof(                               \
+        ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type                \
+    )].func##_func = ORT_MATH_DISPATCH_TAG_GPU(                  \
+        ORT_MATH_BACKEND_OP_SYMBOL(backend, func, c_type),       \
+            func##_func);                                        \
+} while (0);
+/* }}} */
 
 /* {{{
-    GPU backends must call this macro to relay to CPU backend */
-#define ORT_MATH_BACKEND_RELAY(table, func, onnx_type)  \
-    table[ort_math_dispatch_indexof(                    \
-        ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type       \
-    )].func##_func
+    GPU backends must call this (or derivative) macro to relay to CPU backend */
+#define ORT_MATH_BACKEND_RELAY_CPU(func, onnx_type, c_type)   \
+    ((c_type) ORT_MATH_DISPATCH_UNTAG(                    \
+        (ort_math_dispatch_table())[                      \
+            ort_math_dispatch_indexof(                    \
+                ONNX_TENSOR_ELEMENT_DATA_TYPE_##onnx_type \
+            )                                             \
+    ].func##_func))
+
+#define ORT_MATH_BACKEND_RELAY_CPU_BINARY(func, onnx_type) \
+    ORT_MATH_BACKEND_RELAY_CPU(func, onnx_type, ort_math_kernel_binary_t)
+#define ORT_MATH_BACKEND_RELAY_CPU_UNARY(func, onnx_type) \
+    ORT_MATH_BACKEND_RELAY_CPU(func, onnx_type, ort_math_kernel_unary_t)
+#define ORT_MATH_BACKEND_RELAY_CPU_MATMUL(func, onnx_type) \
+    ORT_MATH_BACKEND_RELAY_CPU(func, onnx_type, ort_math_kernel_matmul_t) /* }}} */
 #endif

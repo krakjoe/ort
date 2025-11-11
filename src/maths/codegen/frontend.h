@@ -31,30 +31,35 @@
 #define ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(op, type) \
     ort_math_frontend_##op##_axis_##type
 #define ORT_MATH_FRONTEND_BINARY_OP_DECL(op, type)                    \
-    void ORT_MATH_FRONTEND_OP_SYMBOL(op, type)(                       \
-        void* result, const void* a, const void* b, size_t count)
+    ORT_MATH_KERNEL_ALIGN                                             \
+        void ORT_MATH_FRONTEND_OP_SYMBOL(op, type)(                   \
+            void* result, const void* a, const void* b, size_t count)
 #define ORT_MATH_FRONTEND_UNARY_OP_DECL(op, type)                     \
-    void ORT_MATH_FRONTEND_OP_SYMBOL(op, type)(                       \
-        void* result, const void* a, size_t count)
+    ORT_MATH_KERNEL_ALIGN                                             \
+        void ORT_MATH_FRONTEND_OP_SYMBOL(op, type)(                   \
+            void* result, const void* a, size_t count)
 #define ORT_MATH_FRONTEND_SCALAR_OP_DECL(op, type)                    \
     ORT_MATH_FRONTEND_BINARY_OP_DECL(op##_scalar, type)
 #define ORT_MATH_FRONTEND_MATMUL_OP_DECL(type)                        \
-    void ORT_MATH_FRONTEND_OP_SYMBOL(matmul, type)(                   \
-        void* result, const void* a, const void* b,                   \
-        size_t a_cols, size_t b_cols)
+    ORT_MATH_KERNEL_ALIGN                                             \
+        void ORT_MATH_FRONTEND_OP_SYMBOL(matmul, type)(               \
+            void* result, const void* a, const void* b,               \
+            size_t a_cols, size_t b_cols)
 #define ORT_MATH_FRONTEND_REDUCTION_OP_DECL ORT_MATH_FRONTEND_UNARY_OP_DECL
 #define ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(op, type)            \
-    void ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(op, type) (                 \
-        void* result, const void* a,                                  \
-        const int64_t *input_shape, size_t input_dims,                 \
-        const int64_t *output_shape, size_t output_dims,               \
-        size_t axis)
+    ORT_MATH_KERNEL_ALIGN                                             \
+        void ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(op, type) (             \
+            void* result, const void* a,                              \
+            const int64_t *input_shape, size_t input_dims,            \
+            const int64_t *output_shape, size_t output_dims,          \
+            size_t axis)
 #define ORT_MATH_FRONTEND_SERIAL_REDUCTION_AXIS_OP_DECL(op, type)     \
-    void ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(serial_##op, type) (        \
-        void* result, const void* a,                                  \
-        const int64_t *input_shape, size_t input_dims,                 \
-        const int64_t *output_shape, size_t output_dims,               \
-        size_t axis)
+    ORT_MATH_KERNEL_ALIGN                                             \
+        void ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(serial_##op, type) (    \
+            void* result, const void* a,                              \
+            const int64_t *input_shape, size_t input_dims,            \
+            const int64_t *output_shape, size_t output_dims,          \
+            size_t axis)
 
 #define ORT_MATH_FRONTEND_BINARY_OP_IMPL(op_name, c_type, operator)   \
     ORT_MATH_FRONTEND_BINARY_OP_DECL(op_name, c_type) {               \

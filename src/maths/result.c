@@ -18,8 +18,10 @@
 
 #include "status.h"
 #include "alloc.h"
+#include "maths/backend/impl.h"
 #include "maths/broadcast.h"
 #include "maths/cast.h"
+#include "maths/dispatch.h"
 #include "maths/promotion.h"
 #include "maths/result.h"
 #include "maths/validate.h"
@@ -41,6 +43,27 @@ static zend_always_inline ort_tensor_t*
             promotion->result_type :
                 tensor_a->type, operator);
 
+    void* a_buf = ort_math_operation_upcast(result, promotion, tensor_a->data);
+    void* b_buf = ort_math_operation_upcast(result, promotion, tensor_b->data);
+
+#ifdef ORT_BACKEND_GPU_ENABLED
+    if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
+        ort_math_kernel_binary_t gpu =
+            ort_math_backend_gpu_kernel(
+                kernel, result->type, 3,
+                    result->data, a_buf, b_buf);
+        if (gpu) {
+            ((ort_math_kernel_binary_t)
+                ORT_MATH_DISPATCH_UNTAG(gpu))(
+                    result->data,
+                    a_buf,
+                    b_buf,
+                    result->elements);
+            goto __ort_math_result_element_wise_binary_fast_cleanup;
+        }
+    }
+#endif
+
     /* Chunk work for pool */
     size_t chunk;
     size_t num_chunks = ort_pool_chunk(
@@ -55,13 +78,14 @@ static zend_always_inline ort_tensor_t*
             .chunk = chunk
         },
         .result = result->data,
-        .a = ort_math_operation_upcast(result, promotion, tensor_a->data),
-        .b = ort_math_operation_upcast(result, promotion, tensor_b->data),
-        .op = kernel
+        .a = a_buf,
+        .b = b_buf,
+        .op = ORT_MATH_DISPATCH_UNTAG(kernel)
     };
 
     ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
 
+__ort_math_result_element_wise_binary_fast_cleanup:
     if (promotion && promotion->upcast.count) {
         for (size_t i = 0; i < promotion->upcast.count; ++i) {
             if (promotion->upcast.inputs[i] &&
@@ -126,6 +150,23 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         result,
         tensor_b, b_buf);
 
+#ifdef ORT_BACKEND_GPU_ENABLED
+    if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
+        ort_math_kernel_binary_t gpu =
+            ort_math_backend_gpu_kernel(
+                kernel, result->type, 3,
+                    result->data, a_buf, b_buf);
+        if (gpu) {
+            ((ort_math_kernel_binary_t)
+                ORT_MATH_DISPATCH_UNTAG(gpu))(
+                    result->data,
+                    a_buf,
+                    b_buf,
+                    result->elements);
+            goto __ort_math_result_element_wise_binary_cleanup;
+        }
+    }
+#endif
 
     /* Chunk work for pool */
     size_t chunk;
@@ -143,11 +184,12 @@ ort_tensor_t* ort_math_result_element_wise_binary(
         .result = result->data,
         .a = a_buf,
         .b = b_buf,
-        .op = kernel
+        .op = ORT_MATH_DISPATCH_UNTAG(kernel)
     };
 
     ort_pool_submit(ort_pool_binary_worker, &ctx, num_chunks);
 
+__ort_math_result_element_wise_binary_cleanup:
     ort_free(a_buf);
     ort_free(b_buf);
     ort_math_broadcast_free(binfo);
@@ -235,7 +277,7 @@ ort_tensor_t* ort_math_result_element_wise_scalar(
         .result = result->data,
         .a = a_buf,
         .b = scalar_data,
-        .op = kernel
+        .op = ORT_MATH_DISPATCH_UNTAG(kernel)
     };
 
     ort_pool_submit(ort_pool_scalar_worker, &ctx, num_chunks);
@@ -263,6 +305,23 @@ ort_tensor_t* ort_math_result_element_wise_unary(
     /* Upcast input if needed */
     void* a_buf = ort_math_operation_upcast(result, promotion, tensor->data);
 
+#ifdef ORT_BACKEND_GPU_ENABLED
+    if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
+        ort_math_kernel_unary_t gpu =
+            ort_math_backend_gpu_kernel(
+                kernel, result->type, 2,
+                    result->data, a_buf);
+        if (gpu) {
+            ((ort_math_kernel_unary_t)
+                ORT_MATH_DISPATCH_UNTAG(gpu))(
+                    result->data,
+                    a_buf,
+                    result->elements);
+            goto __ort_math_result_element_wise_unary_cleanup;
+        }
+    }
+#endif
+
     /* Chunk work for pool */
     size_t chunk;
     size_t num_chunks = ort_pool_chunk(
@@ -278,10 +337,12 @@ ort_tensor_t* ort_math_result_element_wise_unary(
         },
         .result = result->data,
         .a = a_buf,
-        .op = kernel
+        .op = ORT_MATH_DISPATCH_UNTAG(kernel)
     };
 
     ort_pool_submit(ort_pool_unary_worker, &ctx, num_chunks);
+
+__ort_math_result_element_wise_unary_cleanup:
     if (promotion && promotion->upcast.count) {
         ort_free((void*)a_buf);
     }
@@ -308,7 +369,9 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
     void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
     /* Call the operation directly, no threading */
-    kernel(result->data, buffer, tensor->elements);
+    ((ort_math_kernel_reduce_tensor_t)
+        ORT_MATH_DISPATCH_UNTAG(kernel))(
+            result->data, buffer, tensor->elements);
 
     /* Free upcasted buffer if necessary */
     if (promotion && promotion->upcast.count) {
@@ -344,7 +407,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
         .result   = result->data,
         .a        = ort_math_operation_upcast(result, promotion, tensor->data),
         .elements = tensor->elements,
-        .op       = kernel
+        .op       = ORT_MATH_DISPATCH_UNTAG(kernel)
     };
 
     // Only one chunk/thread needed for scalar reduction
@@ -395,7 +458,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_axis(
         },
         .result = result->data,
         .a      = ort_math_operation_upcast(result, promotion, tensor->data),
-        .op     = kernel,
+        .op     = ORT_MATH_DISPATCH_UNTAG(kernel),
         .input_shape = tensor->shape,
         .input_dims = tensor->dimensions,
         .output_shape = result->shape,
@@ -437,11 +500,12 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
 
     void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
-    kernel(
-        result->data, buffer,
-        tensor->shape, tensor->dimensions,
-        result->shape, result->dimensions,
-        axis);
+    ((ort_math_kernel_reduce_axis_t)
+        ORT_MATH_DISPATCH_UNTAG(kernel))(
+            result->data, buffer,
+            tensor->shape, tensor->dimensions,
+            result->shape, result->dimensions,
+            axis);
 
     if (promotion && promotion->upcast.count) {
         ort_free((void*)buffer);
@@ -471,14 +535,14 @@ ort_tensor_t* ort_math_result_tensor(
     } else {
         tensor->shape = NULL;
     }
-    
+
     /* Calculate total elements */
     if (dimensions > 0 && shape != NULL) {
         tensor->elements = ort_math_result_total(shape, dimensions);
     } else {
         tensor->elements = 1; // Scalar tensor has 1 element
     }
-    
+
     /* Allocate data */
     tensor->data = ort_alloc(
         php_ort_tensor_sizeof(tensor),
