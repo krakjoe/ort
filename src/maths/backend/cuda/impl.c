@@ -31,8 +31,8 @@ static  bool                 __ort_cuda_configured  = false;
 ORT_TLS bool                 __ort_cuda_activated   = false;
 ORT_TLS cudaStream_t         __ort_cuda_stream      = NULL;
 ORT_TLS cublasHandle_t       __ort_cublas_handle    = NULL;
-ORT_TLS ort_alloc_t          __ort_math_cpu_allocator;
-ORT_TLS ort_math_dispatch_t* __ort_math_gpu_dispatch = NULL;
+ORT_TLS ort_alloc_t          __ort_cuda_cpu_allocator;
+ORT_TLS ort_math_dispatch_t* __ort_cuda_gpu_dispatch = NULL;
 
 static inline bool ort_cuda_configure(void) {
     /* Already configured */
@@ -141,12 +141,15 @@ static void ort_cuda_deactivate(void) {
     cudaStreamDestroy(
         __ort_cuda_stream);
 
+    ort_math_dispatch_backup_free(
+        __ort_cuda_gpu_dispatch);
+
     __ort_cuda_activated = false;
 }
 
 static void* ort_cuda_alloc(size_t size, size_t count, size_t alignment) {
     if (size * count < __ort_cuda_threshold) {
-        return __ort_math_cpu_allocator.alloc(size, count, alignment);
+        return __ort_cuda_cpu_allocator.alloc(size, count, alignment);
     }
 
     ort_cuda_activate();
@@ -178,7 +181,7 @@ static void ort_cuda_free(void* ptr) {
         return;
     }
 
-    __ort_math_cpu_allocator.free(ptr);
+    __ort_cuda_cpu_allocator.free(ptr);
 }
 
 static void* ort_cuda_memcpy(void *dest, const void *src, size_t n) {
@@ -196,21 +199,26 @@ static void* ort_cuda_memcpy(void *dest, const void *src, size_t n) {
         return dest;
     }
 
-    return __ort_math_cpu_allocator.memcpy_fn(dest, src, n);
+    return __ort_cuda_cpu_allocator.memcpy_fn(dest, src, n);
 }
 
-void* ort_math_backend_gpu_kernel(void* kernel, ONNXTensorElementDataType type, size_t argc, ...) {
+void* ort_math_backend_gpu_kernel(
+    void* kernel, ONNXTensorElementDataType type,
+    ort_tensor_t* result, size_t argc, ...) {
     void* gpu = ORT_MATH_DISPATCH_RESOLVE(
-        __ort_math_gpu_dispatch, kernel, type);
+        __ort_cuda_gpu_dispatch, kernel, type);
 
+    struct cudaPointerAttributes attributes;
     va_list argv;
     va_start(argv, argc);
 
+    /*
+    * First we determine if the arguments are in cuda managed memory
+    */
     void* arg;
     for (size_t arg = 0; arg < argc; arg++) {
         void *arg =
             va_arg(argv, void*);
-        struct cudaPointerAttributes attributes;
 
         if (cudaPointerGetAttributes(&attributes, arg) != cudaSuccess) {
             va_end(argv);
@@ -224,10 +232,39 @@ void* ort_math_backend_gpu_kernel(void* kernel, ONNXTensorElementDataType type, 
     }
 
     va_end(argv);
+
+    /*
+    * If the result is not in managed memory (because it's smaller than the operands)
+    * we reallocate the result data in cuda managed memory
+    */
+    if (cudaPointerGetAttributes(&attributes, result->data) != cudaSuccess) {
+        return NULL;
+    }
+
+    if (attributes.type != cudaMemoryTypeManaged) {
+        ort_free(result->data);
+
+        size_t size =
+            result->elements *
+                php_ort_type_sizeof(
+                    result->type);
+        
+        cudaError_t err =
+            cudaMallocManaged(
+                &result->data, size,
+                cudaMemAttachGlobal);
+
+        if (err != cudaSuccess) {
+            return NULL;
+        }
+
+        cudaMemset(result->data, 0, size);
+    }
+
     return gpu;
 }
 
-void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
+void ort_math_backend_gpu_install(ort_math_dispatch_t* __ort_math_cpu_dispatch) {
     /* Configure from environment (once per process) */
     if (!ort_cuda_configure()) {
         return;
@@ -235,7 +272,7 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
 
     /* Setup allocator for CUDA managed memory, backing up CPU allocator */
     ort_alloc_setup(
-        &__ort_math_cpu_allocator,
+        &__ort_cuda_cpu_allocator,
         NULL, /* We activate just-in-time to avoid overhead until necessary */
         ort_cuda_alloc,
         ort_cuda_memcpy,
@@ -243,116 +280,118 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* table) {
         ort_cuda_deactivate
     );
 
-    /* Note: We set global alignment to 256 bytes when CUDA is enabled because
-     * managed memory migrates CPU memory to GPU while preserving the original
-     * alignment, which may be suboptimal for GPU operations. Using 256-byte
-     * alignment globally ensures all memory is GPU-compatible. */
-    ort_alloc_align(256);
-
-    /* Backup CPU dispatch table */
-    __ort_math_gpu_dispatch =
+    /* Create a copy of the dispatch table */
+    __ort_cuda_gpu_dispatch =
         ort_math_dispatch_backup_malloc();
 
+#define ORT_CUDA_BACKEND_INSTALL(onnx_type, func, c_type) \
+        ORT_MATH_BACKEND_INSTALL_GPU(\
+            __ort_math_cpu_dispatch, \
+            __ort_cuda_gpu_dispatch, \
+            cuda,  onnx_type, func, c_type)
+
     /* abs.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, abs, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, abs, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, abs, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, abs, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, abs, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, abs, float64)
 
     /* add.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, add, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, add, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, add, float64)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT8,    add, int8_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT16,   add, int16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT32,   add, int32_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT64,   add, int64_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT8,   add, uint8_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT16,  add, uint16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT32,  add, uint32_t)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, add, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, add, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, add, float64)
+    ORT_CUDA_BACKEND_INSTALL(INT8,    add, int8_t)
+    ORT_CUDA_BACKEND_INSTALL(INT16,   add, int16_t)
+    ORT_CUDA_BACKEND_INSTALL(INT32,   add, int32_t)
+    ORT_CUDA_BACKEND_INSTALL(INT64,   add, int64_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT8,   add, uint8_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT16,  add, uint16_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT32,  add, uint32_t)
 
     /* ceil.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, ceil, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, ceil, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, ceil, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, ceil, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, ceil, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, ceil, float64)
 
     /* div.c*/
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, div, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, div, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, div, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, div, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, div, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, div, float64)
 
     /* dot.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, dot, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, dot, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, dot, float64)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT16,   dot, int16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT32,   dot, int32_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT16,  dot, uint16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT32,  dot, uint32_t)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, dot, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, dot, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, dot, float64)
+    ORT_CUDA_BACKEND_INSTALL(INT16,   dot, int16_t)
+    ORT_CUDA_BACKEND_INSTALL(INT32,   dot, int32_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT16,  dot, uint16_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT32,  dot, uint32_t)
 
     /* floor.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, floor, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, floor, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, floor, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, floor, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, floor, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, floor, float64)
 
     /* matmul.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, matmul, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, matmul, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, matmul, float64)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT16,   matmul, int16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT32,   matmul, int32_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT16,  matmul, uint16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT32,  matmul, uint32_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT8,    matmul, int8_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT8,   matmul, uint8_t)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, matmul, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, matmul, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, matmul, float64)
+    ORT_CUDA_BACKEND_INSTALL(INT16,   matmul, int16_t)
+    ORT_CUDA_BACKEND_INSTALL(INT32,   matmul, int32_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT16,  matmul, uint16_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT32,  matmul, uint32_t)
+    ORT_CUDA_BACKEND_INSTALL(INT8,    matmul, int8_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT8,   matmul, uint8_t)
 
     /* mul.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, mul, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, mul, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, mul, float64)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT16,   mul, int16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT32,   mul, int32_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT16,  mul, uint16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT32,  mul, uint32_t)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, mul, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, mul, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, mul, float64)
+    ORT_CUDA_BACKEND_INSTALL(INT16,   mul, int16_t)
+    ORT_CUDA_BACKEND_INSTALL(INT32,   mul, int32_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT16,  mul, uint16_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT32,  mul, uint32_t)
 
     /* neg.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, neg, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, neg, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, neg, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, neg, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, neg, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, neg, float64)
 
     /* recip.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, recip, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, recip, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, recip, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, recip, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, recip, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, recip, float64)
 
     /* round.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, round, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, round, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, round, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, round, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, round, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, round, float64)
 
     /* sign.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, sign, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, sign, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, sign, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, sign, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, sign, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, sign, float64)
 
     /* sqrt.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, sqrt, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, sqrt, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, sqrt, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, sqrt, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, sqrt, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, sqrt, float64)
 
     /* sub.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, sub, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, sub, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, sub, float64)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT8,    sub, int8_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT16,   sub, int16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT32,   sub, int32_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  INT64,   sub, int64_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT8,   sub, uint8_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT16,  sub, uint16_t)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  UINT32,  sub, uint32_t)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, sub, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, sub, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, sub, float64)
+    ORT_CUDA_BACKEND_INSTALL(INT8,    sub, int8_t)
+    ORT_CUDA_BACKEND_INSTALL(INT16,   sub, int16_t)
+    ORT_CUDA_BACKEND_INSTALL(INT32,   sub, int32_t)
+    ORT_CUDA_BACKEND_INSTALL(INT64,   sub, int64_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT8,   sub, uint8_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT16,  sub, uint16_t)
+    ORT_CUDA_BACKEND_INSTALL(UINT32,  sub, uint32_t)
 
     /* trunc.c */
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT16, trunc, float16)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT32, trunc, float32)
-    ORT_MATH_BACKEND_INSTALL_GPU(table, __ort_math_gpu_dispatch, cuda,  FLOAT64, trunc, float64)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, trunc, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, trunc, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, trunc, float64)
+
+#undef ORT_CUDA_BACKEND_INSTALL
 }

@@ -50,7 +50,8 @@ void ort_math_backend_cpu_install(ort_math_dispatch_t* table); /* }}} */
 /* {{{ Each gpu backend must implement these functions in its own impl.c */
 void ort_math_backend_gpu_install(ort_math_dispatch_t* table);
 void* ort_math_backend_gpu_kernel(
-    void* kernel, ONNXTensorElementDataType type, size_t argc, ...); /* }}} */
+    void* kernel, ONNXTensorElementDataType type,
+    ort_tensor_t* result, size_t argc, ...); /* }}} */
 
 /* {{{ 
     CPU backends must call this macro within their install routine 

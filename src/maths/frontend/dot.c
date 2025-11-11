@@ -34,7 +34,8 @@
 
 #ifdef ORT_BACKEND_GPU_ENABLED
 extern void* ort_math_backend_gpu_kernel(
-    void* kernel, ONNXTensorElementDataType type, size_t argc, ...);
+    void* kernel, ONNXTensorElementDataType type,
+    ort_tensor_t* result, size_t argc, ...);
 #endif
 
 static zend_always_inline float16 ort_math_dot_impl_float16(
@@ -134,12 +135,11 @@ ort_tensor_t* ort_math_result_dot(ort_tensor_t* a, ort_tensor_t* b) {
     }
 
 #ifdef ORT_BACKEND_GPU_ENABLED
-    /** TODO(krakjoe) this won't be entered, result data is too small to be GPU allocated */
     if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
         ort_math_kernel_binary_t gpu =
             ort_math_backend_gpu_kernel(
-                kernel, result->type, 3,
-                    result->data, a_data, b_data);
+                kernel, result->type,
+                    result, 2, a_data, b_data);
         if (gpu) {
             ((ort_math_kernel_binary_t)
                 ORT_MATH_DISPATCH_UNTAG(gpu))(

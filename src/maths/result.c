@@ -50,8 +50,8 @@ static zend_always_inline ort_tensor_t*
     if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
         ort_math_kernel_binary_t gpu =
             ort_math_backend_gpu_kernel(
-                kernel, result->type, 3,
-                    result->data, a_buf, b_buf);
+                kernel, result->type,
+                    result, 2, a_buf, b_buf);
         if (gpu) {
             ((ort_math_kernel_binary_t)
                 ORT_MATH_DISPATCH_UNTAG(gpu))(
@@ -154,8 +154,8 @@ ort_tensor_t* ort_math_result_element_wise_binary(
     if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
         ort_math_kernel_binary_t gpu =
             ort_math_backend_gpu_kernel(
-                kernel, result->type, 3,
-                    result->data, a_buf, b_buf);
+                kernel, result->type,
+                    result, 2, a_buf, b_buf);
         if (gpu) {
             ((ort_math_kernel_binary_t)
                 ORT_MATH_DISPATCH_UNTAG(gpu))(
@@ -309,8 +309,8 @@ ort_tensor_t* ort_math_result_element_wise_unary(
     if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
         ort_math_kernel_unary_t gpu =
             ort_math_backend_gpu_kernel(
-                kernel, result->type, 2,
-                    result->data, a_buf);
+                kernel, result->type,
+                    result, 1, a_buf);
         if (gpu) {
             ((ort_math_kernel_unary_t)
                 ORT_MATH_DISPATCH_UNTAG(gpu))(

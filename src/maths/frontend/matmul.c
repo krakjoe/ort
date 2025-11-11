@@ -35,7 +35,8 @@
 
 #ifdef ORT_BACKEND_GPU_ENABLED
 extern void* ort_math_backend_gpu_kernel(
-    void* kernel, ONNXTensorElementDataType type, size_t argc, ...);
+    void* kernel, ONNXTensorElementDataType type,
+    ort_tensor_t* result, size_t argc, ...);
 #endif
 
 // Matrix multiplication for a single batch (C = A x B)
@@ -236,8 +237,8 @@ ort_tensor_t* ort_math_result_matmul(ort_tensor_t* matrix_a, ort_tensor_t* matri
     if (ORT_MATH_DISPATCH_TAGGED(kernel, GPU)) {
         ort_math_kernel_matmul_t gpu =
             ort_math_backend_gpu_kernel(
-                kernel, result->type, 3,
-                    result->data, a_buf, b_buf);
+                kernel, result->type,
+                    result, 2, a_buf, b_buf);
         if (gpu) {
             ((ort_math_kernel_matmul_t)
                 ORT_MATH_DISPATCH_UNTAG(gpu))(
