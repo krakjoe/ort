@@ -73,3 +73,16 @@ $real = [
     'FLOAT32' => ORT\Tensor::FLOAT32,
     'FLOAT64' => ORT\Tensor::FLOAT64,
 ];
+
+$large_sizes = [
+    'FLOAT16' => 8192,
+    'FLOAT32' => 4096,
+    'FLOAT64' => 4096,
+    'INT8'    => 16384,
+    'INT16'   => 8192,
+    'INT32'   => 4096,
+    'INT64'   => 4096,
+    'UINT8'   => 16384,
+    'UINT16'  => 8192,
+    'UINT32'  => 4096
+];

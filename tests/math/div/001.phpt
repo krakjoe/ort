@@ -36,9 +36,23 @@ foreach ($types as $name => [$type, $values]) {
     }
 }
 
+$large_sizes = [
+    'FLOAT16' => 8192,
+    'FLOAT32' => 4096,
+    'FLOAT64' => 4096,
+    'INT8'    => 8192,
+    'INT16'   => 8192,
+    'INT32'   => 4096,
+    'INT64'   => 4096,
+    'UINT8'   => 8192,
+    'UINT16'  => 8192,
+    'UINT32'  => 4096 
+];
+
 // Large tensor case for vectorization
-$large_size = 4096;
 foreach ($types as $name => [$type, $values]) {
+    $large_size = $large_sizes[$name];
+
     $a = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
     $b = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
     try {
@@ -97,7 +111,7 @@ SHAPE: [17]
 PASS: FLOAT16 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT16
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: FLOAT32 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT32
@@ -109,11 +123,11 @@ SHAPE: [4096]
 PASS: INT8 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT64
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: INT16 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT64
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: INT32 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT64
@@ -125,11 +139,11 @@ SHAPE: [4096]
 PASS: UINT8 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT64
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: UINT16 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT64
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: UINT32 divide large tensor + large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT64

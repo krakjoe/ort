@@ -33,8 +33,8 @@ foreach ($types as $name => [$type, $values]) {
 }
 
 // Large tensor case for vectorization
-$large_size = 4096;
 foreach ($types as $name => [$type, $values]) {
+    $large_size = $large_sizes[$name];
     $a = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 3), $type);
     $b = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
     $result = ORT\Math\subtract($a, $b);
@@ -90,7 +90,7 @@ SHAPE: [17]
 PASS: FLOAT16 sub large tensor - large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT16
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: FLOAT32 sub large tensor - large tensor (vectorized)
 RESULT: [%d x %d] first=1.0 last=1.0
 TYPE: FLOAT32
@@ -102,11 +102,11 @@ SHAPE: [4096]
 PASS: INT8 sub large tensor - large tensor (vectorized)
 RESULT: [%d x %d] first=1.0 last=1.0
 TYPE: INT8
-SHAPE: [4096]
+SHAPE: [16384]
 PASS: INT16 sub large tensor - large tensor (vectorized)
 RESULT: [%d x %d] first=1.0 last=1.0
 TYPE: INT16
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: INT32 sub large tensor - large tensor (vectorized)
 RESULT: [%d x %d] first=1.0 last=1.0
 TYPE: INT32
@@ -118,11 +118,11 @@ SHAPE: [4096]
 PASS: UINT8 sub large tensor - large tensor (vectorized)
 RESULT: [%d x %d] first=1.0 last=1.0
 TYPE: UINT8
-SHAPE: [4096]
+SHAPE: [16384]
 PASS: UINT16 sub large tensor - large tensor (vectorized)
 RESULT: [%d x %d] first=1.0 last=1.0
 TYPE: UINT16
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: UINT32 sub large tensor - large tensor (vectorized)
 RESULT: [%d x %d] first=1.0 last=1.0
 TYPE: UINT32

@@ -21,6 +21,7 @@ include sprintf(
 $signed_values = array_merge(range(-16, -1), [0], range(1, 16)); // 33 elements
 $unsigned_values = array_merge([0], range(1, 16)); // 17 elements
 $types = [
+    'FLOAT16' => [$real['FLOAT16'], $signed_values],
     'FLOAT32' => [$real['FLOAT32'], $signed_values],
     'FLOAT64' => [$real['FLOAT64'], $signed_values],
     'INT16' => [$signed_types['INT16'], $signed_values],
@@ -30,8 +31,8 @@ $types = [
 ];
 
 // Large tensor case for vectorization
-$large_size = 4096;
 foreach ($types as $name => [$type, $values]) {
+    $large_size = $large_sizes[$name];
     $a = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 1), $type);
     $b = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 2), $type);
     $result = ORT\Math\reduce\dot($a, $b);
@@ -40,6 +41,10 @@ foreach ($types as $name => [$type, $values]) {
 }
 ?>
 --EXPECTF--
+PASS: FLOAT16 dot large tensor • large tensor (vectorized)
+RESULT: %s
+TYPE: FLOAT16
+SHAPE: [1]
 PASS: FLOAT32 dot large tensor • large tensor (vectorized)
 RESULT: %s
 TYPE: FLOAT32

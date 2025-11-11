@@ -25,9 +25,15 @@ $types = [
     'FLOAT64' => [$real['FLOAT64'], $values],
 ];
 
+$large_sizes = [
+    'FLOAT16' => 8192,
+    'FLOAT32' => 4096,
+    'FLOAT64' => 4096,
+];
+
 // Large tensor case for vectorization
-$large_size = 4096;
 foreach ($types as $name => [$type, $values]) {
+    $large_size = $large_sizes[$name];
     $a = new ORT\Tensor\Transient([$large_size], array_fill(0, $large_size, 1), $type);
     $result = ORT\Math\ceil($a);
     $data = $result->getData();
@@ -39,7 +45,7 @@ foreach ($types as $name => [$type, $values]) {
 PASS: FLOAT16 ceil large tensor (gpu)
 RESULT: %s
 TYPE: FLOAT16
-SHAPE: [4096]
+SHAPE: [8192]
 PASS: FLOAT32 ceil large tensor (gpu)
 RESULT: %s
 TYPE: FLOAT32
