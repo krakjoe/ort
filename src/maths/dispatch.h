@@ -120,6 +120,7 @@ const ort_math_dispatch_t* ort_math_dispatch_type(
     ONNXTensorElementDataType type);
 
 /* {{{ kernel tagging */
+#ifndef __wasm__
 #define __ORT_MATH_DISPATCH_TAG_CPU      0x0
 #define __ORT_MATH_DISPATCH_TAG_GPU      0x1
 #define __ORT_MATH_DISPATCH_TAG_MASK     0x1
@@ -175,5 +176,14 @@ static inline void* __ort_math_dispatch_resolve(
 }
 
 #define ORT_MATH_DISPATCH_RESOLVE(table, kernel, type) __ort_math_dispatch_resolve(table, kernel, type)
+#else
+#define ORT_MATH_DISPATCH_OFFSETOF(field)
+#define ORT_MATH_DISPATCH_TAG_CPU(kernel) kernel
+#define ORT_MATH_DISPATCH_TAG_GPU(kernel, field) kernel
+#define ORT_MATH_DISPATCH_UNTAG(kernel) kernel
+#define ORT_MATH_DISPATCH_TAGGED(kernel, tag) 0
+#define ORT_MATH_DISPATCH_OFFSET(kernel)
+#define ORT_MATH_DISPATCH_RESOLVE(table, kernel, type)
+#endif
 /* }}} */
 #endif
