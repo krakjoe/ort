@@ -765,10 +765,11 @@ function showInnovationDetail(innovationId) {
                <h4>Transparent GPU Acceleration</h4>
                <p>Multi-layered approach to GPU acceleration:</p>
                <ul class="padded-list">
-                   <li><strong>Relaying:</strong> When an operation will not benefit from execution on the GPU, the best available CPU kernel will be used</li>
-                   <li><strong>Managing:</strong> The programmer does not need to care about moving memory between devices</li>
-                   <li><strong>Zero Configuration::</strong> Characteristics controlled by environment variables</li>
+                   <li><strong>Automatic:</strong> Tensors large enough to benefit from GPU acceleration are automatically allocated in GPU memory</li>
+                   <li><strong>Managed:</strong> The programmer does not need to care about moving memory between devices</li>
+                   <li><strong>Zero Configuration:</strong> Characteristics controlled by environment variables</li>
                </ul>
+               <p>It's difficult to quantify the potential performance improvements from a GPU, because they range so widely in capabilities.</p>
            `
        },
        'type-system': {
