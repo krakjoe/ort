@@ -205,41 +205,33 @@ static zend_bool php_ort_model_construct_complete(ort_model_t *model) {
     return 1;
 }
 
-static zend_bool php_ort_model_construct_from_file(ort_model_t *model,  zend_string *name, zend_string *file){
-    OrtSessionOptions* options = NULL;
+static void php_ort_model_construct_options(ort_model_t *model, zend_object *options) {
+    if (!options) {
+        model->options = php_ort_options_default();
+    } else {
+        php_ort_options_t* zo =
+            php_ort_options_fetch(options);
+        model->options = zo->object;
+    }
+
+    php_ort_atomic_addref(&model->options->refcount);
+}
+
+static zend_bool php_ort_model_construct_from_file(ort_model_t *model,  zend_string *name, zend_string *file, zend_object* options){
     OrtStatus* status;
 
     model->kind = ORT_MODEL_SOURCE_FILE;
     model->name = php_ort_string_copy(name);
     model->source.file = php_ort_string_copy(file);
-    
-    php_ort_status_flow(
-        (status = api->CreateSessionOptions(&options)),
-        {
-            api->ReleaseStatus(status);
 
-            return 0;
-        },
-        php_ort_status_model_invalidoptions_ce,
-        "failed to allocate SessionOptions* for Model: %s",
-        api->GetErrorMessage(status));
+    php_ort_model_construct_options(model, options);
 
-    php_ort_status_flow(
-        (status = api->SetSessionGraphOptimizationLevel(options, ORT_ENABLE_ALL)),
-        {
-            api->ReleaseStatus(status);
-
-            return 0;
-        },
-        php_ort_status_model_invalidoptions_ce,
-        "failed to set graph optimization level in SessionOptions* for Model: %s",
-        api->GetErrorMessage(status));
-
-    php_ort_string_temp_t pass = php_ort_string_pass(ZSTR_VAL(file));
+    php_ort_string_temp_t pass =
+        php_ort_string_pass(ZSTR_VAL(file));
 
     php_ort_status_flow(
         (status = api->CreateSession(php_ort_environment(),
-            pass, options, &model->session)),
+            pass, model->options->options, &model->session)),
         {
             api->ReleaseStatus(status);
             php_ort_string_free(pass);
@@ -251,46 +243,23 @@ static zend_bool php_ort_model_construct_from_file(ort_model_t *model,  zend_str
 
     php_ort_string_free(pass);
 
-    api->ReleaseSessionOptions(options);
-
     return php_ort_model_construct_complete(model);
 }
 
-static zend_bool php_ort_model_construct_from_array(ort_model_t *model,  zend_string *name, zend_string *file){
-    OrtSessionOptions* options = NULL;
+static zend_bool php_ort_model_construct_from_array(ort_model_t *model,  zend_string *name, zend_string *file, zend_object* options){
     OrtStatus* status;
 
     model->kind = ORT_MODEL_SOURCE_MEMORY;
     model->name = php_ort_string_copy(name);
     model->source.memory = php_ort_string_copy(file);
 
-    php_ort_status_flow(
-        (status = api->CreateSessionOptions(&options)),
-        {
-            api->ReleaseStatus(status);
-
-            return 0;
-        },
-        php_ort_status_model_invalidoptions_ce,
-        "failed to allocate SessionOptions* for Model: %s",
-        api->GetErrorMessage(status));
-
-    php_ort_status_flow(
-        (status = api->SetSessionGraphOptimizationLevel(options, ORT_ENABLE_ALL)),
-        {
-            api->ReleaseStatus(status);
-
-            return 0;
-        },
-        php_ort_status_model_invalidoptions_ce,
-        "failed to set graph optimization level in SessionOptions* for Model: %s",
-        api->GetErrorMessage(status));
+    php_ort_model_construct_options(model, options);
 
     php_ort_status_flow(
         (status = api->CreateSessionFromArray(php_ort_environment(),
             ZSTR_VAL(model->source.memory),
             ZSTR_LEN(model->source.memory),
-            options, &model->session)),
+            model->options->options, &model->session)),
         {
             api->ReleaseStatus(status);
             return 0;
@@ -299,15 +268,14 @@ static zend_bool php_ort_model_construct_from_array(ort_model_t *model,  zend_st
         "failed to allocate OrtSession* for Model: %s",
         api->GetErrorMessage(status));
 
-    api->ReleaseSessionOptions(options);
-
     return php_ort_model_construct_complete(model);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(php_ort_model_construct_arginfo, 0, 0, 1)
-     ZEND_ARG_TYPE_INFO(0, name,   IS_STRING, 0)
-     ZEND_ARG_TYPE_INFO(0, source,  IS_STRING, 0)
-     ZEND_ARG_TYPE_INFO(0, array,  _IS_BOOL,  0)
+    ZEND_ARG_TYPE_INFO(0, name,   IS_STRING, 0)
+    ZEND_ARG_TYPE_INFO(0, source,  IS_STRING, 0)
+    ZEND_ARG_TYPE_INFO(0, array,  _IS_BOOL,  0)
+    ZEND_ARG_OBJ_INFO(0, options, \\ORT\\Options, 1)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(ONNX_Model, __construct)
@@ -317,12 +285,14 @@ PHP_METHOD(ONNX_Model, __construct)
     zend_string *name;
     zend_string *source = NULL;
     zend_bool array = 0;
+    zend_object *options = NULL;
 
-    ZEND_PARSE_PARAMETERS_START(1, 3);
+    ZEND_PARSE_PARAMETERS_START(1, 4);
         Z_PARAM_STR(name)
         Z_PARAM_OPTIONAL
         Z_PARAM_STR(source)
         Z_PARAM_BOOL(array)
+        Z_PARAM_OBJ_OF_CLASS_EX(options, php_ort_options_ce, 0, 0)
     ZEND_PARSE_PARAMETERS_END();
 
 #ifdef ZTS
@@ -364,8 +334,8 @@ PHP_METHOD(ONNX_Model, __construct)
         model->refcount = 1;
 
         zend_bool result = array ?
-            php_ort_model_construct_from_array(model, name, source) :
-            php_ort_model_construct_from_file(model, name, source) ;
+            php_ort_model_construct_from_array(model, name, source, options) :
+            php_ort_model_construct_from_file(model, name, source, options) ;
         if (!result) {
             php_ort_model_free(model);
 #ifdef ZTS

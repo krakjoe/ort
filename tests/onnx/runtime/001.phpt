@@ -1,5 +1,5 @@
 --TEST--
-Check Runtime constructor with default options
+Check Runtime constructor
 --EXTENSIONS--
 ort
 --SKIPIF--

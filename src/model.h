@@ -22,6 +22,7 @@
 #include <php.h>
 
 #include "ort.h"
+#include "options.h"
 
 extern zend_class_entry* php_ort_model_ce;
 
@@ -41,6 +42,7 @@ typedef struct _ort_model_t {
   OrtModelMetadata*         metadata;       /* Raw metadata */
   OrtSession*               session;
   OrtAllocator*             allocator;
+  ort_options_t*            options;
   struct {
     size_t                  input;
     size_t                  output;

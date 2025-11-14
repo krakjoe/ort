@@ -27,8 +27,6 @@
 
 typedef struct _php_ort_runtime_t {
     ort_model_t*       model;
-    ort_options_t*     options;
-    OrtSession*        session;
     zend_object        std;
 } php_ort_runtime_t;
 
