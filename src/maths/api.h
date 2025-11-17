@@ -116,10 +116,13 @@ ort_tensor_t* ort_math_result_reduce_axis_mean(
 ort_tensor_t* ort_math_result_reduce_tensor_sum(ort_tensor_t* tensor);
 ort_tensor_t* ort_math_result_reduce_axis_sum(
   ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
-ort_tensor_t* ort_math_result_reduce_axis_softmax(
-  ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
 ort_tensor_t* ort_math_result_reduce_tensor_argmax(ort_tensor_t* tensor);
 ort_tensor_t* ort_math_result_reduce_axis_argmax(
   ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
+/* }}} */
+
+/* {{{ Transformation operations */
+ort_tensor_t* ort_math_result_transform_axis_softmax(
+  ort_tensor_t* tensor, zend_long axis);
 /* }}} */
 #endif

@@ -60,6 +60,11 @@ typedef void (*ort_math_kernel_reduce_axis_t)(
     const int64_t *input_shape, size_t input_dims,
     const int64_t *output_shape, size_t output_dims,
     size_t axis);
+typedef void (*ort_math_kernel_transform_axis_t)(
+    void *result,
+    const void *a,
+    const int64_t *shape, size_t dims,
+    size_t axis);
 
 /* {{{ Clamping is required everywhere */
 #define ORT_MATH_CLAMP(val, range, type)  \

@@ -86,6 +86,14 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
 );
 
+ort_tensor_t* ort_math_result_element_wise_transform_axis(
+    ort_math_promotion_t* promotion,
+    ort_tensor_t* tensor,
+    size_t axis,
+    ort_math_kernel_transform_axis_t kernel,
+    const char* operator
+);
+
 /* Tensor creation for result */
 ort_tensor_t* ort_math_result_tensor(
     const int64_t* shape,

@@ -61,6 +61,13 @@
             const int64_t *output_shape, size_t output_dims,          \
             size_t axis)
 
+#define ORT_MATH_FRONTEND_TRANSFORMATION_AXIS_OP_DECL(op, type)       \
+    ORT_MATH_KERNEL_ALIGN                                             \
+        void ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(op, type) (             \
+            void* result, const void* a,                              \
+            const int64_t *shape, size_t dims,                        \
+            size_t axis)
+
 #define ORT_MATH_FRONTEND_BINARY_OP_IMPL(op_name, c_type, operator)   \
     ORT_MATH_FRONTEND_BINARY_OP_DECL(op_name, c_type) {               \
     c_type* res = (c_type*)result;                                    \

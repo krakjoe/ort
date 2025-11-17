@@ -255,6 +255,33 @@ void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count) {
    }
 }
 
+void ort_pool_transform_axis_worker(void *arg, size_t index, size_t count) {
+   ort_pool_transform_axis_ctx_t *ctx =
+       (ort_pool_transform_axis_ctx_t *)arg;
+
+   size_t chunk   = ctx->layout.chunk;
+   size_t element = ctx->layout.element;
+   size_t total   = ctx->layout.total;
+
+   size_t start = index * chunk;
+   size_t end   = start + chunk;
+   if (end > total)
+       end = total;
+
+   if (start < end) {
+       void *result_ptr =
+           (char*)ctx->result + start * element;
+       const void *a_ptr =
+           (const char*)ctx->a + start * element;
+       ctx->op(
+           result_ptr,
+           a_ptr,
+           ctx->shape,
+           ctx->dims,
+           ctx->axis);
+   }
+}
+
 void ort_pool_matmul_worker(void *arg, size_t index, size_t count) {
    ort_pool_matmul_ctx_t *ctx = 
        (ort_pool_matmul_ctx_t *)arg;

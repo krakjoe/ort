@@ -75,6 +75,16 @@ typedef struct _ort_pool_reduce_axis_ctx_t {
     ort_math_kernel_reduce_axis_t op; // reduction kernel
 } ort_pool_reduce_axis_ctx_t;
 
+typedef struct _ort_pool_transform_axis_ctx_t {
+    ort_pool_ctx_layout_t layout;        // chunking info: element size, total, chunk
+    void *result;                        // output data pointer
+    const void *a;                       // input data pointer
+    const int64_t *shape;                // (input/output) shape
+    size_t dims;                         // (input/output) dimensions
+    size_t axis;                         // axis to transform
+    ort_math_kernel_transform_axis_t op; // transformation kernel
+} ort_pool_transform_axis_ctx_t;
+
 typedef struct _ort_pool_matmul_ctx_t {
     ort_pool_ctx_layout_t layout; // chunking info: total = number of output rows, chunk = rows per thread
     void *result;                 // pointer to result buffer (output matrix, row-major)
@@ -111,6 +121,7 @@ void ort_pool_scalar_worker(void *arg, size_t index, size_t count);
 
 void ort_pool_reduce_tensor_worker(void *arg, size_t index, size_t count);
 void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count);
+void ort_pool_transform_axis_worker(void *arg, size_t index, size_t count);
 
 void ort_pool_matmul_worker(void *arg, size_t index, size_t count);
 

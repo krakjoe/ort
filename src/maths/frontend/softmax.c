@@ -18,7 +18,7 @@
 
 /*
  @brief Implements frontend softmax operations for tensors
- @test tests/math/reduce/softmax
+ @test tests/math/transform/softmax
 */
 
 #include <math.h>
@@ -30,161 +30,98 @@
 #include "maths/result.h"
 #include "maths/schema/softmax.h"
 
-ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(softmax, float16) {
+ORT_MATH_FRONTEND_TRANSFORMATION_AXIS_OP_DECL(softmax, float16) {
     float16* va = (float16*)a;
     float16* res = (float16*)result;
     size_t outer = 1, inner = 1;
-    for (size_t i = 0; i < axis; ++i) outer *= input_shape[i];
-    for (size_t i = axis + 1; i < input_dims; ++i) inner *= input_shape[i];
+    for (size_t i = 0; i < axis; ++i) outer *= shape[i];
+    for (size_t i = axis + 1; i < dims; ++i) inner *= shape[i];
+    
     for (size_t outer_idx = 0; outer_idx < outer; ++outer_idx) {
         for (size_t inner_idx = 0; inner_idx < inner; ++inner_idx) {
             int64_t indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-            for (size_t d = 0; d < input_dims; ++d) indices[d] = 0;
+            for (size_t d = 0; d < dims; ++d) indices[d] = 0;
+            
             size_t tmp_outer = outer_idx;
             for (size_t d = 0; d < axis; ++d) {
-                indices[d] = tmp_outer % input_shape[d];
-                tmp_outer /= input_shape[d];
+                indices[d] = tmp_outer % shape[d];
+                tmp_outer /= shape[d];
             }
             size_t tmp_inner = inner_idx;
-            for (size_t d = input_dims - 1; d > axis; --d) {
-                indices[d] = tmp_inner % input_shape[d];
-                tmp_inner /= input_shape[d];
+            for (size_t d = dims - 1; d > axis; --d) {
+                indices[d] = tmp_inner % shape[d];
+                tmp_inner /= shape[d];
             }
+            
+            // Find max for numerical stability
             float32 max = -INFINITY;
-            for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) {
+            for (size_t axis_idx = 0; axis_idx < shape[axis]; ++axis_idx) {
                 indices[axis] = axis_idx;
-                size_t flat = ort_math_result_flat(indices, input_shape, input_dims);
+                size_t flat = ort_math_result_flat(indices, shape, dims);
                 float32 val = ort_math_float32_from_float16(va[flat]);
                 if (val > max)
                     max = val;
             }
+            
+            // Compute exp(x - max) and sum
             float32 sum = 0;
-            for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) {
+            for (size_t axis_idx = 0; axis_idx < shape[axis]; ++axis_idx) {
                 indices[axis] = axis_idx;
-                size_t flat = ort_math_result_flat(indices, input_shape, input_dims);
-                int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-                if (output_dims == input_dims) { /* keepdims=true */
-                    for (size_t d = 0; d < output_dims; ++d) {
-                        if (d == axis) {
-                            out_indices[d] = 0;
-                        } else {
-                            out_indices[d] = indices[d];
-                        }
-                    }
-                } else { /* keepdims=false */
-                    size_t j = 0;
-                    for (size_t d = 0; d < input_dims; ++d) {
-                        if (d != axis) {
-                            out_indices[j++] = indices[d];
-                        }
-                    }
-                }
-                size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims);
-                float32 out_val = exp((float64)ort_math_float32_from_float16(va[flat]) - (float64)max);
-                res[out_flat] =
-                    ort_math_float16_from_float32(out_val);
-                sum += out_val;
+                size_t flat = ort_math_result_flat(indices, shape, dims);
+                float32 exp_val = exp((float64)ort_math_float32_from_float16(va[flat]) - (float64)max);
+                res[flat] = ort_math_float16_from_float32(exp_val);
+                sum += exp_val;
             }
-            for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) {
+            
+            // Normalize by sum
+            for (size_t axis_idx = 0; axis_idx < shape[axis]; ++axis_idx) {
                 indices[axis] = axis_idx;
-                int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-                if (output_dims == input_dims) { /* keepdims=true */
-                    for (size_t d = 0; d < output_dims; ++d) {
-                        if (d == axis) {
-                            out_indices[d] = 0;
-                        } else {
-                            out_indices[d] = indices[d];
-                        }
-                    }
-                } else { /* keepdims=false */
-                    size_t j = 0;
-                    for (size_t d = 0; d < input_dims; ++d) {
-                        if (d != axis) {
-                            out_indices[j++] = indices[d];
-                        }
-                    }
-                }
-                size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims);
-                float32 in_val = ort_math_float32_from_float16(res[out_flat]);
-                res[out_flat] = ort_math_float16_from_float32(in_val / sum);
+                size_t flat = ort_math_result_flat(indices, shape, dims);
+                float32 val = ort_math_float32_from_float16(res[flat]);
+                res[flat] = ort_math_float16_from_float32(val / sum);
             }
         }
     }
 }
 
 #define ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE(c_type, unused) \
-    ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(softmax, c_type) { \
+    ORT_MATH_FRONTEND_TRANSFORMATION_AXIS_OP_DECL(softmax, c_type) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
         size_t outer = 1, inner = 1; \
-        for (size_t i = 0; i < axis; ++i) outer *= input_shape[i]; \
-        for (size_t i = axis + 1; i < input_dims; ++i) inner *= input_shape[i]; \
+        for (size_t i = 0; i < axis; ++i) outer *= shape[i]; \
+        for (size_t i = axis + 1; i < dims; ++i) inner *= shape[i]; \
         for (size_t outer_idx = 0; outer_idx < outer; ++outer_idx) { \
             for (size_t inner_idx = 0; inner_idx < inner; ++inner_idx) { \
                 int64_t indices[ORT_MATH_RESULT_STACK_DIMENSIONS]; \
-                for (size_t d = 0; d < input_dims; ++d) indices[d] = 0; \
+                for (size_t d = 0; d < dims; ++d) indices[d] = 0; \
                 size_t tmp_outer = outer_idx; \
                 for (size_t d = 0; d < axis; ++d) { \
-                    indices[d] = tmp_outer % input_shape[d]; \
-                    tmp_outer /= input_shape[d]; \
+                    indices[d] = tmp_outer % shape[d]; \
+                    tmp_outer /= shape[d]; \
                 } \
                 size_t tmp_inner = inner_idx; \
-                for (size_t d = input_dims - 1; d > axis; --d) { \
-                    indices[d] = tmp_inner % input_shape[d]; \
-                    tmp_inner /= input_shape[d]; \
+                for (size_t d = dims - 1; d > axis; --d) { \
+                    indices[d] = tmp_inner % shape[d]; \
+                    tmp_inner /= shape[d]; \
                 } \
                 c_type max = -INFINITY; \
-                for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) { \
+                for (size_t axis_idx = 0; axis_idx < shape[axis]; ++axis_idx) { \
                     indices[axis] = axis_idx; \
-                    size_t flat = ort_math_result_flat(indices, input_shape, input_dims); \
+                    size_t flat = ort_math_result_flat(indices, shape, dims); \
                     if (va[flat] > max) max = va[flat]; \
                 } \
                 c_type sum = 0; \
-                for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) { \
+                for (size_t axis_idx = 0; axis_idx < shape[axis]; ++axis_idx) { \
                     indices[axis] = axis_idx; \
-                    size_t flat = ort_math_result_flat(indices, input_shape, input_dims); \
-                    int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS]; \
-                    if (output_dims == input_dims) { /* keepdims=true */ \
-                        for (size_t d = 0; d < output_dims; ++d) { \
-                            if (d == axis) { \
-                                out_indices[d] = 0; \
-                            } else { \
-                                out_indices[d] = indices[d]; \
-                            } \
-                        } \
-                    } else { /* keepdims=false */ \
-                        size_t j = 0; \
-                        for (size_t d = 0; d < input_dims; ++d) { \
-                            if (d != axis) { \
-                                out_indices[j++] = indices[d]; \
-                            } \
-                        } \
-                    } \
-                    size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims); \
-                    res[out_flat] = (c_type)exp((float64)va[flat] - (float64)max); \
-                    sum += res[out_flat]; \
+                    size_t flat = ort_math_result_flat(indices, shape, dims); \
+                    res[flat] = (c_type)exp((float64)va[flat] - (float64)max); \
+                    sum += res[flat]; \
                 } \
-                for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) { \
+                for (size_t axis_idx = 0; axis_idx < shape[axis]; ++axis_idx) { \
                     indices[axis] = axis_idx; \
-                    int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS]; \
-                    if (output_dims == input_dims) { /* keepdims=true */ \
-                        for (size_t d = 0; d < output_dims; ++d) { \
-                            if (d == axis) { \
-                                out_indices[d] = 0; \
-                            } else { \
-                                out_indices[d] = indices[d]; \
-                            } \
-                        } \
-                    } else { /* keepdims=false */ \
-                        size_t j = 0; \
-                        for (size_t d = 0; d < input_dims; ++d) { \
-                            if (d != axis) { \
-                                out_indices[j++] = indices[d]; \
-                            } \
-                        } \
-                    } \
-                    size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims); \
-                    res[out_flat] /= sum; \
+                    size_t flat = ort_math_result_flat(indices, shape, dims); \
+                    res[flat] /= sum; \
                 } \
             } \
         } \
@@ -194,8 +131,8 @@ ORT_MATH_FOREACH_REAL_TYPE(
     ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE)
 #undef ORT_MATH_FRONTEND_SOFTMAX_AXIS_IMPL_FOR_TYPE
 
-static ort_math_kernel_reduce_axis_t
-    ort_math_frontend_dispatch_reduce_axis_softmax(
+static ort_math_kernel_transform_axis_t
+    ort_math_frontend_dispatch_transform_axis_softmax(
         ort_math_promotion_t *promotion,
         const ort_math_promotion_schema_t *schema) {
     const ort_math_dispatch_t* dispatch =
@@ -204,9 +141,8 @@ static ort_math_kernel_reduce_axis_t
     return dispatch->softmax_axis_func;
 }
 
-ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(softmax,
-    ort_math_frontend_dispatch_reduce_axis_softmax,
+ORT_MATH_RESULT_TRANSFORM_AXIS_IMPL(softmax,
+    ort_math_frontend_dispatch_transform_axis_softmax,
     ort_math_validate_input,
     ort_math_validate_axis,
-    ort_math_result_reduce,
     &ort_math_promotion_schema_softmax)

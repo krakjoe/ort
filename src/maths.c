@@ -204,6 +204,33 @@ void php_ort_math_schema_free(zend_object *zo) {
             php_ort_tensor_fetch(Z_OBJ_P(return_value));           \
         rv->object = result;                                       \
     }
+
+// Macro for transformation functions (Tensor, axis)
+#define ORT_MATH_TRANSFORMATION_AXIS_FUNCTION_IMPL(fname)          \
+    ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(                        \
+            php_ort_math_transform_axis_##fname##_arginfo, 0, 2, ORT\\Tensor, 0) \
+        ZEND_ARG_OBJ_INFO(0, tensor, ORT\\Tensor, 0)               \
+        ZEND_ARG_TYPE_INFO(0, axis, IS_LONG, 0)                    \
+    ZEND_END_ARG_INFO()                                            \
+    PHP_NAMED_FUNCTION(php_ort_math_transform_axis_##fname)        \
+    {                                                              \
+        zval *tensor_zv;                                           \
+        zend_long axis = 0;                                        \
+        ZEND_PARSE_PARAMETERS_START(2, 2)                          \
+            Z_PARAM_OBJECT_OF_CLASS(tensor_zv,                     \
+                php_ort_tensor_interface_ce)                       \
+            Z_PARAM_LONG(axis)                                     \
+        ZEND_PARSE_PARAMETERS_END();                               \
+        php_ort_tensor_t* tensor_ort =                             \
+            php_ort_tensor_fetch(Z_OBJ_P(tensor_zv));              \
+        ort_tensor_t* result = ort_math_result_transform_axis_##fname(\
+            tensor_ort->object, axis);                             \
+        object_init_ex(return_value,                               \
+            php_ort_tensor_transient_ce);                          \
+        php_ort_tensor_t* rv =                                     \
+            php_ort_tensor_fetch(Z_OBJ_P(return_value));           \
+        rv->object = result;                                       \
+    }
 /* Mathematical functions in ORT\Math namespace */
 
 ORT_MATH_BINARY_FUNCTION_IMPL(add)
@@ -257,10 +284,10 @@ ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(mean)
 ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(sum)
 ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(sum)
 
-ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(softmax)
-
 ORT_MATH_REDUCTION_TENSOR_FUNCTION_IMPL(argmax)
 ORT_MATH_REDUCTION_AXIS_FUNCTION_IMPL(argmax)
+
+ORT_MATH_TRANSFORMATION_AXIS_FUNCTION_IMPL(softmax)
 
 /* Dot reduction function */
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(php_ort_math_dot_arginfo, 0, 1, ORT\\Tensor, 0)
@@ -543,7 +570,8 @@ static const zend_function_entry php_ort_math_functions[] = {
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   sum,     php_ort_math_reduce_axis_sum,   php_ort_math_reduce_axis_sum_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\tensor", argmax,  php_ort_math_reduce_tensor_argmax, php_ort_math_reduce_tensor_argmax_arginfo)
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   argmax,  php_ort_math_reduce_axis_argmax,   php_ort_math_reduce_axis_argmax_arginfo)
-    ZEND_NS_NAMED_FE("ORT\\Math\\reduce\\axis",   softmax, php_ort_math_reduce_axis_softmax,   php_ort_math_reduce_axis_softmax_arginfo)
+
+    ZEND_NS_NAMED_FE("ORT\\Math\\transform\\axis", softmax, php_ort_math_transform_axis_softmax,   php_ort_math_transform_axis_softmax_arginfo)
 
     ZEND_NS_NAMED_FE("ORT\\Math\\reduce", dot, php_ort_math_dot, php_ort_math_dot_arginfo)
 

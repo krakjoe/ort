@@ -514,6 +514,45 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     return result;
 }
 
+ort_tensor_t* ort_math_result_element_wise_transform_axis(
+    ort_math_promotion_t* promotion,
+    ort_tensor_t* tensor,
+    size_t axis,
+    ort_math_kernel_transform_axis_t kernel,
+    const char* operator
+) {
+    ort_tensor_t* result = ort_math_result_tensor(
+        tensor->shape, tensor->dimensions,
+        promotion ?
+            promotion->result_type :
+                tensor->type,
+        operator);
+    
+    /* Chunk work for pool */
+    size_t chunk;
+    size_t num_chunks = ort_pool_chunk(
+        result->elements,
+        php_ort_type_sizeof(result->type), &chunk);
+
+    ort_pool_transform_axis_ctx_t ctx = {
+        .layout = {
+            .element = php_ort_type_sizeof(result->type),
+            .total   = result->elements,
+            .chunk   = chunk
+        },
+        .result = result->data,
+        .a      = ort_math_operation_upcast(result, promotion, tensor->data),
+        .op     = ORT_MATH_DISPATCH_UNTAG(kernel),
+        .shape  = tensor->shape,
+        .dims   = tensor->dimensions,
+        .axis   = axis
+    };
+
+    ort_pool_submit(ort_pool_transform_axis_worker, &ctx, num_chunks);
+
+    return result;
+}
+
 /* Shape manipulation helpers */
 ort_tensor_t* ort_math_result_tensor(
     const int64_t* shape,
