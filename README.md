@@ -104,7 +104,8 @@ echo "Cores: " . ORT\Math\cores() . "\n";
 - **Binary**: `add`, `subtract`, `multiply`, `divide`, `pow`, `mod`
 - **Unary**: `sin`, `cos`, `exp`, `log`, `sqrt`, `abs`, `neg`
 - **Matrix**: `matmul`, `dot`, `transpose`
-- **Reduction**: `sum`, `mean`, `min`, `max`, `softmax`
+- **Reduction**: `sum`, `mean`, `min`, `max`
+- **Transformation**: `softmax`
 
 ### ONNX Integration
 - `ORT\Model` - Load and manage ONNX models
