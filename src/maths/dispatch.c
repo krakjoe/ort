@@ -61,6 +61,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .softmax_axis_func = ort_math_frontend_softmax_axis_float16,
         .argmax_func     = ort_math_frontend_argmax_float16,
         .argmax_axis_func = ort_math_frontend_argmax_axis_float16,
+        .argmin_func     = ort_math_frontend_argmin_float16,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_float16,
 
         .mod_func        = ort_math_frontend_mod_float16,
         .mod_scalar_func = ort_math_frontend_mod_scalar_float16,
@@ -105,6 +107,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .softmax_axis_func = ort_math_frontend_softmax_axis_float32,
         .argmax_func     = ort_math_frontend_argmax_float32,
         .argmax_axis_func = ort_math_frontend_argmax_axis_float32,
+        .argmin_func     = ort_math_frontend_argmin_float32,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_float32,
 
         .mod_func        = ort_math_frontend_mod_float32,
         .mod_scalar_func = ort_math_frontend_mod_scalar_float32,
@@ -149,6 +153,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .softmax_axis_func = ort_math_frontend_softmax_axis_float64,
         .argmax_func     = ort_math_frontend_argmax_float64,
         .argmax_axis_func = ort_math_frontend_argmax_axis_float64,
+        .argmin_func     = ort_math_frontend_argmin_float64,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_float64,
         .mod_func        = ort_math_frontend_mod_float64,
         .mod_scalar_func = ort_math_frontend_mod_scalar_float64,
 
@@ -192,6 +198,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .softmax_axis_func = NULL,
         .argmax_func     = ort_math_frontend_argmax_int8_t,
         .argmax_axis_func = ort_math_frontend_argmax_axis_int8_t,
+        .argmin_func     = ort_math_frontend_argmin_int8_t,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_int8_t,
 
         .mod_func        = ort_math_frontend_mod_int8_t,
         .mod_scalar_func = ort_math_frontend_mod_scalar_int8_t,
@@ -237,6 +245,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
 
         .argmax_func     = ort_math_frontend_argmax_int16_t,
         .argmax_axis_func = ort_math_frontend_argmax_axis_int16_t,
+        .argmin_func     = ort_math_frontend_argmin_int16_t,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_int16_t,
 
         .mod_func        = ort_math_frontend_mod_int16_t,
         .mod_scalar_func = ort_math_frontend_mod_scalar_int16_t,
@@ -282,6 +292,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
 
         .argmax_func     = ort_math_frontend_argmax_int32_t,
         .argmax_axis_func = ort_math_frontend_argmax_axis_int32_t,
+        .argmin_func     = ort_math_frontend_argmin_int32_t,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_int32_t,
 
         .mod_func        = ort_math_frontend_mod_int32_t,
         .mod_scalar_func = ort_math_frontend_mod_scalar_int32_t,
@@ -325,6 +337,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .softmax_axis_func = NULL,
         .argmax_func     = ort_math_frontend_argmax_int64_t,
         .argmax_axis_func = ort_math_frontend_argmax_axis_int64_t,
+        .argmin_func     = ort_math_frontend_argmin_int64_t,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_int64_t,
         .mod_func        = ort_math_frontend_mod_int64_t,
         .mod_scalar_func = ort_math_frontend_mod_scalar_int64_t,
 
@@ -368,6 +382,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
 
         .argmax_func     = ort_math_frontend_argmax_uint8_t,
         .argmax_axis_func = ort_math_frontend_argmax_axis_uint8_t,
+        .argmin_func     = ort_math_frontend_argmin_uint8_t,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_uint8_t,
 
         .mod_func        = ort_math_frontend_mod_uint8_t,
         .mod_scalar_func = ort_math_frontend_mod_scalar_uint8_t,
@@ -412,6 +428,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
 
         .argmax_func     = ort_math_frontend_argmax_uint16_t,
         .argmax_axis_func = ort_math_frontend_argmax_axis_uint16_t,
+        .argmin_func     = ort_math_frontend_argmin_uint16_t,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_uint16_t,
 
         .mod_func        = ort_math_frontend_mod_uint16_t,
         .mod_scalar_func = ort_math_frontend_mod_scalar_uint16_t,
@@ -455,6 +473,8 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .softmax_axis_func = NULL,
         .argmax_func     = ort_math_frontend_argmax_uint32_t,
         .argmax_axis_func = ort_math_frontend_argmax_axis_uint32_t,
+        .argmin_func     = ort_math_frontend_argmin_uint32_t,
+        .argmin_axis_func = ort_math_frontend_argmin_axis_uint32_t,
         .mod_func        = ort_math_frontend_mod_uint32_t,
         .mod_scalar_func = ort_math_frontend_mod_scalar_uint32_t,
 
@@ -495,7 +515,9 @@ ORT_TLS ort_math_dispatch_t __ort_math_dispatch_table[] = {
         .mean_axis_func  = NULL,
         .softmax_axis_func = NULL,
         .argmax_func       = ort_math_frontend_argmax_zend_bool,       // Logical argmax (returns index of first true)
-        .argmax_axis_func  = ort_math_frontend_argmax_axis_zend_bool, // Logical argmax along axis (returns index of first true along axis)
+        .argmax_axis_func  = ort_math_frontend_argmax_axis_zend_bool,  // Logical argmax along axis (returns index of first true along axis)
+        .argmin_func       = ort_math_frontend_argmin_zend_bool,       // Logical argmin (returns index of first true)
+        .argmin_axis_func  = ort_math_frontend_argmin_axis_zend_bool,  // Logical argmin along axis (returns index of first true along axis)
         .mod_func        = NULL,
         .mod_scalar_func = NULL,
 

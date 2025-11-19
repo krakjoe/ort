@@ -119,6 +119,9 @@ ort_tensor_t* ort_math_result_reduce_axis_sum(
 ort_tensor_t* ort_math_result_reduce_tensor_argmax(ort_tensor_t* tensor);
 ort_tensor_t* ort_math_result_reduce_axis_argmax(
   ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
+ort_tensor_t* ort_math_result_reduce_tensor_argmin(ort_tensor_t* tensor);
+ort_tensor_t* ort_math_result_reduce_axis_argmin(
+  ort_tensor_t* tensor, zend_long axis, zend_bool keepdims);
 /* }}} */
 
 /* {{{ Transformation operations */

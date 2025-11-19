@@ -85,6 +85,9 @@ typedef struct _ort_math_dispatch_t {
     ort_math_kernel_reduce_tensor_t argmax_func;
     ort_math_kernel_reduce_axis_t argmax_axis_func;
 
+    ort_math_kernel_reduce_tensor_t argmin_func;
+    ort_math_kernel_reduce_axis_t argmin_axis_func;
+
     ort_math_kernel_transform_axis_t softmax_axis_func;
 } ort_math_dispatch_t;
 

@@ -32,6 +32,7 @@
 #include "maths/schema/arctan.h"
 #include "maths/schema/arctanh.h"
 #include "maths/schema/argmax.h"
+#include "maths/schema/argmin.h"
 #include "maths/schema/atan.h"
 #include "maths/schema/add.h"
 #include "maths/schema/asin.h"
@@ -421,6 +422,7 @@ void ort_math_promotion_startup(void) {
     ORT_MATH_PROMOTION_SCHEMA_ADD(arctan);
     ORT_MATH_PROMOTION_SCHEMA_ADD(arctanh);
     ORT_MATH_PROMOTION_SCHEMA_ADD(argmax);
+    ORT_MATH_PROMOTION_SCHEMA_ADD(argmin);
     ORT_MATH_PROMOTION_SCHEMA_ADD(asin);
     ORT_MATH_PROMOTION_SCHEMA_ADD(atan);
     ORT_MATH_PROMOTION_SCHEMA_ADD(cos);
