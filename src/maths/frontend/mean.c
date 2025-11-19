@@ -33,104 +33,52 @@
 ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(mean, float16) {
     float16* va = (float16*)a;
     float16* res = (float16*)result;
-    size_t outer = 1, inner = 1;
-    for (size_t i = 0; i < axis; ++i) outer *= input_shape[i];
-    for (size_t i = axis + 1; i < input_dims; ++i) inner *= input_shape[i];
-    for (size_t outer_idx = 0; outer_idx < outer; ++outer_idx) {
-        for (size_t inner_idx = 0; inner_idx < inner; ++inner_idx) {
-            int64_t indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-            for (size_t d = 0; d < input_dims; ++d) indices[d] = 0;
-            size_t tmp_outer = outer_idx;
-            for (size_t d = 0; d < axis; ++d) {
-                indices[d] = tmp_outer % input_shape[d];
-                tmp_outer /= input_shape[d];
-            }
-            size_t tmp_inner = inner_idx;
-            for (size_t d = input_dims - 1; d > axis; --d) {
-                indices[d] = tmp_inner % input_shape[d];
-                tmp_inner /= input_shape[d];
-            }
-            float32 sum = 0;
-            for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) {
-                indices[axis] = axis_idx;
-                size_t flat = ort_math_result_flat(indices, input_shape, input_dims);
-                sum += ort_math_float32_from_float16(va[flat]);
-            }
-            /* Write output using output_shape/output_dims */
-            int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS];
-            if (output_dims == input_dims) { /* keepdims=true */
-                for (size_t d = 0; d < output_dims; ++d) {
-                    if (d == axis) {
-                        out_indices[d] = 0;
-                    } else {
-                        out_indices[d] = indices[d];
-                    }
-                }
-            } else { /* keepdims=false */
-                size_t j = 0;
-                for (size_t d = 0; d < input_dims; ++d) {
-                    if (d != axis) {
-                        out_indices[j++] = indices[d];
-                    }
-                }
-            }
-            size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims);
-            res[out_flat] = ort_math_float16_from_float32(
-                sum / (float32)input_shape[axis]
-            );
-        }
+    ORT_MATH_REDUCTION_KERNEL_AXIS_PROLOGUE()
+
+    float32 sum = 0;
+    for (size_t axis_idx = 0;
+                axis_idx < input_shape[axis];
+                ++axis_idx) {
+        indices[axis] = axis_idx;
+        size_t flat = ort_math_result_flat(
+            indices, input_shape, input_dims);
+        sum += ort_math_float32_from_float16(va[flat]);
     }
+
+    ORT_MATH_REDUCTION_KERNEL_AXIS_EPILOGUE()
+
+    size_t out_flat = ort_math_result_flat(
+        out_indices, output_shape, output_dims);
+    res[out_flat] = ort_math_float16_from_float32(
+        sum / (float32)input_shape[axis]
+    );
+
+    ORT_MATH_REDUCTION_KERNEL_AXIS_LEAVE()
 }
 
 #define ORT_MATH_FRONTEND_MEAN_AXIS_IMPL_FOR_TYPE(c_type, unused) \
     ORT_MATH_FRONTEND_REDUCTION_AXIS_OP_DECL(mean, c_type) { \
         c_type* va = (c_type*)a; \
         c_type* res = (c_type*)result; \
-        size_t outer = 1, inner = 1; \
-        for (size_t i = 0; i < axis; ++i) outer *= input_shape[i]; \
-        for (size_t i = axis + 1; i < input_dims; ++i) inner *= input_shape[i]; \
-        for (size_t outer_idx = 0; outer_idx < outer; ++outer_idx) { \
-            for (size_t inner_idx = 0; inner_idx < inner; ++inner_idx) { \
-                int64_t indices[ORT_MATH_RESULT_STACK_DIMENSIONS]; \
-                for (size_t d = 0; d < input_dims; ++d) indices[d] = 0; \
-                size_t tmp_outer = outer_idx; \
-                for (size_t d = 0; d < axis; ++d) { \
-                    indices[d] = tmp_outer % input_shape[d]; \
-                    tmp_outer /= input_shape[d]; \
-                } \
-                size_t tmp_inner = inner_idx; \
-                for (size_t d = input_dims - 1; d > axis; --d) { \
-                    indices[d] = tmp_inner % input_shape[d]; \
-                    tmp_inner /= input_shape[d]; \
-                } \
-                c_type sum = 0; \
-                for (size_t axis_idx = 0; axis_idx < input_shape[axis]; ++axis_idx) { \
-                    indices[axis] = axis_idx; \
-                    size_t flat = ort_math_result_flat(indices, input_shape, input_dims); \
-                    sum += va[flat]; \
-                } \
-                /* Write output using output_shape/output_dims */ \
-                int64_t out_indices[ORT_MATH_RESULT_STACK_DIMENSIONS]; \
-                if (output_dims == input_dims) { /* keepdims=true */ \
-                    for (size_t d = 0; d < output_dims; ++d) { \
-                        if (d == axis) { \
-                            out_indices[d] = 0; \
-                        } else { \
-                            out_indices[d] = indices[d]; \
-                        } \
-                    } \
-                } else { /* keepdims=false */ \
-                    size_t j = 0; \
-                    for (size_t d = 0; d < input_dims; ++d) { \
-                        if (d != axis) { \
-                            out_indices[j++] = indices[d]; \
-                        } \
-                    } \
-                } \
-                size_t out_flat = ort_math_result_flat(out_indices, output_shape, output_dims); \
-                res[out_flat] = sum / (c_type)input_shape[axis]; \
-            } \
+        ORT_MATH_REDUCTION_KERNEL_AXIS_PROLOGUE() \
+        \
+        c_type sum = 0; \
+        for (size_t axis_idx = 0; \
+                    axis_idx < input_shape[axis]; \
+                    ++axis_idx) { \
+            indices[axis] = axis_idx; \
+            size_t flat = ort_math_result_flat(\
+                indices, input_shape, input_dims); \
+            sum += va[flat]; \
         } \
+        \
+        ORT_MATH_REDUCTION_KERNEL_AXIS_EPILOGUE() \
+        \
+        size_t out_flat = ort_math_result_flat(\
+            out_indices, output_shape, output_dims); \
+        res[out_flat] = sum / (c_type)input_shape[axis]; \
+        \
+        ORT_MATH_REDUCTION_KERNEL_AXIS_LEAVE() \
     }
 
 ORT_MATH_FOREACH_REAL_TYPE(

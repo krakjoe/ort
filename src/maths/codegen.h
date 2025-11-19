@@ -29,4 +29,6 @@
 #include "maths/codegen/frontend.h"
 #include "maths/codegen/backend.h"
 
+#include "maths/codegen/reduction.h"
+
 #endif
