@@ -1,4 +1,4 @@
-# ORT API
+# API
 
 ## Math Functions
 
@@ -172,18 +172,18 @@ class ORT\Math\Schema {
 
 ```php
 interface ORT\Tensor {
-    const int UNDEFINED = 0;
-    const int FLOAT16 = 10;
-    const int FLOAT32 = 1;
-    const int FLOAT64 = 11;
-    const int UINT8 = 2;
-    const int INT8 = 3;
-    const int UINT16 = 4;
-    const int INT16 = 5;
-    const int UINT32 = 12;
-    const int INT32 = 6;
-    const int INT64 = 7;
-    const int BOOL = 9;
+    const int UNDEFINED;
+    const int FLOAT16;
+    const int FLOAT32;
+    const int FLOAT64;
+    const int UINT8;
+    const int INT8;
+    const int UINT16;
+    const int INT16;
+    const int UINT32;
+    const int INT32;
+    const int INT64;
+    const int BOOL;
     
     public function isPersistent(): bool;
     public function getName(): ?string;
@@ -311,31 +311,31 @@ class ORT\Options {
 ### Status Errors
 
 - `ORT\Status\Error` - Base error class
+  - `ORT\Status\Tensor\Error`
+    - `ORT\Status\Tensor\NotFound`
+    - `ORT\Status\Tensor\InvalidType`
+    - `ORT\Status\Tensor\InvalidShape`
+    - `ORT\Status\Tensor\InvalidData`
+    - `ORT\Status\Tensor\InvalidMemory`
+    - `ORT\Status\Tensor\InvalidOffset`
+    - `ORT\Status\Tensor\InvalidAccess`
+  - `ORT\Status\Math\Error`
+    - `ORT\Status\Math\InvalidShape`
+    - `ORT\Status\Math\InvalidType`
+    - `ORT\Status\Math\InvalidBroadcast`
+    - `ORT\Status\Math\InvalidOperation`
+    - `ORT\Status\Math\DivisionByZero`
+  - `ORT\Status\Model\Error`
+    - `ORT\Status\Model\InvalidMemory`
+    - `ORT\Status\Model\InvalidOptions`
+    - `ORT\Status\Model\InvalidModel`
+    - `ORT\Status\Model\InvalidInput`
+    - `ORT\Status\Model\InvalidOutput`
+    - `ORT\Status\Model\InvalidIndex`
+    - `ORT\Status\Model\InvalidFile`
+    - `ORT\Status\Model\RuntimeException`
+  - `ORT\Status\Schema\Error`
+    - `ORT\Status\Schema\InvalidSymbol`
+    - `ORT\Status\Schema\InvalidArguments`
   - `ORT\Status\SafetyError`
   - `ORT\Status\ScalingError`
-    - `ORT\Status\Tensor\Error`
-      - `ORT\Status\Tensor\NotFound`
-      - `ORT\Status\Tensor\InvalidType`
-      - `ORT\Status\Tensor\InvalidShape`
-      - `ORT\Status\Tensor\InvalidData`
-      - `ORT\Status\Tensor\InvalidMemory`
-      - `ORT\Status\Tensor\InvalidOffset`
-      - `ORT\Status\Tensor\InvalidAccess`
-    - `ORT\Status\Math\Error`
-      - `ORT\Status\Math\InvalidShape`
-      - `ORT\Status\Math\InvalidType`
-      - `ORT\Status\Math\InvalidBroadcast`
-      - `ORT\Status\Math\InvalidOperation`
-      - `ORT\Status\Math\DivisionByZero`
-    - `ORT\Status\Model\Error`
-      - `ORT\Status\Model\InvalidMemory`
-      - `ORT\Status\Model\InvalidOptions`
-      - `ORT\Status\Model\InvalidModel`
-      - `ORT\Status\Model\InvalidInput`
-      - `ORT\Status\Model\InvalidOutput`
-      - `ORT\Status\Model\InvalidIndex`
-      - `ORT\Status\Model\InvalidFile`
-      - `ORT\Status\Model\RuntimeException`
-    - `ORT\Status\Schema\Error`
-      - `ORT\Status\Schema\InvalidSymbol`
-      - `ORT\Status\Schema\InvalidArguments`
