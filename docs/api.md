@@ -236,7 +236,7 @@ class ORT\Tensor\Generator\Random {
 
 ### ORT\Model
 
-**Only be available where `ONNXRuntime` is available (ie, `php-ort` was built with `--with-ort-onnx`).**
+**Only available where `ONNXRuntime` is available (ie, `php-ort` was built with `--with-ort-onnx`).**
 
 ```php
 class ORT\Model {
@@ -263,7 +263,7 @@ class ORT\Model {
 
 ### ORT\Runtime
 
-**Only be available where `ONNXRuntime` is available (ie, `php-ort` was built with `--with-ort-onnx`).**
+**Only available where `ONNXRuntime` is available (ie, `php-ort` was built with `--with-ort-onnx`).**
 
 ```php
 class ORT\Runtime {
@@ -274,7 +274,7 @@ class ORT\Runtime {
 
 ### ORT\Options
 
-**Only be available where `ONNXRuntime` is available (ie, `php-ort` was built with `--with-ort-onnx`).**
+**Only available where `ONNXRuntime` is available (ie, `php-ort` was built with `--with-ort-onnx`).**
 
 ```php
 class ORT\Options {
