@@ -46,6 +46,8 @@ When pools are started, we don't allow the scheduler to decide which core to exe
 
 Further control can be gained by adjusting `ORT_SCALE_THRESHOLD`. By default this is set to 300k, this means that any operation smaller than 300k elements will be executed serially, larger ones will be distributed across the pool. This threshold can be adjusted to suit your needs, on a system wide basis.
 
+*Note: Transformations and reductions are not parallelized, these operations require serial execution (currenntly).*
+
 # Call Site Scaling
 
 In order to hand over complete control of scaling at the call site, `ORT\Math\scale` may be used:
@@ -66,7 +68,6 @@ $result = Math\scale(Math\scale\cores()/2, function(){
 ```
 
 This minimal API surface allows the user to scale individual computations, or groups of them, and develop their own strategies for scaling their workloads.
-
 
 ## [1] Interpreters
 
