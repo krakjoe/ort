@@ -97,7 +97,7 @@ ort_tensor_t* ort_math_result_reduce_tensor_##fname(                            
         ort_math_promotion_perform_unary(fschema, tensor);                      \
     ort_math_kernel_reduce_tensor_t kernel = fdispatch(&promotion, fschema);    \
     ORT_MATH_RESULT_KERNEL_CHECK(fname, kernel, &promotion, fschema);           \
-    return ort_math_result_element_wise_reduce_tensor(                          \
+    return ort_math_result_reduce_tensor(                                       \
         &promotion, tensor, kernel, #fname);                                    \
 }
 
@@ -115,7 +115,7 @@ ort_tensor_t* ort_math_result_reduce_axis_##fname(                             \
         ort_math_promotion_perform_unary(fschema, tensor);                     \
     ort_math_kernel_reduce_axis_t kernel = fdispatch(&promotion, fschema);     \
     ORT_MATH_RESULT_KERNEL_CHECK(fname, kernel, &promotion, fschema);          \
-    return ort_math_result_element_wise_reduce_axis(                           \
+    return ort_math_result_reduce_axis(                                        \
         &promotion,                                                            \
         tensor, axis, keepdims,                                                \
         kernel, #fname, fshape);                                               \
@@ -135,7 +135,7 @@ ort_tensor_t* ort_math_result_transform_axis_##fname(                          \
         ort_math_promotion_perform_unary(fschema, tensor);                     \
     ort_math_kernel_transform_axis_t kernel = fdispatch(&promotion, fschema);  \
     ORT_MATH_RESULT_KERNEL_CHECK(fname, kernel, &promotion, fschema);          \
-    return ort_math_result_element_wise_transform_axis(                        \
+    return ort_math_result_transform_axis(                                     \
         &promotion,                                                            \
         tensor, axis,                                                          \
         kernel, #fname);                                                       \

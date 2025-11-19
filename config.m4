@@ -569,6 +569,7 @@ AS_VAR_IF([PHP_ORT], [no],, [
     $PHP_ORT_MATHS_FRONTEND_DIR/dot.c
     $PHP_ORT_MATHS_FRONTEND_DIR/real.c
     $PHP_ORT_MATHS_FRONTEND_DIR/softmax.c
+    $PHP_ORT_MATHS_FRONTEND_DIR/argmin.c
     $PHP_ORT_MATHS_FRONTEND_DIR/argmax.c
   ")
   PHP_ORT_MATHS_IMPL=m4_normalize("
