@@ -59,24 +59,7 @@ ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
     const char* operator
 );
 
-ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
-    ort_math_promotion_t* promotion,
-    ort_tensor_t* tensor,
-    ort_math_kernel_reduce_tensor_t kernel,
-    const char* operator
-);
-
 ort_tensor_t* ort_math_result_element_wise_reduce_axis(
-    ort_math_promotion_t* promotion,
-    ort_tensor_t* tensor,
-    size_t axis,
-    zend_bool keepdims,
-    ort_math_kernel_reduce_axis_t kernel,
-    const char* operator,
-    int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
-);
-
-ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     size_t axis,

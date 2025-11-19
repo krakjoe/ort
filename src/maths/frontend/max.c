@@ -181,4 +181,4 @@ ORT_MATH_RESULT_REDUCE_AXIS_IMPL(max,
     ort_math_validate_input,
     ort_math_validate_axis,
     ort_math_result_reduce,
-    &ort_math_promotion_schema_max)
+    &ort_math_promotion_schema_max);

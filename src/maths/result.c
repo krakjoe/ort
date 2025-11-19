@@ -349,7 +349,7 @@ __ort_math_result_element_wise_unary_cleanup:
     return result;
 }
 
-ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
+ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
     ort_math_promotion_t *promotion,
     ort_tensor_t* tensor,
     ort_math_kernel_reduce_tensor_t kernel,
@@ -381,101 +381,7 @@ ort_tensor_t* ort_math_result_serial_element_wise_reduce_tensor(
     return result;
 }
 
-ort_tensor_t* ort_math_result_element_wise_reduce_tensor(
-    ort_math_promotion_t *promotion,
-    ort_tensor_t* tensor,
-    ort_math_kernel_reduce_tensor_t kernel,
-    const char* operator
-) {
-    // Output is always a scalar (0-dim tensor)
-    ort_tensor_t* result = ort_math_result_tensor(
-        NULL, 0,
-        promotion ?
-            promotion->result_type :
-                tensor->type,
-        operator);
-    if (!result) {
-        return NULL;
-    }
-
-    ort_pool_reduce_tensor_ctx_t ctx = {
-        .layout = {
-            .element = php_ort_type_sizeof(result->type),
-            .total   = 1, // Only one output (scalar)
-            .chunk   = 1
-        },
-        .result   = result->data,
-        .a        = ort_math_operation_upcast(result, promotion, tensor->data),
-        .elements = tensor->elements,
-        .op       = ORT_MATH_DISPATCH_UNTAG(kernel)
-    };
-
-    // Only one chunk/thread needed for scalar reduction
-    ort_pool_submit(ort_pool_reduce_tensor_worker, &ctx, 1);
-
-    /* Free upcasted buffer if necessary */
-    if (promotion && promotion->upcast.count) {
-        ort_free((void*)ctx.a);
-    }
-
-    return result;
-}
-
 ort_tensor_t* ort_math_result_element_wise_reduce_axis(
-    ort_math_promotion_t* promotion,
-    ort_tensor_t* tensor,
-    size_t axis,
-    zend_bool keepdims,
-    ort_math_kernel_reduce_axis_t kernel,
-    const char* operator,
-    int64_t* (*shape)(ort_tensor_t* tensor, size_t axis, zend_bool keepdims, size_t* result_dims)
-) {
-    // Calculate output shape
-    size_t result_dims = 0;
-    int64_t* result_shape = shape(
-        tensor, axis, keepdims, &result_dims);
-
-    // Create result tensor
-    ort_tensor_t* result = ort_math_result_tensor(
-        result_shape, result_dims,
-        promotion ?
-            promotion->result_type :
-                tensor->type,
-        operator);
-    efree(result_shape);
-
-    /* Chunk work for pool */
-    size_t chunk;
-    size_t num_chunks = ort_pool_chunk(
-        result->elements,
-        php_ort_type_sizeof(result->type), &chunk);
-
-    ort_pool_reduce_axis_ctx_t ctx = {
-        .layout = {
-            .element = php_ort_type_sizeof(result->type),
-            .total   = result->elements,
-            .chunk   = chunk
-        },
-        .result = result->data,
-        .a      = ort_math_operation_upcast(result, promotion, tensor->data),
-        .op     = ORT_MATH_DISPATCH_UNTAG(kernel),
-        .input_shape = tensor->shape,
-        .input_dims = tensor->dimensions,
-        .output_shape = result->shape,
-        .output_dims = result->dimensions,
-        .axis = axis
-    };
-
-    ort_pool_submit(ort_pool_reduce_axis_worker, &ctx, num_chunks);
-
-    if (promotion && promotion->upcast.count) {
-        ort_free((void*)ctx.a);
-    }
-
-    return result;
-}
-
-ort_tensor_t* ort_math_result_serial_element_wise_reduce_axis(
     ort_math_promotion_t* promotion,
     ort_tensor_t* tensor,
     size_t axis,
@@ -528,27 +434,18 @@ ort_tensor_t* ort_math_result_element_wise_transform_axis(
                 tensor->type,
         operator);
     
-    /* Chunk work for pool */
-    size_t chunk;
-    size_t num_chunks = ort_pool_chunk(
-        result->elements,
-        php_ort_type_sizeof(result->type), &chunk);
+    void* buffer = ort_math_operation_upcast(result, promotion, tensor->data);
 
-    ort_pool_transform_axis_ctx_t ctx = {
-        .layout = {
-            .element = php_ort_type_sizeof(result->type),
-            .total   = result->elements,
-            .chunk   = chunk
-        },
-        .result = result->data,
-        .a      = ort_math_operation_upcast(result, promotion, tensor->data),
-        .op     = ORT_MATH_DISPATCH_UNTAG(kernel),
-        .shape  = tensor->shape,
-        .dims   = tensor->dimensions,
-        .axis   = axis
-    };
+    ((ort_math_kernel_transform_axis_t)
+        ORT_MATH_DISPATCH_UNTAG(kernel))(
+            result->data, buffer,
+            tensor->shape, tensor->dimensions,
+            axis);
 
-    ort_pool_submit(ort_pool_transform_axis_worker, &ctx, num_chunks);
+    /* Free upcasted buffer if necessary */
+    if (promotion && promotion->upcast.count) {
+        ort_free((void*)buffer);
+    }
 
     return result;
 }

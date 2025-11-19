@@ -86,21 +86,6 @@ ort_tensor_t* ort_math_result_##fname(                                    \
         &promotion, tensor, kernel, #fname);                              \
 }
 
-#define ORT_MATH_RESULT_SERIAL_REDUCE_TENSOR_IMPL(                              \
-    fname, fdispatch, fvalidate, fschema)                                       \
-ort_tensor_t* ort_math_result_reduce_tensor_##fname(                            \
-    ort_tensor_t* tensor) {                                                     \
-    if (!fvalidate(tensor, #fname)) {                                           \
-        return NULL;                                                            \
-    }                                                                           \
-    ort_math_promotion_t promotion =                                            \
-        ort_math_promotion_perform_unary(fschema, tensor);                      \
-    ort_math_kernel_reduce_tensor_t kernel = fdispatch(&promotion, fschema);    \
-    ORT_MATH_RESULT_KERNEL_CHECK(fname, kernel, &promotion, fschema);           \
-    return ort_math_result_serial_element_wise_reduce_tensor(                   \
-        &promotion, tensor, kernel, #fname);                                    \
-}
-
 #define ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(                                     \
     fname, fdispatch, fvalidate, fschema)                                       \
 ort_tensor_t* ort_math_result_reduce_tensor_##fname(                            \
@@ -114,26 +99,6 @@ ort_tensor_t* ort_math_result_reduce_tensor_##fname(                            
     ORT_MATH_RESULT_KERNEL_CHECK(fname, kernel, &promotion, fschema);           \
     return ort_math_result_element_wise_reduce_tensor(                          \
         &promotion, tensor, kernel, #fname);                                    \
-}
-
-#define ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(                               \
-    fname, fdispatch, fvalidate, fvalidatea, fshape, fschema)                  \
-ort_tensor_t* ort_math_result_reduce_axis_##fname(                             \
-    ort_tensor_t* tensor, zend_long axis, zend_bool keepdims) {                \
-    if (!fvalidate(tensor, #fname)) {                                          \
-        return NULL;                                                           \
-    }                                                                          \
-    if (!fvalidatea(tensor, &axis, #fname)) {                                  \
-        return NULL;                                                           \
-    }                                                                          \
-    ort_math_promotion_t promotion =                                           \
-        ort_math_promotion_perform_unary(fschema, tensor);                     \
-    ort_math_kernel_reduce_axis_t kernel = fdispatch(&promotion, fschema);     \
-    ORT_MATH_RESULT_KERNEL_CHECK(fname, kernel, &promotion, fschema);          \
-    return ort_math_result_serial_element_wise_reduce_axis(                    \
-        &promotion,                                                            \
-        tensor, axis, keepdims,                                                \
-        kernel, #fname, fshape);                                               \
 }
 
 #define ORT_MATH_RESULT_REDUCE_AXIS_IMPL(                                      \
@@ -175,4 +140,5 @@ ort_tensor_t* ort_math_result_transform_axis_##fname(                          \
         tensor, axis,                                                          \
         kernel, #fname);                                                       \
 }
+
 #endif

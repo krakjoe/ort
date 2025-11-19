@@ -197,7 +197,7 @@ static ort_math_kernel_unary_t
     return dispatch->argmin_func;
 }
 
-ORT_MATH_RESULT_SERIAL_REDUCE_TENSOR_IMPL(argmin,
+ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(argmin,
     ort_math_frontend_dispatch_reduce_tensor_argmin,
     ort_math_validate_input,
     &ort_math_promotion_schema_argmin)
@@ -212,7 +212,7 @@ static ort_math_kernel_reduce_axis_t
     return dispatch->argmin_axis_func;
 }
 
-ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(argmin,
+ORT_MATH_RESULT_REDUCE_AXIS_IMPL(argmin,
     ort_math_frontend_dispatch_reduce_axis_argmin,
     ort_math_validate_input,
     ort_math_validate_axis,

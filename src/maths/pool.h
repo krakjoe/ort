@@ -119,10 +119,6 @@ void ort_pool_binary_worker(void *arg, size_t index, size_t count);
 void ort_pool_unary_worker(void *arg, size_t index, size_t count);
 void ort_pool_scalar_worker(void *arg, size_t index, size_t count);
 
-void ort_pool_reduce_tensor_worker(void *arg, size_t index, size_t count);
-void ort_pool_reduce_axis_worker(void *arg, size_t index, size_t count);
-void ort_pool_transform_axis_worker(void *arg, size_t index, size_t count);
-
 void ort_pool_matmul_worker(void *arg, size_t index, size_t count);
 
 /* {{{ Scaling stuff */

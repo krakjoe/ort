@@ -58,9 +58,4 @@
         void ORT_MATH_BACKEND_OP_AXIS_SYMBOL(backend, op, type) (  \
             void* result, const void* a,                           \
             size_t outer, size_t axis, size_t inner)
-#define ORT_MATH_BACKEND_SERIAL_REDUCTION_AXIS_OP_DECL(backend, op, type)  \
-    ORT_MATH_KERNEL_ALIGN                                                  \
-        void ORT_MATH_BACKEND_OP_AXIS_SYMBOL(backend, serial_##op, type) ( \
-            void* result, const void* a,                                   \
-            size_t outer, size_t axis, size_t inner)
 #endif

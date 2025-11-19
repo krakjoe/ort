@@ -53,14 +53,6 @@
             const int64_t *input_shape, size_t input_dims,            \
             const int64_t *output_shape, size_t output_dims,          \
             size_t axis)
-#define ORT_MATH_FRONTEND_SERIAL_REDUCTION_AXIS_OP_DECL(op, type)     \
-    ORT_MATH_KERNEL_ALIGN                                             \
-        void ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(serial_##op, type) (    \
-            void* result, const void* a,                              \
-            const int64_t *input_shape, size_t input_dims,            \
-            const int64_t *output_shape, size_t output_dims,          \
-            size_t axis)
-
 #define ORT_MATH_FRONTEND_TRANSFORMATION_AXIS_OP_DECL(op, type)       \
     ORT_MATH_KERNEL_ALIGN                                             \
         void ORT_MATH_FRONTEND_OP_AXIS_SYMBOL(op, type) (             \

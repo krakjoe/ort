@@ -197,7 +197,7 @@ static ort_math_kernel_unary_t
     return dispatch->argmax_func;
 }
 
-ORT_MATH_RESULT_SERIAL_REDUCE_TENSOR_IMPL(argmax,
+ORT_MATH_RESULT_REDUCE_TENSOR_IMPL(argmax,
     ort_math_frontend_dispatch_reduce_tensor_argmax,
     ort_math_validate_input,
     &ort_math_promotion_schema_argmax)
@@ -212,7 +212,7 @@ static ort_math_kernel_reduce_axis_t
     return dispatch->argmax_axis_func;
 }
 
-ORT_MATH_RESULT_SERIAL_REDUCE_AXIS_IMPL(argmax,
+ORT_MATH_RESULT_REDUCE_AXIS_IMPL(argmax,
     ort_math_frontend_dispatch_reduce_axis_argmax,
     ort_math_validate_input,
     ort_math_validate_axis,
