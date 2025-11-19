@@ -111,6 +111,8 @@ echo "Cores: " . ORT\Math\cores() . "\n";
 - `ORT\Model` - Load and manage ONNX models
 - `ORT\Runtime` - Execute ONNX model inference
 
+See [docs/api.md](docs/api.md) for more extensive API reference.
+
 ## Configuration
 
 ### Environment Variables
