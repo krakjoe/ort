@@ -70,8 +70,8 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 **Legend:**
 - 🟩 = Implemented with ISA intrinsic  (native)
-- 🟨 = Implemented with CPU F16V extension (native)
-- 🟪 = Implemented with CPU F16C extension (efficient workaround, convert to float32 for compute)
+- 🟨 = Implemented with F16V extension (native)
+- 🟪 = Implemented with F16C extension (efficient workaround, convert to float32 for compute)
 - 🟧 = Not yet implemented, but native or efficient workaround possible and planned
 - 🟦 = Not supported by the instruction set (no native support, no efficient workaround)
 - ⬛ = Not applicable (mathematically meaningless, e.g. abs(unsigned))
@@ -283,23 +283,23 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 | Operation  | float16 | float32 | float64 |  int8  |  int16  |  int32  |  int64  |  uint8  |  uint16  |  uint32  |
 |------------|:-------:|:-------:|:-------:|:------:|:-------:|:-------:|:-------:|:-------:|:--------:|:--------:|
-| **add**    |   🟩    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
-| **sub**    |   🟩    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
-| **mul**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
-| **div**    |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **mod**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
-| **pow**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
-| **ceil**   |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **floor**  |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **round**  |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **abs**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
-| **sqrt**   |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
-| **neg**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
-| **recip**  |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
-| **sign**   |   🟩    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
-| **trunc**  |   🟩    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
-| **dot**    |   🟩    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
-| **matmul** |   🟩    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟦    |   🟩    |    🟩    |    🟩    |
+| **add**    |   🟨    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
+| **sub**    |   🟨    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟩    |   🟩    |    🟩    |    🟩    |
+| **mul**    |   🟨    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
+| **div**    |   🟨    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **mod**    |   🟪    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
+| **pow**    |   🟪    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
+| **ceil**   |   🟨    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **floor**  |   🟨    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **round**  |   🟨    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **abs**    |   🟨    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
+| **sqrt**   |   🟨    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
+| **neg**    |   🟨    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
+| **recip**  |   🟨    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
+| **sign**   |   🟨    |   🟩    |   🟩    |   🟦   |   🟦    |   🟦    |   🟦    |   ⬛    |    ⬛    |    ⬛    |
+| **trunc**  |   🟨    |   🟩    |   🟩    |   ⬛   |   ⬛    |   ⬛    |   ⬛    |   ⬛    |    ⬛    |    ⬛    |
+| **dot**    |   🟨    |   🟩    |   🟩    |   🟦   |   🟩    |   🟩    |   🟦    |   🟦    |    🟩    |    🟩    |
+| **matmul** |   🟨    |   🟩    |   🟩    |   🟩   |   🟩    |   🟩    |   🟦    |   🟩    |    🟩    |    🟩    |
 | **sum**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
 | **min**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |
 | **max**    |   🟦    |   🟦    |   🟦    |   🟦   |   🟦    |   🟦    |   🟦    |   🟦    |    🟦    |    🟦    |

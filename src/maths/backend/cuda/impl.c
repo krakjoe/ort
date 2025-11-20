@@ -342,6 +342,11 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* __ort_math_cpu_dispatch) 
     ORT_CUDA_BACKEND_INSTALL(INT8,    matmul, int8_t)
     ORT_CUDA_BACKEND_INSTALL(UINT8,   matmul, uint8_t)
 
+    /* mod.c */
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, mod, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, mod, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, mod, float64)
+
     /* mul.c */
     ORT_CUDA_BACKEND_INSTALL(FLOAT16, mul, float16)
     ORT_CUDA_BACKEND_INSTALL(FLOAT32, mul, float32)
@@ -355,6 +360,11 @@ void ort_math_backend_gpu_install(ort_math_dispatch_t* __ort_math_cpu_dispatch) 
     ORT_CUDA_BACKEND_INSTALL(FLOAT16, neg, float16)
     ORT_CUDA_BACKEND_INSTALL(FLOAT32, neg, float32)
     ORT_CUDA_BACKEND_INSTALL(FLOAT64, neg, float64)
+
+    /* pow.c */
+    ORT_CUDA_BACKEND_INSTALL(FLOAT16, pow, float16)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT32, pow, float32)
+    ORT_CUDA_BACKEND_INSTALL(FLOAT64, pow, float64)
 
     /* recip.c */
     ORT_CUDA_BACKEND_INSTALL(FLOAT16, recip, float16)

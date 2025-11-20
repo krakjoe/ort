@@ -732,8 +732,10 @@ AS_VAR_IF([PHP_ORT], [no],, [
           $PHP_ORT_BACKEND_DIR/cuda/dot.c
           $PHP_ORT_BACKEND_DIR/cuda/floor.c
           $PHP_ORT_BACKEND_DIR/cuda/matmul.c
+          $PHP_ORT_BACKEND_DIR/cuda/mod.c
           $PHP_ORT_BACKEND_DIR/cuda/mul.c
           $PHP_ORT_BACKEND_DIR/cuda/neg.c
+          $PHP_ORT_BACKEND_DIR/cuda/pow.c
           $PHP_ORT_BACKEND_DIR/cuda/recip.c
           $PHP_ORT_BACKEND_DIR/cuda/round.c
           $PHP_ORT_BACKEND_DIR/cuda/sign.c

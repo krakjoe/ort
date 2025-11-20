@@ -16,21 +16,8 @@
   +----------------------------------------------------------------------+
  */
 
-#include <stdint.h>
-#include "maths/float16.h"
+#include <cuda_runtime.h>
 
-extern int __ort_cuda_threads;
-
-static inline int ort_cuda_blocks_count(const int threads, size_t count) {
-    return (count + threads - 1) / threads;
-}
-
-static inline int ort_cuda_blocks_min(const int threads, size_t count, const int minimum) {
-    return (int) min(ort_cuda_blocks_count(threads, count), minimum);
-}
-
-#define ort_cuda_half_from_float16(arg) __short_as_half((short) arg)
-#define ort_cuda_float16_from_half(arg) (float16) __half_as_short(arg)
-
-#define ort_cuda_float32_from_float16(arg) __half2float(ort_cuda_half_from_float16(arg))
-#define ort_cuda_float16_from_float32(arg) ort_cuda_float16_from_half(__float2half(arg))
+void ort_cuda_mod_float16(float16* result, const float16* a, const float16* b, size_t count, cudaStream_t stream);
+void ort_cuda_mod_float32(float32* result, const float32* a, const float32* b, size_t count, cudaStream_t stream);
+void ort_cuda_mod_float64(float64* result, const float64* a, const float64* b, size_t count, cudaStream_t stream);
