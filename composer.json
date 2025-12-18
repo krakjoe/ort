@@ -8,6 +8,27 @@
   },
   "php-ext": {
     "priority": 90,
-    "configure-options": []
+    "configure-options": [
+        {
+          "name": "enable-ort-backend",
+          "description": "Specify backend configuration",
+          "needs-value": false
+        },
+        {
+          "name": "enable-ort-pool",
+          "description": "Specify pool configuration",
+          "needs-value": false
+        },
+        {
+          "name": "enable-ort-coverage",
+          "description": "Specify coverage configuration",
+          "needs-value": false
+        },
+        {
+          "name": "with-ort-onnx",
+          "description": "Enable ONNXRuntime support",
+          "needs-value": false
+        }
+    ]
   }
 }
