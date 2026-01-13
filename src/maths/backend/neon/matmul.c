@@ -26,33 +26,40 @@ ORT_MATH_BACKEND_MATMUL_OP_DECL(neon, float16) {
     const float16 *va = (const float16 *)a;
     const float16 *vb = (const float16 *)b;
     float16 *res = (float16 *)result;
+
     for (size_t j = 0; j < b_cols; j++) {
         float16x8_t ma, mb, mr;
-        float16 sum = 0.0f;
+        float32 sum = 0.0f;
         const size_t mw = 8;
         size_t mc = ort_math_backend_optimal_count(a_cols, mw);
         size_t k = 0;
+
         for (; k < mc; k += mw) {
-            ma = vld1q_f16(
-                (const float16_t*)&va[k]);
-            mb = (float16x8_t){
-                vb[k * b_cols + j],
-                vb[(k+1) * b_cols + j],
-                vb[(k+2) * b_cols + j],
-                vb[(k+3) * b_cols + j],
-                vb[(k+4) * b_cols + j],
-                vb[(k+5) * b_cols + j],
-                vb[(k+6) * b_cols + j],
-                vb[(k+7) * b_cols + j]
+            ma = vld1q_f16((const float16_t*)&va[k]);
+
+            float16_t mbv[8] = {
+                ((const float16_t*)vb)[k * b_cols + j],
+                ((const float16_t*)vb)[(k+1) * b_cols + j],
+                ((const float16_t*)vb)[(k+2) * b_cols + j],
+                ((const float16_t*)vb)[(k+3) * b_cols + j],
+                ((const float16_t*)vb)[(k+4) * b_cols + j],
+                ((const float16_t*)vb)[(k+5) * b_cols + j],
+                ((const float16_t*)vb)[(k+6) * b_cols + j],
+                ((const float16_t*)vb)[(k+7) * b_cols + j]
             };
+            mb = vld1q_f16(mbv);
+
             mr = vmulq_f16(ma, mb);
-            sum += ORT_MATH_BACKEND_UTIL(neon, hsum, float16x8, float16)(mr);
+            sum += ORT_MATH_BACKEND_UTIL(neon, hsum, float16x8, float32)(mr);
         }
+
         /* Fallback for leftovers */
         for (; k < a_cols; k++) {
-            sum += va[k] * vb[k * b_cols + j];
+            sum += ort_math_float32_from_float16(va[k]) * 
+                   ort_math_float32_from_float16(vb[k * b_cols + j]);
         }
-        res[j] = sum;
+
+        res[j] = ort_math_float16_from_float32(sum);
     }
 }
 #endif

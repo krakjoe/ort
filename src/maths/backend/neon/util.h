@@ -22,18 +22,21 @@
 
 #ifdef ORT_BACKEND_CPU_F16V
 ORT_MATH_BACKEND_UTIL_DECL(neon, 
-    hsum, float16x8, float16, float16x8_t) {
-    float16x4_t low = vget_low_f16(v);
-    float16x4_t high = vget_high_f16(v);
-    float16x4_t sum_pair = vadd_f16(low, high);
+    hsum, float16x8, float32, float16x8_t) {
+    // Convert to float32 for accumulation
+    float32x4_t low = vcvt_f32_f16(vget_low_f16(v));
+    float32x4_t high = vcvt_f32_f16(vget_high_f16(v));
+
+    // Add in float32
+    float32x4_t sum_pair = vaddq_f32(low, high);
 
     // Pairwise add to get 2 elements
-    float16x4_t pairwise = vpadd_f16(sum_pair, sum_pair);
+    float32x2_t pairwise = vadd_f32(vget_low_f32(sum_pair), vget_high_f32(sum_pair));
 
     // Final pairwise add to get single sum
-    float16x4_t final_sum = vpadd_f16(pairwise, pairwise);
+    float32x2_t final_sum = vpadd_f32(pairwise, pairwise);
 
-    return vget_lane_f16(final_sum, 0);
+    return vget_lane_f32(final_sum, 0);
 }
 #endif
 
