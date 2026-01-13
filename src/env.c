@@ -35,7 +35,7 @@ PHP_MINIT_FUNCTION(ORT_ENV)
 {
 #ifdef HAVE_ONNXRUNTIME
     return api->CreateEnv(
-        ORT_LOGGING_LEVEL_WARNING, 
+        ORT_LOGGING_LEVEL_ERROR,
         "[ORT PHP]", &__php_ort_environment) ?
         FAILURE : SUCCESS;
 #endif

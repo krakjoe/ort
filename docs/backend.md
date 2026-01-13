@@ -70,8 +70,8 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 **Legend:**
 - 🟩 = Implemented with ISA intrinsic  (native)
-- 🟨 = Implemented with F16V extension (native)
-- 🟪 = Implemented with F16C extension (efficient workaround, convert to float32 for compute)
+- 🟨 = Implemented with F16V (native)
+- 🟪 = Implemented with F16C (efficient workaround, convert to float32 for compute)
 - 🟧 = Not yet implemented, but native or efficient workaround possible and planned
 - 🟦 = Not supported by the instruction set (no native support, no efficient workaround)
 - ⬛ = Not applicable (mathematically meaningless, e.g. abs(unsigned))
@@ -310,6 +310,6 @@ See [gpu.md](gpu.md) for more information about GPU based acceleration.
 
 **Notes:**
 - RISCV64 backend uses the RISCV64 Vector Extension (RVV) 1.0 specification with variable-length vectors.
-- CUDA uses GPU kernels with managed memory and utilize cuBLAS for matrix operations where applicable, float16 is native.
+- CUDA uses GPU kernels with managed memory and utilize cuBLAS for matrix operations where applicable, F16V available however sometimes F16C is used where API requires it.
 - NEON F16V (+fp16) vector extensions are optional, support will be detected at build time.
-- There are machines with AVX512 F16V support, but they are bleeding edge and effectively inaccessible to developers, for this reason AVX512 float16 support will be implemented using F16C extensions.
+- There are machines with AVX512 F16V, but they are bleeding edge and effectively inaccessible to developers, for this reason AVX512 float16 support will be implemented using F16C.
