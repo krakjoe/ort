@@ -3,6 +3,7 @@ name: Testing
 on:
   push:
     branches: [ develop ]
+  workflow_dispatch:
 
 jobs:
   arm64:

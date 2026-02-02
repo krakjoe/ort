@@ -1,4 +1,4 @@
-name: Continous PHP Build
+name: Continuous PHP Build
 
 on:
   schedule:
@@ -61,3 +61,18 @@ jobs:
 
       - name: Build
         run: PHP_VERSION=${{ matrix.php }} ./.github/scripts/php.sh
+
+  trigger-downstream:
+    if: github.event_name == 'schedule'
+    needs: [arm64, riscv64, x64-linux, x64-mac]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Testing Workflow
+        run: gh workflow run testing.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Coverage Workflow
+        run: gh workflow run coverage.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

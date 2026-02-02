@@ -5,6 +5,7 @@ on:
     workflows: ["Testing"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   arm64:
