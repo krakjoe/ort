@@ -39,16 +39,48 @@ else
 	fi
 fi
 ###############################################################################
-rm -rf $PHP_SRC
-
 if [ $PHP_VERSION == $PHP_MASTER ];
 then
 	PHP_BRANCH=master
 else
 	PHP_BRANCH=PHP-$PHP_VERSION
 fi
+###############################################################################
+if [ -d "$PHP_SRC/.git" ];
+then
+	cd $PHP_SRC
+	echo "[php.build] Fetching $PHP_BRANCH in $PHP_SRC"
 
-git clone -b $PHP_BRANCH --single-branch https://github.com/php/php-src $PHP_SRC
+	git fetch origin $PHP_BRANCH
+
+	if [ $? -ne 0 ];
+	then
+		echo "[php.build] Corrupted $PHP_BRANCH in $PHP_SRC"
+		cd ~
+		rm -rf $PHP_SRC
+	else
+		COMMIT_LOCAL=$(git rev-parse HEAD)
+		COMMIT_REMOTE=$(git rev-parse origin/$PHP_BRANCH)
+
+		if [ "$COMMIT_LOCAL" == "$COMMIT_REMOTE" ];
+		then
+			echo "[php.build] Nothing at $PHP_BRANCH in $PHP_SRC"
+			exit 0
+		fi
+
+		echo -n "[php.build] Updating $PHP_BRANCH in $PHP_SRC"
+		echo        " $COMMIT_LOCAL -> $COMMIT_REMOTE"
+		git reset --hard origin/$PHP_BRANCH
+	fi
+fi
+
+if [ ! -d "$PHP_SRC/.git" ];
+then
+	git clone \
+		-b $PHP_BRANCH \
+		--single-branch \
+		https://github.com/php/php-src $PHP_SRC
+fi
 ###############################################################################
 cd $PHP_SRC
 
