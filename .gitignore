@@ -49,3 +49,7 @@ dist/php-em.wasm
 
 # VS Code settings (optional)
 .vscode/
+
+vendor/
+composer.lock
+PHP-Parser-*/

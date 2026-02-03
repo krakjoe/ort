@@ -62,4 +62,13 @@ $(ORT_CUDA_LIBRARY): $(ORT_CUDA_OBJECTS)
 $(ORT_CUDA_OBJDIR)/%.o: $(ORT_CUDA_OBJDIR)/%.cu
 	$(NVCC) $(ORT_CUDA_CFLAGS) -c $< -o $@
 
-.PHONY: ort-cuda-kernels ort-test-coverage ort-test-coverage-lcov ort-test-coverage-html ort-test-parallel ort-test-parallel-valgrind
+################################################################################
+# Stubs Generation
+################################################################################
+ort-stubs:
+	php $(top_srcdir)/gen_stub.php $(top_srcdir)/ort.stub.php
+
+ort-stubs-force:
+	php $(top_srcdir)/gen_stub.php -f $(top_srcdir)/ort.stub.php
+
+.PHONY: ort-cuda-kernels ort-test-coverage ort-test-coverage-lcov ort-test-coverage-html ort-test-parallel ort-test-parallel-valgrind ort-stubs ort-stubs-force
